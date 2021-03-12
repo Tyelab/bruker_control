@@ -68,7 +68,7 @@ void setup() {
 
 
 void loop() {
-    digitalWrite(solPin_air, HIGH); // turn the LED on (HIGH is the voltage level)
+   digitalWrite(solPin_air, HIGH); // turn the LED on (HIGH is the voltage level)
    delay(25) // wait 25 ms
    digitalWrite(solPin_air, LOW); // close air solenoid
    digitalWrite(solPin_liquid, HIGH); // open liquid solenoid
