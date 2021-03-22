@@ -6,11 +6,6 @@
 #include <Adafruit_MPR121.h> // Adafruit MPR121 capicitance board recording
 #include <digitalWriteFast.h> // Speeds up communication for digital Write
 #include <Wire.h> // enhances comms with MPR121
-#include <Volume.h> // hardware free volume control package
-
-// Volume package settings
-Volume vol; // rename Volume to vol
-
 
 //// BITSHIFT OPERATIONS DEF: CAPACITANCE ////
 #ifndef _BV
@@ -22,10 +17,10 @@ Volume vol; // rename Volume to vol
 const int lickPin = 2; // input from MPR121
 //const int airPin = 3; // measure delay from solenoid to mouse
 // output
-const int solPin_air = 13; // solenoid for air puff control
+const int solPin_air = 14; // solenoid for air puff control
 const int solPin_liquid = 12; // solenoid for liquid control: sucrose, water, EtOH
 const int vacPin = 11; // solenoid for vacuum control
-const int speakerPin = 4; // using default Volume package pin
+const int speakerPin = 15; // using default Volume package pin
 
 
 //// PIN ASSIGNMENT: NIDAQ ////
@@ -46,14 +41,17 @@ boolean solenoidOn = false;
 boolean vacOn = false;
 boolean consume = false;
 boolean cleanIt = false;
+boolean sucrose = false;
+boolean airpuff = false;
+boolean noise = false;
 
 //// EXPERIMENT VARIABLES ////
 const int totalNumberOfTrials = 20;
 const int percentNegativeTrials = 50;
-const int baseITI = 10000; // 10s inter-trial interval
-const int USDeliveryTime_Sucrose = 50; // opens Sucrose solenoid for 50 ms
-const int USDeliveryTime_Air = 10; // opens airpuff solenoid for 10 ms
-const int USConsumptionTime_Sucrose = 1000; // wait 1s for animal to consume
+const int baseITI = 3000; // 1s inter-trial interval
+const int USDeliveryTime_Sucrose = 5; // opens Sucrose solenoid for 50 ms
+const int USDeliveryTime_Air = 1000; // opens airpuff solenoid for 10 ms
+const int USConsumptionTime_Sucrose = 800; // wait 1s for animal to consume
 const int minITIJitter = 0; // min inter-trial jitter
 const int maxITIJitter = 0; // max inter-trial jitter
 
@@ -90,19 +88,25 @@ int ITIArray[totalNumberOfTrials];
 
 //// SETUP ////
 void setup() {
-  // define bitrate
+  // -- DEFINE BITRATE -- //
   Serial.begin(9600);
 
-//  vol.begin();
-//  vol.alternatePin(false); // If true, use pin 13, if false, use pin 4
+  // -- DEFINE PINS -- //
+  // input
+  pinMode(lickPin, INPUT);
+  //output
+  pinMode(solPin_air, OUTPUT);
+  pinMode(solPin_liquid, OUTPUT);
+  pinMode(vacPin, OUTPUT);
+  pinMode(speakerPin, OUTPUT);
 
   // -- INITIALIZE TOUCH SENSOR -- //
-  Serial.println("MPR121 capacitive touch sensor check");
-  if (!cap.begin(0x5A)) {
-    Serial.println("MPR121 not found, check wiring?");
-    while (1);
-  } // need to learn what value 0x5A represents - JD
-  Serial.println("MPR121 found!");
+//  Serial.println("MPR121 capacitive touch sensor check");
+//  if (!cap.begin(0x5A)) {
+//    Serial.println("MPR121 not found, check wiring?");
+//    while (1);
+//  } // need to learn what value 0x5A represents - JD
+//  Serial.println("MPR121 found!");
 
   // -- INITIALIZE TRIAL TYPES -- //
   defineTrialTypes(totalNumberOfTrials, percentNegativeTrials);
@@ -110,20 +114,26 @@ void setup() {
   // -- POPULATE DELAY TIME ARRAYS -- //
   fillDelayArray(ITIArray, totalNumberOfTrials, baseITI, minITIJitter, maxITIJitter);
 
-  // -- WAIT FOR SIGNAL THAT DAQ IS ONLINE -- //
-  BRUKER_VALUE = digitalRead(NIDAQ_READY);
-  while (BRUKER_VALUE == LOW) {
-    BRUKER_VALUE = digitalRead(NIDAQ_READY);
-  } // what does == LOW mean? -JD
+//  // -- WAIT FOR SIGNAL THAT DAQ IS ONLINE -- //
+//  BRUKER_VALUE = digitalRead(NIDAQ_READY);
+//  while (BRUKER_VALUE == LOW) {
+//    BRUKER_VALUE = digitalRead(NIDAQ_READY);
+//  } // what does == LOW mean? -JD
+  Serial.println("starting");
+  newTrial = true;
 }
 
 //// THE BIZ ////
 void loop() {
   if (currentTrial < totalNumberOfTrials) {
+    //Serial.println(currentTrial);
     ms = millis();
-    lickDetect();
+//    lickDetect();
     startITI(ms);
+    tonePlayer(ms);
     USDelivery(ms);
+    onSolenoid(ms);
+    consuming(ms);
     vacuum(ms);
   }
 }
@@ -144,9 +154,12 @@ void lickDetect() {
 
 void startITI(long ms) {
   if (newTrial) {                                 // start new ITI
+    Serial.print("staring trial ");
+    Serial.println(currentTrial);
     trialType = trialTypeArray[currentTrial];     // assign trial type
     newTrial = false;
     ITI = true;
+    noise = true;
     int thisITI = ITIArray[currentTrial];         // get ITI for this trial
     ITIend = ms + thisITI;
     // turn off when done
@@ -156,75 +169,78 @@ void startITI(long ms) {
   }
 }
 
-void USDelivery(long ms) {
-  if (newUSDelivery) {
+void tonePlayer(long ms) {
+  if (noise) {
+    Serial.println("playing tone");
     switch (trialType) {
-      case 0: 
-        airpuffDelivery(ms);
+      case 0:
+        Serial.println("playing air tone");
+        tone(speakerPin, 2000, 2000);
+        noise = false;
         break;
       case 1:
-        sucroseDelivery(ms);
+        Serial.println("playing sucrose tone");
+        tone(speakerPin, 9000, 2000);
+        noise = false;
         break;
     }
   }
 }
 
-void sucroseTone(long ms) {
-  vol.begin();
-  vol.tone(2000, 255);
-  vol.noTone();
-  vol.end();
-}
-
-void ambiguousTone(long ms) {
-  vol.begin();
-  vol.tone(5500, 255);
-  vol.noTone();
-  vol.end();
-}
-
-void airpuffTone(long ms) {
-  vol.begin();
-  vol.tone(9000, 255);
-  vol.noTone();
-  vol.end();
-}
-
-void sucroseDelivery(long ms) {
+void USDelivery(long ms) {
   if (newUSDelivery) {
-    sucroseTone(ms);
-    newUSDelivery = false;
-    solenoidOn = true;
-    USDeliveryMS = (ms + USDeliveryTime_Sucrose);
-    digitalWriteFast(solPin_liquid, HIGH);
-    digitalWriteFast(sucroseDeliveryPin, HIGH); 
+    Serial.println("delivering us");
+    Serial.println(trialType);
+    switch (trialType) {
+      case 0: 
+        Serial.println("delivering airpuff");
+        newUSDelivery = false;
+        solenoidOn = true;
+        USDeliveryMS = (ms + USDeliveryTime_Air);
+        digitalWriteFast(solPin_air, HIGH);
+        digitalWriteFast(airDeliveryPin, HIGH);
+        break;
+      case 1:
+        Serial.println("delivering sucrose");
+        newUSDelivery = false;
+        //sucroseTone(ms);
+        solenoidOn = true;
+        USDeliveryMS = (ms + USDeliveryTime_Sucrose);    
+        digitalWriteFast(solPin_liquid, HIGH);
+        digitalWriteFast(sucroseDeliveryPin, HIGH);
+        break;
+    }
   }
-  else if (solenoidOn && (ms >= USDeliveryMS)) {              // turn off when done
-    solenoidOn = false;
-    consume = true;
-    sucroseConsumptionMS = (ms + USConsumptionTime_Sucrose);
-    digitalWriteFast(solPin_liquid, LOW);
-    digitalWriteFast(sucroseDeliveryPin, LOW);
-  } 
-  else if (consume && (ms >= USConsumptionTime_Sucrose)) {         // move on after allowed to consume
+}
+
+void onSolenoid(long ms) {
+  if (solenoidOn && (ms >= USDeliveryMS)) {
+    switch (trialType) {
+      case 0:
+        Serial.println("air solenoid off");
+        solenoidOn = false;
+        digitalWriteFast(solPin_air, LOW);
+        digitalWriteFast(airDeliveryPin, LOW);
+        newTrial = true;
+        currentTrial++;
+        break;
+      case 1:
+        Serial.println("liquid solenoid off");
+        solenoidOn = false;
+        consume = true;
+        sucroseConsumptionMS = (ms + USConsumptionTime_Sucrose);
+        digitalWriteFast(solPin_liquid, LOW);
+        digitalWriteFast(sucroseDeliveryPin, LOW);
+        break;
+    }
+  }
+}
+
+void consuming(long ms){
+  if (consume && (ms >= sucroseConsumptionMS)) {         // move on after allowed to consume
+    Serial.println("consuming...");
     consume = false;
     cleanIt = true;
-  }
-}
-
-void airpuffDelivery(long ms) {
-  if (newUSDelivery) {
-    airpuffTone(ms);
-    newUSDelivery = false;
-    solenoidOn = true;
-    USDeliveryMS = (ms + USDeliveryTime_Air);
-    digitalWriteFast(solPin_air, HIGH);
-    digitalWriteFast(airDeliveryPin, HIGH);
-  }
-  else if (solenoidOn && (ms >= USDeliveryMS_Air)) {
-    solenoidOn = false;
-    digitalWriteFast(solPin_air, LOW);
-    digitalWriteFast(airDeliveryPin, LOW);
   }
 }
 
@@ -233,12 +249,14 @@ void airpuffDelivery(long ms) {
 // Vacuum Control
 void vacuum(long ms) {
   if (cleanIt) {
+    Serial.println("cleaning...");
     cleanIt = false;
     vacOn = true;
     vacTime = ms + vacDelay;
     digitalWriteFast(vacPin, HIGH);
   }
   else if (vacOn && (ms >= vacTime)) {
+    Serial.println("stop cleaning...");
     vacOn = false;
     digitalWriteFast(vacPin, LOW);
     newTrial = true;
