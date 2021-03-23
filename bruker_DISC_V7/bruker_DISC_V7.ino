@@ -44,6 +44,8 @@ boolean cleanIt = false;
 boolean sucrose = false;
 boolean airpuff = false;
 boolean noise = false;
+boolean ambiguous = false;
+
 
 //// EXPERIMENT VARIABLES ////
 const int totalNumberOfTrials = 20;
@@ -181,6 +183,11 @@ void tonePlayer(long ms) {
       case 1:
         Serial.println("playing sucrose tone");
         tone(speakerPin, 9000, 2000);
+        noise = false;
+        break;
+        case 2:
+        Serial.println("playing ambiguous tone");
+        tone(speakerPin, 6500, 2000);
         noise = false;
         break;
     }
