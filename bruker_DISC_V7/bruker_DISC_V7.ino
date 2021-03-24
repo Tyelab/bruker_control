@@ -1,11 +1,16 @@
 // Control code for Arduino management of Bruker 2P setup for Team Specialk
 // Jeremy Delahanty Mar. 2021
 // Adapted from DISC_V7.ino by Kyle Fischer and Mauri van der Huevel Oct. 2019
+// digitalWriteFast.h written by ???
+// SerialTransfer.h written by PowerBroker2
 
 //// PACKAGES ////
 #include <Adafruit_MPR121.h> // Adafruit MPR121 capicitance board recording
-#include <digitalWriteFast.h> // Speeds up communication for digital Write
-#include <Wire.h> // enhances comms with MPR121
+#include <digitalWriteFast.h> // Speeds up communication for digital srite
+#include <Wire.h> // Enhances comms with MPR121
+#include <SerialTransfer.h> // Enables serial comms between Python config and Arduino
+// rename SerialTransfer for ease of use
+SerialTransfer myTransfer;
 
 //// BITSHIFT OPERATIONS DEF: CAPACITANCE ////
 #ifndef _BV
@@ -20,7 +25,7 @@ const int lickPin = 2; // input from MPR121
 const int solPin_air = 14; // solenoid for air puff control
 const int solPin_liquid = 12; // solenoid for liquid control: sucrose, water, EtOH
 const int vacPin = 11; // solenoid for vacuum control
-const int speakerPin = 15; // using default Volume package pin
+const int speakerPin = 15; // speaker control pin
 
 
 //// PIN ASSIGNMENT: NIDAQ ////
@@ -32,7 +37,7 @@ const int lickDetectPin = 23; // detect sucrose licks
 
 //// VARIABLE ASSIGNMENT ////
 long ms; // is this for milliseconds?
-// flags; need to have some of these explained
+// flags
 boolean needVariables = true;
 boolean newTrial = false;
 boolean ITI = false;
@@ -45,6 +50,7 @@ boolean sucrose = false;
 boolean airpuff = false;
 boolean noise = false;
 boolean ambiguous = false;
+boolean acquireTrials = true;
 
 
 //// EXPERIMENT VARIABLES ////
@@ -83,15 +89,17 @@ uint16_t lasttouched = 0;
 const int vacDelay = 500; // vacuum delay
 
 // arrays
-int trialTypeArray[totalNumberOfTrials];
+//int trialTypeArray[totalNumberOfTrials];
 int ITIArray[totalNumberOfTrials];
+int trialArray[totalNumberOfTrials];
+byte trialIndex = 0;
 
 
 
 //// SETUP ////
 void setup() {
   // -- DEFINE BITRATE -- //
-  Serial.begin(9600);
+  Serial.begin(115200);
 
   // -- DEFINE PINS -- //
   // input
@@ -111,7 +119,7 @@ void setup() {
 //  Serial.println("MPR121 found!");
 
   // -- INITIALIZE TRIAL TYPES -- //
-  defineTrialTypes(totalNumberOfTrials, percentNegativeTrials);
+//  defineTrialTypes(totalNumberOfTrials, percentNegativeTrials);
 
   // -- POPULATE DELAY TIME ARRAYS -- //
   fillDelayArray(ITIArray, totalNumberOfTrials, baseITI, minITIJitter, maxITIJitter);
@@ -127,6 +135,7 @@ void setup() {
 
 //// THE BIZ ////
 void loop() {
+  trials_tx();
   if (currentTrial < totalNumberOfTrials) {
     //Serial.println(currentTrial);
     ms = millis();
@@ -137,6 +146,20 @@ void loop() {
     onSolenoid(ms);
     consuming(ms);
     vacuum(ms);
+  }
+}
+
+//// RECIEVE TRIALS FUNCTION ////
+void trials_tx() {
+  if (acquireTrials) {
+    if (myTransfer.available())
+    {
+      for (uint16_t i = 0; i < myTransfer.bytesRead; i++)
+        myTransfer.packet.txBuff[i] = myTransfer.packet.rxBuff[i];
+        for (int i = 0; i < 21; i++)
+          trialArray[trialIndex] = myTransfer.packet.txBuff[i];
+      acquireTrials = false;
+    }
   }
 }
 
@@ -158,7 +181,7 @@ void startITI(long ms) {
   if (newTrial) {                                 // start new ITI
     Serial.print("staring trial ");
     Serial.println(currentTrial);
-    trialType = trialTypeArray[currentTrial];     // assign trial type
+    trialType = trialArray[currentTrial];     // assign trial type
     newTrial = false;
     ITI = true;
     noise = true;
@@ -185,7 +208,7 @@ void tonePlayer(long ms) {
         tone(speakerPin, 9000, 2000);
         noise = false;
         break;
-        case 2:
+      case 2:
         Serial.println("playing ambiguous tone");
         tone(speakerPin, 6500, 2000);
         noise = false;
@@ -272,27 +295,27 @@ void vacuum(long ms) {
 }
 
 
-//// ARRAY FUNCTIONS ////
-void defineTrialTypes(int trialNumber, float percentNeg) { // TODO: generate random trial externally order and store on board?
-  // initialize array with all positive (1) trials
-  for (int i = 0; i < trialNumber; i++) {
-    trialTypeArray[i] = 1;
-  }
-  if (percentNeg > 0) {
-    randomSeed(analogRead(0));
-    int negTrialNum = round(trialNumber * (percentNeg/100));
-    // randomly choose negTrialNum indexes to make negative (0) trials
-    int indexCount = 0;
-    while (indexCount < negTrialNum) {
-      int negIndex = random(trialNumber);
-      // only make negative if it isn't already
-      if (trialTypeArray[negIndex]) {
-        trialTypeArray[negIndex] = 0;
-        indexCount++;
-      }
-    }
-  }
-}
+////// ARRAY FUNCTIONS ////
+//void defineTrialTypes(int trialNumber, float percentNeg) { // TODO: generate random trial externally order and store on board?
+//  // initialize array with all positive (1) trials
+//  for (int i = 0; i < trialNumber; i++) {
+//    trialTypeArray[i] = 1;
+//  }
+//  if (percentNeg > 0) {
+//    randomSeed(analogRead(0));
+//    int negTrialNum = round(trialNumber * (percentNeg/100));
+//    // randomly choose negTrialNum indexes to make negative (0) trials
+//    int indexCount = 0;
+//    while (indexCount < negTrialNum) {
+//      int negIndex = random(trialNumber);
+//      // only make negative if it isn't already
+//      if (trialTypeArray[negIndex]) {
+//        trialTypeArray[negIndex] = 0;
+//        indexCount++;
+//      }
+//    }
+//  }
+//}
 
 void fillDelayArray(int delayArray[], int trialNumber, int baseLength, int minJitter, int maxJitter) {
   randomSeed(analogRead(0));
