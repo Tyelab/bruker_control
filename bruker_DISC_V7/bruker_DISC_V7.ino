@@ -76,7 +76,7 @@ long airDelayMS;
 long USDeliveryMS_Air;
 long USDeliveryMS;
 
-// trial variables (0 negative [air], 1 positive [sucrose])
+// trial variables (0 negative [air], 1 positive [sucrose], 2 ambiguous [50/50])
 int trialType;
 int currentTrial = 0;
 
@@ -94,12 +94,18 @@ int ITIArray[totalNumberOfTrials];
 int trialArray[totalNumberOfTrials];
 byte trialIndex = 0;
 
+struct STRUCT {
+  int x;
+} testStruct;
+
+
 
 
 //// SETUP ////
 void setup() {
   // -- DEFINE BITRATE -- //
   Serial.begin(115200);
+  myTransfer.begin(Serial);
 
   // -- DEFINE PINS -- //
   // input
@@ -135,7 +141,7 @@ void setup() {
 
 //// THE BIZ ////
 void loop() {
-  trials_tx();
+  trials_rx();
   if (currentTrial < totalNumberOfTrials) {
     //Serial.println(currentTrial);
     ms = millis();
@@ -150,15 +156,17 @@ void loop() {
 }
 
 //// RECIEVE TRIALS FUNCTION ////
-void trials_tx() {
+void trials_rx() {
   if (acquireTrials) {
+    Serial.println("Acquiring Trials");
     if (myTransfer.available())
     {
-      for (uint16_t i = 0; i < myTransfer.bytesRead; i++)
-        myTransfer.packet.txBuff[i] = myTransfer.packet.rxBuff[i];
-        for (int i = 0; i < 21; i++)
-          trialArray[trialIndex] = myTransfer.packet.txBuff[i];
-      acquireTrials = false;
+      uint16_t recSize = 0;
+      recSize = myTransfer.rxObj(testStruct, recSize);
+      Serial.print(testStruct.x);
+      recSize = myTransfer.rxObj(trialArray, recSize);
+      Serial.println(trialArray);
+      myTransfer.sendData(myTransfer.bytesRead);
     }
   }
 }

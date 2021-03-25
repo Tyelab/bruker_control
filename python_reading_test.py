@@ -5,7 +5,7 @@ import numpy
 import matplotlib
 
 
-ser = serial.Serial('COM13', 9600)
+ser = serial.Serial('COM13', 115200)
 ser.flushInput()
 num_trials = 0
 
