@@ -13,8 +13,6 @@ rng = default_rng(20)
 # Create trials_array using .choice method, 20 instances, allow replacement,
 # use linked probabilities
 trials_array = rng.choice(trial_types, 20, replace=True, p=probs)
-# print(type(trials_array))
-# print(trials_array)
 
 # default_rng.choice() creates numpy.ndarray; must be list for txfer
 trials_array = trials_array.tolist()
@@ -27,9 +25,7 @@ if __name__ == '__main__':
         link = txfer.SerialTransfer("COM13", 115200)
 
         link.open()
-        # print("Comms Opened")
         time.sleep(2) # give time for Arudino to reset
-        # print("Arduino Reset")
 
         while True:
             send_size = 0
@@ -38,12 +34,9 @@ if __name__ == '__main__':
             # Send a list
             ###################################################################
             list_ = trials_array
-            print(type(trials_array))
-            print(type(list_))
             list_size = link.tx_obj(list_)
             send_size += list_size
             link.send(send_size)
-            print("Data Sent")
 
             while not link.available():
                 if link.status <0:
@@ -58,7 +51,7 @@ if __name__ == '__main__':
             ###################################################################
             # Parse response list
             ###################################################################
-            print("Receiving Response")
+            # print("Receiving Response")
             rec_list_  = link.rx_obj(obj_type=type(list_),
                                      obj_byte_size=list_size,
                                      list_format='i')
@@ -73,6 +66,7 @@ if __name__ == '__main__':
                 print("Confirmed!")
                 try:
                     link.close()
+                    break
                 except:
                     print("Error!")
                     break
