@@ -8,10 +8,10 @@
 // input
 // none
 // output
-const int solPin_air = 13; // solenoid for air puff control
-const int solPin_liquid = 12; // solenoid for liquid control: sucrose, water, EtOH
-const int vacPin = 11; // solenoid for vacuum control
-const int speakerPin = 10; // pin for using tone() function
+const int solPin_air = 22; // solenoid for air puff control
+const int vacPin = 24; // solenoid for vacuum control
+const int solPin_liquid = 26; // solenoid for liquid control: sucrose, water, EtOH
+const int speakerPin = 12; // speaker control pin
 
 
 /// SETUP ////
