@@ -4,9 +4,9 @@ from numpy.random import default_rng
 from pySerialTransfer import pySerialTransfer as txfer
 
 # Define trial types: 0 = airpuff, 1 = sucrose, 2 = ambiguous
-trial_types = [0,1,2]
+trial_types = [0,1]
 # Define probabilities for each value: 40%, 40%, 20%
-probs = [0.4, 0.4, 0.2]
+probs = [0.5, 0.5]
 
 # Per numpy documentation, use default_rng() as generator
 rng = default_rng(20)
@@ -22,7 +22,7 @@ print("Trial List Created")
 if __name__ == '__main__':
     # print("Starting tx")
     try:
-        link = txfer.SerialTransfer("COM13", 115200)
+        link = txfer.SerialTransfer("COM12", 115200)
 
         link.open()
         time.sleep(2) # give time for Arudino to reset
