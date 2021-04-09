@@ -50,6 +50,7 @@ boolean cleanIt = false;
 boolean sucrose = false;
 boolean airpuff = false;
 boolean noise = false;
+boolean noiseDAQ = false;
 boolean acquireTrials = true;
 
 
@@ -57,7 +58,8 @@ boolean acquireTrials = true;
 const int totalNumberOfTrials = 20;
 const int percentNegativeTrials = 50;
 const int baseITI = 3000; // 3s inter-trial interval
-const int USDeliveryTime_Sucrose = 5; // opens Sucrose solenoid for 50 ms, currently 5ms b/c using water 3-30-21
+const int noiseDuration = 2000;
+const int USDeliveryTime_Sucrose = 5; // opens Sucrose solenoid for 50 ms, currently 5us b/c using water 3-30-21
 const int USDeliveryTime_Air = 10; // opens airpuff solenoid for 10 ms
 const int USConsumptionTime_Sucrose = 800; // wait 1s for animal to consume, currently 800ms b/c using water 3-30-21
 const int minITIJitter = 0; // min inter-trial jitter
@@ -75,6 +77,9 @@ long vacTime;
 long airDelayMS;
 long USDeliveryMS_Air;
 long USDeliveryMS;
+long noiseDeliveryMS;
+long noiseListeningMS;
+long noiseDAQMS;
 
 // trial variables (0 negative [air], 1 positive [sucrose])
 int trialType;
@@ -88,10 +93,11 @@ uint16_t lasttouched = 0;
 // vac variables
 const int vacDelay = 500; // vacuum delay
 
+
 // arrays
 int trialTypeArray[totalNumberOfTrials];
 int ITIArray[totalNumberOfTrials];
-//int trialArray[totalNumberOfTrials];
+int trialArray[totalNumberOfTrials];
 byte trialIndex = 0;
 
 
@@ -99,8 +105,9 @@ byte trialIndex = 0;
 void setup() {
   // -- DEFINE BITRATE -- //
   Serial.begin(9600);
-//  myTransfer.begin(Serial);
-
+  Serial1.begin(115200);
+  myTransfer.begin(Serial1);
+  
   // -- DEFINE PINS -- //
   // input
   pinMode(lickPin, INPUT);
@@ -109,14 +116,15 @@ void setup() {
   pinMode(solPin_liquid, OUTPUT);
   pinMode(vacPin, OUTPUT);
   pinMode(speakerPin, OUTPUT);
+  pinMode(speakerDeliveryPin, OUTPUT);
 
   // -- INITIALIZE TOUCH SENSOR -- //
-  Serial.println("MPR121 capacitive touch sensor check");
+  Serial.println("MPR121 CHECK...");
   if (!cap.begin(0x5A)) {
     Serial.println("MPR121 not found, check wiring?");
     while (1);
   } // need to learn what value 0x5A represents - JD
-  Serial.println("MPR121 found!");
+  Serial.println("MPR121 FOUND");
 
   // -- INITIALIZE TRIAL TYPES -- //
   defineTrialTypes(totalNumberOfTrials, percentNegativeTrials);
@@ -129,19 +137,21 @@ void setup() {
 //  while (BRUKER_VALUE == LOW) {
 //    BRUKER_VALUE = digitalRead(NIDAQ_READY);
 //  } // what does == LOW mean? -JD
-  Serial.println("starting");
+
   newTrial = true;
+  
 }
 
 //// THE BIZ ////
 void loop() {
 //  trials_rx();
   if (currentTrial < totalNumberOfTrials) {
-    //Serial.println(currentTrial);
     ms = millis();
     lickDetect();
     startITI(ms);
     tonePlayer(ms);
+    toneDelivery(ms);
+    onTone(ms);
     USDelivery(ms);
     onSolenoid(ms);
     consuming(ms);
@@ -150,20 +160,19 @@ void loop() {
 }
 
 //// RECIEVE TRIALS FUNCTION ////
-//void trials_rx() {
-//  if (acquireTrials) {
-//    Serial.println("Acquiring Trials");
-//    if (myTransfer.available())
-//    {
-//      uint16_t recSize = 0;
-//      recSize = myTransfer.rxObj(testStruct, recSize);
-//      Serial.print(testStruct.x);
-//      recSize = myTransfer.rxObj(trialArray, recSize);
-//      Serial.println(trialArray);
-//      myTransfer.sendData(myTransfer.bytesRead);
-//    }
-//  }
-//}
+void trials_rx() {
+  if (acquireTrials) {
+    Serial.println("STARTING TRANSFER");
+    if (myTransfer.available())
+    { Serial.println("TRANSFERING...");
+      uint16_t recSize = 0;
+      recSize = myTransfer.rxObj(trialArray, recSize);
+      myTransfer.sendData(myTransfer.bytesRead);
+    }
+    acquireTrials = false;
+    newTrial = false;
+  }
+}
 
 //// TRIAL FUNCTIONS ////
 void lickDetect() {
@@ -186,41 +195,59 @@ void startITI(long ms) {
     trialType = trialTypeArray[currentTrial];     // assign trial type
     newTrial = false;
     ITI = true;
-    noise = true;
     int thisITI = ITIArray[currentTrial];         // get ITI for this trial
     ITIend = ms + thisITI;
     // turn off when done
   } else if (ITI && (ms >= ITIend)) {             // ITI is over
     ITI = false;
     newUSDelivery = true;
+    noise = true;
+    noiseDAQ = true;
   }
 }
 
 void tonePlayer(long ms) {
   if (noise) {
-    Serial.println("playing tone");
+    Serial.println("Playing Tone");
     switch (trialType) {
       case 0:
-        Serial.println("playing air tone");
-        tone(speakerPin, 2000, 2000);
+        Serial.println("AIR");
+        tone(speakerPin, 2000, noiseDuration);
         noise = false;
+        noiseListeningMS = ms + noiseDuration;
         break;
       case 1:
-        Serial.println("playing sucrose tone");
-        tone(speakerPin, 9000, 2000);
+        Serial.println("SUCROSE");
+        tone(speakerPin, 9000, noiseDuration);
         noise = false;
+        noiseListeningMS = ms + noiseDuration;
         break;
     }
   }
 }
 
+void toneDelivery(long ms) {
+  if (noiseDAQ && (ms <= noiseListeningMS)) {
+    digitalWriteFast(speakerDeliveryPin, HIGH);
+    noiseDAQMS = ms + noiseDuration;
+  }
+}
+
+void onTone(long ms) {
+  if (noiseDAQ && (ms >= noiseListeningMS)){
+    digitalWriteFast(speakerDeliveryPin, LOW);
+    noiseDAQ = false;
+    noise = false;
+  }
+}
+
 void USDelivery(long ms) {
-  if (newUSDelivery) {
-    Serial.println("delivering us");
+  if (newUSDelivery && (ms >= noiseListeningMS)) {
+    Serial.println("Delivering US");
     Serial.println(trialType);
     switch (trialType) {
       case 0: 
-        Serial.println("delivering airpuff");
+        Serial.println("Delivering Airpuff");
         newUSDelivery = false;
         solenoidOn = true;
         USDeliveryMS = (ms + USDeliveryTime_Air);
@@ -228,9 +255,8 @@ void USDelivery(long ms) {
         digitalWriteFast(airDeliveryPin, HIGH);
         break;
       case 1:
-        Serial.println("delivering sucrose");
+        Serial.println("Delivering Sucrose");
         newUSDelivery = false;
-        //sucroseTone(ms);
         solenoidOn = true;
         USDeliveryMS = (ms + USDeliveryTime_Sucrose);    
         digitalWriteFast(solPin_liquid, HIGH);
@@ -270,8 +296,6 @@ void consuming(long ms){
     cleanIt = true;
   }
 }
-
-// TODO: Implement ambiguous trials output with randomization between sucrose/airpuff
 
 // Vacuum Control
 void vacuum(long ms) {
