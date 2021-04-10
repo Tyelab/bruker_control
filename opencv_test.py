@@ -5,6 +5,7 @@ print("Connecting Camera...")
 capture = cv2.VideoCapture('rtsp://S1148323@169.254.8.94')
 print("Camera Captured")
 
+
 while(True):
     ret, frame = capture.read()
     cv2.imshow('frame', frame)

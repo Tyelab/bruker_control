@@ -1,15 +1,15 @@
 // Control code for Arduino management of Bruker 2P setup for Team Specialk
 // Jeremy Delahanty Mar. 2021
 // Adapted from DISC_V7.ino by Kyle Fischer and Mauri van der Huevel Oct. 2019
-// digitalWriteFast.h written by ???
-// SerialTransfer.h written by PowerBroker2
+// digitalWriteFast.h written by Watterott Electronic https://github.com/watterott/Arduino-Libs/tree/master/digitalWriteFast
+// SerialTransfer.h written by PowerBroker2 https://github.com/PowerBroker2/SerialTransfer
 
 //// PACKAGES ////
 #include <Adafruit_MPR121.h> // Adafruit MPR121 capicitance board recording
 #include <digitalWriteFast.h> // Speeds up communication for digital srite
 #include <Wire.h> // Enhances comms with MPR121
 #include <SerialTransfer.h> // Enables serial comms between Python config and Arduino
-// rename SerialTransfer for ease of use
+// rename SerialTransfer to myTransfer
 SerialTransfer myTransfer;
 
 //// BITSHIFT OPERATIONS DEF: CAPACITANCE ////
@@ -95,18 +95,20 @@ const int vacDelay = 500; // vacuum delay
 
 
 // arrays
-int trialTypeArray[totalNumberOfTrials];
 int ITIArray[totalNumberOfTrials];
-int trialArray[totalNumberOfTrials];
+int32_t trialArray[totalNumberOfTrials];
 byte trialIndex = 0;
 
 
 //// SETUP ////
 void setup() {
   // -- DEFINE BITRATE -- //
-  Serial.begin(9600);
+  // Serial debugging on COM13, use Ctrl+Shift+M
+  Serial.begin(115200);
+
+  // Serial transfer of trials on COM12
   Serial1.begin(115200);
-  myTransfer.begin(Serial1);
+  myTransfer.begin(Serial1, true);
   
   // -- DEFINE PINS -- //
   // input
@@ -119,32 +121,27 @@ void setup() {
   pinMode(speakerDeliveryPin, OUTPUT);
 
   // -- INITIALIZE TOUCH SENSOR -- //
-  Serial.println("MPR121 CHECK...");
+  Serial.println("MPR121 check...");
   if (!cap.begin(0x5A)) {
     Serial.println("MPR121 not found, check wiring?");
     while (1);
   } // need to learn what value 0x5A represents - JD
-  Serial.println("MPR121 FOUND");
-
-  // -- INITIALIZE TRIAL TYPES -- //
-  defineTrialTypes(totalNumberOfTrials, percentNegativeTrials);
+  Serial.println("MPR121 found!");
 
   // -- POPULATE DELAY TIME ARRAYS -- //
-  fillDelayArray(ITIArray, totalNumberOfTrials, baseITI, minITIJitter, maxITIJitter);
+//  fillDelayArray(ITIArray, totalNumberOfTrials, baseITI, minITIJitter, maxITIJitter);
 
 //  // -- WAIT FOR SIGNAL THAT DAQ IS ONLINE -- //
 //  BRUKER_VALUE = digitalRead(NIDAQ_READY);
 //  while (BRUKER_VALUE == LOW) {
 //    BRUKER_VALUE = digitalRead(NIDAQ_READY);
 //  } // what does == LOW mean? -JD
-
-  newTrial = true;
   
 }
 
 //// THE BIZ ////
 void loop() {
-//  trials_rx();
+  trials_rx();
   if (currentTrial < totalNumberOfTrials) {
     ms = millis();
     lickDetect();
@@ -160,17 +157,18 @@ void loop() {
 }
 
 //// RECIEVE TRIALS FUNCTION ////
-void trials_rx() {
+int trials_rx() {
   if (acquireTrials) {
-    Serial.println("STARTING TRANSFER");
     if (myTransfer.available())
-    { Serial.println("TRANSFERING...");
-      uint16_t recSize = 0;
-      recSize = myTransfer.rxObj(trialArray, recSize);
-      myTransfer.sendData(myTransfer.bytesRead);
+    { 
+      myTransfer.rxObj(trialArray);
+      Serial.println("Received");
+
+      myTransfer.sendDatum(trialArray);
+      Serial.println("Sent");
+      acquireTrials = false;
+      newTrial = true;
     }
-    acquireTrials = false;
-    newTrial = false;
   }
 }
 
@@ -192,7 +190,7 @@ void startITI(long ms) {
   if (newTrial) {                                 // start new ITI
     Serial.print("staring trial ");
     Serial.println(currentTrial);
-    trialType = trialTypeArray[currentTrial];     // assign trial type
+    trialType = trialArray[currentTrial];     // assign trial type
     newTrial = false;
     ITI = true;
     int thisITI = ITIArray[currentTrial];         // get ITI for this trial
@@ -317,27 +315,6 @@ void vacuum(long ms) {
 
 
 ////// ARRAY FUNCTIONS ////
-void defineTrialTypes(int trialNumber, float percentNeg) { // TODO: generate random trial externally order and store on board?
-  // initialize array with all positive (1) trials
-  for (int i = 0; i < trialNumber; i++) {
-    trialTypeArray[i] = 1;
-  }
-  if (percentNeg > 0) {
-    randomSeed(analogRead(0));
-    int negTrialNum = round(trialNumber * (percentNeg/100));
-    // randomly choose negTrialNum indexes to make negative (0) trials
-    int indexCount = 0;
-    while (indexCount < negTrialNum) {
-      int negIndex = random(trialNumber);
-      // only make negative if it isn't already
-      if (trialTypeArray[negIndex]) {
-        trialTypeArray[negIndex] = 0;
-        indexCount++;
-      }
-    }
-  }
-}
-
 void fillDelayArray(int delayArray[], int trialNumber, int baseLength, int minJitter, int maxJitter) {
   randomSeed(analogRead(0));
   // initialize array with all positive (1) trials
