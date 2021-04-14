@@ -55,15 +55,14 @@ boolean acquireTrials = true;
 
 
 //// EXPERIMENT VARIABLES ////
-const int totalNumberOfTrials = 20;
-const int percentNegativeTrials = 50;
-const int baseITI = 3000; // 3s inter-trial interval
+const int totalNumberOfTrials = 10;
+const int baseITI = 30000; // 3s inter-trial interval
 const int noiseDuration = 2000;
-const int USDeliveryTime_Sucrose = 5; // opens Sucrose solenoid for 50 ms, currently 5us b/c using water 3-30-21
+const int USDeliveryTime_Sucrose = 50; // opens Sucrose solenoid for 50 ms, currently 5us b/c using water 3-30-21
 const int USDeliveryTime_Air = 10; // opens airpuff solenoid for 10 ms
 const int USConsumptionTime_Sucrose = 800; // wait 1s for animal to consume, currently 800ms b/c using water 3-30-21
-const int minITIJitter = 0; // min inter-trial jitter
-const int maxITIJitter = 0; // max inter-trial jitter
+const int minITIJitter = 500; // min inter-trial jitter
+const int maxITIJitter = 1000; // max inter-trial jitter
 
 int BRUKER_VALUE = 0;
 
@@ -129,7 +128,7 @@ void setup() {
   Serial.println("MPR121 found!");
 
   // -- POPULATE DELAY TIME ARRAYS -- //
-//  fillDelayArray(ITIArray, totalNumberOfTrials, baseITI, minITIJitter, maxITIJitter);
+  fillDelayArray(ITIArray, totalNumberOfTrials, baseITI, minITIJitter, maxITIJitter);
 
 //  // -- WAIT FOR SIGNAL THAT DAQ IS ONLINE -- //
 //  BRUKER_VALUE = digitalRead(NIDAQ_READY);
@@ -317,7 +316,6 @@ void vacuum(long ms) {
 ////// ARRAY FUNCTIONS ////
 void fillDelayArray(int delayArray[], int trialNumber, int baseLength, int minJitter, int maxJitter) {
   randomSeed(analogRead(0));
-  // initialize array with all positive (1) trials
   for (int i = 0; i < trialNumber; i++) {
     delayArray[i] = baseLength + random(minJitter, maxJitter);
   }
