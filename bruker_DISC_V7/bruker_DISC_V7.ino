@@ -55,12 +55,12 @@ boolean acquireTrials = true;
 
 
 //// EXPERIMENT VARIABLES ////
-const int totalNumberOfTrials = 10;
-const int baseITI = 30000; // 3s inter-trial interval
+const int totalNumberOfTrials = 40;
+const int baseITI = 3000; // 3s inter-trial interval
 const int noiseDuration = 2000;
-const int USDeliveryTime_Sucrose = 50; // opens Sucrose solenoid for 50 ms, currently 5us b/c using water 3-30-21
+const int USDeliveryTime_Sucrose = 5; // opens Sucrose solenoid for 50 ms, currently 5ms b/c using water 3-30-21
 const int USDeliveryTime_Air = 10; // opens airpuff solenoid for 10 ms
-const int USConsumptionTime_Sucrose = 800; // wait 1s for animal to consume, currently 800ms b/c using water 3-30-21
+const int USConsumptionTime_Sucrose = 1500; // wait 1s for animal to consume, currently 800ms b/c using water 3-30-21
 const int minITIJitter = 500; // min inter-trial jitter
 const int maxITIJitter = 1000; // max inter-trial jitter
 

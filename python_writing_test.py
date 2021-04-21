@@ -23,13 +23,13 @@ sucrose_consumption_time = 1000 # 1s
 # Define trial types: 0 = airpuff, 1 = sucrose
 trial_types = [0,1]
 # Define probabilities for each value: 50%, 50%
-probs = [0.5, 0.5]
+probs = [0, 1]
 
 # Per numpy documentation, use default_rng() as generator
 rng = default_rng(1)
 # Create trials_array using .choice method, 20 instances, allow replacement,
 # use linked probabilities
-trials_array = rng.choice(trial_types, p=probs, total_number_trials, replace=True)
+trials_array = rng.choice(trial_types, 40, replace=True,  p=probs)
 
 # default_rng.choice() creates numpy.ndarray; must be list for txfer
 trials_array = trials_array.tolist()
