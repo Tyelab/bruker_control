@@ -37,7 +37,10 @@ trials_array = trials_array.tolist()
 # Define Base ITI
 base_iti = 3000 # 3s
 
-# Define Jitter
+#TODO Define Jitter array
+
+
+
 
 
 

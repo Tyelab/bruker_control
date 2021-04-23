@@ -26,6 +26,7 @@ const int solPin_air = 22; // solenoid for air puff control
 const int vacPin = 24; // solenoid for vacuum control
 const int solPin_liquid = 26; // solenoid for liquid control: sucrose, water, EtOH
 const int speakerPin = 12; // speaker control pin
+const int imageTrigger = 13; // trigger to start 2P recording on Prairie View
 
 
 //// PIN ASSIGNMENT: NIDAQ ////
@@ -33,11 +34,11 @@ const int NIDAQ_READY = 9; // how do we do this with Bruker?
 // NIDAQ output
 const int airDeliveryPin = 23; // airpuff delivery
 const int sucroseDeliveryPin = 27; // sucrose delivery
-const int lickDetectPin = 29; // detect sucrose licks
-const int speakerDeliveryPin = 31; // noise delivery
+const int lickDetectPin = 41; // detect sucrose licks
+const int speakerDeliveryPin = 51; // noise delivery
 
 //// VARIABLE ASSIGNMENT ////
-long ms; // is this for milliseconds?
+long ms; // milliseconds
 // flags
 boolean needVariables = true;
 boolean newTrial = false;
@@ -51,6 +52,7 @@ boolean sucrose = false;
 boolean airpuff = false;
 boolean noise = false;
 boolean noiseDAQ = false;
+boolean trigWait = false;
 boolean acquireTrials = true;
 
 

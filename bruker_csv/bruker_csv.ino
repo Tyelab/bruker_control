@@ -4,56 +4,50 @@
 // Rename SerialTransfer to myTransfer
 SerialTransfer myTransfer;
 
-int32_t list[20];
-boolean acquireTrials = true;
+const int MAX_NUM_TRIALS = 100; // maximum number of trials possible; much larger than needed but smaller than max value of metadata.totalNumberOfTrials
+int32_t trialArray[MAX_NUM_TRIALS]; // create trial array
+int32_t ITIArray[MAX_NUM_TRIALS]; // create ITI array
+
+
+
+struct __attribute__((__packed__)) metadata_struct {
+  uint8_t totalNumberOfTrials;              // total number of trials for experiment
+  uint32_t trialNumber;                     // create trial array
+  uint16_t noiseDuration;                   // length of tone played by speaker
+  uint16_t punishTone;                      // airpuff frequency tone in Hz
+  uint16_t rewardTone;                      // sucrose frequency tone in Hz
+  uint8_t USDeliveryTime_Sucrose;           // amount of time to open sucrose solenoid
+  uint8_t USDeliveryTime_Air;               // amount of time to open air solenoid
+  uint16_t USConsumptionTime_Sucrose;       // amount of time to wait for sucrose consumption
+} metadata;
+
+
 
 void setup()
 {
-  Serial.begin(115200);
+  Serial.begin(9600);
   Serial1.begin(115200);
-
+  
   myTransfer.begin(Serial1, true);
 }
 
-int trials_rx() {
-  if (acquireTrials) {
-    if (myTransfer.available())
-    { 
-      myTransfer.rxObj(list);
-      Serial.println("Received");
 
-      myTransfer.sendDatum(list);
-      Serial.println("Sent");
-      acquireTrials = false;
-    }
-  }
+void loop(){
+  Serial.println(sizeof(metadata));
 }
+
+
+//int trials_rx() {
+//  if (acquireTrials) {
+//    if (myTransfer.available())
+//    { 
+//      myTransfer.rxObj(list);
+//      Serial.println("Received");
 //
-void loop()
-{
-  trials_rx();
-}
-//
-//void loop()
-//{
-//  if(myTransfer.available())
-//  {
-//    myTransfer.rxObj(list);
-//    Serial.println("Received:");
-//    Serial.print("[");
-//    Serial.print(list[0]);
-//    Serial.print(", ");
-//    Serial.print(list[1]);
-//    Serial.println("]");
-//    Serial.println();
-//    
-//    myTransfer.sendDatum(list);
-//    Serial.println("Sent");
-//    Serial.print("[");
-//    Serial.print(list[0]);
-//    Serial.print(", ");
-//    Serial.print(list[1]);
-//    Serial.println("]");
-//    Serial.println();
+//      myTransfer.sendDatum(list);
+//      Serial.println("Sent");
+//      acquireTrials = false;
+//    }
 //  }
 //}
+////
