@@ -26,8 +26,8 @@ const int solPin_air = 22; // solenoid for air puff control
 const int vacPin = 24; // solenoid for vacuum control
 const int solPin_liquid = 26; // solenoid for liquid control: sucrose, water, EtOH
 const int speakerPin = 12; // speaker control pin
-const int imageTrigger = 13; // trigger to start 2P recording on Prairie View
-
+const int genieNanoTriggerPin = 13; // trigger to start Genie Nano
+const int bruker2PTriggerPin = 11 // trigger to start Bruker 2P Recording on Prairie View
 
 //// PIN ASSIGNMENT: NIDAQ ////
 const int NIDAQ_READY = 9; // how do we do this with Bruker?
@@ -120,6 +120,8 @@ void setup() {
   pinMode(vacPin, OUTPUT);
   pinMode(speakerPin, OUTPUT);
   pinMode(speakerDeliveryPin, OUTPUT);
+  pinMode(lickDetectPin, OUTPUT);
+  pinMode(imageTrigger, OUTPUT);
 
   // -- INITIALIZE TOUCH SENSOR -- //
   Serial.println("MPR121 check...");
@@ -148,7 +150,6 @@ void loop() {
     lickDetect();
     startITI(ms);
     tonePlayer(ms);
-    toneDelivery(ms);
     onTone(ms);
     USDelivery(ms);
     onSolenoid(ms);
@@ -174,6 +175,8 @@ int trials_rx() {
 }
 
 //// TRIAL FUNCTIONS ////
+
+// Lick Function
 void lickDetect() {
   currtouched = cap.touched(); // Get currently touched contacts
   // if it is *currently* touched and *wasn't* touched before, alert!
@@ -205,32 +208,37 @@ void startITI(long ms) {
   }
 }
 
+// Noise Functions
+// play tone function
 void tonePlayer(long ms) {
   if (noise) {
     Serial.println("Playing Tone");
+    int thisNoiseDuration = noiseDurationArray[currentTrial];
+    noise = false;
+    noiseDAQ = true;
+    noiseListeningMS = ms + thisNoiseDuration;
+    digitalWriteFast(speakerDeliveryPin, HIGH);
     switch (trialType) {
       case 0:
         Serial.println("AIR");
-        tone(speakerPin, 2000, noiseDuration);
-        noise = false;
-        noiseListeningMS = ms + noiseDuration;
+        tone(speakerPin, 2000, thisNoiseDuration);
         break;
       case 1:
         Serial.println("SUCROSE");
-        tone(speakerPin, 9000, noiseDuration);
-        noise = false;
-        noiseListeningMS = ms + noiseDuration;
+        tone(speakerPin, 9000, thisNoiseDuration);
         break;
     }
   }
 }
 
-void toneDelivery(long ms) {
-  if (noiseDAQ && (ms <= noiseListeningMS)) {
-    digitalWriteFast(speakerDeliveryPin, HIGH);
-    noiseDAQMS = ms + noiseDuration;
-  }
-}
+// tone delivery timer function; removed...
+//void toneDelivery(long ms) {
+//  if (noiseDAQ && (ms <= noiseListeningMS)) {
+//    digitalWriteFast(speakerDeliveryPin, HIGH);
+//    noiseDAQMS = ms + noiseDuration;
+//  }
+//}
+
 
 void onTone(long ms) {
   if (noiseDAQ && (ms >= noiseListeningMS)){
@@ -239,6 +247,7 @@ void onTone(long ms) {
     noise = false;
   }
 }
+
 
 void USDelivery(long ms) {
   if (newUSDelivery && (ms >= noiseListeningMS)) {

@@ -5,14 +5,13 @@
 SerialTransfer myTransfer;
 
 const int MAX_NUM_TRIALS = 100; // maximum number of trials possible; much larger than needed but smaller than max value of metadata.totalNumberOfTrials
-int32_t trialArray[MAX_NUM_TRIALS]; // create trial array
-int32_t ITIArray[MAX_NUM_TRIALS]; // create ITI array
+
 
 
 
 struct __attribute__((__packed__)) metadata_struct {
   uint8_t totalNumberOfTrials;              // total number of trials for experiment
-  uint32_t trialNumber;                     // create trial array
+  uint32_t trialNumber;                     // set trial number for transmission
   uint16_t noiseDuration;                   // length of tone played by speaker
   uint16_t punishTone;                      // airpuff frequency tone in Hz
   uint16_t rewardTone;                      // sucrose frequency tone in Hz
@@ -21,7 +20,8 @@ struct __attribute__((__packed__)) metadata_struct {
   uint16_t USConsumptionTime_Sucrose;       // amount of time to wait for sucrose consumption
 } metadata;
 
-
+int32_t trialArray[MAX_NUM_TRIALS]; // create trial array
+int32_t ITIArray[MAX_NUM_TRIALS]; // create ITI array
 
 void setup()
 {
