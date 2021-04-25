@@ -1,15 +1,15 @@
 // Control code for Arduino management of Bruker 2P setup for Team Specialk
 // Jeremy Delahanty Mar. 2021
 // Adapted from DISC_V7.ino by Kyle Fischer and Mauri van der Huevel Oct. 2019
-// digitalWriteFast.h written by ???
-// SerialTransfer.h written by PowerBroker2
+// digitalWriteFast.h written by Watterott Electronic https://github.com/watterott/Arduino-Libs/tree/master/digitalWriteFast
+// SerialTransfer.h written by PowerBroker2 https://github.com/PowerBroker2/SerialTransfer
 
 //// PACKAGES ////
 #include <Adafruit_MPR121.h> // Adafruit MPR121 capicitance board recording
 #include <digitalWriteFast.h> // Speeds up communication for digital srite
 #include <Wire.h> // Enhances comms with MPR121
 #include <SerialTransfer.h> // Enables serial comms between Python config and Arduino
-// rename SerialTransfer for ease of use
+// rename SerialTransfer to myTransfer
 SerialTransfer myTransfer;
 
 //// BITSHIFT OPERATIONS DEF: CAPACITANCE ////
@@ -26,18 +26,19 @@ const int solPin_air = 22; // solenoid for air puff control
 const int vacPin = 24; // solenoid for vacuum control
 const int solPin_liquid = 26; // solenoid for liquid control: sucrose, water, EtOH
 const int speakerPin = 12; // speaker control pin
-
+const int genieNanoTriggerPin = 13; // trigger to start Genie Nano
+const int bruker2PTriggerPin = 11 // trigger to start Bruker 2P Recording on Prairie View
 
 //// PIN ASSIGNMENT: NIDAQ ////
 const int NIDAQ_READY = 9; // how do we do this with Bruker?
 // NIDAQ output
 const int airDeliveryPin = 23; // airpuff delivery
 const int sucroseDeliveryPin = 27; // sucrose delivery
-const int lickDetectPin = 29; // detect sucrose licks
-const int speakerDeliveryPin = 31; // noise delivery
+const int lickDetectPin = 41; // detect sucrose licks
+const int speakerDeliveryPin = 51; // noise delivery
 
 //// VARIABLE ASSIGNMENT ////
-long ms; // is this for milliseconds?
+long ms; // milliseconds
 // flags
 boolean needVariables = true;
 boolean newTrial = false;
@@ -50,18 +51,20 @@ boolean cleanIt = false;
 boolean sucrose = false;
 boolean airpuff = false;
 boolean noise = false;
+boolean noiseDAQ = false;
+boolean trigWait = false;
 boolean acquireTrials = true;
 
 
 //// EXPERIMENT VARIABLES ////
-const int totalNumberOfTrials = 20;
-const int percentNegativeTrials = 50;
+const int totalNumberOfTrials = 40;
 const int baseITI = 3000; // 3s inter-trial interval
+const int noiseDuration = 2000;
 const int USDeliveryTime_Sucrose = 5; // opens Sucrose solenoid for 50 ms, currently 5ms b/c using water 3-30-21
 const int USDeliveryTime_Air = 10; // opens airpuff solenoid for 10 ms
-const int USConsumptionTime_Sucrose = 800; // wait 1s for animal to consume, currently 800ms b/c using water 3-30-21
-const int minITIJitter = 0; // min inter-trial jitter
-const int maxITIJitter = 0; // max inter-trial jitter
+const int USConsumptionTime_Sucrose = 1500; // wait 1s for animal to consume, currently 800ms b/c using water 3-30-21
+const int minITIJitter = 500; // min inter-trial jitter
+const int maxITIJitter = 1000; // max inter-trial jitter
 
 int BRUKER_VALUE = 0;
 
@@ -75,6 +78,9 @@ long vacTime;
 long airDelayMS;
 long USDeliveryMS_Air;
 long USDeliveryMS;
+long noiseDeliveryMS;
+long noiseListeningMS;
+long noiseDAQMS;
 
 // trial variables (0 negative [air], 1 positive [sucrose])
 int trialType;
@@ -88,19 +94,23 @@ uint16_t lasttouched = 0;
 // vac variables
 const int vacDelay = 500; // vacuum delay
 
+
 // arrays
-int trialTypeArray[totalNumberOfTrials];
 int ITIArray[totalNumberOfTrials];
-//int trialArray[totalNumberOfTrials];
+int32_t trialArray[totalNumberOfTrials];
 byte trialIndex = 0;
 
 
 //// SETUP ////
 void setup() {
   // -- DEFINE BITRATE -- //
-  Serial.begin(9600);
-//  myTransfer.begin(Serial);
+  // Serial debugging on COM13, use Ctrl+Shift+M
+  Serial.begin(115200);
 
+  // Serial transfer of trials on COM12
+  Serial1.begin(115200);
+  myTransfer.begin(Serial1, true);
+  
   // -- DEFINE PINS -- //
   // input
   pinMode(lickPin, INPUT);
@@ -109,17 +119,17 @@ void setup() {
   pinMode(solPin_liquid, OUTPUT);
   pinMode(vacPin, OUTPUT);
   pinMode(speakerPin, OUTPUT);
+  pinMode(speakerDeliveryPin, OUTPUT);
+  pinMode(lickDetectPin, OUTPUT);
+  pinMode(imageTrigger, OUTPUT);
 
   // -- INITIALIZE TOUCH SENSOR -- //
-  Serial.println("MPR121 capacitive touch sensor check");
+  Serial.println("MPR121 check...");
   if (!cap.begin(0x5A)) {
     Serial.println("MPR121 not found, check wiring?");
     while (1);
   } // need to learn what value 0x5A represents - JD
   Serial.println("MPR121 found!");
-
-  // -- INITIALIZE TRIAL TYPES -- //
-  defineTrialTypes(totalNumberOfTrials, percentNegativeTrials);
 
   // -- POPULATE DELAY TIME ARRAYS -- //
   fillDelayArray(ITIArray, totalNumberOfTrials, baseITI, minITIJitter, maxITIJitter);
@@ -129,19 +139,18 @@ void setup() {
 //  while (BRUKER_VALUE == LOW) {
 //    BRUKER_VALUE = digitalRead(NIDAQ_READY);
 //  } // what does == LOW mean? -JD
-  Serial.println("starting");
-  newTrial = true;
+  
 }
 
 //// THE BIZ ////
 void loop() {
-//  trials_rx();
+  trials_rx();
   if (currentTrial < totalNumberOfTrials) {
-    //Serial.println(currentTrial);
     ms = millis();
     lickDetect();
     startITI(ms);
     tonePlayer(ms);
+    onTone(ms);
     USDelivery(ms);
     onSolenoid(ms);
     consuming(ms);
@@ -150,22 +159,24 @@ void loop() {
 }
 
 //// RECIEVE TRIALS FUNCTION ////
-//void trials_rx() {
-//  if (acquireTrials) {
-//    Serial.println("Acquiring Trials");
-//    if (myTransfer.available())
-//    {
-//      uint16_t recSize = 0;
-//      recSize = myTransfer.rxObj(testStruct, recSize);
-//      Serial.print(testStruct.x);
-//      recSize = myTransfer.rxObj(trialArray, recSize);
-//      Serial.println(trialArray);
-//      myTransfer.sendData(myTransfer.bytesRead);
-//    }
-//  }
-//}
+int trials_rx() {
+  if (acquireTrials) {
+    if (myTransfer.available())
+    { 
+      myTransfer.rxObj(trialArray);
+      Serial.println("Received");
+
+      myTransfer.sendDatum(trialArray);
+      Serial.println("Sent");
+      acquireTrials = false;
+      newTrial = true;
+    }
+  }
+}
 
 //// TRIAL FUNCTIONS ////
+
+// Lick Function
 void lickDetect() {
   currtouched = cap.touched(); // Get currently touched contacts
   // if it is *currently* touched and *wasn't* touched before, alert!
@@ -183,44 +194,68 @@ void startITI(long ms) {
   if (newTrial) {                                 // start new ITI
     Serial.print("staring trial ");
     Serial.println(currentTrial);
-    trialType = trialTypeArray[currentTrial];     // assign trial type
+    trialType = trialArray[currentTrial];     // assign trial type
     newTrial = false;
     ITI = true;
-    noise = true;
     int thisITI = ITIArray[currentTrial];         // get ITI for this trial
     ITIend = ms + thisITI;
     // turn off when done
   } else if (ITI && (ms >= ITIend)) {             // ITI is over
     ITI = false;
     newUSDelivery = true;
+    noise = true;
+    noiseDAQ = true;
   }
 }
 
+// Noise Functions
+// play tone function
 void tonePlayer(long ms) {
   if (noise) {
-    Serial.println("playing tone");
+    Serial.println("Playing Tone");
+    int thisNoiseDuration = noiseDurationArray[currentTrial];
+    noise = false;
+    noiseDAQ = true;
+    noiseListeningMS = ms + thisNoiseDuration;
+    digitalWriteFast(speakerDeliveryPin, HIGH);
     switch (trialType) {
       case 0:
-        Serial.println("playing air tone");
-        tone(speakerPin, 2000, 2000);
-        noise = false;
+        Serial.println("AIR");
+        tone(speakerPin, 2000, thisNoiseDuration);
         break;
       case 1:
-        Serial.println("playing sucrose tone");
-        tone(speakerPin, 9000, 2000);
-        noise = false;
+        Serial.println("SUCROSE");
+        tone(speakerPin, 9000, thisNoiseDuration);
         break;
     }
   }
 }
 
+// tone delivery timer function; removed...
+//void toneDelivery(long ms) {
+//  if (noiseDAQ && (ms <= noiseListeningMS)) {
+//    digitalWriteFast(speakerDeliveryPin, HIGH);
+//    noiseDAQMS = ms + noiseDuration;
+//  }
+//}
+
+
+void onTone(long ms) {
+  if (noiseDAQ && (ms >= noiseListeningMS)){
+    digitalWriteFast(speakerDeliveryPin, LOW);
+    noiseDAQ = false;
+    noise = false;
+  }
+}
+
+
 void USDelivery(long ms) {
-  if (newUSDelivery) {
-    Serial.println("delivering us");
+  if (newUSDelivery && (ms >= noiseListeningMS)) {
+    Serial.println("Delivering US");
     Serial.println(trialType);
     switch (trialType) {
       case 0: 
-        Serial.println("delivering airpuff");
+        Serial.println("Delivering Airpuff");
         newUSDelivery = false;
         solenoidOn = true;
         USDeliveryMS = (ms + USDeliveryTime_Air);
@@ -228,9 +263,8 @@ void USDelivery(long ms) {
         digitalWriteFast(airDeliveryPin, HIGH);
         break;
       case 1:
-        Serial.println("delivering sucrose");
+        Serial.println("Delivering Sucrose");
         newUSDelivery = false;
-        //sucroseTone(ms);
         solenoidOn = true;
         USDeliveryMS = (ms + USDeliveryTime_Sucrose);    
         digitalWriteFast(solPin_liquid, HIGH);
@@ -271,8 +305,6 @@ void consuming(long ms){
   }
 }
 
-// TODO: Implement ambiguous trials output with randomization between sucrose/airpuff
-
 // Vacuum Control
 void vacuum(long ms) {
   if (cleanIt) {
@@ -293,30 +325,8 @@ void vacuum(long ms) {
 
 
 ////// ARRAY FUNCTIONS ////
-void defineTrialTypes(int trialNumber, float percentNeg) { // TODO: generate random trial externally order and store on board?
-  // initialize array with all positive (1) trials
-  for (int i = 0; i < trialNumber; i++) {
-    trialTypeArray[i] = 1;
-  }
-  if (percentNeg > 0) {
-    randomSeed(analogRead(0));
-    int negTrialNum = round(trialNumber * (percentNeg/100));
-    // randomly choose negTrialNum indexes to make negative (0) trials
-    int indexCount = 0;
-    while (indexCount < negTrialNum) {
-      int negIndex = random(trialNumber);
-      // only make negative if it isn't already
-      if (trialTypeArray[negIndex]) {
-        trialTypeArray[negIndex] = 0;
-        indexCount++;
-      }
-    }
-  }
-}
-
 void fillDelayArray(int delayArray[], int trialNumber, int baseLength, int minJitter, int maxJitter) {
   randomSeed(analogRead(0));
-  // initialize array with all positive (1) trials
   for (int i = 0; i < trialNumber; i++) {
     delayArray[i] = baseLength + random(minJitter, maxJitter);
   }

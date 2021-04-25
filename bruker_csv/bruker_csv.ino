@@ -4,82 +4,50 @@
 // Rename SerialTransfer to myTransfer
 SerialTransfer myTransfer;
 
-
-int trialArray[20]; // create array that is 20 integers long
-byte arrayIndex = 0; // create index to track bit mapping in received packet
+const int MAX_NUM_TRIALS = 100; // maximum number of trials possible; much larger than needed but smaller than max value of metadata.totalNumberOfTrials
 
 
-// Create setup
+
+
+struct __attribute__((__packed__)) metadata_struct {
+  uint8_t totalNumberOfTrials;              // total number of trials for experiment
+  uint32_t trialNumber;                     // set trial number for transmission
+  uint16_t noiseDuration;                   // length of tone played by speaker
+  uint16_t punishTone;                      // airpuff frequency tone in Hz
+  uint16_t rewardTone;                      // sucrose frequency tone in Hz
+  uint8_t USDeliveryTime_Sucrose;           // amount of time to open sucrose solenoid
+  uint8_t USDeliveryTime_Air;               // amount of time to open air solenoid
+  uint16_t USConsumptionTime_Sucrose;       // amount of time to wait for sucrose consumption
+} metadata;
+
+int32_t trialArray[MAX_NUM_TRIALS]; // create trial array
+int32_t ITIArray[MAX_NUM_TRIALS]; // create ITI array
+
 void setup()
 {
-  Serial.begin(115200); // SerialTransfer uses a baud of 115200 by default
+  Serial.begin(9600);
   Serial1.begin(115200);
-  myTransfer.begin(Serial1); // Begin serial comms over USB
-}
-
-// Per SerialTransfer documentation, this is how I'm supposed to read in what's transmitted to the Arduino
-// I'm still working on confirming data was received and sending that confirmation back to Python script.
-int rxObjTransfer()
-{
-  if(myTransfer.available())
-  {
-    uint16_t recSize = 0;
-    recSize = myTransfer.rxObj(trialArray, recSize);
-  }
-  return trialArray;
-}
-
-void txObjTransfer()
-{
-  if (myTransfer.available())
-  {
-    uint16_t sendSize = 0;
-    sendSize = myTransfer.txObj(trialArray, sendSize);
-    myTransfer.sendData(sendSize);
-    delay(1000);
-  }
+  
+  myTransfer.begin(Serial1, true);
 }
 
 
-
-void loop() {
-  rxObjTransfer();
-  Serial.print(trialArray[1]);
-//  txObjTransfer();
-//  testFx();
-//  bitTransfer();
+void loop(){
+  Serial.println(sizeof(metadata));
 }
 
-// This code currently accepts list from python and transmits list back to computer; this is from an example that PowerBroker2 has on his GitHub
-// Challenge is to store the list and return it as trial list used for experiment
-//int bitTransfer() {
-//  if(myTransfer.available())
-//  {
-//    int trialArray[20];
-//    for (uint16_t i=0; i < myTransfer.bytesRead; i++)
-//      myTransfer.packet.txBuff[i] = myTransfer.packet.rxBuff[i];
-//      for (int i=0; i < 21; i++)
-//        trialArray[arrayIndex] = myTransfer.packet.txBuff[i];
+
+//int trials_rx() {
+//  if (acquireTrials) {
+//    if (myTransfer.available())
+//    { 
+//      myTransfer.rxObj(list);
+//      Serial.println("Received");
 //
-//    myTransfer.sendData(myTransfer.bytesRead);
-//
-//    return trialArray[20];
+//      myTransfer.sendDatum(list);
+//      Serial.println("Sent");
+//      acquireTrials = false;
+//    }
 //  }
 //}
-
-// My (Jeremy) attempt at saving the array correctly using the package, still testing...
-// Arduino IDE also complains that I'm performing an invalid conversion from 'int*' to 'int' when compiling, learning what that means...
-//int testFx() {
-//  if (myTransfer.available())
-//  {
-//    int trialArray[20];
-//    for (uint16_t i=0; i < myTransfer.bytesRead; i++)
-//      myTransfer.packet.txBuff[i] = myTransfer.packet.rxBuff[i];
-//      for (int i=0; i < 21; i++)
-//        trialArray[arrayIndex] = myTransfer.packet.txBuff[i];
-//
-//    myTransfer.sendData(myTransfer.bytesRead);
-//    return trialArray[20];
-////    Serial.print(trialArray[1]);
-//  }
-//}
+////

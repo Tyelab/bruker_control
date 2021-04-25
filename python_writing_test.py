@@ -1,66 +1,112 @@
-import time
 import random
+import scipy
+from scipy.stats import truncnorm
+import numpy
 from numpy.random import default_rng
 from pySerialTransfer import pySerialTransfer as txfer
 
-# Define trial types: 0 = airpuff, 1 = sucrose, 2 = ambiguous
-trial_types = [0,1,2]
-# Define probabilities for each value: 40%, 40%, 20%
-probs = [0.4, 0.4, 0.2]
+#### Trials ####
+# Define Total Number of Trials
+totalNumberOfTrials = 10
+# Initialize trial number 1
+trialNumber = 1
 
-# Per numpy documentation, use default_rng() as generator
-rng = default_rng(20)
-# Create trials_array using .choice method, 20 instances, allow replacement,
-# use linked probabilities
-trials_array = rng.choice(trial_types, 20, replace=True, p=probs)
+# TODO: Send these experiment variables over Serial Comms
+#### Sound ####
+# Define Noise Duration
+noiseDuration = 2000 # 2s
+# Define Punish Tone in Hz
+punishTone = 2000
+# Define Reward Tone
+rewardTone = 18000
 
-# default_rng.choice() creates numpy.ndarray; must be list for txfer
-trials_array = trials_array.tolist()
+#### Sucrose ####
+# Define Sucrose Delivery Time
+USDeliveryTime_Sucrose = 5 # 5ms
+# Define Sucrose Consumption Time
+USConsumptionTime_Sucrose = 1000 # 1s
+
+#### Airpuff ####
+# Define Airpuff Delivery Time
+USDeliveryTime_Air = 10 # 10ms
+
+#### Trial Functions ####
+# Random Trials Array Generation
+def gen_trial_array(totalNumberOfTrials):
+    # Always initialize trial array with 3 reward trials
+    trial_array = [1,1,1]
+    # Define number of samples needed from generator
+    num_samples = totalNumberOfTrials - 3
+    # Define probability that the animal will receive sucrose 60% of the time
+    sucrose_prob = 0.60
+    # Initialize random number generator with default_rng
+    rng = np.random.default_rng()
+    # Generate a random trial array with Generator.binomial
+    # Use n=1 to pull one sample at a time, p=.5 as probability of sucrose
+    # Use num_samples to fill out accurate number of trials
+    # Use .tolist() to convert random_trials from np.array to list
+    random_trials = rng.binomial(
+    n=1, p=sucrose_prob, size=num_samples
+    ).tolist()
+    # Append the two arrays together
+    for i in random_trials:
+        trial_array.append(i)
+
+    return trialArray
+
+# ITI Array Generation
+def gen_iti_array(totalNumberOfTrials):
+    # Initialize empty iti trial array
+    iti_array = []
+    # Define lower and upper limits on ITI values in ms
+    iti_lower, iti_upper = 2500, 3500
+    # Define mean and variance for ITI values
+    mu, sigma = 3000, 1000
+    # Upper bound calculation
+    upper_bound = (iti_upper - mu)/sigma
+    # Lower bound calculation
+    lower_bound = (iti_lower - mu)/sigma
+    # Generate array by sampling from truncated normal distribution w/scipy
+    iti_array = truncnorm.rvs(
+    lower_bound, upper_bound, loc=mu, scale=sigma, size=totalNumberOfTrials
+    )
+    # ITI Array generated with have decimals in it and be float type
+    # Use np.round() to round the elements in the array and type them as int
+    iti_array = np.round(iti_array).astype(int)
+    # Finally, generate ITIArray as a list for pySerialTransfer
+    ITIArray = iti_array.tolist()
+
+    return ITIArray
+
+
+
+
+
+
 
 print("Trial List Created")
 
 if __name__ == '__main__':
-    # print("Starting tx")
     try:
-        link = txfer.SerialTransfer("COM13", 115200)
-
+        link = txfer.SerialTransfer('COM12', 115200, debug=True)
         link.open()
-        time.sleep(2) # give time for Arudino to reset
 
         while True:
-            send_size = 0
-
-            ###################################################################
-            # Send a list
-            ###################################################################
             list_ = trials_array
+
             list_size = link.tx_obj(list_)
-            send_size += list_size
-            link.send(send_size)
+            link.send(list_size)
+            print("Sent:\t\t{}".format(list_))
 
             while not link.available():
-                if link.status <0:
-                    if link.status == txfer.CRC_ERROR:
-                        print("ERROR: CRC_ERROR")
-                    elif link.status == txfer.PAYLOAD_ERROR:
-                        print("ERROR: PAYLOAD_ERROR")
-                    elif link.status == txfer.STOP_BYTE_ERROR:
-                        print("ERROR: STOP_BYTE_ERROR")
-                    else:
-                        print("ERROR: {}".format(link.status))
-            ###################################################################
-            # Parse response list
-            ###################################################################
-            # print("Receiving Response")
-            rec_list_  = link.rx_obj(obj_type=type(list_),
-                                     obj_byte_size=list_size,
-                                     list_format='i')
-            ###################################################################
-            # Display the received data
-            ###################################################################
-            print('SENT: {}'.format(list_))
-            print('RCVD: {}'.format(rec_list_))
-            print(' ')
+                pass
+
+            rec_list_ = link.rx_obj(obj_type=type(list_),
+                                    obj_byte_size=list_size,
+                                    list_format='i')
+            print("Received:\t{}".format(rec_list_))
+            print("")
+            time.sleep(1)
 
             if list_ == rec_list_:
                 print("Confirmed!")
@@ -70,8 +116,6 @@ if __name__ == '__main__':
                 except:
                     print("Error!")
                     break
-            # TODO: Add packet checking and retry if there's an error in comms
-
 
     except KeyboardInterrupt:
         try:
