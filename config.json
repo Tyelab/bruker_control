@@ -1,0 +1,9 @@
+{"totalNumberOfTrials": 10,
+"trialNumber": 1,
+"noiseDuration": 2000,
+"punishTone": 2000,
+"rewardTone": 18000,
+"USDeliveryTime_Sucrose": 5,
+"USDeliveryTime_Air": 10,
+"USConsumptionTime_Sucrose": 1000
+}
