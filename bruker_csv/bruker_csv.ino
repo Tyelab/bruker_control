@@ -23,6 +23,8 @@ struct __attribute__((__packed__)) metadata_struct {
 int32_t trialArray[MAX_NUM_TRIALS]; // create trial array
 int32_t ITIArray[MAX_NUM_TRIALS]; // create ITI array
 
+boolean acquireMetaData = true;
+
 void setup()
 {
   Serial.begin(9600);
@@ -33,21 +35,21 @@ void setup()
 
 
 void loop(){
-  Serial.println(sizeof(metadata));
+  metadata_rx();
 }
 
 
-//int trials_rx() {
-//  if (acquireTrials) {
-//    if (myTransfer.available())
-//    { 
-//      myTransfer.rxObj(list);
-//      Serial.println("Received");
+int metadata_rx() {
+  if (acquireMetaData) {
+    if (myTransfer.available())
+    { 
+      myTransfer.rxObj(metadata);
+      Serial.println("Received");
+
+      myTransfer.sendDatum(metadata);
+      Serial.println("Sent");
+      acquireMetaData = false;
+    }
+  }
+}
 //
-//      myTransfer.sendDatum(list);
-//      Serial.println("Sent");
-//      acquireTrials = false;
-//    }
-//  }
-//}
-////
