@@ -8,6 +8,8 @@
 # -----------------------------------------------------------------------------
 # Import JSON for configuration file
 import json
+# Import ordered dictionary to ensure order in json file
+from collections import OrderedDict
 # Import argparse if you want to create a configuration on the fly
 import argparse
 # Import scipy for statistical distributions
@@ -116,9 +118,9 @@ def manually_set_metadata():
     # TODO: What is our naming convention going to be for configuration files?
     # Add this convention to the file generation for its name
     config_file_name = parser.filename
-    # Write out config file
+    # Write out config file as an ordered dictionary
     with open(config_file_path + config_file_name, "w") as outfile:
-        json.dump(metaData, outfile)
+        json.dump(metaData, outfile, object_pairs_hook=OrderedDict)
 
     # Return metaData dict for use with send_metadata function
     return metaData
@@ -126,15 +128,14 @@ def manually_set_metadata():
 # When metadata is available, send it to the Arduino
 def send_metadata(config, packet_id=0):
     # Read JSON file given to the function and obtain contents
-    with open(config_file_path, 'r') as inFile:
+    with open(config, 'r') as inFile:
         contents = inFile.read()
     # Convert from JSON to Dictionary using loads()
-    config = json.loads(contents)
+    config = json.loads(contents, object_pairs_hook=OrderedDict)
     # Give value type override list for sending packets
     # TODO: Add this as part of the configuration file creation and load
     # TODO: Ideally, configuration generation would prohibit user from making
     # config file too big
-    val_type_override_list: ["c", "I", "H", "H", "H", "c", "c", "H"]
     # Open transfer link, compile packet, and check packet size
     try:
         # Open comms to Arduino at default baud of 115200 TODO: Grab arduino port automatically
@@ -143,11 +144,9 @@ def send_metadata(config, packet_id=0):
         # https://docs.python.org/3/library/struct.html#format-characters
         # Start packet length of 0
         metaData_size = 0
-        # For each value in the dictionary
+        # For each value in the dictionary and override type
         for key, value in config.items():
-            # For each override type in the list
-            for type in val_type_override_list:
-                metaData_size += link.txobj(value, metaData_size, val_type_override=type)
+            metaData_size = link.txobj(value, metaData_size, val_type_override=byte_type)
         # If the packet is too long, tell experimenter to restructure and exit
         if metaData_size > 244:
             print("Packet is too long to transfer! Restructure config file.")
@@ -172,7 +171,7 @@ def send_metadata(config, packet_id=0):
             # Close link
             link.close()
         # If there's an error, say so and exit program
-        # TODO: Introduce error check that will resend several times
+        ## TODO: Introduce error check that will resend several times
         else:
             print("Error! Transfer Unsuccessful...")
             link.close()
