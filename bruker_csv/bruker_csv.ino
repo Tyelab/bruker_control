@@ -4,7 +4,7 @@
 // Rename SerialTransfer to myTransfer
 SerialTransfer myTransfer;
 
-const int MAX_NUM_TRIALS = 100; // maximum number of trials possible; much larger than needed but smaller than max value of metadata.totalNumberOfTrials
+const int MAX_NUM_TRIALS = 45; // maximum number of trials possible; much larger than needed but smaller than max value of metadata.totalNumberOfTrials
 
 
 
@@ -24,32 +24,69 @@ int32_t trialArray[MAX_NUM_TRIALS]; // create trial array
 int32_t ITIArray[MAX_NUM_TRIALS]; // create ITI array
 
 boolean acquireMetaData = true;
+boolean acquireTrials = false;
+boolean acquireITI = false;
 
 void setup()
 {
-  Serial.begin(9600);
+  Serial.begin(115200);
   Serial1.begin(115200);
-  
+
   myTransfer.begin(Serial1, true);
 }
 
 
 void loop(){
   metadata_rx();
+  trials_rx();
+  iti_rx();
 }
 
 
 int metadata_rx() {
   if (acquireMetaData) {
     if (myTransfer.available())
-    { 
+    {
       myTransfer.rxObj(metadata);
-      Serial.println("Received");
+      Serial.println("Received Metadata");
 
       myTransfer.sendDatum(metadata);
-      Serial.println("Sent");
+      Serial.println("Sent Metadata");
+      
       acquireMetaData = false;
+      acquireTrials = true;
     }
   }
 }
-//
+
+int trials_rx() {
+  if (acquireTrials) {
+    if (myTransfer.available())
+    {
+      // trialArray = trialArray[metadata.totalNumberOfTrials]; something like this?
+      myTransfer.rxObj(trialArray);
+      Serial.println("Received Trial Array");
+
+      myTransfer.sendDatum(trialArray);
+      Serial.println("Sent Trial Array");
+
+      acquireTrials = false;
+      acquireITI = true;
+    }
+  }
+}
+
+int iti_rx() {
+  if (acquireITI) {
+    if (myTransfer.available())
+    {
+      myTransfer.rxObj(ITIArray);
+      Serial.println("Received ITI Array");
+
+      myTransfer.sendDatum(ITIArray);
+      Serial.println("Sent ITI Array");
+      acquireITI = false;
+      // newTrial = true;
+    }
+  }
+}
