@@ -1,0 +1,11 @@
+{
+  {"metadata": {
+  "totalNumberOfTrials": {"value": 10, "val_type": "B"},
+  "trialNumber": {"value": 1, "val_type": "I"},
+  "noiseDuration": {"value": 2000, "val_type": "H"},
+  "punishTone": {"value": 2000, "val_type": "H"},
+  "rewardTone": {"value": 18000, "val_type": "H"},
+  "USDeliveryTime_Sucrose": {"value": 5, "val_type": "B"},
+  "USDeliveryTime_Air": {"value": 10, "val_type" : "B"},
+  "USConsumptionTime_Sucrose": {"value": 1000, "val_type": "H"}}}
+}
