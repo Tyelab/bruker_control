@@ -8,7 +8,7 @@ Currently, the code is functional for the Bruker 2P microscope.
 On the Python side:
 There are numerous hacks involved, some problems with timing the programs correctly, a lack of file naming and writing capabilities that is automatically formatted and stored in the correct location for a given animal, and usability issues that should be handled with the following future implementations (among others...):
 
-- [ ]  Multithreading: Preview camera, show live feed, send/receive Arduino information while starting camera
+- [ x ]  Multithreading: Preview camera, show live feed, send/receive Arduino information while starting camera
 - [ ] Code for recording from camera should be stopped by external trigger, automatically generated from Arduino or Bruker
 - [ ] Users should be able to use custom made trial arrays in Excel/CSV and change configurations on the fly as needed
 - [ ] Write randomly generated trial array and ITI array to `config.json`
