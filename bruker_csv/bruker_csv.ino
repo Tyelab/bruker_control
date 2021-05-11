@@ -4,15 +4,13 @@
 // Rename SerialTransfer to myTransfer
 SerialTransfer myTransfer;
 
-const int MAX_NUM_TRIALS = 45; // maximum number of trials possible; much larger than needed but smaller than max value of metadata.totalNumberOfTrials
+const int MAX_NUM_TRIALS = 10; // maximum number of trials possible; much larger than needed but smaller than max value of metadata.totalNumberOfTrials
 
 
 
 
 struct __attribute__((__packed__)) metadata_struct {
   uint8_t totalNumberOfTrials;              // total number of trials for experiment
-  uint32_t trialNumber;                     // set trial number for transmission
-  uint16_t noiseDuration;                   // length of tone played by speaker
   uint16_t punishTone;                      // airpuff frequency tone in Hz
   uint16_t rewardTone;                      // sucrose frequency tone in Hz
   uint8_t USDeliveryTime_Sucrose;           // amount of time to open sucrose solenoid
@@ -22,10 +20,12 @@ struct __attribute__((__packed__)) metadata_struct {
 
 int32_t trialArray[MAX_NUM_TRIALS]; // create trial array
 int32_t ITIArray[MAX_NUM_TRIALS]; // create ITI array
+int32_t noiseDurationArray[MAX_NUM_TRIALS]; 
 
 boolean acquireMetaData = true;
 boolean acquireTrials = false;
 boolean acquireITI = false;
+boolean acquireNoise = false;
 
 void setup()
 {
@@ -40,6 +40,7 @@ void loop(){
   metadata_rx();
   trials_rx();
   iti_rx();
+  noise_rx();
 }
 
 
@@ -63,7 +64,6 @@ int trials_rx() {
   if (acquireTrials) {
     if (myTransfer.available())
     {
-      // trialArray = trialArray[metadata.totalNumberOfTrials]; something like this?
       myTransfer.rxObj(trialArray);
       Serial.println("Received Trial Array");
 
@@ -86,7 +86,21 @@ int iti_rx() {
       myTransfer.sendDatum(ITIArray);
       Serial.println("Sent ITI Array");
       acquireITI = false;
-      // newTrial = true;
+      acquireNoise = true;
+    }
+  }
+}
+
+int noise_rx() {
+  if (acquireNoise) {
+    if (myTransfer.available())
+    {
+      myTransfer.rxObj(noiseDurationArray);
+      Serial.println("Received Noise Duration Array");
+
+      myTransfer.sendDatum(noiseDurationArray);
+      Serial.println("Sent Noise Duration Array");
+      acquireNoise = false;
     }
   }
 }

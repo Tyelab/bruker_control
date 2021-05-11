@@ -16,12 +16,10 @@ SerialTransfer myTransfer;
 // The maximum number of trials that can be run for a given experiment is 45
 // Anything larger requires multiple packets for transmission and also keep
 // the animal headfixed for too long.
-const int MAX_NUM_TRIALS = 45;
+const int MAX_NUM_TRIALS = 10;
 // Metadata is received as a struct and then renamed metadata
 struct __attribute__((__packed__)) metadata_struct {
   uint8_t totalNumberOfTrials;              // total number of trials for experiment
-  uint32_t trialNumber;                     // set trial number for transmission
-  uint16_t noiseDuration;                   // length of tone played by speaker
   uint16_t punishTone;                      // airpuff frequency tone in Hz
   uint16_t rewardTone;                      // sucrose frequency tone in Hz
   uint8_t USDeliveryTime_Sucrose;           // amount of time to open sucrose solenoid
@@ -35,8 +33,8 @@ struct __attribute__((__packed__)) metadata_struct {
 int32_t trialArray[MAX_NUM_TRIALS];
 // The ITI for each trial is transmitted from Python to the Arduino
 int32_t ITIArray[MAX_NUM_TRIALS];
-// The amount of time a tone is played is sotred in its own array
-int noiseDurationArray[MAX_NUM_TRIALS];
+// The amount of time a tone is transmitted from Python to the Arudino
+int32_t noiseDurationArray[MAX_NUM_TRIALS];
 
 //// TRIAL TYPES ////
 // trial variables are encoded as 0 and 1
@@ -52,7 +50,9 @@ int currentTrial = 0;
 boolean acquireMetaData = true;
 boolean acquireTrials = false;
 boolean acquireITI = false;
+boolean acquireNoise = false;
 // Experiment State Flags
+boolean brukerTrigger = false;
 boolean newTrial = false;
 boolean ITI = false;
 boolean newUSDelivery = false;
@@ -139,7 +139,6 @@ int trials_rx() {
   if (acquireTrials) {
     if (myTransfer.available())
     {
-      // trialArray = trialArray[metadata.totalNumberOfTrials]; something like this?
       myTransfer.rxObj(trialArray);
       Serial.println("Received Trial Array");
 
@@ -151,7 +150,7 @@ int trials_rx() {
     }
   }
 }
-// Finally, an array of ITI values are received and stored.
+// Next, an array of ITI values are received and stored.
 int iti_rx() {
   if (acquireITI) {
     if (myTransfer.available())
@@ -162,11 +161,36 @@ int iti_rx() {
       myTransfer.sendDatum(ITIArray);
       Serial.println("Sent ITI Array");
       acquireITI = false;
-      digitalWriteFast(bruker2PTriggerPin, HIGH);
-      Serial.println("Sent Bruker Trigger!");
-      digitalWriteFast(bruker2PTriggerPin, LOW)
-      newTrial = true;
+      acquireNoise = true;
     }
+  }
+}
+// Finally, an array of noise duration values are received and stored.
+int noise_rx() {
+  if (acquireNoise) {
+    if (myTransfer.available())
+    {
+      myTransfer.rxObj(noiseDurationArray);
+      Serial.println("Received Noise Duration Array");
+
+      myTransfer.sendDatum(noiseDurationArray);
+      Serial.println("Sent Noise Duration Array");
+      acquireNoise = false;
+      brukerTrigger = true;
+    }
+  }
+}
+
+//// BRUKER TRIGGER Function ////
+void bruker_trigger() {
+  if (brukerTrigger) {
+    Serial.println("Sending Bruker Trigger");
+    digitalWriteFast(bruker2PTriggerPin, HIGH);
+    Serial.println("Bruker Trigger Sent!");
+    digitalWriteFast(bruker2PTriggerPin, LOW);
+    brukerTrigger = false;
+
+    newTrial = true;
   }
 }
 
@@ -185,11 +209,12 @@ void lickDetect() {
   lasttouched = currtouched;
 }
 
+// ITI Function
 void startITI(long ms) {
   if (newTrial) {                                 // start new ITI
-    Serial.print("staring trial ");
+    Serial.print("Starting New Trial: ");
     Serial.println(currentTrial);
-    trialType = trialArray[currentTrial];     // assign trial type
+    trialType = trialArray[currentTrial];         // gather trial type
     newTrial = false;
     ITI = true;
     int thisITI = ITIArray[currentTrial];         // get ITI for this trial
@@ -197,14 +222,13 @@ void startITI(long ms) {
     // turn off when done
   } else if (ITI && (ms >= ITIend)) {             // ITI is over
     ITI = false;
-    newUSDelivery = true;
     noise = true;
-    noiseDAQ = true;
   }
 }
 
+
 // Noise Functions
-// play tone function
+// Play tone function
 void tonePlayer(long ms) {
   if (noise) {
     Serial.println("Playing Tone");
@@ -215,31 +239,23 @@ void tonePlayer(long ms) {
     digitalWriteFast(speakerDeliveryPin, HIGH);
     switch (trialType) {
       case 0:
-        Serial.println("AIR");
+        Serial.println("Air");
         tone(speakerPin, 2000, thisNoiseDuration);
         break;
       case 1:
-        Serial.println("SUCROSE");
+        Serial.println("Sucrose");
         tone(speakerPin, 9000, thisNoiseDuration);
         break;
     }
   }
 }
 
-// tone delivery timer function; removed...
-//void toneDelivery(long ms) {
-//  if (noiseDAQ && (ms <= noiseListeningMS)) {
-//    digitalWriteFast(speakerDeliveryPin, HIGH);
-//    noiseDAQMS = ms + noiseDuration;
-//  }
-//}
-
 
 void onTone(long ms) {
   if (noiseDAQ && (ms >= noiseListeningMS)){
-    digitalWriteFast(speakerDeliveryPin, LOW);
     noiseDAQ = false;
-    noise = false;
+    digitalWriteFast(speakerDeliveryPin, LOW);
+    newUSDelivery = true;
   }
 }
 
@@ -248,20 +264,19 @@ void USDelivery(long ms) {
   if (newUSDelivery && (ms >= noiseListeningMS)) {
     Serial.println("Delivering US");
     Serial.println(trialType);
+    newUSDelivery = false;
+    solenoidOn = true;
     switch (trialType) {
       case 0: 
         Serial.println("Delivering Airpuff");
-        newUSDelivery = false;
-        solenoidOn = true;
         USDeliveryMS = (ms + metadata.USDeliveryTime_Air);
+        Serial.println(metadata.USDeliveryTime_Air);
         digitalWriteFast(solPin_air, HIGH);
         digitalWriteFast(airDeliveryPin, HIGH);
         break;
       case 1:
         Serial.println("Delivering Sucrose");
-        newUSDelivery = false;
-        solenoidOn = true;
-        USDeliveryMS = (ms + metadata.USDeliveryTime_Sucrose);    
+        USDeliveryMS = (ms + metadata.USDeliveryTime_Sucrose);
         digitalWriteFast(solPin_liquid, HIGH);
         digitalWriteFast(sucroseDeliveryPin, HIGH);
         break;
@@ -269,11 +284,11 @@ void USDelivery(long ms) {
   }
 }
 
-void onSolenoid(long ms) {
+void offSolenoid(long ms) {
   if (solenoidOn && (ms >= USDeliveryMS)) {
     switch (trialType) {
       case 0:
-        Serial.println("air solenoid off");
+        Serial.println("Air Solenoid Off");
         solenoidOn = false;
         digitalWriteFast(solPin_air, LOW);
         digitalWriteFast(airDeliveryPin, LOW);
@@ -281,10 +296,11 @@ void onSolenoid(long ms) {
         currentTrial++;
         break;
       case 1:
-        Serial.println("liquid solenoid off");
+        Serial.println("Liquid Solenoid Off");
         solenoidOn = false;
-        consume = true;
         sucroseConsumptionMS = (ms + metadata.USConsumptionTime_Sucrose);
+        Serial.println(sucroseConsumptionMS);
+        consume = true;
         digitalWriteFast(solPin_liquid, LOW);
         digitalWriteFast(sucroseDeliveryPin, LOW);
         break;
@@ -294,7 +310,7 @@ void onSolenoid(long ms) {
 
 void consuming(long ms){
   if (consume && (ms >= sucroseConsumptionMS)) {         // move on after allowed to consume
-    Serial.println("consuming...");
+    Serial.println("Consuming...");
     consume = false;
     cleanIt = true;
   }
@@ -303,14 +319,14 @@ void consuming(long ms){
 // Vacuum Control
 void vacuum(long ms) {
   if (cleanIt) {
-    Serial.println("cleaning...");
+    Serial.println("Cleaning...");
     cleanIt = false;
     vacOn = true;
     vacTime = ms + vacDelay;
     digitalWriteFast(vacPin, HIGH);
   }
   else if (vacOn && (ms >= vacTime)) {
-    Serial.println("stop cleaning...");
+    Serial.println("Stop Cleaning...");
     vacOn = false;
     digitalWriteFast(vacPin, LOW);
     newTrial = true;
@@ -354,6 +370,8 @@ void loop() {
   metadata_rx();
   trials_rx();
   iti_rx();
+  noise_rx();
+  bruker_trigger();
   if (currentTrial < metadata.totalNumberOfTrials) {
     ms = millis();
     lickDetect();
@@ -361,8 +379,13 @@ void loop() {
     tonePlayer(ms);
     onTone(ms);
     USDelivery(ms);
-    onSolenoid(ms);
+    offSolenoid(ms);
     consuming(ms);
     vacuum(ms);
   }
+//  else {
+//    newTrial = false;
+//    acquireMetaData = true;
+//    
+//  }
 }

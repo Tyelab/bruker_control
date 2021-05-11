@@ -213,9 +213,36 @@ def import_iti_array(file):
     # code...
     return
 
+def gen_noise_array(totalNumberOfTrials):
+    # Initialize empty iti trial array
+    noise_array = []
+    # Define lower and upper limits on ITI values in ms
+    noise_lower, noise_upper = 2500, 3500
+    # Define mean and variance for ITI values
+    mu, sigma = 3000, 1000
+    # Upper bound calculation
+    upper_bound = (noise_upper - mu)/sigma
+    # Lower bound calculation
+    lower_bound = (noise_lower - mu)/sigma
+    # Generate array by sampling from truncated normal distribution w/scipy
+    noise_array = truncnorm.rvs(
+    lower_bound, upper_bound, loc=mu, scale=sigma, size=totalNumberOfTrials
+    )
+    # ITI Array generated with have decimals in it and be float type
+    # Use np.round() to round the elements in the array and type them as int
+    noise_array = np.round(noise_array).astype(int)
+    # Finally, generate ITIArray as a list for pySerialTransfer
+    noiseDurationArray = noise_array.tolist()
+
+    ## TODO: Write out the ITI array into JSON as part of experiment config
+
+    # Return ITIArray
+    return noiseDurationArray
+
 if __name__ == '__main__':
     trialArray = gen_trial_array(10)
     ITIArray = gen_iti_array(10)
+    noiseDurationArray = gen_noise_array(10)
     try:
         # Initialize COM Port for Serial Transfer
         link = txfer.SerialTransfer('COM12', 115200, debug=True)
@@ -230,7 +257,6 @@ if __name__ == '__main__':
         # stuff TX buffer (https://docs.python.org/3/library/struct.html#format-characters)
         metaData_size = 0
         metaData_size = link.tx_obj(config['metadata']['totalNumberOfTrials']['value'],       metaData_size, val_type_override='B')
-        metaData_size = link.tx_obj(config['metadata']['trialNumber']['value'],               metaData_size, val_type_override='I')
         metaData_size = link.tx_obj(config['metadata']['noiseDuration']['value'],             metaData_size, val_type_override='H')
         metaData_size = link.tx_obj(config['metadata']['punishTone']['value'],                metaData_size, val_type_override='H')
         metaData_size = link.tx_obj(config['metadata']['rewardTone']['value'],                metaData_size, val_type_override='H')
@@ -252,10 +278,6 @@ if __name__ == '__main__':
 
         rxmetaData['totalNumberOfTrials'] = link.rx_obj(obj_type='B', start_pos=rxmetaData_size)
         rxmetaData_size += txfer.ARRAY_FORMAT_LENGTHS['B']
-        rxmetaData['trialNumber'] = link.rx_obj(obj_type='I', start_pos=rxmetaData_size)
-        rxmetaData_size += txfer.ARRAY_FORMAT_LENGTHS['I']
-        rxmetaData['noiseDuration'] = link.rx_obj(obj_type='H', start_pos=rxmetaData_size)
-        rxmetaData_size += txfer.ARRAY_FORMAT_LENGTHS['H']
         rxmetaData['punishTone'] = link.rx_obj(obj_type='H', start_pos=rxmetaData_size)
         rxmetaData_size += txfer.ARRAY_FORMAT_LENGTHS['H']
         rxmetaData['rewardTone'] = link.rx_obj(obj_type='H', start_pos=rxmetaData_size)
@@ -314,6 +336,22 @@ if __name__ == '__main__':
         list_format='i')
 
         print(rxITIArray)
+
+        noiseDurationArray_size = 0
+        noiseDurationArray_size = link.tx_obj(noiseDurationArray)
+        link.send(noiseDurationArray_size, packet_id=3)
+
+        print(noiseDurationArray)
+
+        while not link.available():
+            pass
+
+        # Receive Noise Duration Array
+        rxnoiseDurationArray = link.rx_obj(obj_type=type(noiseDurationArray),
+        obj_byte_size=noiseDurationArray_size,
+        list_format='i')
+
+        print(rxnoiseDurationArray)
 
         link.close()
 

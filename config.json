@@ -1,11 +1,9 @@
 {"metadata": {
 "totalNumberOfTrials": {"value": 10},
-"trialNumber": {"value": 1},
-"noiseDuration": {"value": 2000},
 "punishTone": {"value": 2000},
 "rewardTone": {"value": 18000},
 "USDeliveryTime_Sucrose": {"value": 5},
-"USDeliveryTime_Air": {"value": 10},
+"USDeliveryTime_Air": {"value": 50},
 "USConsumptionTime_Sucrose": {"value": 1000}
   }
 }

@@ -39,11 +39,13 @@ from harvesters.util.pfnc import mono_location_formats
 # Import matplotlib for displaying images
 import matplotlib.pyplot as plt
 # Import OpenCV2 to write images/videos to file
-import cv2 as cv
+import cv2
 # Import OS to change directories and write files to disk
 import os
 # Import sys for exiting program safely
 import sys
+# Import time
+import time
 
 #### Prairie View Interface ####
 # NOTE:
@@ -63,9 +65,9 @@ def gen_trial_array(totalNumberOfTrials):
     # Define number of samples needed from generator
     num_samples = totalNumberOfTrials - len(trialArray)
     # Define probability that the animal will receive sucrose 60% of the time
-    sucrose_prob = 0.60
+    sucrose_prob = 0.5
     # Initialize random number generator with default_rng
-    rng = np.random.default_rng()
+    rng = np.random.default_rng(2)
     # Generate a random trial array with Generator.binomial
     # Use n=1 to pull one sample at a time, p=.6 as probability of sucrose
     # Use num_samples to fill out accurate number of trials
@@ -78,7 +80,6 @@ def gen_trial_array(totalNumberOfTrials):
         trialArray.append(i)
 
     ## TODO: Write out the trial array into JSON as part of experiment config
-
     # Return trialArray
     return trialArray
 
@@ -108,6 +109,33 @@ def gen_iti_array(totalNumberOfTrials):
 
     # Return ITIArray
     return ITIArray
+
+# Noise Array Generation
+def gen_noise_array(totalNumberOfTrials):
+    # Initialize empty iti trial array
+    noise_array = []
+    # Define lower and upper limits on ITI values in ms
+    noise_lower, noise_upper = 2500, 3500
+    # Define mean and variance for ITI values
+    mu, sigma = 3000, 1000
+    # Upper bound calculation
+    upper_bound = (noise_upper - mu)/sigma
+    # Lower bound calculation
+    lower_bound = (noise_lower - mu)/sigma
+    # Generate array by sampling from truncated normal distribution w/scipy
+    noise_array = truncnorm.rvs(
+    lower_bound, upper_bound, loc=mu, scale=sigma, size=totalNumberOfTrials
+    )
+    # ITI Array generated with have decimals in it and be float type
+    # Use np.round() to round the elements in the array and type them as int
+    noise_array = np.round(noise_array).astype(int)
+    # Finally, generate ITIArray as a list for pySerialTransfer
+    noiseDurationArray = noise_array.tolist()
+
+    ## TODO: Write out the ITI array into JSON as part of experiment config
+
+    # Return ITIArray
+    return noiseDurationArray
 
 #### Camera Control ####
 # Initialize Camera for Recording
@@ -140,7 +168,7 @@ def init_camera_recording():
     # Record continuously
     n.AcquisitionMode.value = "Continuous"
     # Enable triggers
-    n.TriggerMode.value = "On"
+    n.TriggerMode.value = "Off"
     # Trigger camera on rising edge of input signal
     n.TriggerActivation.value = "RisingEdge"
     # Select Line 2 as the Trigger Source and Input Source
@@ -152,6 +180,7 @@ def init_camera_recording():
     # Start the acquisition, return camera and harvester for buffer
     print("Starting Acquisition")
     camera.start_acquisition()
+    time.sleep(3)
 
     # Return Harvester, camera, and frame dimensions
     return h, camera, width, height
@@ -166,13 +195,14 @@ def capture_recording(number_frames):
     # Define number of frames to record TODO: Make this an input/from setup
     num_frames = number_frames
     # Define video codec for writing images
-    fourcc = cv.VideoWriter_fourcc(*'DIVX')
+    fourcc = cv2.VideoWriter_fourcc(*'DIVX')
     # Start the Camera
     h, camera, width, height = init_camera_recording()
     # Write file to disk
     # Create VideoWriter object: file, codec, framerate, dims, color value
-    out = cv.VideoWriter(filename, fourcc, 30, (width, height), isColor=False)
+    out = cv2.VideoWriter(filename, fourcc, 30, (width, height), isColor=False)
     print("VideoWriter created")
+    number = 0
     for i in range(num_frames):
         # Use with statement to acquire buffer, payload, an data
         # Payload is 1D numpy array, RESHAPE WITH HEIGHT THEN WIDTH
@@ -182,7 +212,11 @@ def capture_recording(number_frames):
             content = buffer.payload.components[0].data.reshape(height, width)
             # Debugging statment, print content shape and frame number
             out.write(content)
-            print(np.shape(content))
+            print(content.shape)
+            cv2.imshow("Live", content)
+            cv2.waitKey(1)
+            number += 1
+            print(number)
 
     # Release VideoWriter object
     out.release()
@@ -205,13 +239,13 @@ def shutdown_camera(image_acquirer, harvester):
     harvester.reset()
 
 #### Serial Transfer to Arduino ####
-def serial_transfer(trialArray, ITIArray):
+def serial_transfer(trialArray, ITIArray, noiseDurationArray):
     try:
         # Initialize COM Port for Serial Transfer
         link = txfer.SerialTransfer('COM12', 115200, debug=True)
 
         #read JSON config file
-        with open('C:/Users/jdelahanty/Documents/gitrepos/headfix_control/bruker_control/config.json', 'r') as inFile:
+        with open('C:/Users/jdelahanty/Documents/gitrepos/headfix_control/config.json', 'r') as inFile:
             contents = inFile.read()
 
         # Convert from JSON to Dictionary
@@ -220,8 +254,6 @@ def serial_transfer(trialArray, ITIArray):
         # stuff TX buffer (https://docs.python.org/3/library/struct.html#format-characters)
         metaData_size = 0
         metaData_size = link.tx_obj(config['metadata']['totalNumberOfTrials']['value'],       metaData_size, val_type_override='B')
-        metaData_size = link.tx_obj(config['metadata']['trialNumber']['value'],               metaData_size, val_type_override='I')
-        metaData_size = link.tx_obj(config['metadata']['noiseDuration']['value'],             metaData_size, val_type_override='H')
         metaData_size = link.tx_obj(config['metadata']['punishTone']['value'],                metaData_size, val_type_override='H')
         metaData_size = link.tx_obj(config['metadata']['rewardTone']['value'],                metaData_size, val_type_override='H')
         metaData_size = link.tx_obj(config['metadata']['USDeliveryTime_Sucrose']['value'],    metaData_size, val_type_override='B')
@@ -242,10 +274,6 @@ def serial_transfer(trialArray, ITIArray):
 
         rxmetaData['totalNumberOfTrials'] = link.rx_obj(obj_type='B', start_pos=rxmetaData_size)
         rxmetaData_size += txfer.ARRAY_FORMAT_LENGTHS['B']
-        rxmetaData['trialNumber'] = link.rx_obj(obj_type='I', start_pos=rxmetaData_size)
-        rxmetaData_size += txfer.ARRAY_FORMAT_LENGTHS['I']
-        rxmetaData['noiseDuration'] = link.rx_obj(obj_type='H', start_pos=rxmetaData_size)
-        rxmetaData_size += txfer.ARRAY_FORMAT_LENGTHS['H']
         rxmetaData['punishTone'] = link.rx_obj(obj_type='H', start_pos=rxmetaData_size)
         rxmetaData_size += txfer.ARRAY_FORMAT_LENGTHS['H']
         rxmetaData['rewardTone'] = link.rx_obj(obj_type='H', start_pos=rxmetaData_size)
@@ -255,8 +283,6 @@ def serial_transfer(trialArray, ITIArray):
         rxmetaData['USDeliveryTime_Air'] = link.rx_obj(obj_type='B', start_pos=rxmetaData_size)
         rxmetaData_size += txfer.ARRAY_FORMAT_LENGTHS['B']
         rxmetaData['USConsumptionTime_Sucrose'] = link.rx_obj(obj_type='H', start_pos=rxmetaData_size)
-
-        # link.close()
 
         print(rxmetaData)
 
@@ -268,7 +294,7 @@ def serial_transfer(trialArray, ITIArray):
         #     print("Metadata error! Exiting...")
         #     sys.exit()
 
-        # link.open()
+
         # Now send the trial array:
         trialArray_size = 0
         trialArray_size = link.tx_obj(trialArray)
@@ -288,7 +314,7 @@ def serial_transfer(trialArray, ITIArray):
         #     print("Trial Array error! Exiting...")
         #     sys.exit()
 
-        # Finally, send ITI array:
+        # Send ITI array:
         ITIArray_size = 0
         ITIArray_size = link.tx_obj(ITIArray)
         link.send(ITIArray_size, packet_id=2)
@@ -304,9 +330,25 @@ def serial_transfer(trialArray, ITIArray):
         list_format='i')
 
         print(rxITIArray)
-        print("All data transmitted!")
+
+        noiseDurationArray_size = 0
+        noiseDurationArray_size = link.tx_obj(noiseDurationArray)
+        link.send(noiseDurationArray_size, packet_id=3)
+
+        print(noiseDurationArray)
+
+        while not link.available():
+            pass
+
+        # Receive Noise Duration Array
+        rxnoiseDurationArray = link.rx_obj(obj_type=type(noiseDurationArray),
+        obj_byte_size=noiseDurationArray_size,
+        list_format='i')
+
+        print(rxnoiseDurationArray)
 
         link.close()
+
 
         # Confirm data was sent/received properly:
         # if ITIArray == rxITIArray:
@@ -315,6 +357,8 @@ def serial_transfer(trialArray, ITIArray):
         # else:
         #     print("ITI Array error! Exiting...")
         #     sys.exit()
+
+
 
     except KeyboardInterrupt:
         try:
@@ -333,11 +377,15 @@ def serial_transfer(trialArray, ITIArray):
 if __name__ == "__main__":
     trialArray = gen_trial_array(10)
     ITIArray = gen_iti_array(10)
-    serial_transfer(trialArray, ITIArray)
-    capture_recording(100)
-    pl.Connect()
-    print("Connected")
-    pl.SendScriptCommands("-Abort")
-    pl.Disconnect()
-    print("Disconnected")
+    noiseDurationArray = gen_noise_array(10)
+    # serial_transfer(trialArray, ITIArray, noiseDurationArray)
+    capture_recording(300)
+    print("Video Complete")
+    # print("Connected to Prairie View")
+    # pl.Connect()
+    # pl.SendScriptCommands("-Abort")
+    # pl.Disconnect()
+    # print("Disconnected from Prairie View")
     print("Experiment Over!")
+    print("Exiting...")
+    sys.exit()
