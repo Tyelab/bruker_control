@@ -36,9 +36,11 @@ from pySerialTransfer import pySerialTransfer as txfer
 from harvesters.core import Harvester
 # Import mono8 location format, our Genie Nano uses mono8 or mono10
 from harvesters.util.pfnc import mono_location_formats
+
+#### Other Packages ####
 # Import matplotlib for displaying images
 import matplotlib.pyplot as plt
-# Import OpenCV2 to write images/videos to file
+# Import OpenCV2 to write images/videos to file + previews
 import cv2
 # Import OS to change directories and write files to disk
 import os
@@ -138,6 +140,62 @@ def gen_noise_array(totalNumberOfTrials):
     return noiseDurationArray
 
 #### Camera Control ####
+# Initiate Preview Camera
+def init_camera_preview():
+    camera = None
+
+    #### Setup Harvester ####
+    # Create harvester object as h
+    h = Harvester()
+    # Give path to GENTL producer
+    cti_file = "C:/Program Files/MATRIX VISION/mvIMPACT Acquire/bin/x64/mvGENTLProducer.cti"
+    # Add GENTL producer to Harvester object
+    h.add_file(cti_file)
+    # Update Harvester object
+    h.update()
+    # Print device list to make sure camera is present
+    print("Connected to Camera: \n", h.device_info_list)
+
+    #### Grab Camera, Change Settings ####
+    # Create image_acquirer object for Harvester, grab first (only) device
+    camera = h.create_image_acquirer(0)
+    # Gather node map to camera properties
+    n = camera.remote_device.node_map
+    # Save camera width and height parameters
+    width = n.Width.value
+    height = n.Height.value
+    # Change camera properties for continuous recording, no triggers needed
+    n.AcquisitionMode.value = "Continuous"
+    n.TriggerMode.value = "Off"
+
+    print("Preview Mode: ", n.AcquisitionMode.value)
+    # Start the acquisition, return camera and harvester for buffer
+    print("Starting Preview")
+    camera.start_acquisition()
+
+    return h, camera, width, height
+
+# Capture Preview of Camera
+def capture_preview():
+    h, camera, width, height = init_camera_preview()
+    preview_status = True
+    while preview_status == True:
+        with camera.fetch_buffer() as buffer:
+            # Define frame content with buffer.payload
+            content = buffer.payload.components[0].data.reshape(height, width)
+            # Provide preview for camera contents:
+            cv2.imshow("Preview", content)
+            cv2.waitKey(1)
+            # if input("To end preview, type 's': ") == "s":
+            #     preview_status = False
+            # else:
+            #     pass
+
+    print("Preview Ending")
+
+    # Shutdown the camera
+    shutdown_camera(camera, h)
+
 # Initialize Camera for Recording
 def init_camera_recording():
     camera = None
@@ -168,7 +226,7 @@ def init_camera_recording():
     # Record continuously
     n.AcquisitionMode.value = "Continuous"
     # Enable triggers
-    n.TriggerMode.value = "Off"
+    n.TriggerMode.value = "On"
     # Trigger camera on rising edge of input signal
     n.TriggerActivation.value = "RisingEdge"
     # Select Line 2 as the Trigger Source and Input Source
@@ -180,6 +238,8 @@ def init_camera_recording():
     # Start the acquisition, return camera and harvester for buffer
     print("Starting Acquisition")
     camera.start_acquisition()
+
+    # Sleep the program for three seconds to let buffer get started...
     time.sleep(3)
 
     # Return Harvester, camera, and frame dimensions
@@ -202,29 +262,33 @@ def capture_recording(number_frames):
     # Create VideoWriter object: file, codec, framerate, dims, color value
     out = cv2.VideoWriter(filename, fourcc, 30, (width, height), isColor=False)
     print("VideoWriter created")
-    number = 0
+    frame_number = 0
     for i in range(num_frames):
-        # Use with statement to acquire buffer, payload, an data
-        # Payload is 1D numpy array, RESHAPE WITH HEIGHT THEN WIDTH
-        # Numpy is backwards, reshaping as heightxwidth writes correctly
-        with camera.fetch_buffer() as buffer:
-            # Define frame content with buffer.payload
-            content = buffer.payload.components[0].data.reshape(height, width)
-            # Debugging statment, print content shape and frame number
-            out.write(content)
-            print(content.shape)
-            cv2.imshow("Live", content)
-            cv2.waitKey(1)
-            number += 1
-            print(number)
+        # Introduce try/except block in case of dropped frames
+        # More elegant solution for packet loss is necessary...
+        try:
+            # Use with statement to acquire buffer, payload, an data
+            # Payload is 1D numpy array, RESHAPE WITH HEIGHT THEN WIDTH
+            # Numpy is backwards, reshaping as heightxwidth writes correctly
+            with camera.fetch_buffer() as buffer:
+                # Define frame content with buffer.payload
+                content = buffer.payload.components[0].data.reshape(height, width)
+                # Debugging statment, print content shape and frame number
+                out.write(content)
+                print(content.shape)
+                cv2.imshow("Live", content)
+                cv2.waitKey(1)
+                number += 1
+                print(frame_number)
+        except:
+            print(frame_number)
+            print("Frame Dropped/Packet Loss")
+            pass
 
     # Release VideoWriter object
     out.release()
     # Shutdown the camera
     shutdown_camera(camera, h)
-    # Exit the program
-    # print("Exiting...")
-    # sys.exit(0)
 
 # Shutdown Camera
 def shutdown_camera(image_acquirer, harvester):
@@ -378,8 +442,9 @@ if __name__ == "__main__":
     trialArray = gen_trial_array(10)
     ITIArray = gen_iti_array(10)
     noiseDurationArray = gen_noise_array(10)
+    capture_preview()
     # serial_transfer(trialArray, ITIArray, noiseDurationArray)
-    capture_recording(300)
+    # capture_recording(600)
     print("Video Complete")
     # print("Connected to Prairie View")
     # pl.Connect()

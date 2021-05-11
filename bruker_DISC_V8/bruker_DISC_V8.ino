@@ -1,5 +1,5 @@
 // Control code for Arduino Delivery of Stimuli for Bruker 2P Experiments
-// Jeremy Delahanty, Kyle Fischer May 2021
+// Jeremy Delahanty, Dexter Tsin, Kyle Fischer May 2021
 // Adapted from DISC_V7.ino by Kyle Fischer and Mauri van der Huevel Oct. 2019
 // digitalWriteFast.h written by Watterott Electronic https://github.com/watterott/Arduino-Libs/tree/master/digitalWriteFast
 // SerialTransfer.h written by PowerBroker2 https://github.com/PowerBroker2/SerialTransfer
@@ -337,7 +337,7 @@ void vacuum(long ms) {
 //// SETUP ////
 void setup() {
   // -- DEFINE BITRATE -- //
-  // Serial debugging on COM13, use Ctrl+Shift+M
+  // Serial debugging from Arduino, use Ctrl+Shift+M to open
   Serial.begin(115200);
 
   // Serial transfer of trials on UART Converter COM port
