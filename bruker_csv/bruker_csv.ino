@@ -37,10 +37,10 @@ void setup()
 
 
 void loop(){
-  metadata_rx();
-//  trials_rx();
-//  iti_rx();
-//  noise_rx();
+//  metadata_rx();
+  trials_rx();
+  iti_rx();
+  noise_rx();
 }
 
 
@@ -100,7 +100,7 @@ int noise_rx() {
 
       myTransfer.sendDatum(noiseArray);
       Serial.println("Sent Noise Array");
-      acquireNoise = false;
+      acquireNoise = true;
     }
   }
 }
