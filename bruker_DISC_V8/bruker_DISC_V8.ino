@@ -13,10 +13,8 @@
 SerialTransfer myTransfer;
 
 //// EXPERIMENT METADATA ////
-// The maximum number of trials that can be run for a given experiment is 45
-// Anything larger requires multiple packets for transmission and also keep
-// the animal headfixed for too long.
-const int MAX_NUM_TRIALS = 10;
+// The maximum number of trials that can be run for a given experiment is 90
+const int MAX_NUM_TRIALS = 30;
 // Metadata is received as a struct and then renamed metadata
 struct __attribute__((__packed__)) metadata_struct {
   uint8_t totalNumberOfTrials;              // total number of trials for experiment
@@ -34,7 +32,7 @@ int32_t trialArray[MAX_NUM_TRIALS];
 // The ITI for each trial is transmitted from Python to the Arduino
 int32_t ITIArray[MAX_NUM_TRIALS];
 // The amount of time a tone is transmitted from Python to the Arudino
-int32_t noiseDurationArray[MAX_NUM_TRIALS];
+int32_t noiseArray[MAX_NUM_TRIALS];
 
 //// TRIAL TYPES ////
 // trial variables are encoded as 0 and 1
@@ -128,7 +126,7 @@ int metadata_rx() {
 
       myTransfer.sendDatum(metadata);
       Serial.println("Sent Metadata");
-      
+
       acquireMetaData = false;
       acquireTrials = true;
     }
@@ -170,12 +168,12 @@ int noise_rx() {
   if (acquireNoise) {
     if (myTransfer.available())
     {
-      myTransfer.rxObj(noiseDurationArray);
+      myTransfer.rxObj(noiseArray);
       Serial.println("Received Noise Duration Array");
 
-      myTransfer.sendDatum(noiseDurationArray);
+      myTransfer.sendDatum(noiseArray);
       Serial.println("Sent Noise Duration Array");
-      acquireNoise = false;
+      acquireNoise = true;
       brukerTrigger = true;
     }
   }
@@ -232,7 +230,7 @@ void startITI(long ms) {
 void tonePlayer(long ms) {
   if (noise) {
     Serial.println("Playing Tone");
-    int thisNoiseDuration = noiseDurationArray[currentTrial];
+    int thisNoiseDuration = noiseArray[currentTrial];
     noise = false;
     noiseDAQ = true;
     noiseListeningMS = ms + thisNoiseDuration;
@@ -267,7 +265,7 @@ void USDelivery(long ms) {
     newUSDelivery = false;
     solenoidOn = true;
     switch (trialType) {
-      case 0: 
+      case 0:
         Serial.println("Delivering Airpuff");
         USDeliveryMS = (ms + metadata.USDeliveryTime_Air);
         Serial.println(metadata.USDeliveryTime_Air);
@@ -343,7 +341,7 @@ void setup() {
   // Serial transfer of trials on UART Converter COM port
   Serial1.begin(115200);
   myTransfer.begin(Serial1, true);
-  
+
   // -- DEFINE PINS -- //
   // input
   pinMode(lickPin, INPUT);
@@ -386,6 +384,6 @@ void loop() {
 //  else {
 //    newTrial = false;
 //    acquireMetaData = true;
-//    
+//
 //  }
 }

@@ -4,7 +4,7 @@
 // Rename SerialTransfer to myTransfer
 SerialTransfer myTransfer;
 
-const int MAX_NUM_TRIALS = 10; // maximum number of trials possible; much larger than needed but smaller than max value of metadata.totalNumberOfTrials
+const int MAX_NUM_TRIALS = 46; // maximum number of trials possible; much larger than needed but smaller than max value of metadata.totalNumberOfTrials
 
 
 
@@ -20,10 +20,10 @@ struct __attribute__((__packed__)) metadata_struct {
 
 int32_t trialArray[MAX_NUM_TRIALS]; // create trial array
 int32_t ITIArray[MAX_NUM_TRIALS]; // create ITI array
-int32_t noiseDurationArray[MAX_NUM_TRIALS]; 
+int32_t noiseArray[MAX_NUM_TRIALS]; // create noise array
 
 boolean acquireMetaData = true;
-boolean acquireTrials = false;
+boolean acquireTrials = true;
 boolean acquireITI = false;
 boolean acquireNoise = false;
 
@@ -38,9 +38,9 @@ void setup()
 
 void loop(){
   metadata_rx();
-  trials_rx();
-  iti_rx();
-  noise_rx();
+//  trials_rx();
+//  iti_rx();
+//  noise_rx();
 }
 
 
@@ -95,11 +95,11 @@ int noise_rx() {
   if (acquireNoise) {
     if (myTransfer.available())
     {
-      myTransfer.rxObj(noiseDurationArray);
-      Serial.println("Received Noise Duration Array");
+      myTransfer.rxObj(noiseArray);
+      Serial.println("Received Noise Array");
 
-      myTransfer.sendDatum(noiseDurationArray);
-      Serial.println("Sent Noise Duration Array");
+      myTransfer.sendDatum(noiseArray);
+      Serial.println("Sent Noise Array");
       acquireNoise = false;
     }
   }
