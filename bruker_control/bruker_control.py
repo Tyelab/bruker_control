@@ -630,6 +630,9 @@ def serialtransfer_trialArray_multipacket(first_trialArray, second_trialArray):
         print("Second Half of Trials Sent")
         print(second_trialArray)
 
+        while not link.available():
+            pass
+
         # Receive second half of trials from Arduino
         rxsecond_trialArray = link.rx_obj(obj_type=type(second_trialArray),
                                           obj_byte_size=second_trialArray_size,
@@ -721,6 +724,9 @@ def serialtransfer_ITIArray_multipacket(first_ITIArray, second_ITIArray):
         print("Second Half of ITIs Sent")
         print(second_ITIArray)
 
+        while not link.available():
+            pass
+
         # Receive second half of trials from Arduino
         rxsecond_ITIArray = link.rx_obj(obj_type=type(second_ITIArray),
                                         obj_byte_size=second_ITIArray_size,
@@ -811,6 +817,9 @@ def serialtransfer_noiseArray_multipacket(first_noiseArray, second_noiseArray):
 
         print("Second Half of Noises Sent")
         print(second_noiseArray)
+
+        while not link.available():
+            pass
 
         # Receive second half of trials from Arduino
         rxsecond_noiseArray = link.rx_obj(obj_type=type(second_noiseArray),
@@ -1163,7 +1172,7 @@ if __name__ == "__main__":
     elif trials > 45:
 
         # Send configuration file
-        serialtransfer_metadata(config_file)
+        serialtransfer_metadata(config)
 
         # Generate multipacket arrays
         first_trialArray, second_trialArray = gen_trialArray_multipacket(trials)
@@ -1180,13 +1189,13 @@ if __name__ == "__main__":
 
         # Now that the packets have been sent, the Arduino will start soon.  We
         # now start the camera for recording the experiment!
-        capture_recording(600)
+        # capture_recording(600)
 
         # Once recording is done, let user know
         print("Video Complete")
 
         # End Prairie View's imaging session with abort command
-        prairie_abort()
+        # prairie_abort()
 
         # Now that the microscopy session has ended, let user know the
         # experiment is complete!
