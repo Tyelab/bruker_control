@@ -37,7 +37,7 @@ void setup()
 
 
 void loop(){
-//  metadata_rx();
+  metadata_rx();
   trials_rx();
   iti_rx();
   noise_rx();

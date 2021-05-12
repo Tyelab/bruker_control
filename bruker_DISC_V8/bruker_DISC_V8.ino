@@ -14,7 +14,7 @@ SerialTransfer myTransfer;
 
 //// EXPERIMENT METADATA ////
 // The maximum number of trials that can be run for a given experiment is 90
-const int MAX_NUM_TRIALS = 30;
+const int MAX_NUM_TRIALS = 20;
 // Metadata is received as a struct and then renamed metadata
 struct __attribute__((__packed__)) metadata_struct {
   uint8_t totalNumberOfTrials;              // total number of trials for experiment

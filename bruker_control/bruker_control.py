@@ -539,13 +539,14 @@ def serialtransfer_noiseArray_onepacket(noiseArray):
 
         print(rxnoiseArray)
 
-        if noiseArray == rxnoiseArray:
-            print("Noise Array transfer successful")
-        else:
-            link.close()
-            print("Noise Array transfer failure")
-            print("Exiting...")
-            sys.exit()
+        # TODO: Move error checking outside function
+        # if noiseArray == rxnoiseArray:
+        #     print("Noise Array transfer successful")
+        # else:
+        #     link.close()
+        #     print("Noise Array transfer failure")
+        #     print("Exiting...")
+        #     sys.exit()
 
         link.close()
 
@@ -1126,7 +1127,7 @@ if __name__ == "__main__":
     if trials <= 45:
 
         # Send configuration file
-        serialtransfer_metadata(config_file)
+        serialtransfer_metadata(config)
 
         # Generate single packet arrays
         trialArray = gen_trialArray_onepacket(trials)
@@ -1143,13 +1144,17 @@ if __name__ == "__main__":
         # now start the camera for recording the experiment!
         capture_recording(600)
 
+        # Now that video is done recording, tell the user
         print("Video Complete")
-        print("Connected to Prairie View")
-        pl.Connect()
-        pl.SendScriptCommands("-Abort")
-        pl.Disconnect()
-        print("Disconnected from Prairie View")
+
+        # End Prairie View's imaging session with abort command
+        prairie_abort()
+
+        # Now that the microscopy session has ended, let user know the
+        # experiment is complete!
         print("Experiment Over!")
+
+        # Exit the program
         print("Exiting...")
         sys.exit()
 
@@ -1183,7 +1188,8 @@ if __name__ == "__main__":
         # End Prairie View's imaging session with abort command
         prairie_abort()
 
-        # Now that the microscopy session has ended, let user know
+        # Now that the microscopy session has ended, let user know the
+        # experiment is complete!
         print("Experiment Over!")
 
         # Exit the program
