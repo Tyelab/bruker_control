@@ -6,22 +6,41 @@
 # https://github.com/PowerBroker2/pySerialTransfer
 # Genie Nano manufactured by Teledyne DALSA
 
+# Version Number
+__version__ = "0.20"
+
 ###############################################################################
 # Import Packages
 ###############################################################################
+
+# -----------------------------------------------------------------------------
+# Custom Modules: Bruker Control
+# -----------------------------------------------------------------------------
+# Import config_utils functions for manipulating config files
+import config_utils
+
+# -----------------------------------------------------------------------------
+# Python Libraries
+# -----------------------------------------------------------------------------
 # File Types
 # Import JSON for configuration file
 import json
+
 # Import ordered dictionary to ensure order in json file
 from collections import OrderedDict
+
 # Import argparse if you want to create a configuration on the fly
 import argparse
+
+# Import glob for finding and writing files/directories
 
 # Trial Array Generation
 # Import scipy.stats truncated normal distribution for ITI Array
 from scipy.stats import truncnorm
+
 # Import numpy for trial array generation/manipulation and Harvesters
 import numpy as np
+
 # Import numpy default_rng
 from numpy.random import default_rng
 
@@ -31,16 +50,17 @@ from pySerialTransfer import pySerialTransfer as txfer
 
 # Teledyne DALSA Genie Nano Interface: Harvesters
 from harvesters.core import Harvester
-# TODO: Is mono8 necessary to import?
-# Import mono8 location format, our Genie Nano uses mono8 or mono10
-# from harvesters.util.pfnc import mono_location_formats
 
 # Other Packages
 # Import OpenCV2 to write images/videos to file + previews
 import cv2
-# Import os and os.path to change directories and write files to disk
+
+# Import os to change directories and write files to disk
 import os
-from os import path
+
+# Import glob for searching for files and grabbing relevant configs
+import glob
+
 # Import sys for exiting program safely
 import sys
 
@@ -49,7 +69,6 @@ import sys
 # conda install pywin32
 import win32com.client
 pl = win32com.client.Dispatch("PrairieLink.Application")
-
 
 ###############################################################################
 # Functions
@@ -979,7 +998,7 @@ def init_camera_recording():
     n.AcquisitionMode.value = "Continuous"
 
     # Enable triggers
-    n.TriggerMode.value = "On"
+    n.TriggerMode.value = "Off"
 
     # Trigger camera on rising edge of input signal
     n.TriggerActivation.value = "RisingEdge"
@@ -1007,7 +1026,7 @@ def init_camera_recording():
 def capture_recording(number_frames):
     # Get filename
     # TODO: Filename: make this an imput from setup
-    filename = 'testvid.avi'
+    filename = 'yyyymmdd_animalid.avi'
 
     # Define filepath for video
     directory = r"C:\Users\jdelahanty\Documents\genie_nano_videos"
@@ -1113,24 +1132,62 @@ def prairie_abort():
 
 if __name__ == "__main__":
 
-    # TODO: Use argparser for config file
-    # TODO: Let user change configurations/create them on the fly with parser
+    # Create argument parser for metadata configuration
+    metadata_parser = argparse.ArgumentParser(description='Set Metadata',
+                                              epilog="Good luck on your work!",
+                                              prog='Bruker Experiment Control')
 
-    # TODO: Get relative paths working using os.path
-    # Give config file name
-    config_file = r"C:\\Users\\jdelahanty\\Documents\\gitrepos\\headfix_control\\bruker_control\\config.json"
-    # read JSON config file
-    with open(config_file, 'r') as inFile:
-        contents = inFile.read()
-        # Convert from JSON to Dictionary
-        config = json.loads(contents)
+    # Add configuration file argument
+    metadata_parser.add_argument('-c', '--config_file',
+                                 type=str,
+                                 action='store',
+                                 dest='config',
+                                 help='Config Filename (yyyymmdd_animalid)',
+                                 default=None,
+                                 required=False)
+
+    # Add modify configuration file argument
+    metadata_parser.add_argument('-m', '--modify',
+                                 action='store_true',
+                                 dest='modify',
+                                 help='Modify given config file (bool flag)',
+                                 required=False)
+
+    # Add template configuration file argument
+    metadata_parser.add_argument('-t', '--template',
+                                 action='store_true',
+                                 dest='template',
+                                 help='Use template config file (bool flag)',
+                                 required=False)
+
+    # Add project name argument
+    metadata_parser.add_argument('-p', '--project',
+                                 type=str,
+                                 action='store',
+                                 dest='project',
+                                 help='Project Name (required)',
+                                 choices=['specialk', 'food_dep'],
+                                 required=True)
+
+    # Add program version argument
+    metadata_parser.add_argument('--version',
+                                 action='version',
+                                 version='%(prog)s v. ' + __version__)
+
+    # Parse the arguments given by the user
+    metadata_args = vars(metadata_parser.parse_args())
+
+    # Use config_utils module to parse metadata_config
+    config = config_utils.config_parser(metadata_args)
+
+    # TODO: Let user change configurations/create them on the fly with parser
 
     # Gather total number of trials
     trials = config["metadata"]["totalNumberOfTrials"]["value"]
 
     # Preview video for headfixed mouse placement
     capture_preview()
-
+#
     # If only one packet is required, use single packet generation and
     # transfer.  Single packets are all that's needed for sizes less than 45.
     if trials <= 45:
@@ -1157,7 +1214,7 @@ if __name__ == "__main__":
         print("Video Complete")
 
         # End Prairie View's imaging session with abort command
-        prairie_abort()
+        # prairie_abort()
 
         # Now that the microscopy session has ended, let user know the
         # experiment is complete!
@@ -1189,13 +1246,13 @@ if __name__ == "__main__":
 
         # Now that the packets have been sent, the Arduino will start soon.  We
         # now start the camera for recording the experiment!
-        # capture_recording(600)
+        capture_recording(600)
 
         # Once recording is done, let user know
         print("Video Complete")
 
         # End Prairie View's imaging session with abort command
-        # prairie_abort()
+        prairie_abort()
 
         # Now that the microscopy session has ended, let user know the
         # experiment is complete!
@@ -1207,7 +1264,7 @@ if __name__ == "__main__":
 
     # If some other value that doesn't fit in these categories is given, there
     # is something wrong. Let the user know and exit the program.
-else:
-    print("Something is wrong with the config file...")
-    print("Exiting...")
-    sys.exit()
+    else:
+        print("Something is wrong with the config file's # of trials...")
+        print("Exiting...")
+        sys.exit()
