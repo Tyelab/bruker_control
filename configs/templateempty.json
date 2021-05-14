@@ -1,0 +1,9 @@
+{"metadata": {
+  "totalNumberOfTrials": {"value": 0},
+  "punishTone": {"value": 0},
+  "rewardTone": {"value": 0},
+  "USDeliveryTime_Sucrose": {"value": 5},
+  "USDeliveryTime_Air": {"value": 10},
+  "USConsumptionTime_Sucrose": {"value": 0}
+  }
+}
