@@ -6,22 +6,31 @@
 # https://github.com/PowerBroker2/pySerialTransfer
 # Genie Nano manufactured by Teledyne DALSA
 
+# Version Number
+__version__ = "0.20"
+
 ###############################################################################
 # Import Packages
 ###############################################################################
 # File Types
 # Import JSON for configuration file
 import json
+
 # Import ordered dictionary to ensure order in json file
 from collections import OrderedDict
+
 # Import argparse if you want to create a configuration on the fly
 import argparse
+
+# Import glob for finding and writing files/directories
 
 # Trial Array Generation
 # Import scipy.stats truncated normal distribution for ITI Array
 from scipy.stats import truncnorm
+
 # Import numpy for trial array generation/manipulation and Harvesters
 import numpy as np
+
 # Import numpy default_rng
 from numpy.random import default_rng
 
@@ -31,16 +40,17 @@ from pySerialTransfer import pySerialTransfer as txfer
 
 # Teledyne DALSA Genie Nano Interface: Harvesters
 from harvesters.core import Harvester
-# TODO: Is mono8 necessary to import?
-# Import mono8 location format, our Genie Nano uses mono8 or mono10
-# from harvesters.util.pfnc import mono_location_formats
 
 # Other Packages
 # Import OpenCV2 to write images/videos to file + previews
 import cv2
-# Import os and os.path to change directories and write files to disk
+
+# Import os to change directories and write files to disk
 import os
-from os import path
+
+# Import glob for searching for files and grabbing relevant configs
+import glob
+
 # Import sys for exiting program safely
 import sys
 
@@ -979,7 +989,7 @@ def init_camera_recording():
     n.AcquisitionMode.value = "Continuous"
 
     # Enable triggers
-    n.TriggerMode.value = "On"
+    n.TriggerMode.value = "Off"
 
     # Trigger camera on rising edge of input signal
     n.TriggerActivation.value = "RisingEdge"
@@ -1113,101 +1123,226 @@ def prairie_abort():
 
 if __name__ == "__main__":
 
+    # Create argument parser for metadata configuration
+    metadata_parser = argparse.ArgumentParser(description='Set Metadata',
+                                              epilog="Good luck on your work!",
+                                              prog='Bruker Experiment Control')
+
+    # Add configuration file argument
+    metadata_parser.add_argument('-c', '--config_file',
+                                 type=str,
+                                 action='store',
+                                 dest='config',
+                                 help='Configuration Filename',
+                                 default=None,
+                                 required=False)
+
+    # Add modify configuration file argument
+    metadata_parser.add_argument('-m', '--modify',
+                                 action='store_true',
+                                 dest='modify',
+                                 help='Modify given config file (bool flag)',
+                                 required=False)
+
+    # Add project name argument
+    metadata_parser.add_argument('-p', '--project',
+                                 type=str,
+                                 action='store',
+                                 dest='project',
+                                 help='Project Name (required)',
+                                 choices=['specialk', 'food_dep'],
+                                 required=True)
+
+    # Add program version argument
+    metadata_parser.add_argument('--version',
+                                 action='version',
+                                 version='%(prog)s v. ' + __version__)
+
+    # Parse the arguments given by the user
+    metadata_args = vars(metadata_parser.parse_args())
+
+    # If the user didn't provide a config file, ask if they'd like to make one
+    if metadata_args['config'] is None:
+
+        # TODO: This needs to be a function... too many nested ifs
+
+        # Tell user they didn't provide one
+        print("No metadata file provided")
+
+        # By default, it will be assumed the user would like to make a config.
+        # Set a make_metadata status as true.  However, just in case, let the
+        # user confirm if they want to.
+        make_metadata = True
+
+        # Use a while loop to ask for user input
+        while make_metadata is True:
+
+            # Ask the user if they want to make the file with input()
+            user_choice = input("Do you want to create a metadata file? y/n ")
+
+            # If the user replies with 'y', enter new_metadata() function
+            if user_choice == 'y':
+                print("make some")
+                # TODO: write new_metadata() function
+                # new_metadata()
+
+                make_metadata = False
+
+            # If the user replies with 'n', tell user metadata is needed and
+            # then exit the program
+            elif user_choice == 'n':
+                print("Experiment requires metadata to run.")
+                print("Exiting...")
+                sys.exit()
+
+            # If the user doesn't give appropriate response, tell them and
+            # let them try again.
+            else:
+                print("Only 'y' and 'n' are acceptable options.")
+
+    # elif metadata_args['config'] is not None and metadata_args['modify'] is True:
+    #     Modify configuration function in development...
+    #     # TODO: Write config modification functions
+
+    # If the name of a metadata file is given and the user doesn't want to
+    # modify it, confirm the file is present.  If the file is present, load
+    # its contents.
+    elif metadata_args['config'] is not None and metadata_args['modify'] is False:
+
+        # TODO Write configuration location function that uses list of
+        # known projects relying on Bruker scope
+
+        # Let user know that the program is looking for the file
+        print("Trying to find file...")
+
+        # If the project argument is in list of known projects, here specialk
+        if metadata_args['project'] == 'specialk':
+
+            # Use the correct base path for configuration files for the
+            # project
+            config_basepath = "E:/specialk/config/"
+
+            # Gather the configuration file name from the config argument
+            config_filename = metadata_args['config']
+
+            # Combine the basepath, filename, and extension
+            # TODO: Interpret other file types like .csv and then save them as
+            # a json file.
+            # TODO: Create new argument that allows some other absolute
+            # path to import the config file.  This should be discouraged...
+            config_file = config_basepath + config_filename + '.json'
+
+            # If there is a file with this name in the correct directory
+            if glob.glob(config_file) is not None:
+
+                # Tell user the config file name supplied was valid
+                print("Valid Configuration File Supplied")
+
+                # Open the configuration file and read it
+                with open(config_file, 'r') as inFile:
+                    contents = inFile.read()
+
+                    # Use json.loads to gather metadata and save them in an
+                    # ordered dictionary for checking if contents are correct
+                    # during transmission later
+                    config = json.loads(contents,
+                                        object_pairs_hook=OrderedDict)
+
+
+
+            else:
+                print("Invalid Configuration File Supplied")
+
+
+
+
+
     # TODO: Use argparser for config file
     # TODO: Let user change configurations/create them on the fly with parser
-
-    # TODO: Get relative paths working using os.path
-    # Give config file name
-    config_file = r"C:\\Users\\jdelahanty\\Documents\\gitrepos\\headfix_control\\bruker_control\\config.json"
-    # read JSON config file
-    with open(config_file, 'r') as inFile:
-        contents = inFile.read()
-        # Convert from JSON to Dictionary
-        config = json.loads(contents)
-
-    # Gather total number of trials
-    trials = config["metadata"]["totalNumberOfTrials"]["value"]
-
-    # Preview video for headfixed mouse placement
-    capture_preview()
-
-    # If only one packet is required, use single packet generation and
-    # transfer.  Single packets are all that's needed for sizes less than 45.
-    if trials <= 45:
-
-        # Send configuration file
-        serialtransfer_metadata(config)
-
-        # Generate single packet arrays
-        trialArray = gen_trialArray_onepacket(trials)
-        ITIArray = gen_ITIArray_onepacket(trials)
-        noiseArray = gen_noiseArray_onepacket(trials)
-
-        # Use single packet serial transfer for arrays
-        serialtransfer_trialArray_onepacket(trialArray)
-        serialtransfer_ITIArray_onepacket(ITIArray)
-        serialtransfer_noiseArray_onepacket(noiseArray)
-
-        # TODO Gather number of frames expected from microscope for num_frames
-        # Now that the packets have been sent, the Arduino will start soon.  We
-        # now start the camera for recording the experiment!
-        capture_recording(600)
-
-        # Now that video is done recording, tell the user
-        print("Video Complete")
-
-        # End Prairie View's imaging session with abort command
-        prairie_abort()
-
-        # Now that the microscopy session has ended, let user know the
-        # experiment is complete!
-        print("Experiment Over!")
-
-        # Exit the program
-        print("Exiting...")
-        sys.exit()
-
-    # If there's multiple packets required, use multipacket generation and
-    # transfer.  Multiple packets are required for sizes greater than 45.
-    elif trials > 45:
-
-        # Send configuration file
-        serialtransfer_metadata(config)
-
-        # Generate multipacket arrays
-        first_trialArray, second_trialArray = gen_trialArray_multipacket(trials)
-        first_ITIArray, second_ITIArray = gen_ITIArray_multipacket(trials)
-        first_noiseArray, second_noiseArray = gen_noiseArray_multipacket(trials)
-
-        # Use multipacket serial transfer for arrays
-        serialtransfer_trialArray_multipacket(first_trialArray,
-                                              second_trialArray)
-        serialtransfer_ITIArray_multipacket(first_ITIArray,
-                                            second_ITIArray)
-        serialtransfer_noiseArray_multipacket(first_noiseArray,
-                                              second_noiseArray)
-
-        # Now that the packets have been sent, the Arduino will start soon.  We
-        # now start the camera for recording the experiment!
-        # capture_recording(600)
-
-        # Once recording is done, let user know
-        print("Video Complete")
-
-        # End Prairie View's imaging session with abort command
-        # prairie_abort()
-
-        # Now that the microscopy session has ended, let user know the
-        # experiment is complete!
-        print("Experiment Over!")
-
-        # Exit the program
-        print("Exiting...")
-        sys.exit()
-
-    # If some other value that doesn't fit in these categories is given, there
-    # is something wrong. Let the user know and exit the program.
-else:
-    print("Something is wrong with the config file...")
-    print("Exiting...")
-    sys.exit()
+#
+#     # Gather total number of trials
+#     trials = config["metadata"]["totalNumberOfTrials"]["value"]
+#
+#     # Preview video for headfixed mouse placement
+#     capture_preview()
+#
+#     # If only one packet is required, use single packet generation and
+#     # transfer.  Single packets are all that's needed for sizes less than 45.
+#     if trials <= 45:
+#
+#         # Send configuration file
+#         serialtransfer_metadata(config)
+#
+#         # Generate single packet arrays
+#         trialArray = gen_trialArray_onepacket(trials)
+#         ITIArray = gen_ITIArray_onepacket(trials)
+#         noiseArray = gen_noiseArray_onepacket(trials)
+#
+#         # Use single packet serial transfer for arrays
+#         serialtransfer_trialArray_onepacket(trialArray)
+#         serialtransfer_ITIArray_onepacket(ITIArray)
+#         serialtransfer_noiseArray_onepacket(noiseArray)
+#
+#         # TODO Gather number of frames expected from microscope for num_frames
+#         # Now that the packets have been sent, the Arduino will start soon.  We
+#         # now start the camera for recording the experiment!
+#         capture_recording(600)
+#
+#         # Now that video is done recording, tell the user
+#         print("Video Complete")
+#
+#         # End Prairie View's imaging session with abort command
+#         # prairie_abort()
+#
+#         # Now that the microscopy session has ended, let user know the
+#         # experiment is complete!
+#         print("Experiment Over!")
+#
+#         # Exit the program
+#         print("Exiting...")
+#         sys.exit()
+#
+#     # If there's multiple packets required, use multipacket generation and
+#     # transfer.  Multiple packets are required for sizes greater than 45.
+#     elif trials > 45:
+#
+#         # Send configuration file
+#         serialtransfer_metadata(config)
+#
+#         # Generate multipacket arrays
+#         first_trialArray, second_trialArray = gen_trialArray_multipacket(trials)
+#         first_ITIArray, second_ITIArray = gen_ITIArray_multipacket(trials)
+#         first_noiseArray, second_noiseArray = gen_noiseArray_multipacket(trials)
+#
+#         # Use multipacket serial transfer for arrays
+#         serialtransfer_trialArray_multipacket(first_trialArray,
+#                                               second_trialArray)
+#         serialtransfer_ITIArray_multipacket(first_ITIArray,
+#                                             second_ITIArray)
+#         serialtransfer_noiseArray_multipacket(first_noiseArray,
+#                                               second_noiseArray)
+#
+#         # Now that the packets have been sent, the Arduino will start soon.  We
+#         # now start the camera for recording the experiment!
+#         capture_recording(600)
+#
+#         # Once recording is done, let user know
+#         print("Video Complete")
+#
+#         # End Prairie View's imaging session with abort command
+#         # prairie_abort()
+#
+#         # Now that the microscopy session has ended, let user know the
+#         # experiment is complete!
+#         print("Experiment Over!")
+#
+#         # Exit the program
+#         print("Exiting...")
+#         sys.exit()
+#
+#     # If some other value that doesn't fit in these categories is given, there
+#     # is something wrong. Let the user know and exit the program.
+# else:
+#     print("Something is wrong with the config file...")
+#     print("Exiting...")
+#     sys.exit()
