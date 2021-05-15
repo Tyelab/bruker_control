@@ -11,8 +11,8 @@ import json
 # Import ordered dictionary to ensure order of in json file
 from collections import OrderedDict
 
-# Import glob for searching for files and grabbing relevant configs
-import glob
+# Import pathlib for searching for files and grabbing relevant configs
+from pathlib import Path
 
 # Import sys for exiting program safely
 import sys
@@ -20,11 +20,14 @@ import sys
 # Import datetime for generating config file names correctly
 from datetime import datetime
 
+# Get current working directory for above paths to work
+current_dir = Path.cwd()
+
 # Static template file location
-template_config_file = r"../configs/templatevalues.json"
+template_config_file = current_dir.joinpath("Documents/gitrepos/headfix_control/configs/templatevalues.json")
 
 # Static empty json file location
-empty_config_file = r"../configs/templateempty.json"
+empty_config_file = current_dir.joinpath("Documents/gitrepos/headfix_control/configs/templateempty.json")
 
 ###############################################################################
 # Functions
@@ -73,11 +76,11 @@ def build_from_user(config_fullpath):
     # Print help message
     print("Note: You can use template values by using the --template flag")
 
-    # Ask user for metadata values
-    totalNumberOfTrials = input("How many trials do you want to run? ")
-    punishTone = input("What tone should airpuff stimuli use? (kHz) ") * 1000
-    rewardTone = input("What tone should sucrose stimuli use? (kHz) ") * 1000
-    USConsumptionTime_Sucrose = input("How long should sucrose be present? (s) ") * 1000
+    # Ask user for metadata values and force them to be integers
+    totalNumberOfTrials = int(input("How many trials do you want to run? "))
+    punishTone = int(input("What tone should airpuff stimuli use? (kHz) ")) * 1000
+    rewardTone = int(input("What tone should sucrose stimuli use? (kHz) ")) * 1000
+    USConsumptionTime_Sucrose = int(input("How long should sucrose be present? (s) ")) * 1000
 
     # Load config file with empty values
     with open(empty_config_file, 'r') as inFile:
@@ -103,45 +106,73 @@ def build_from_user(config_fullpath):
     return config_fullpath
 
 
-def build_config(metadata_args):
+def build_config(project_name, template_flag):
 
-    # Get todays date with datetime
-    session_date = datetime.today().strftime("%Y%m%d")
+    # Create status for duplicate filename.  For now, overwriting is not
+    # allowed.  Assume duplicate is occuring unless proven otherwise...
+    # TODO: Incorporate a flag or question that lets you overwrite a file
+    duplicate_config = True
 
-    # Get the project name from user's input
-    project_name = metadata_args['project']
+    # Perform check with while true loop
+    while duplicate_config is True:
 
-    # State base path for config file
-    config_basepath = "E:/studies/" + project_name + "/config/"
+        # Get todays date with datetime
+        session_date = datetime.today().strftime("%Y%m%d")
 
-    # Ask user for mouse ID and convert it to a string
-    mouse_id = str(input("Mouse ID: "))
+        # State base path for config file
+        config_basepath = "E:/studies/" + project_name + "/config/"
 
-    # Assign config file name
-    config_filename = session_date + "_" + mouse_id
+        # Ask user for mouse ID and convert it to a string
+        mouse_id = str(input("Mouse ID: "))
 
-    # Make full filepath for config file
-    config_fullpath = config_basepath + config_filename + ".json"
+        # Assign config file name
+        config_filename = session_date + "_" + mouse_id
+
+        # Make full filepath for config file
+        config_fullpath = Path(config_basepath + config_filename + ".json")
+
+        # Check if there's a file that exists with this name already
+        # If there's no file with this name already
+        if config_fullpath.exists() is False:
+
+            # Tell the user
+            print("Unique filename given")
+
+            # Move on by setting duplicate_config to false
+            duplicate_config = False
+
+        # If there's already a file with the same name
+        elif config_fullpath.exists() is True:
+
+            # Tell the user and ask for unique filename
+            print("File already exists!")
+            print("Unique filename is required. Please provide one.")
 
     # Start building the configuration values.  The user may not know about
     # template flag which might make this section redundant.  Print a help
     # message that informs them about the flag.  Let them customize the
     # different values for the experiment.
-    if metadata_args['template'] is False:
+    if template_flag is False:
 
         # Use build_from_user()
         config_file = build_from_user(config_fullpath)
 
     # If the user did use the --template flag, write a template config file
-    elif metadata_args['template'] is True:
+    elif template_flag is True:
 
         # Use build_from_template()
         config_file = build_from_template(config_fullpath)
 
-    return config_file
+    return config_file, config_filename
 
 
 def config_parser(metadata_args):
+
+    # Gather project name for use in each case
+    project_name = metadata_args['project']
+
+    # Gather status of template flag
+    template_flag = metadata_args['template']
 
     # If the user doesn't submit a configuration file
     if metadata_args['config'] is None:
@@ -162,7 +193,8 @@ def config_parser(metadata_args):
 
             # If the user replies with 'y', enter new_metadata() function
             if user_choice == 'y':
-                config_file = build_config(metadata_args)
+                config_file, config_filename = build_config(project_name,
+                                                            template_flag)
                 config = read_config(config_file)
 
                 make_metadata = False
@@ -179,7 +211,7 @@ def config_parser(metadata_args):
             else:
                 print("Only 'y' and 'n' are acceptable options.")
 
-        return config
+        return config, project_name, config_filename
 
     # elif metadata_args['config'] is not None and metadata_args['modify'] is True:
     #     Modify configuration function in development...
@@ -193,9 +225,6 @@ def config_parser(metadata_args):
         # Let user know that the program is looking for the file
         print("Trying to find file...")
 
-        # If the project argument is in list of known projects, here specialk
-        project_name = metadata_args['project']
-
         # Use the correct base path for configuration files for the
         # project
         config_basepath = "E:/studies/" + project_name + "/config/"
@@ -208,15 +237,19 @@ def config_parser(metadata_args):
         # a json file.
         # TODO: Create new argument that allows some other absolute
         # path to import the config file.  This should be discouraged...
-        config_fullpath = config_basepath + config_filename + '.json'
+        config_fullpath = Path(config_basepath + config_filename + '.json')
 
         # If there is a file with this name in the correct directory
-        if glob.glob(config_fullpath) is not None:
+        if Path.exists(config_fullpath) is True:
 
+            # Tell the user the config file was found
+            print("Found config file!")
+
+            # Save the configuration variables as config
             config = read_config(config_fullpath)
 
-            # Return the config object for use in next steps
-            return config
+        # Return the config object for use in next steps
+        return config, project_name, config_filename
 
         # If something can't be interpreted, tell the user
     else:
