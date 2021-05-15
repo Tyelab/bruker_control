@@ -19,6 +19,9 @@ __version__ = "0.20"
 # Import config_utils functions for manipulating config files
 import config_utils
 
+# Import video_utils functions for using Harvesters for camera
+import video_utils
+
 # -----------------------------------------------------------------------------
 # Python Libraries
 # -----------------------------------------------------------------------------
@@ -47,13 +50,6 @@ from numpy.random import default_rng
 # Serial Transfer
 # Import pySerialTransfer for serial comms with Arduino
 from pySerialTransfer import pySerialTransfer as txfer
-
-# Teledyne DALSA Genie Nano Interface: Harvesters
-from harvesters.core import Harvester
-
-# Other Packages
-# Import OpenCV2 to write images/videos to file + previews
-import cv2
 
 # Import os to change directories and write files to disk
 import os
@@ -874,240 +870,6 @@ def serialtransfer_noiseArray_multipacket(first_noiseArray, second_noiseArray):
         except:
             pass
 
-
-###############################################################################
-# Camera Control
-###############################################################################
-
-# -----------------------------------------------------------------------------
-# Initiate Preview Camera
-# -----------------------------------------------------------------------------
-
-
-def init_camera_preview():
-    camera = None
-
-    # Setup Harvester
-    # Create harvester object as h
-    h = Harvester()
-
-    # Give path to GENTL producer
-    cti_file = "C:/Program Files/MATRIX VISION/mvIMPACT Acquire/bin/x64/mvGENTLProducer.cti"
-
-    # Add GENTL producer to Harvester object
-    h.add_file(cti_file)
-
-    # Update Harvester object
-    h.update()
-
-    # Print device list to make sure camera is present
-    print("Connected to Camera: \n", h.device_info_list)
-
-    # Grab Camera, Change Settings
-    # Create image_acquirer object for Harvester, grab first (only) device
-    camera = h.create_image_acquirer(0)
-
-    # Gather node map to camera properties
-    n = camera.remote_device.node_map
-
-    # Save camera width and height parameters
-    width = n.Width.value
-    height = n.Height.value
-
-    # Change camera properties for continuous recording, no triggers needed
-    n.AcquisitionMode.value = "Continuous"
-    n.TriggerMode.value = "Off"
-
-    print("Preview Mode: ", n.AcquisitionMode.value)
-
-    # Start the acquisition, return camera and harvester for buffer
-    print("Starting Preview")
-    camera.start_acquisition()
-
-    return h, camera, width, height
-
-
-# -----------------------------------------------------------------------------
-# Capture Preview of Camera
-# -----------------------------------------------------------------------------
-
-
-def capture_preview():
-    h, camera, width, height = init_camera_preview()
-    preview_status = True
-    print("To stop preview, hit 'Esc' key")
-    while preview_status:
-        try:
-            with camera.fetch_buffer() as buffer:
-                # Define frame content with buffer.payload
-                content = buffer.payload.components[0].data.reshape(height,
-                                                                    width)
-
-                # Provide preview for camera contents:
-                cv2.imshow("Preview", content)
-                c = cv2.waitKey(1) % 0x100
-                if c == 27:
-                    preview_status = False
-        except:
-            print("Frame Dropped/Packet Loss")
-            pass
-
-    cv2.destroyAllWindows()
-
-    # Shutdown the camera
-    shutdown_camera(camera, h)
-
-
-# -----------------------------------------------------------------------------
-# Initialize Camera for Recording
-# -----------------------------------------------------------------------------
-
-
-def init_camera_recording():
-    camera = None
-
-    # Setup Harvester
-    # Create harvester object as h
-    h = Harvester()
-
-    # Give path to GENTL producer
-    cti_file = "C:/Program Files/MATRIX VISION/mvIMPACT Acquire/bin/x64/mvGENTLProducer.cti"
-
-    # Add GENTL producer to Harvester object
-    h.add_file(cti_file)
-
-    # Update Harvester object
-    h.update()
-
-    # Print device list to make sure camera is present
-    print("Connected to Camera: \n", h.device_info_list)
-
-    # Grab Camera, Change Settings
-    # Create image_acquirer object for Harvester, grab first (only) device
-    camera = h.create_image_acquirer(0)
-
-    # Gather node map to camera properties
-    n = camera.remote_device.node_map
-
-    # Set and then save camera width and height parameters
-    width = n.Width.value  # width = 1280
-    height = n.Height.value  # height = 1024
-
-    # Change camera properties to listen for Bruker TTL triggers
-    # Record continuously
-    n.AcquisitionMode.value = "Continuous"
-
-    # Enable triggers
-    n.TriggerMode.value = "Off"
-
-    # Trigger camera on rising edge of input signal
-    n.TriggerActivation.value = "RisingEdge"
-
-    # Select Line 2 as the Trigger Source and Input Source
-    n.TriggerSource.value = "Line2"
-    n.LineSelector.value = "Line2"
-
-    # Print in terminal which acquisition mode is enabled
-    print("Acquisition Mode: ", n.AcquisitionMode.value)
-
-    # Start the acquisition, return camera and harvester for buffer
-    print("Starting Acquisition")
-    camera.start_acquisition()
-
-    # Return Harvester, camera, and frame dimensions
-    return h, camera, width, height
-
-
-# -----------------------------------------------------------------------------
-# Capture Camera Recording
-# -----------------------------------------------------------------------------
-
-
-def capture_recording(number_frames):
-    # Get filename
-    # TODO: Filename: make this an imput from setup
-    filename = 'yyyymmdd_animalid.avi'
-
-    # Define filepath for video
-    directory = r"C:\Users\jdelahanty\Documents\genie_nano_videos"
-
-    # Change to directory for writing the video
-    os.chdir(directory)
-
-    # Define number of frames to record
-    # TODO: Number of frames: Make this an input/from setup
-    num_frames = number_frames
-
-    # Define video codec for writing images
-    fourcc = cv2.VideoWriter_fourcc(*'DIVX')
-
-    # Start the Camera
-    h, camera, width, height = init_camera_recording()
-
-    # Write file to disk
-    # Create VideoWriter object: file, codec, framerate, dims, color value
-    out = cv2.VideoWriter(filename, fourcc, 30, (width, height), isColor=False)
-    print("VideoWriter created")
-
-    frame_number_list = []
-    frame_number = 1
-    for i in range(num_frames):
-
-        # Introduce try/except block in case of dropped frames
-        # More elegant solution for packet loss is necessary...
-        try:
-
-            # Use with statement to acquire buffer, payload, an data
-            # Payload is 1D numpy array, RESHAPE WITH HEIGHT THEN WIDTH
-            # Numpy is backwards, reshaping as heightxwidth writes correctly
-            with camera.fetch_buffer() as buffer:
-
-                # Define frame content with buffer.payload
-                content = buffer.payload.components[0].data.reshape(height,
-                                                                    width)
-
-                # Debugging statment, print content shape and frame number
-                out.write(content)
-                print(content.shape)
-                cv2.imshow("Live", content)
-                cv2.waitKey(1)
-                frame_number_list.append(frame_number)
-                print(frame_number)
-                frame_number += 1
-
-        # TODO What is exception for dropped frame? How to make an exception?
-        # Except block for if/when frames are dropped
-        except:
-            frame_number_list.append(frame_number)
-            print(frame_number)
-            print("Frame Dropped/Packet Loss")
-            frame_number += 1
-            pass
-
-    # Release VideoWriter object
-    out.release()
-    # Shutdown the camera
-    shutdown_camera(camera, h)
-
-# -----------------------------------------------------------------------------
-# Shutdown Camera
-# -----------------------------------------------------------------------------
-
-
-def shutdown_camera(image_acquirer, harvester):
-    # Stop the camera's acquisition
-    print("Stopping Acquisition")
-    image_acquirer.stop_acquisition()
-
-    # Destroy the camera object, release the resource
-    print("Camera Destroyed")
-    image_acquirer.destroy()
-
-    # Reset Harvester object
-    print("Resetting Harvester")
-    harvester.reset()
-
-
 ###############################################################################
 # Prairie View Control
 ###############################################################################
@@ -1178,15 +940,16 @@ if __name__ == "__main__":
     metadata_args = vars(metadata_parser.parse_args())
 
     # Use config_utils module to parse metadata_config
-    config = config_utils.config_parser(metadata_args)
+    config, project_name, config_filename = config_utils.config_parser(metadata_args)
 
     # TODO: Let user change configurations/create them on the fly with parser
 
     # Gather total number of trials
     trials = config["metadata"]["totalNumberOfTrials"]["value"]
 
+    print(trials)
     # Preview video for headfixed mouse placement
-    capture_preview()
+    video_utils.capture_preview()
 #
     # If only one packet is required, use single packet generation and
     # transfer.  Single packets are all that's needed for sizes less than 45.
@@ -1201,66 +964,66 @@ if __name__ == "__main__":
         noiseArray = gen_noiseArray_onepacket(trials)
 
         # Use single packet serial transfer for arrays
-        serialtransfer_trialArray_onepacket(trialArray)
-        serialtransfer_ITIArray_onepacket(ITIArray)
-        serialtransfer_noiseArray_onepacket(noiseArray)
+        # serialtransfer_trialArray_onepacket(trialArray)
+        # serialtransfer_ITIArray_onepacket(ITIArray)
+        # serialtransfer_noiseArray_onepacket(noiseArray)
 
         # TODO Gather number of frames expected from microscope for num_frames
         # Now that the packets have been sent, the Arduino will start soon.  We
         # now start the camera for recording the experiment!
-        capture_recording(600)
-
-        # Now that video is done recording, tell the user
-        print("Video Complete")
-
-        # End Prairie View's imaging session with abort command
-        # prairie_abort()
-
-        # Now that the microscopy session has ended, let user know the
-        # experiment is complete!
-        print("Experiment Over!")
-
-        # Exit the program
-        print("Exiting...")
-        sys.exit()
-
-    # If there's multiple packets required, use multipacket generation and
-    # transfer.  Multiple packets are required for sizes greater than 45.
-    elif trials > 45:
-
-        # Send configuration file
-        serialtransfer_metadata(config)
-
-        # Generate multipacket arrays
-        first_trialArray, second_trialArray = gen_trialArray_multipacket(trials)
-        first_ITIArray, second_ITIArray = gen_ITIArray_multipacket(trials)
-        first_noiseArray, second_noiseArray = gen_noiseArray_multipacket(trials)
-
-        # Use multipacket serial transfer for arrays
-        serialtransfer_trialArray_multipacket(first_trialArray,
-                                              second_trialArray)
-        serialtransfer_ITIArray_multipacket(first_ITIArray,
-                                            second_ITIArray)
-        serialtransfer_noiseArray_multipacket(first_noiseArray,
-                                              second_noiseArray)
-
-        # Now that the packets have been sent, the Arduino will start soon.  We
-        # now start the camera for recording the experiment!
-        capture_recording(600)
-
-        # Once recording is done, let user know
-        print("Video Complete")
-
-        # End Prairie View's imaging session with abort command
-        prairie_abort()
-
-        # Now that the microscopy session has ended, let user know the
-        # experiment is complete!
-        print("Experiment Over!")
-
-        # Exit the program
-        print("Exiting...")
-        sys.exit()
+        video_utils.capture_recording(60, project_name, config_filename)
+    #
+    #     # Now that video is done recording, tell the user
+    #     print("Video Complete")
+    #
+    #     # End Prairie View's imaging session with abort command
+    #     # prairie_abort()
+    #
+    #     # Now that the microscopy session has ended, let user know the
+    #     # experiment is complete!
+    #     print("Experiment Over!")
+    #
+    #     # Exit the program
+    #     print("Exiting...")
+    #     sys.exit()
+    #
+    # # If there's multiple packets required, use multipacket generation and
+    # # transfer.  Multiple packets are required for sizes greater than 45.
+    # elif trials > 45:
+    #
+    #     # Send configuration file
+    #     serialtransfer_metadata(config)
+    #
+    #     # Generate multipacket arrays
+    #     first_trialArray, second_trialArray = gen_trialArray_multipacket(trials)
+    #     first_ITIArray, second_ITIArray = gen_ITIArray_multipacket(trials)
+    #     first_noiseArray, second_noiseArray = gen_noiseArray_multipacket(trials)
+    #
+    #     # Use multipacket serial transfer for arrays
+    #     serialtransfer_trialArray_multipacket(first_trialArray,
+    #                                           second_trialArray)
+    #     serialtransfer_ITIArray_multipacket(first_ITIArray,
+    #                                         second_ITIArray)
+    #     serialtransfer_noiseArray_multipacket(first_noiseArray,
+    #                                           second_noiseArray)
+    #
+    #     # Now that the packets have been sent, the Arduino will start soon.  We
+    #     # now start the camera for recording the experiment!
+    #     video_utils.capture_recording(600)
+    #
+    #     # Once recording is done, let user know
+    #     print("Video Complete")
+    #
+    #     # End Prairie View's imaging session with abort command
+    #     prairie_abort()
+    #
+    #     # Now that the microscopy session has ended, let user know the
+    #     # experiment is complete!
+    #     print("Experiment Over!")
+    #
+    #     # Exit the program
+    #     print("Exiting...")
+    #     sys.exit()
 
     # If some other value that doesn't fit in these categories is given, there
     # is something wrong. Let the user know and exit the program.
