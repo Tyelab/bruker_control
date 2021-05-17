@@ -4,7 +4,7 @@
 // Rename SerialTransfer to myTransfer
 SerialTransfer myTransfer;
 
-const int MAX_NUM_TRIALS = 46; // maximum number of trials possible; much larger than needed but smaller than max value of metadata.totalNumberOfTrials
+const int MAX_NUM_TRIALS = 60; // maximum number of trials possible; much larger than needed but smaller than max value of metadata.totalNumberOfTrials
 
 
 
