@@ -248,6 +248,11 @@ def config_parser(metadata_args):
             # Save the configuration variables as config
             config = read_config(config_fullpath)
 
+        else:
+            print("No config found...")
+            print("Exiting")
+            sys.exit()
+
         # Return the config object for use in next steps
         return config, project_name, config_filename
 
