@@ -150,6 +150,9 @@ if __name__ == "__main__":
         # Use single packet serial transfer for arrays
         serialtransfer_utils.onepacket_transfers(array_list)
 
+        # Send update that python is done sending data
+        serialtransfer_utils.update_python_status()
+
         # TODO Gather number of frames expected from microscope for num_frames
         # Now that the packets have been sent, the Arduino will start soon.  We
         # now start the camera for recording the experiment!
@@ -176,6 +179,7 @@ if __name__ == "__main__":
         # Use multipacket serial transfer for arrays
         serialtransfer_utils.multipacket_transfer(array_list)
 
+        # Send update that python is done sending data
         serialtransfer_utils.update_python_status()
 
         # Now that the packets have been sent, the Arduino will start soon.  We
