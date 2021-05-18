@@ -217,7 +217,8 @@ def multipacket_transfer(array_list):
         split_array = split_multipacket_array(array)
 
         # Transfer the arrays as multiple packets
-        transfer_arrays_multipacket(split_array)
+        # transfer_arrays_multipacket(split_array)
+        multipacket_dev(split_array)
 
 
 def transfer_arrays_multipacket(split_array):
@@ -226,7 +227,7 @@ def transfer_arrays_multipacket(split_array):
     packet_id = 0
 
     # For each array received by the splitting function
-    for array in split_array:
+    for array in reversed(split_array):
 
         # Save the array as a list for transfer
         array = array.tolist()
@@ -236,6 +237,81 @@ def transfer_arrays_multipacket(split_array):
 
         # Increment the packet number for sending next array
         packet_id += 1
+
+
+def multipacket_dev(split_array):
+
+    packet_id = 0
+    new_array = []
+
+    for array in split_array:
+        new_array.append(array.tolist())
+
+    print(new_array)
+
+    try:
+
+        # Initialize COM Port for Serial Transfer
+        link = txfer.SerialTransfer('COM12', 115200, debug=True)
+
+        # Initialize array_size of 0
+        first_array_size = 0
+        second_array_size = 0
+
+        # Stuff packet with size of trialArray
+        first_array_size = link.tx_obj(new_array[0])
+
+        # Open communication link
+        link.open()
+
+        # Send array
+        link.send(first_array_size, packet_id=packet_id)
+
+        print("Sent Array")
+        print(new_array[0])
+
+        while not link.available():
+            pass
+
+        # Receive trial array:
+        first_rxarray = link.rx_obj(obj_type=type(new_array[0]),
+                              obj_byte_size=first_array_size,
+                              list_format='i')
+
+        print("Received Array")
+        print(first_rxarray)
+
+        packet_id += 1
+
+        second_array_size = link.tx_obj(new_array[1])
+
+        link.send(second_array_size, packet_id=packet_id)
+
+        while not link.available():
+            pass
+
+        second_rxarray = link.rx_obj(obj_type=type(new_array[1]),
+        obj_byte_size=second_array_size, list_format='i')
+
+        print(second_rxarray)
+        # Close the communication link
+        link.close()
+
+    except KeyboardInterrupt:
+        try:
+            link.close()
+        except:
+            pass
+
+    except:
+        import traceback
+        traceback.print_exc()
+
+        try:
+            link.close()
+        except:
+            pass
+
 
 ###############################################################################
 # Serial Transfer to Arduino: Python Status

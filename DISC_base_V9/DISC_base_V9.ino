@@ -15,7 +15,7 @@ SerialTransfer myTransfer;
 
 //// EXPERIMENT METADATA ////
 // The maximum number of trials that can be run for a given experiment is 90
-const int MAX_NUM_TRIALS = 80;
+const int MAX_NUM_TRIALS = 60;
 // Metadata is received as a struct and then renamed metadata
 struct __attribute__((__packed__)) metadata_struct {
   uint8_t totalNumberOfTrials;              // total number of trials for experiment
@@ -35,6 +35,14 @@ int32_t ITIArray[MAX_NUM_TRIALS];
 // The amount of time a tone is transmitted from Python to the Arudino
 int32_t noiseArray[MAX_NUM_TRIALS];
 
+//// PYTHON TRANSMISSION STATUS ////
+// Additional control is required for running the experiment correctly.
+// Python will send a final transmission that states the program is done
+// sending all the relevant metadata. This will initiate the Bruker's
+// imaging trigger and start the experiment.
+int32_t pythonGo;
+int transmissionStatus = 0;
+
 //// TRIAL TYPES ////
 // trial variables are encoded as 0 and 1
 // 0 is negative stimulus [air], 1 is  positive stimulus [sucrose]
@@ -52,6 +60,9 @@ boolean acquireMetaData = true;
 boolean acquireTrials = false;
 boolean acquireITI = false;
 boolean acquireNoise = false;
+boolean rx = true;
+boolean pythonGoSignal = false;
+boolean arduinoGoSignal = false;
 // Experiment State Flags
 boolean brukerTrigger = false;
 boolean newTrial = false;
@@ -121,12 +132,11 @@ const int sucroseDeliveryPin = 27; // sucrose delivery
 const int lickDetectPin = 41; // detect sucrose licks
 const int speakerDeliveryPin = 51; // noise delivery
 
-
 //// RECIEVE METADATA FUNCTIONS ////
 // These three functions will be run in order.
 // The metadata is first received to initialize correct sizes for arrays
 int metadata_rx() {
-  if (acquireMetaData) {
+  if (acquireMetaData && transmissionStatus == 0) {
     if (myTransfer.available())
     {
       myTransfer.rxObj(metadata);
@@ -134,15 +144,18 @@ int metadata_rx() {
 
       myTransfer.sendDatum(metadata);
       Serial.println("Sent Metadata");
-
+      
       acquireMetaData = false;
+      transmissionStatus++;
+      Serial.println(transmissionStatus);
       acquireTrials = true;
     }
   }
 }
+
 // Next, an array of trials to run is received and stored.
 int trials_rx() {
-  if (acquireTrials) {
+  if (acquireTrials && transmissionStatus >= 1 && transmissionStatus < 3) {
     if (myTransfer.available())
     {
       myTransfer.rxObj(trialArray);
@@ -150,15 +163,23 @@ int trials_rx() {
 
       myTransfer.sendDatum(trialArray);
       Serial.println("Sent Trial Array");
-
-      acquireTrials = false;
+      if (metadata.totalNumberOfTrials > 45) {
+        transmissionStatus++;
+      }
+      else {
+        transmissionStatus++;
+        transmissionStatus++;
+      }
+      Serial.println(transmissionStatus);
       acquireITI = true;
     }
   }
 }
+
 // Next, an array of ITI values are received and stored.
 int iti_rx() {
-  if (acquireITI) {
+  if (acquireITI && transmissionStatus >= 3 && transmissionStatus < 5) {
+    acquireTrials = false;
     if (myTransfer.available())
     {
       myTransfer.rxObj(ITIArray);
@@ -166,24 +187,75 @@ int iti_rx() {
 
       myTransfer.sendDatum(ITIArray);
       Serial.println("Sent ITI Array");
-      acquireITI = false;
+      if (metadata.totalNumberOfTrials > 45) {
+        transmissionStatus++;
+      }
+      else {
+        transmissionStatus++;
+        transmissionStatus++;
+      }
+      Serial.println(transmissionStatus);
       acquireNoise = true;
     }
   }
 }
+
 // Finally, an array of noise duration values are received and stored.
 int noise_rx() {
-  if (acquireNoise) {
+  if (acquireNoise && transmissionStatus >= 5 && transmissionStatus < 7) {
+    acquireITI = false;
     if (myTransfer.available())
     {
       myTransfer.rxObj(noiseArray);
-      Serial.println("Received Noise Duration Array");
+      Serial.println("Received Noise Array");
 
       myTransfer.sendDatum(noiseArray);
-      Serial.println("Sent Noise Duration Array");
-      acquireNoise = true;
-      brukerTrigger = true;
+      Serial.println("Sent Noise Array");
+      if (metadata.totalNumberOfTrials > 45) {
+        transmissionStatus++;
+      }
+      else {
+        transmissionStatus++;
+        transmissionStatus++;
+      }
+      Serial.println(transmissionStatus);
+
+      pythonGoSignal = true;
     }
+  }
+}
+
+// Unite array reception functions into one function for better control
+void rx_function() {
+  if (rx) {
+    metadata_rx();
+    trials_rx();
+    iti_rx();
+    noise_rx();
+  }
+}
+
+// Python status function for flow control
+int pythonGo_rx() {
+  if (pythonGoSignal && transmissionStatus == 7) {
+    if (myTransfer.available())
+    {
+      myTransfer.rxObj(pythonGo);
+      Serial.println("Received Python Status");
+  
+      myTransfer.sendDatum(pythonGo);
+      Serial.println("Sent Python Status");
+
+      arduinoGoSignal = true;
+    }
+  }
+}
+
+void go_signal() {
+  if (arduinoGoSignal) {
+    arduinoGoSignal = false;
+    Serial.println("GO!");
+    brukerTrigger = true;
   }
 }
 
@@ -305,11 +377,10 @@ void offSolenoid(long ms) {
       case 1:
         Serial.println("Liquid Solenoid Off");
         solenoidOn = false;
-        sucroseConsumptionMS = (ms + metadata.USConsumptionTime_Sucrose);
-        Serial.println(sucroseConsumptionMS);
-        consume = true;
         digitalWriteFast(solPin_liquid, LOW);
         digitalWriteFast(sucroseDeliveryPin, LOW);
+        newTrial = true;
+        currentTrial++;
         break;
     }
   }
@@ -348,16 +419,13 @@ void setup() {
     while (1);
   } // need to learn what value 0x5A represents - JD
   Serial.println("MPR121 found!");
-
-  newTrial = true;
 }
 
 //// THE BIZ ////
 void loop() {
-  metadata_rx();
-  trials_rx();
-  iti_rx();
-  noise_rx();
+  rx_function();
+  pythonGo_rx();
+  go_signal();
   bruker_trigger();
   if (currentTrial < metadata.totalNumberOfTrials) {
     ms = millis();
@@ -369,104 +437,3 @@ void loop() {
     offSolenoid(ms);
   }
 }
-
-//void startITI(long ms) {
-//  if (newTrial) {                                 // start new ITI
-//    Serial.print("staring trial ");
-//    Serial.println(currentTrial);
-//    trialType = trialTypeArray[currentTrial];     // assign trial type
-//    newTrial = false;
-//    ITI = true;
-//    int thisITI = ITIArray[currentTrial];         // get ITI for this trial
-//    ITIend = ms + thisITI;
-//    trigWait = true;
-//    // turn off when done
-//  } else if (trigWait && (ms >= ITIend - baseline) && (ms <= ITIend)) {
-//    // tell Bruker to start imaging
-//    digitalWriteFast(imageTrigger, HIGH);
-//    Serial.println("imaging trigger fired!");
-//    trigWait = false;    
-//  } else if (ITI && (ms >= ITIend)) {             // ITI is over
-//    // turn off imaging trigger
-//    digitalWriteFast(imageTrigger, LOW);
-//    ITI = false;
-//    noise = true;
-//  }
-//}
-//
-//void tonePlayer(long ms) {
-//  if (noise) {
-//    Serial.println("Playing Tone");
-//    int thisNoiseDuration = noiseDurationArray[currentTrial];
-//    noise = false;
-//    noiseDAQ = true;
-//    noiseListeningMS = ms + thisNoiseDuration;
-//    digitalWriteFast(speakerDeliveryPin, HIGH);
-//    switch (trialType) {
-//      case 0:
-//        Serial.println("AIR");
-//        LED(50);
-//        tone(speakerPin, 2000, thisNoiseDuration);
-//        break;
-//      case 1:
-//        Serial.println("SUCROSE");
-//        LED(50);
-//        tone(speakerPin, 9000, thisNoiseDuration);
-//        break;
-//    }
-//  }
-//}
-//
-//void onTone(long ms) {
-//  if (noiseDAQ && (ms >= noiseListeningMS)){
-//    noiseDAQ = false;
-//    digitalWriteFast(speakerDeliveryPin, LOW);
-//    newUSDelivery = true;
-//  }
-//}
-//
-//void USDelivery(long ms) {
-//  if (newUSDelivery) {
-//    Serial.println("Delivering US");
-//    Serial.println(trialType);
-//    newUSDelivery = false;
-//    solenoidOn = true;
-//    switch (trialType) {
-//      case 0: 
-//        Serial.println("Delivering Airpuff");
-//        USDeliveryMS = (ms + USDeliveryTime_Air);
-//        digitalWriteFast(airDeliveryPin, HIGH);
-//        digitalWriteFast(solPin_air, HIGH);
-//        delay(50);
-//        break;
-//      case 1:
-//        Serial.println("Delivering Sucrose");
-//        USDeliveryMS = (ms + USDeliveryTime_Sucrose);
-//        digitalWriteFast(solPin_liquid, HIGH);
-//        digitalWriteFast(sucroseDeliveryPin, HIGH);
-//        break;
-//    }
-//  }
-//}
-//
-//void offSolenoid(long ms) {
-//  if (solenoidOn && (ms >= USDeliveryMS)) {
-//    solenoidOn = false;
-//    newTrial = true;
-//    currentTrial++;
-//    switch (trialType) {
-//      case 0:
-//        Serial.println("air solenoid off");
-//        digitalWriteFast(airDeliveryPin, LOW);
-//        digitalWriteFast(solPin_air, LOW);
-//        delay(30);
-//        break;
-//      case 1:
-//        Serial.println("liquid solenoid off");
-//        sucroseConsumptionMS = (ms + USConsumptionTime_Sucrose);
-//        digitalWriteFast(solPin_liquid, LOW);
-//        digitalWriteFast(sucroseDeliveryPin, LOW);
-//        break;
-//    }
-//  }
-//}

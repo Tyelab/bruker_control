@@ -163,5 +163,9 @@ int pythonGo_rx() {
 void go_signal() {
   if (arduinoGoSignal) {
     Serial.println("GO!");
+    arduinoGoSignal = false;
+    for (byte i = 0; i <metadata.totalNumberOfTrials; i++) {
+      Serial.println(trialArray[i]);
+    }
   }
 }
