@@ -135,7 +135,7 @@ if __name__ == "__main__":
     trials = config["metadata"]["totalNumberOfTrials"]["value"]
 
     # Preview video for headfixed mouse placement
-    # video_utils.capture_preview()
+    video_utils.capture_preview()
 
     # Generate trial arrays
     array_list = trial_utils.generate_arrays(trials)
@@ -184,10 +184,10 @@ if __name__ == "__main__":
 
         # Now that the packets have been sent, the Arduino will start soon.  We
         # now start the camera for recording the experiment!
-        # video_utils.capture_recording(60, project_name, config_filename)
+        video_utils.capture_recording(60, project_name, config_filename)
 
         # End Prairie View's imaging session with abort command
-        # prairie_abort()
+        prairie_abort()
 
         # Now that the microscopy session has ended, let user know the
         # experiment is complete!
