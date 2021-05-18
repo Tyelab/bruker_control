@@ -157,7 +157,7 @@ int trials_rx() {
 
       myTransfer.sendDatum(trialArray);
       Serial.println("Sent Trial Array");
-      if (metadata.totalNumberOfTrials > 45) {
+      if (metadata.totalNumberOfTrials > 60) {
         transmissionStatus++;
       }
       else {
@@ -181,7 +181,7 @@ int iti_rx() {
 
       myTransfer.sendDatum(ITIArray);
       Serial.println("Sent ITI Array");
-      if (metadata.totalNumberOfTrials > 45) {
+      if (metadata.totalNumberOfTrials > 60) {
         transmissionStatus++;
       }
       else {
@@ -205,7 +205,7 @@ int noise_rx() {
 
       myTransfer.sendDatum(noiseArray);
       Serial.println("Sent Noise Array");
-      if (metadata.totalNumberOfTrials > 45) {
+      if (metadata.totalNumberOfTrials > 60) {
         transmissionStatus++;
       }
       else {

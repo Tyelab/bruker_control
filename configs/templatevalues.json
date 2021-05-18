@@ -5,5 +5,8 @@
   "USDeliveryTime_Sucrose": {"value": 15},
   "USDeliveryTime_Air": {"value": 20},
   "USConsumptionTime_Sucrose": {"value": 1000}
-  }
+ },
+ "trialArray": {},
+ "ITIArray" : {},
+ "noiseArray": {}
 }

@@ -163,7 +163,7 @@ def build_config(project_name, template_flag):
         # Use build_from_template()
         config_file = build_from_template(config_fullpath)
 
-    return config_file, config_filename
+    return config_file, config_filename, config_fullpath
 
 
 def config_parser(metadata_args):
@@ -193,8 +193,8 @@ def config_parser(metadata_args):
 
             # If the user replies with 'y', enter new_metadata() function
             if user_choice == 'y':
-                config_file, config_filename = build_config(project_name,
-                                                            template_flag)
+                config_file, config_filename, config_fullpath = build_config(project_name,
+                                                                             template_flag)
                 config = read_config(config_file)
 
                 make_metadata = False
@@ -211,7 +211,9 @@ def config_parser(metadata_args):
             else:
                 print("Only 'y' and 'n' are acceptable options.")
 
-        return config, project_name, config_filename
+        config_list = [config, config_filename, config_fullpath]
+        # Return the config object for use in next steps
+        return config_list, project_name
 
     # elif metadata_args['config'] is not None and metadata_args['modify'] is True:
     #     Modify configuration function in development...
@@ -253,8 +255,9 @@ def config_parser(metadata_args):
             print("Exiting")
             sys.exit()
 
+        config_list = [config, config_filename, config_fullpath]
         # Return the config object for use in next steps
-        return config, project_name, config_filename
+        return config_list, project_name
 
         # If something can't be interpreted, tell the user
     else:

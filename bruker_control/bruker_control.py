@@ -127,25 +127,27 @@ if __name__ == "__main__":
     metadata_args = vars(metadata_parser.parse_args())
 
     # Use config_utils module to parse metadata_config
-    config, project_name, config_filename = config_utils.config_parser(metadata_args)
+    config_list, project_name = config_utils.config_parser(metadata_args)
 
-    # TODO: Let user change configurations/create them on the fly with parser
+    # TODO: Let user change configurations on the fly with parser
 
     # Gather total number of trials
-    trials = config["metadata"]["totalNumberOfTrials"]["value"]
+    trials = config_list[0]["metadata"]["totalNumberOfTrials"]["value"]
+
+    print("made it")
 
     # Preview video for headfixed mouse placement
     # video_utils.capture_preview()
 
     # Generate trial arrays
-    array_list = trial_utils.generate_arrays(trials)
+    array_list = trial_utils.generate_arrays(trials, config_list[2])
 
     # If only one packet is required, use single packet generation and
     # transfer.  Single packets are all that's needed for sizes less than 45.
     if trials <= 60:
 
         # Send configuration file
-        serialtransfer_utils.transfer_metadata(config)
+        serialtransfer_utils.transfer_metadata(config_list[0])
 
         # Use single packet serial transfer for arrays
         serialtransfer_utils.onepacket_transfers(array_list)
@@ -174,7 +176,7 @@ if __name__ == "__main__":
     elif trials > 60:
 
         # Send configuration file
-        serialtransfer_utils.transfer_metadata(config)
+        serialtransfer_utils.transfer_metadata(config_list[0])
 
         # Use multipacket serial transfer for arrays
         serialtransfer_utils.multipacket_transfer(array_list)

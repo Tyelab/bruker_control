@@ -15,6 +15,8 @@ import numpy as np
 # Import numpy default_rng
 from numpy.random import default_rng
 
+# Import json for writing trial data to config file
+import json
 
 ###############################################################################
 # Functions
@@ -26,7 +28,7 @@ from numpy.random import default_rng
 # -----------------------------------------------------------------------------
 
 
-def gen_trialArray(trials):
+def gen_trialArray(trials, config_fullpath):
 
     # Always initialize trial array with 3 reward trials
     trialArray = [1, 1, 1]
@@ -52,7 +54,20 @@ def gen_trialArray(trials):
     for i in random_trials:
         trialArray.append(i)
 
-    # TODO: Write out the trial array into JSON as part of experiment config
+    # Open config file to write array to file
+    with open(config_fullpath, 'r') as inFile:
+
+        # Dump config file into function
+        data = json.load(inFile)
+
+    # Assign json variable to trialArray data
+    data["trialArray"] = trialArray
+
+    # Write trialArray to file
+    with open(config_fullpath, 'w') as outFile:
+
+        # Add trialArray into config file
+        json.dump(data, outFile)
 
     # Return trialArray
     return trialArray
@@ -62,7 +77,7 @@ def gen_trialArray(trials):
 # -----------------------------------------------------------------------------
 
 
-def gen_ITIArray(trials):
+def gen_ITIArray(trials, config_fullpath):
 
     # Initialize empty iti array
     iti_array = []
@@ -92,6 +107,21 @@ def gen_ITIArray(trials):
     # Finally, generate ITIArray as a list for pySerialTransfer
     ITIArray = iti_array.tolist()
 
+    # Open config file to write array to file
+    with open(config_fullpath, 'r') as inFile:
+
+        # Dump config file into function
+        data = json.load(inFile)
+
+    # Assign json variable to ITIArray data
+    data["ITIArray"] = ITIArray
+
+    # Write ITIArray to file
+    with open(config_fullpath, 'w') as outFile:
+
+        # Add ITIArray into config file
+        json.dump(data, outFile)
+
     # Return ITI Array
     return ITIArray
 
@@ -101,7 +131,7 @@ def gen_ITIArray(trials):
 # -----------------------------------------------------------------------------
 
 
-def gen_noiseArray(trials):
+def gen_noiseArray(trials, config_fullpath):
 
     # Initialize empty noise array
     noise_array = []
@@ -131,6 +161,21 @@ def gen_noiseArray(trials):
     # Finally, generate noiseArray as a list for pySerialTransfer.
     noiseArray = noise_array.tolist()
 
+    # Open config file to write array to file
+    with open(config_fullpath, 'r') as inFile:
+
+        # Dump config file into function
+        data = json.load(inFile)
+
+    # Assign json variable to noiseArray data
+    data["noiseArray"] = noiseArray
+
+    # Write noiseArray to file
+    with open(config_fullpath, 'w') as outFile:
+
+        # Add noiseArray into config file
+        json.dump(data, outFile)
+
     # Return the noiseArray
     return noiseArray
 
@@ -140,16 +185,16 @@ def gen_noiseArray(trials):
 # -----------------------------------------------------------------------------
 
 
-def generate_arrays(trials):
+def generate_arrays(trials, config_fullpath):
 
     # Create Trial Array
-    trialArray = gen_trialArray(trials)
+    trialArray = gen_trialArray(trials, config_fullpath)
 
     # Create ITI Array
-    ITIArray = gen_ITIArray(trials)
+    ITIArray = gen_ITIArray(trials, config_fullpath)
 
     # Create Noise Array
-    noiseArray = gen_noiseArray(trials)
+    noiseArray = gen_noiseArray(trials, config_fullpath)
 
     # Put them together in a list
     array_list = [trialArray, ITIArray, noiseArray]

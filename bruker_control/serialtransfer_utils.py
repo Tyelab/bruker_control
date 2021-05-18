@@ -27,7 +27,7 @@ import sys
 ###############################################################################
 
 
-def error_check(transmitted_array, received_array):
+def array_error_check(transmitted_array, received_array):
 
     # If the transmitted array and received array are equal
     if transmitted_array == received_array:
@@ -94,7 +94,7 @@ def transfer_packet(array, packet_id):
         # Close the communication link
         link.close()
 
-        error_check(array, rxarray)
+        array_error_check(array, rxarray)
 
     except KeyboardInterrupt:
         try:
