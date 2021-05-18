@@ -187,6 +187,7 @@ def onepacket_transfers(array_list):
 # Serial Transfer to Arduino: Multi-packet
 ###############################################################################
 
+
 # -----------------------------------------------------------------------------
 # Trial Array Splitting for Multipacket Transfers
 # -----------------------------------------------------------------------------
@@ -235,8 +236,6 @@ def transfer_arrays_multipacket(split_array):
 
         # Increment the packet number for sending next array
         packet_id += 1
-
-    # update_python_status()
 
 ###############################################################################
 # Serial Transfer to Arduino: Python Status

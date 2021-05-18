@@ -24,8 +24,6 @@ int32_t noiseArray[MAX_NUM_TRIALS]; // create noise array
 int32_t transmissionStatus;
 int32_t pythonGo;
 
-int myCounter = 0;
-
 boolean acquireMetaData = true;
 boolean acquireTrials = false;
 boolean acquireITI = false;
@@ -86,7 +84,13 @@ int trials_rx() {
 
       myTransfer.sendDatum(trialArray);
       Serial.println("Sent Trial Array");
-      transmissionStatus++;
+      if (metadata.totalNumberOfTrials > 45) {
+        transmissionStatus++;
+      }
+      else {
+        transmissionStatus++;
+        transmissionStatus++;
+      }
       Serial.println(transmissionStatus);
       acquireITI = true;
     }
@@ -103,7 +107,14 @@ int iti_rx() {
 
       myTransfer.sendDatum(ITIArray);
       Serial.println("Sent ITI Array");
-      transmissionStatus++;
+
+      if (metadata.totalNumberOfTrials > 45) {
+        transmissionStatus++;
+      }
+      else {
+        transmissionStatus++;
+        transmissionStatus++;
+      }
       Serial.println(transmissionStatus);
       acquireNoise = true;
     }
@@ -121,9 +132,14 @@ int noise_rx() {
       myTransfer.sendDatum(noiseArray);
       Serial.println("Sent Noise Array");
 
-      transmissionStatus++;
+      if (metadata.totalNumberOfTrials > 45) {
+        transmissionStatus++;
+      }
+      else {
+        transmissionStatus++;
+        transmissionStatus++;
+      }
       Serial.println(transmissionStatus);
-
       pythonGoSignal = true;
     }
   }
