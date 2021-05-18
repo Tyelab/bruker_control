@@ -28,50 +28,17 @@ import serialtransfer_utils
 # Import trial_utils for generating random trials
 import trial_utils
 
+# Import prairieview_utils for interacting with Bruker
+import prairieview_utils
+
 # -----------------------------------------------------------------------------
 # Python Libraries
 # -----------------------------------------------------------------------------
-# File Types
-# Import JSON for configuration file
-import json
-
-# Import ordered dictionary to ensure order in json file
-from collections import OrderedDict
-
 # Import argparse if you want to create a configuration on the fly
 import argparse
 
-# Import os to change directories and write files to disk
-import os
-
-# Import glob for searching for files and grabbing relevant configs
-import glob
-
 # Import sys for exiting program safely
 import sys
-
-# NOTE Prairie View Interface
-# win32com client installation: Do NOT use pip install, use conda.
-# conda install pywin32
-import win32com.client
-pl = win32com.client.Dispatch("PrairieLink.Application")
-
-
-###############################################################################
-# Prairie View Control
-###############################################################################
-
-
-# -----------------------------------------------------------------------------
-# PrairieLink Abort Function
-# -----------------------------------------------------------------------------
-
-def prairie_abort():
-    print("Connected to Prairie View")
-    pl.Connect()
-    pl.SendScriptCommands("-Abort")
-    pl.Disconnect()
-    print("Disconnected from Prairie View")
 
 
 ###############################################################################
@@ -137,7 +104,7 @@ if __name__ == "__main__":
     print("made it")
 
     # Preview video for headfixed mouse placement
-    # video_utils.capture_preview()
+    video_utils.capture_preview()
 
     # Generate trial arrays
     array_list = trial_utils.generate_arrays(trials, config_list[2])
@@ -161,7 +128,7 @@ if __name__ == "__main__":
         # video_utils.capture_recording(60, project_name, config_filename)
 
         # End Prairie View's imaging session with abort command
-        # prairie_abort()
+        prairieview_utils.prairie_abort()
 
         # Now that the microscopy session has ended, let user know the
         # experiment is complete!
@@ -189,7 +156,7 @@ if __name__ == "__main__":
         # video_utils.capture_recording(60, project_name, config_filename)
 
         # End Prairie View's imaging session with abort command
-        # prairie_abort()
+        prairieview_utils.prairie_abort()
 
         # Now that the microscopy session has ended, let user know the
         # experiment is complete!
