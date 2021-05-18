@@ -142,7 +142,7 @@ if __name__ == "__main__":
 
     # If only one packet is required, use single packet generation and
     # transfer.  Single packets are all that's needed for sizes less than 45.
-    if trials <= 45:
+    if trials <= 60:
 
         # Send configuration file
         serialtransfer_utils.transfer_metadata(config)
@@ -171,7 +171,7 @@ if __name__ == "__main__":
     #
     # # If there's multiple packets required, use multipacket generation and
     # # transfer.  Multiple packets are required for sizes greater than 45.
-    elif trials > 45:
+    elif trials > 60:
 
         # Send configuration file
         serialtransfer_utils.transfer_metadata(config)

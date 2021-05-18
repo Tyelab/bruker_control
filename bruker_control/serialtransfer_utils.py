@@ -14,9 +14,38 @@ from pySerialTransfer import pySerialTransfer as txfer
 # Import Numpy for splitting arrays
 import numpy as np
 
+# Import sys for exiting program safely
+import sys
+
 ###############################################################################
 # Functions
 ###############################################################################
+
+
+###############################################################################
+# Serial Transfer to Arduino: Error Checking
+###############################################################################
+
+
+def error_check(transmitted_array, received_array):
+
+    # If the transmitted array and received array are equal
+    if transmitted_array == received_array:
+
+        # Tell the user the transfer was successful
+        print("Successful Transfer")
+
+    # If the transmission failed
+    else:
+
+        # Tell the user an error occured
+        print("Transmission Error!")
+
+        # Tell the user the program is exiting
+        print("Exiting...")
+
+        # Exit the program
+        sys.exit()
 
 
 ###############################################################################
@@ -64,6 +93,8 @@ def transfer_packet(array, packet_id):
 
         # Close the communication link
         link.close()
+
+        error_check(array, rxarray)
 
     except KeyboardInterrupt:
         try:
@@ -210,6 +241,7 @@ def split_multipacket_array(array):
 
 def multipacket_transfer(array_list):
 
+    packet_id = 0
     # For each array in the list of trial arrays
     for array in array_list:
 
@@ -217,17 +249,16 @@ def multipacket_transfer(array_list):
         split_array = split_multipacket_array(array)
 
         # Transfer the arrays as multiple packets
-        # transfer_arrays_multipacket(split_array)
-        multipacket_dev(split_array)
+        transfer_arrays_multipacket(split_array, packet_id)
+        # multipacket_dev(split_array, packet_id)
+
+        packet_id = 0
 
 
-def transfer_arrays_multipacket(split_array):
-
-    # Initialize first packet with an ID of 0
-    packet_id = 0
+def transfer_arrays_multipacket(split_array, packet_id):
 
     # For each array received by the splitting function
-    for array in reversed(split_array):
+    for array in split_array:
 
         # Save the array as a list for transfer
         array = array.tolist()
@@ -239,15 +270,13 @@ def transfer_arrays_multipacket(split_array):
         packet_id += 1
 
 
-def multipacket_dev(split_array):
+def multipacket_dev(split_array, packet_id):
 
-    packet_id = 0
+    print(packet_id)
     new_array = []
 
     for array in split_array:
         new_array.append(array.tolist())
-
-    print(new_array)
 
     try:
 
@@ -267,8 +296,8 @@ def multipacket_dev(split_array):
         # Send array
         link.send(first_array_size, packet_id=packet_id)
 
-        print("Sent Array")
-        print(new_array[0])
+        # print("Sent Array")
+        # print(new_array[0])
 
         while not link.available():
             pass
@@ -278,10 +307,12 @@ def multipacket_dev(split_array):
                               obj_byte_size=first_array_size,
                               list_format='i')
 
-        print("Received Array")
-        print(first_rxarray)
+        # print("Received Array")
+        # print(first_rxarray)
 
         packet_id += 1
+
+        print(packet_id)
 
         second_array_size = link.tx_obj(new_array[1])
 
@@ -293,7 +324,7 @@ def multipacket_dev(split_array):
         second_rxarray = link.rx_obj(obj_type=type(new_array[1]),
         obj_byte_size=second_array_size, list_format='i')
 
-        print(second_rxarray)
+        # print(second_rxarray)
         # Close the communication link
         link.close()
 
@@ -348,7 +379,6 @@ def update_python_status():
                               list_format='i')
 
         print("Received END OF TRANSMISSION Status")
-        print(rxarray)
 
         # Close the communication link
         link.close()
