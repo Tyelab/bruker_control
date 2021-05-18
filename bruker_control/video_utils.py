@@ -140,7 +140,7 @@ def init_camera_recording():
     n.AcquisitionMode.value = "Continuous"
 
     # Enable triggers
-    n.TriggerMode.value = "Off"
+    n.TriggerMode.value = "On"
 
     # Trigger camera on rising edge of input signal
     n.TriggerActivation.value = "RisingEdge"
