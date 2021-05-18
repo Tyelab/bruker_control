@@ -14,7 +14,7 @@ SerialTransfer myTransfer;
 
 //// EXPERIMENT METADATA ////
 // The maximum number of trials that can be run for a given experiment is 90
-const int MAX_NUM_TRIALS = 20;
+const int MAX_NUM_TRIALS = 60;
 // Metadata is received as a struct and then renamed metadata
 struct __attribute__((__packed__)) metadata_struct {
   uint8_t totalNumberOfTrials;              // total number of trials for experiment
@@ -34,6 +34,14 @@ int32_t ITIArray[MAX_NUM_TRIALS];
 // The amount of time a tone is transmitted from Python to the Arudino
 int32_t noiseArray[MAX_NUM_TRIALS];
 
+//// PYTHON TRANSMISSION STATUS ////
+// Additional control is required for running the experiment correctly.
+// Python will send a final transmission that states the program is done
+// sending all the relevant metadata. This will initiate the Bruker's
+// imaging trigger and start the experiment.
+int32_t pythonGo;
+int transmissionStatus = 0;
+
 //// TRIAL TYPES ////
 // trial variables are encoded as 0 and 1
 // 0 is negative stimulus [air], 1 is  positive stimulus [sucrose]
@@ -49,7 +57,11 @@ boolean acquireMetaData = true;
 boolean acquireTrials = false;
 boolean acquireITI = false;
 boolean acquireNoise = false;
+boolean rx = true;
+boolean pythonGoSignal = false;
+boolean arduinoGoSignal = false;
 // Experiment State Flags
+boolean goSignal = false;
 boolean brukerTrigger = false;
 boolean newTrial = false;
 boolean ITI = false;
@@ -118,7 +130,7 @@ const int speakerDeliveryPin = 51; // noise delivery
 // These three functions will be run in order.
 // The metadata is first received to initialize correct sizes for arrays
 int metadata_rx() {
-  if (acquireMetaData) {
+  if (acquireMetaData && transmissionStatus == 0) {
     if (myTransfer.available())
     {
       myTransfer.rxObj(metadata);
@@ -126,15 +138,18 @@ int metadata_rx() {
 
       myTransfer.sendDatum(metadata);
       Serial.println("Sent Metadata");
-
+      
       acquireMetaData = false;
+      transmissionStatus++;
+      Serial.println(transmissionStatus);
       acquireTrials = true;
     }
   }
 }
+
 // Next, an array of trials to run is received and stored.
 int trials_rx() {
-  if (acquireTrials) {
+  if (acquireTrials && transmissionStatus >= 1 && transmissionStatus < 3) {
     if (myTransfer.available())
     {
       myTransfer.rxObj(trialArray);
@@ -142,15 +157,17 @@ int trials_rx() {
 
       myTransfer.sendDatum(trialArray);
       Serial.println("Sent Trial Array");
-
-      acquireTrials = false;
+      transmissionStatus++;
+      Serial.println(transmissionStatus);
       acquireITI = true;
     }
   }
 }
+
 // Next, an array of ITI values are received and stored.
 int iti_rx() {
-  if (acquireITI) {
+  if (acquireITI && transmissionStatus >= 3 && transmissionStatus < 5) {
+    acquireTrials = false;
     if (myTransfer.available())
     {
       myTransfer.rxObj(ITIArray);
@@ -158,30 +175,70 @@ int iti_rx() {
 
       myTransfer.sendDatum(ITIArray);
       Serial.println("Sent ITI Array");
-      acquireITI = false;
+      transmissionStatus++;
+      Serial.println(transmissionStatus);
       acquireNoise = true;
     }
   }
 }
+
 // Finally, an array of noise duration values are received and stored.
 int noise_rx() {
-  if (acquireNoise) {
+  if (acquireNoise && transmissionStatus >= 5 && transmissionStatus < 7) {
+    acquireITI = false;
     if (myTransfer.available())
     {
       myTransfer.rxObj(noiseArray);
-      Serial.println("Received Noise Duration Array");
+      Serial.println("Received Noise Array");
 
       myTransfer.sendDatum(noiseArray);
-      Serial.println("Sent Noise Duration Array");
-      acquireNoise = true;
-      brukerTrigger = true;
+      Serial.println("Sent Noise Array");
+
+      transmissionStatus++;
+      Serial.println(transmissionStatus);
+
+      pythonGoSignal = true;
     }
+  }
+}
+
+// Unite array reception functions into one function for better control
+void rx_function() {
+  if (rx) {
+    metadata_rx();
+    trials_rx();
+    iti_rx();
+    noise_rx();
+  }
+}
+
+// Python status function for flow control
+int pythonGo_rx() {
+  if (pythonGoSignal && transmissionStatus == 7) {
+    if (myTransfer.available())
+    {
+      myTransfer.rxObj(pythonGo);
+      Serial.println("Received Python Status");
+  
+      myTransfer.sendDatum(pythonGo);
+      Serial.println("Sent Python Status");
+
+      arduinoGoSignal = true;
+    }
+  }
+}
+
+void go_signal() {
+  if (arduinoGoSignal) {
+    Serial.println("GO!");
+    brukerTrigger = true;
   }
 }
 
 //// BRUKER TRIGGER Function ////
 void bruker_trigger() {
   if (brukerTrigger) {
+    arduinoGoSignal = false;
     Serial.println("Sending Bruker Trigger");
     digitalWriteFast(bruker2PTriggerPin, HIGH);
     Serial.println("Bruker Trigger Sent!");
@@ -365,10 +422,9 @@ void setup() {
 
 //// THE BIZ ////
 void loop() {
-  metadata_rx();
-  trials_rx();
-  iti_rx();
-  noise_rx();
+  rx_function();
+  pythonGo_rx();
+  go_signal();
   bruker_trigger();
   if (currentTrial < metadata.totalNumberOfTrials) {
     ms = millis();

@@ -153,13 +153,10 @@ if __name__ == "__main__":
         # TODO Gather number of frames expected from microscope for num_frames
         # Now that the packets have been sent, the Arduino will start soon.  We
         # now start the camera for recording the experiment!
-        # video_utils.capture_recording(60, project_name, config_filename)
-
-        # Now that video is done recording, tell the user
-        print("Video Complete")
+        video_utils.capture_recording(60, project_name, config_filename)
 
         # End Prairie View's imaging session with abort command
-        # prairie_abort()
+        prairie_abort()
 
         # Now that the microscopy session has ended, let user know the
         # experiment is complete!
@@ -179,15 +176,14 @@ if __name__ == "__main__":
         # Use multipacket serial transfer for arrays
         serialtransfer_utils.multipacket_transfer(array_list)
 
+        serialtransfer_utils.update_python_status()
+
         # Now that the packets have been sent, the Arduino will start soon.  We
         # now start the camera for recording the experiment!
-        video_utils.capture_recording(600)
-
-        # Once recording is done, let user know
-        print("Video Complete")
+        # video_utils.capture_recording(60, project_name, config_filename)
 
         # End Prairie View's imaging session with abort command
-        prairie_abort()
+        # prairie_abort()
 
         # Now that the microscopy session has ended, let user know the
         # experiment is complete!

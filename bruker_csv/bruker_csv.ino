@@ -21,11 +21,19 @@ struct __attribute__((__packed__)) metadata_struct {
 int32_t trialArray[MAX_NUM_TRIALS]; // create trial array
 int32_t ITIArray[MAX_NUM_TRIALS]; // create ITI array
 int32_t noiseArray[MAX_NUM_TRIALS]; // create noise array
+int32_t transmissionStatus;
+int32_t pythonGo;
+
+int myCounter = 0;
 
 boolean acquireMetaData = true;
-boolean acquireTrials = true;
+boolean acquireTrials = false;
 boolean acquireITI = false;
 boolean acquireNoise = false;
+boolean rx = true;
+boolean pythonGoSignal = false;
+boolean arduinoGoSignal = false;
+
 
 void setup()
 {
@@ -37,15 +45,22 @@ void setup()
 
 
 void loop(){
+  rx_function();
+  pythonGo_rx();
+  go_signal();
+}
+
+void rx_function() {
+  if (rx) {
   metadata_rx();
   trials_rx();
   iti_rx();
-  noise_rx();
+  noise_rx(); 
+  }
 }
 
-
 int metadata_rx() {
-  if (acquireMetaData) {
+  if (acquireMetaData && transmissionStatus == 0) {
     if (myTransfer.available())
     {
       myTransfer.rxObj(metadata);
@@ -55,13 +70,15 @@ int metadata_rx() {
       Serial.println("Sent Metadata");
       
       acquireMetaData = false;
+      transmissionStatus++;
+      Serial.println(transmissionStatus);
       acquireTrials = true;
     }
   }
 }
 
 int trials_rx() {
-  if (acquireTrials) {
+  if (acquireTrials && transmissionStatus >= 1 && transmissionStatus < 3) {
     if (myTransfer.available())
     {
       myTransfer.rxObj(trialArray);
@@ -69,15 +86,16 @@ int trials_rx() {
 
       myTransfer.sendDatum(trialArray);
       Serial.println("Sent Trial Array");
-
-      acquireTrials = false;
+      transmissionStatus++;
+      Serial.println(transmissionStatus);
       acquireITI = true;
     }
   }
 }
 
 int iti_rx() {
-  if (acquireITI) {
+  if (acquireITI && transmissionStatus >= 3 && transmissionStatus < 5) {
+    acquireTrials = false;
     if (myTransfer.available())
     {
       myTransfer.rxObj(ITIArray);
@@ -85,14 +103,16 @@ int iti_rx() {
 
       myTransfer.sendDatum(ITIArray);
       Serial.println("Sent ITI Array");
-      acquireITI = false;
+      transmissionStatus++;
+      Serial.println(transmissionStatus);
       acquireNoise = true;
     }
   }
 }
 
 int noise_rx() {
-  if (acquireNoise) {
+  if (acquireNoise && transmissionStatus >= 5 && transmissionStatus < 7) {
+    acquireITI = false;
     if (myTransfer.available())
     {
       myTransfer.rxObj(noiseArray);
@@ -100,7 +120,32 @@ int noise_rx() {
 
       myTransfer.sendDatum(noiseArray);
       Serial.println("Sent Noise Array");
-      acquireNoise = true;
+
+      transmissionStatus++;
+      Serial.println(transmissionStatus);
+
+      pythonGoSignal = true;
     }
+  }
+}
+// Python status function for flow control
+int pythonGo_rx() {
+  if (pythonGoSignal && transmissionStatus == 7) {
+    if (myTransfer.available())
+    {
+      myTransfer.rxObj(pythonGo);
+      Serial.println("Received Python Status");
+  
+      myTransfer.sendDatum(pythonGo);
+      Serial.println("Sent Python Status");
+
+      arduinoGoSignal = true;
+    }
+  }
+}
+
+void go_signal() {
+  if (arduinoGoSignal) {
+    Serial.println("GO!");
   }
 }

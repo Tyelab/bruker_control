@@ -1,5 +1,7 @@
 # Bruker 2-Photon Serial Transfer Utils
 # Jeremy Delahanty May 2021
+# pySerialTransfer written by PowerBroker2
+# https://github.com/PowerBroker2/pySerialTransfer
 
 ###############################################################################
 # Import Packages
@@ -44,7 +46,7 @@ def transfer_packet(array, packet_id):
         link.open()
 
         # Send array
-        link.send(array_size, packet_id=0)
+        link.send(array_size, packet_id=packet_id)
 
         print("Sent Array")
         print(array)
@@ -168,7 +170,7 @@ def transfer_metadata(config):
 # -----------------------------------------------------------------------------
 
 
-def onepacket_transfers(array_list, packet_id):
+def onepacket_transfers(array_list):
 
     # Give each new packet an ID of 0.  The link is closed per packet
     # transmission.
@@ -233,3 +235,60 @@ def transfer_arrays_multipacket(split_array):
 
         # Increment the packet number for sending next array
         packet_id += 1
+
+    # update_python_status()
+
+###############################################################################
+# Serial Transfer to Arduino: Python Status
+###############################################################################
+
+
+def update_python_status():
+
+    try:
+
+        # Initialize COM Port for Serial Transfer
+        link = txfer.SerialTransfer('COM12', 115200, debug=True)
+
+        # Initialize array_size of 0
+        array_size = 0
+
+        # Stuff packet with size of trialArray
+        array_size = link.tx_obj(1)
+
+        # Open communication link
+        link.open()
+
+        # Send array
+        link.send(array_size, packet_id=0)
+
+        print("Sent END OF TRANSMISSION Status")
+
+        while not link.available():
+            pass
+
+        # Receive trial array:
+        rxarray = link.rx_obj(obj_type=type(1),
+                              obj_byte_size=array_size,
+                              list_format='i')
+
+        print("Received END OF TRANSMISSION Status")
+        print(rxarray)
+
+        # Close the communication link
+        link.close()
+
+    except KeyboardInterrupt:
+        try:
+            link.close()
+        except:
+            pass
+
+    except:
+        import traceback
+        traceback.print_exc()
+
+        try:
+            link.close()
+        except:
+            pass

@@ -227,8 +227,15 @@ def capture_recording(number_frames, project_name, config_filename):
             frame_number += 1
             pass
 
+    # Once recording is done, let user know
+    print("Video Complete")
+
     # Release VideoWriter object
     out.release()
+
+    # Destroy camera window
+    cv2.destroyAllWindows()
+
     # Shutdown the camera
     shutdown_camera(camera, h)
 

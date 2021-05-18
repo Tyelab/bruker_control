@@ -9,128 +9,336 @@
 #include <Adafruit_MPR121.h> // Adafruit MPR121 capicitance board recording
 #include <digitalWriteFast.h> // Speeds up communication for digital srite
 #include <Wire.h> // Enhances comms with MPR121
-//#include <SerialTransfer.h> // Enables serial comms between Python config and Arduino
+#include <SerialTransfer.h> // Enables serial comms between Python config and Arduino
 // rename SerialTransfer to myTransfer
-//SerialTransfer myTransfer;
+SerialTransfer myTransfer;
 
-//// BITSHIFT OPERATIONS DEF: CAPACITANCE ////
-#ifndef _BV
-#define _BV(bit) (1 << (bit)) // capacitance detection using bitshift operations, need to learn about what these are - JD
-#endif
+//// EXPERIMENT METADATA ////
+// The maximum number of trials that can be run for a given experiment is 90
+const int MAX_NUM_TRIALS = 80;
+// Metadata is received as a struct and then renamed metadata
+struct __attribute__((__packed__)) metadata_struct {
+  uint8_t totalNumberOfTrials;              // total number of trials for experiment
+  uint16_t punishTone;                      // airpuff frequency tone in Hz
+  uint16_t rewardTone;                      // sucrose frequency tone in Hz
+  uint8_t USDeliveryTime_Sucrose;           // amount of time to open sucrose solenoid
+  uint8_t USDeliveryTime_Air;               // amount of time to open air solenoid
+  uint16_t USConsumptionTime_Sucrose;       // amount of time to wait for sucrose consumption
+} metadata;
 
-//// PIN ASSIGNMENT: Stimuli and Solenoids ////
-// input
-const int lickPin = 2; // input from MPR121
-//const int airPin = 3; // measure delay from solenoid to mouse
-// output
-const int LEDpin = 11; // output for camera
-const int solPin_air = 31; // solenoid for air puff control
-const int vacPin = 24; // solenoid for vacuum control
-const int solPin_liquid = 33; // solenoid for liquid control: sucrose, water, EtOH
-const int speakerPin = 12; // speaker control pin
-const int imageTrigger = 13;
+//// EXPERIMENT ARRAYS ////
+// The order of stimuli to deliver is stored in the trial array
+// This is transmitted from Python to the Arduino
+int32_t trialArray[MAX_NUM_TRIALS];
+// The ITI for each trial is transmitted from Python to the Arduino
+int32_t ITIArray[MAX_NUM_TRIALS];
+// The amount of time a tone is transmitted from Python to the Arudino
+int32_t noiseArray[MAX_NUM_TRIALS];
 
-//// PIN ASSIGNMENT: NIDAQ ////
-const int NIDAQ_READY = 35; // how do we do this with Bruker?
-// NIDAQ output
-const int airDeliveryPin = 37; // airpuff delivery
-const int sucroseDeliveryPin = 39; // sucrose delivery
-const int lickDetectPin = 41; // detect sucrose licks
-const int speakerDeliveryPin = 43; // noise delivery
+//// TRIAL TYPES ////
+// trial variables are encoded as 0 and 1
+// 0 is negative stimulus [air], 1 is  positive stimulus [sucrose]
+// Initialize the trial type as an integer
+int trialType;
+// Initialize the current trial number as 0 before experiment begins
+int currentTrial = 0;
 
-
-//// VARIABLE ASSIGNMENT ////
-long ms;
-// flags
-boolean needVariables = true;
+//// FLAG ASSIGNMENT ////
+// In this version, the vacuum has been removed from the setup.
+// Therefore, vacuum related flags have been commented out.
+// Flags can be categorized by purpose:
+// Serial Transfer Flags
+boolean acquireMetaData = true;
+boolean acquireTrials = false;
+boolean acquireITI = false;
+boolean acquireNoise = false;
+// Experiment State Flags
+boolean brukerTrigger = false;
 boolean newTrial = false;
 boolean ITI = false;
 boolean newUSDelivery = false;
 boolean solenoidOn = false;
-boolean vacOn = false;
+//boolean vacOn = false;
 boolean consume = false;
-boolean cleanIt = false;
+//boolean cleanIt = false;
 boolean sucrose = false;
 boolean airpuff = false;
 boolean noise = false;
 boolean noiseDAQ = false;
-boolean trigWait = false;
 
-//// -- MATLAB ENTERED VARIABLES -- ////
-
-// <*/VAR TARGET\*> //
-
-///////////////////////////////////////
-
-//// EXPERIMENT VARIABLES ////
-//// For Manual Input ////
-//const int totalNumberOfTrials = 30;
-//const int baseITI = 3000; // 3 inter-trial interval
-//const int baseNoiseDuration = 500;
-//const int USDeliveryTime_Sucrose = 200; // opens Sucrose solenoid for 50 ms, currently 5ms b/c using water 3-30-21
-//const int USDeliveryTime_Air = 10; // opens airpuff solenoid for 10 ms
-//const int USConsumptionTime_Sucrose = 1000; // wait 1s for animal to consume, currently 800ms b/c using water 3-30-21
-//const int minITIJitter = 500; // min inter-trial jitter
-//const int maxITIJitter = 1000; // max inter-trial jitter
-//const int minNoiseJitter = 0; // min inter-trial jitter
-//const int maxNoiseJitter = 2000; // max inter-trial jitter
-//const int percentNegativeTrials = 50;
-
-
-// stop times
+//// TIMING VARIABLES ////
+// Time is measured in milliseconds for this program
+long ms; // milliseconds
+// Each experimental condition has a time parameter
+// In this version, the vacuum has been removed from the setup.
+// Therefore, vacuum related variables have been commented out.
 long ITIend;
 long rewardDelayMS;
 long sucroseDelayMS;
 long USDeliveryMS_Sucrose;
 long sucroseConsumptionMS;
-long vacTime;
+//long vacTime;
 long airDelayMS;
 long USDeliveryMS_Air;
 long USDeliveryMS;
 long noiseDeliveryMS;
 long noiseListeningMS;
 long noiseDAQMS;
+// Vacuum has a set amount of time to be active
+// const int vacDelay = 500; // vacuum delay
 
-// trial variables (0 negative [air], 1 positive [sucrose])
-int trialType;
-int currentTrial = 0;
 
-// lick variables
-Adafruit_MPR121 cap = Adafruit_MPR121(); // renames MPR121 functions to cap? - JD
+//// ADAFRUIT MPR121 ////
+// Lick Sensor Variables
+Adafruit_MPR121 cap = Adafruit_MPR121(); // renames MPR121 functions to cap
 uint16_t currtouched = 0; // not sure why unsigned 16int used, why not long? - JD
 uint16_t lasttouched = 0;
 
-// vac variables
-const int vacDelay = 500; // vacuum delay
+//// BITSHIFT OPERATIONS DEF: CAPACITANCE ////
+#ifndef _BV
+#define _BV(bit) (1 << (bit)) // capacitance detection using bitshift operations, need to learn about what these are - JD
+#endif
 
 
-// arrays
-int ITIArray[totalNumberOfTrials];
-int noiseDurationArray[totalNumberOfTrials];
-int trialTypeArray[totalNumberOfTrials];
+//// PIN ASSIGNMENT: Stimuli and Solenoids ////
+// In this version, the vacuum has been removed from the setup.
+// Therefore, vacuum related pins have been commented out.
+// input
+const int lickPin = 2; // input from MPR121
+//const int airPin = 3; // measure delay from solenoid to mouse
+// output
+const int solPin_air = 22; // solenoid for air puff control
+//const int vacPin = 24; // solenoid for vacuum control
+const int solPin_liquid = 26; // solenoid for liquid control: sucrose, water, EtOH
+const int speakerPin = 12; // speaker control pin
+const int bruker2PTriggerPin = 11; // trigger to start Bruker 2P Recording on Prairie View
+
+//// PIN ASSIGNMENT: NIDAQ ////
+const int NIDAQ_READY = 9; // how do we do this with Bruker?
+// NIDAQ output
+const int airDeliveryPin = 23; // airpuff delivery
+const int sucroseDeliveryPin = 27; // sucrose delivery
+const int lickDetectPin = 41; // detect sucrose licks
+const int speakerDeliveryPin = 51; // noise delivery
+
+
+//// RECIEVE METADATA FUNCTIONS ////
+// These three functions will be run in order.
+// The metadata is first received to initialize correct sizes for arrays
+int metadata_rx() {
+  if (acquireMetaData) {
+    if (myTransfer.available())
+    {
+      myTransfer.rxObj(metadata);
+      Serial.println("Received Metadata");
+
+      myTransfer.sendDatum(metadata);
+      Serial.println("Sent Metadata");
+
+      acquireMetaData = false;
+      acquireTrials = true;
+    }
+  }
+}
+// Next, an array of trials to run is received and stored.
+int trials_rx() {
+  if (acquireTrials) {
+    if (myTransfer.available())
+    {
+      myTransfer.rxObj(trialArray);
+      Serial.println("Received Trial Array");
+
+      myTransfer.sendDatum(trialArray);
+      Serial.println("Sent Trial Array");
+
+      acquireTrials = false;
+      acquireITI = true;
+    }
+  }
+}
+// Next, an array of ITI values are received and stored.
+int iti_rx() {
+  if (acquireITI) {
+    if (myTransfer.available())
+    {
+      myTransfer.rxObj(ITIArray);
+      Serial.println("Received ITI Array");
+
+      myTransfer.sendDatum(ITIArray);
+      Serial.println("Sent ITI Array");
+      acquireITI = false;
+      acquireNoise = true;
+    }
+  }
+}
+// Finally, an array of noise duration values are received and stored.
+int noise_rx() {
+  if (acquireNoise) {
+    if (myTransfer.available())
+    {
+      myTransfer.rxObj(noiseArray);
+      Serial.println("Received Noise Duration Array");
+
+      myTransfer.sendDatum(noiseArray);
+      Serial.println("Sent Noise Duration Array");
+      acquireNoise = true;
+      brukerTrigger = true;
+    }
+  }
+}
+
+//// BRUKER TRIGGER Function ////
+void bruker_trigger() {
+  if (brukerTrigger) {
+    Serial.println("Sending Bruker Trigger");
+    digitalWriteFast(bruker2PTriggerPin, HIGH);
+    Serial.println("Bruker Trigger Sent!");
+    digitalWriteFast(bruker2PTriggerPin, LOW);
+    brukerTrigger = false;
+
+    newTrial = true;
+  }
+}
+
+
+//// TRIAL FUNCTIONS ////
+// Lick Function
+void lickDetect() {
+  currtouched = cap.touched(); // Get currently touched contacts
+  // if it is *currently* touched and *wasn't* touched before, alert!
+  if ((currtouched & _BV(1)) && !(lasttouched & _BV(2))) {
+    digitalWriteFast(lickDetectPin, HIGH);
+  }
+  // if it *was* touched and now *isn't*, alert!
+  if (!(currtouched & _BV(1)) && (lasttouched & _BV(1))) {
+    digitalWriteFast(lickDetectPin, LOW);
+  }
+  lasttouched = currtouched;
+}
+
+// ITI Function
+void startITI(long ms) {
+  if (newTrial) {                                 // start new ITI
+    Serial.print("Starting New Trial: ");
+    Serial.println(currentTrial);
+    trialType = trialArray[currentTrial];         // gather trial type
+    newTrial = false;
+    ITI = true;
+    int thisITI = ITIArray[currentTrial];         // get ITI for this trial
+    ITIend = ms + thisITI;
+    // turn off when done
+  } else if (ITI && (ms >= ITIend)) {             // ITI is over
+    ITI = false;
+    noise = true;
+  }
+}
+
+
+// Noise Functions
+// Play tone function
+void tonePlayer(long ms) {
+  if (noise) {
+    Serial.println("Playing Tone");
+    int thisNoiseDuration = noiseArray[currentTrial];
+    noise = false;
+    noiseDAQ = true;
+    noiseListeningMS = ms + thisNoiseDuration;
+    digitalWriteFast(speakerDeliveryPin, HIGH);
+    switch (trialType) {
+      case 0:
+        Serial.println("Air");
+        tone(speakerPin, 2000, thisNoiseDuration);
+        break;
+      case 1:
+        Serial.println("Sucrose");
+        tone(speakerPin, 9000, thisNoiseDuration);
+        break;
+    }
+  }
+}
+
+
+void onTone(long ms) {
+  if (noiseDAQ && (ms >= noiseListeningMS)){
+    noiseDAQ = false;
+    digitalWriteFast(speakerDeliveryPin, LOW);
+    newUSDelivery = true;
+  }
+}
+
+
+void USDelivery(long ms) {
+  if (newUSDelivery && (ms >= noiseListeningMS)) {
+    Serial.println("Delivering US");
+    Serial.println(trialType);
+    newUSDelivery = false;
+    solenoidOn = true;
+    switch (trialType) {
+      case 0:
+        Serial.println("Delivering Airpuff");
+        USDeliveryMS = (ms + metadata.USDeliveryTime_Air);
+        Serial.println(metadata.USDeliveryTime_Air);
+        digitalWriteFast(solPin_air, HIGH);
+        digitalWriteFast(airDeliveryPin, HIGH);
+        break;
+      case 1:
+        Serial.println("Delivering Sucrose");
+        USDeliveryMS = (ms + metadata.USDeliveryTime_Sucrose);
+        digitalWriteFast(solPin_liquid, HIGH);
+        digitalWriteFast(sucroseDeliveryPin, HIGH);
+        break;
+    }
+  }
+}
+
+void offSolenoid(long ms) {
+  if (solenoidOn && (ms >= USDeliveryMS)) {
+    switch (trialType) {
+      case 0:
+        Serial.println("Air Solenoid Off");
+        solenoidOn = false;
+        digitalWriteFast(solPin_air, LOW);
+        digitalWriteFast(airDeliveryPin, LOW);
+        newTrial = true;
+        currentTrial++;
+        break;
+      case 1:
+        Serial.println("Liquid Solenoid Off");
+        solenoidOn = false;
+        sucroseConsumptionMS = (ms + metadata.USConsumptionTime_Sucrose);
+        Serial.println(sucroseConsumptionMS);
+        consume = true;
+        digitalWriteFast(solPin_liquid, LOW);
+        digitalWriteFast(sucroseDeliveryPin, LOW);
+        break;
+    }
+  }
+}
 
 
 //// SETUP ////
 void setup() {
   // -- DEFINE BITRATE -- //
-  // Serial debugging on COM13, use Ctrl+Shift+M
-  Serial.begin(9600);
+  // Serial debugging from Arduino, use Ctrl+Shift+M
+  Serial.begin(115200);
 
-  while (!Serial) { // needed to keep leonardo/micro from starting too fast!
-    delay(10);
-  }
+  // Serial transfer of trials on UART Converter COM port
+  Serial1.begin(115200);
+  myTransfer.begin(Serial1, true);
   
   // -- DEFINE PINS -- //
   // input
   pinMode(lickPin, INPUT);
   //output
-  pinMode(LEDpin, OUTPUT);
+  // The camera for the Bruker setup is timelocked the Microscope's imaging.
+  // This allows us to not need the LED pin. It has been commented out here.
+//  pinMode(LEDpin, OUTPUT);
   pinMode(solPin_air, OUTPUT);
   pinMode(solPin_liquid, OUTPUT);
-  pinMode(vacPin, OUTPUT);
+//  pinMode(vacPin, OUTPUT);
   pinMode(speakerPin, OUTPUT);
   pinMode(speakerDeliveryPin, OUTPUT);
-  pinMode(imageTrigger, OUTPUT);
+  pinMode(bruker2PTriggerPin, OUTPUT);
   pinMode(lickDetectPin, OUTPUT);
 
   // -- INITIALIZE TOUCH SENSOR -- //
@@ -141,25 +349,17 @@ void setup() {
   } // need to learn what value 0x5A represents - JD
   Serial.println("MPR121 found!");
 
-  // -- POPULATE DELAY TIME ARRAYS -- //
-  fillDelayArray(ITIArray, totalNumberOfTrials, baseITI, minITIJitter, maxITIJitter);
-  fillDelayArray(noiseDurationArray, totalNumberOfTrials, baseNoiseDuration, minNoiseJitter, maxNoiseJitter);
-
-  // -- INITIALIZE TRIAL TYPES -- //
-  defineTrialTypes(totalNumberOfTrials, percentNegativeTrials);
-
-  // -- WAIT FOR SIGNAL THAT DAQ IS ONLINE -- //
-  //MATLAB_VALUE = digitalRead(NIDAQ_READY);
-  //while (MATLAB_VALUE == LOW) {
-  //  MATLAB_VALUE = digitalRead(NIDAQ_READY);
-  //}
-
   newTrial = true;
 }
 
 //// THE BIZ ////
 void loop() {
-  if (currentTrial < totalNumberOfTrials) {
+  metadata_rx();
+  trials_rx();
+  iti_rx();
+  noise_rx();
+  bruker_trigger();
+  if (currentTrial < metadata.totalNumberOfTrials) {
     ms = millis();
     lickDetect();
     startITI(ms);
@@ -170,117 +370,103 @@ void loop() {
   }
 }
 
-//// TRIAL FUNCTIONS ////
-void lickDetect() {
-  currtouched = cap.touched(); // Get currently touched contacts
-  // if it is *currently* touched and *wasn't* touched before, alert!
-  if ((currtouched & _BV(2)) && !(lasttouched & _BV(2))) {            ///// CHANGED PIN LATER!!
-    digitalWriteFast(lickDetectPin, HIGH);
-  }
-  // if it *was* touched and now *isn't*, alert!
-  if (!(currtouched & _BV(2)) && (lasttouched & _BV(2))) {
-    digitalWriteFast(lickDetectPin, LOW);
-  }
-  lasttouched = currtouched;
-}
-
-void startITI(long ms) {
-  if (newTrial) {                                 // start new ITI
-    Serial.print("staring trial ");
-    Serial.println(currentTrial);
-    trialType = trialTypeArray[currentTrial];     // assign trial type
-    newTrial = false;
-    ITI = true;
-    int thisITI = ITIArray[currentTrial];         // get ITI for this trial
-    ITIend = ms + thisITI;
-    trigWait = true;
-    // turn off when done
-  } else if (trigWait && (ms >= ITIend - baseline) && (ms <= ITIend)) {
-    // tell Bruker to start imaging
-    digitalWriteFast(imageTrigger, HIGH);
-    Serial.println("imaging trigger fired!");
-    trigWait = false;    
-  } else if (ITI && (ms >= ITIend)) {             // ITI is over
-    // turn off imaging trigger
-    digitalWriteFast(imageTrigger, LOW);
-    ITI = false;
-    noise = true;
-  }
-}
-
-void tonePlayer(long ms) {
-  if (noise) {
-    Serial.println("Playing Tone");
-    int thisNoiseDuration = noiseDurationArray[currentTrial];
-    noise = false;
-    noiseDAQ = true;
-    noiseListeningMS = ms + thisNoiseDuration;
-    digitalWriteFast(speakerDeliveryPin, HIGH);
-    switch (trialType) {
-      case 0:
-        Serial.println("AIR");
-        LED(50);
-        tone(speakerPin, 2000, thisNoiseDuration);
-        break;
-      case 1:
-        Serial.println("SUCROSE");
-        LED(50);
-        tone(speakerPin, 9000, thisNoiseDuration);
-        break;
-    }
-  }
-}
-
-void onTone(long ms) {
-  if (noiseDAQ && (ms >= noiseListeningMS)){
-    noiseDAQ = false;
-    digitalWriteFast(speakerDeliveryPin, LOW);
-    newUSDelivery = true;
-  }
-}
-
-void USDelivery(long ms) {
-  if (newUSDelivery) {
-    Serial.println("Delivering US");
-    Serial.println(trialType);
-    newUSDelivery = false;
-    solenoidOn = true;
-    switch (trialType) {
-      case 0: 
-        Serial.println("Delivering Airpuff");
-        USDeliveryMS = (ms + USDeliveryTime_Air);
-        digitalWriteFast(airDeliveryPin, HIGH);
-        digitalWriteFast(solPin_air, HIGH);
-        delay(50);
-        break;
-      case 1:
-        Serial.println("Delivering Sucrose");
-        USDeliveryMS = (ms + USDeliveryTime_Sucrose);
-        digitalWriteFast(solPin_liquid, HIGH);
-        digitalWriteFast(sucroseDeliveryPin, HIGH);
-        break;
-    }
-  }
-}
-
-void offSolenoid(long ms) {
-  if (solenoidOn && (ms >= USDeliveryMS)) {
-    solenoidOn = false;
-    newTrial = true;
-    currentTrial++;
-    switch (trialType) {
-      case 0:
-        Serial.println("air solenoid off");
-        digitalWriteFast(airDeliveryPin, LOW);
-        digitalWriteFast(solPin_air, LOW);
-        delay(30);
-        break;
-      case 1:
-        Serial.println("liquid solenoid off");
-        sucroseConsumptionMS = (ms + USConsumptionTime_Sucrose);
-        digitalWriteFast(solPin_liquid, LOW);
-        digitalWriteFast(sucroseDeliveryPin, LOW);
-        break;
-    }
-  }
-}
+//void startITI(long ms) {
+//  if (newTrial) {                                 // start new ITI
+//    Serial.print("staring trial ");
+//    Serial.println(currentTrial);
+//    trialType = trialTypeArray[currentTrial];     // assign trial type
+//    newTrial = false;
+//    ITI = true;
+//    int thisITI = ITIArray[currentTrial];         // get ITI for this trial
+//    ITIend = ms + thisITI;
+//    trigWait = true;
+//    // turn off when done
+//  } else if (trigWait && (ms >= ITIend - baseline) && (ms <= ITIend)) {
+//    // tell Bruker to start imaging
+//    digitalWriteFast(imageTrigger, HIGH);
+//    Serial.println("imaging trigger fired!");
+//    trigWait = false;    
+//  } else if (ITI && (ms >= ITIend)) {             // ITI is over
+//    // turn off imaging trigger
+//    digitalWriteFast(imageTrigger, LOW);
+//    ITI = false;
+//    noise = true;
+//  }
+//}
+//
+//void tonePlayer(long ms) {
+//  if (noise) {
+//    Serial.println("Playing Tone");
+//    int thisNoiseDuration = noiseDurationArray[currentTrial];
+//    noise = false;
+//    noiseDAQ = true;
+//    noiseListeningMS = ms + thisNoiseDuration;
+//    digitalWriteFast(speakerDeliveryPin, HIGH);
+//    switch (trialType) {
+//      case 0:
+//        Serial.println("AIR");
+//        LED(50);
+//        tone(speakerPin, 2000, thisNoiseDuration);
+//        break;
+//      case 1:
+//        Serial.println("SUCROSE");
+//        LED(50);
+//        tone(speakerPin, 9000, thisNoiseDuration);
+//        break;
+//    }
+//  }
+//}
+//
+//void onTone(long ms) {
+//  if (noiseDAQ && (ms >= noiseListeningMS)){
+//    noiseDAQ = false;
+//    digitalWriteFast(speakerDeliveryPin, LOW);
+//    newUSDelivery = true;
+//  }
+//}
+//
+//void USDelivery(long ms) {
+//  if (newUSDelivery) {
+//    Serial.println("Delivering US");
+//    Serial.println(trialType);
+//    newUSDelivery = false;
+//    solenoidOn = true;
+//    switch (trialType) {
+//      case 0: 
+//        Serial.println("Delivering Airpuff");
+//        USDeliveryMS = (ms + USDeliveryTime_Air);
+//        digitalWriteFast(airDeliveryPin, HIGH);
+//        digitalWriteFast(solPin_air, HIGH);
+//        delay(50);
+//        break;
+//      case 1:
+//        Serial.println("Delivering Sucrose");
+//        USDeliveryMS = (ms + USDeliveryTime_Sucrose);
+//        digitalWriteFast(solPin_liquid, HIGH);
+//        digitalWriteFast(sucroseDeliveryPin, HIGH);
+//        break;
+//    }
+//  }
+//}
+//
+//void offSolenoid(long ms) {
+//  if (solenoidOn && (ms >= USDeliveryMS)) {
+//    solenoidOn = false;
+//    newTrial = true;
+//    currentTrial++;
+//    switch (trialType) {
+//      case 0:
+//        Serial.println("air solenoid off");
+//        digitalWriteFast(airDeliveryPin, LOW);
+//        digitalWriteFast(solPin_air, LOW);
+//        delay(30);
+//        break;
+//      case 1:
+//        Serial.println("liquid solenoid off");
+//        sucroseConsumptionMS = (ms + USConsumptionTime_Sucrose);
+//        digitalWriteFast(solPin_liquid, LOW);
+//        digitalWriteFast(sucroseDeliveryPin, LOW);
+//        break;
+//    }
+//  }
+//}
