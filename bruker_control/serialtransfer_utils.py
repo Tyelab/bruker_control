@@ -193,8 +193,6 @@ def transfer_metadata(config):
         #     print("Trial Array error! Exiting...")
         #     sys.exit()
 
-        # Close the communication link
-
 
 # -----------------------------------------------------------------------------
 # Trial Array Transfers: One Packet
@@ -227,7 +225,7 @@ def onepacket_transfers(array_list):
 def split_multipacket_array(array):
 
     # This function receives a large list of trial variables.  It needs to be
-    # plit into two arrays using np.array_split.
+    # split into two arrays using np.array_split.
     split_ndarray = np.array_split(array, 2)
 
     # Return the split numpy arrays
@@ -312,8 +310,6 @@ def multipacket_dev(split_array, packet_id):
 
         packet_id += 1
 
-        print(packet_id)
-
         second_array_size = link.tx_obj(new_array[1])
 
         link.send(second_array_size, packet_id=packet_id)
@@ -359,8 +355,10 @@ def update_python_status():
         # Initialize array_size of 0
         array_size = 0
 
+        array = 1
+
         # Stuff packet with size of trialArray
-        array_size = link.tx_obj(1)
+        array_size = link.tx_obj(array)
 
         # Open communication link
         link.open()
@@ -374,11 +372,13 @@ def update_python_status():
             pass
 
         # Receive trial array:
-        rxarray = link.rx_obj(obj_type=type(1),
+        rxarray = link.rx_obj(obj_type=type(array),
                               obj_byte_size=array_size,
                               list_format='i')
 
         print("Received END OF TRANSMISSION Status")
+
+        array_error_check(array, rxarray)
 
         # Close the communication link
         link.close()

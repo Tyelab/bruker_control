@@ -101,8 +101,6 @@ if __name__ == "__main__":
     # Gather total number of trials
     trials = config_list[0]["metadata"]["totalNumberOfTrials"]["value"]
 
-    print("made it")
-
     # Preview video for headfixed mouse placement
     video_utils.capture_preview()
 
@@ -156,7 +154,7 @@ if __name__ == "__main__":
         # video_utils.capture_recording(60, project_name, config_filename)
 
         # End Prairie View's imaging session with abort command
-        prairieview_utils.prairie_abort()
+        # prairieview_utils.prairie_abort()
 
         # Now that the microscopy session has ended, let user know the
         # experiment is complete!

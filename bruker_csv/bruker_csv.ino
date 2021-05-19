@@ -109,7 +109,7 @@ int iti_rx() {
       myTransfer.sendDatum(ITIArray);
       Serial.println("Sent ITI Array");
 
-      if (metadata.totalNumberOfTrials > 60) {
+  if (metadata.totalNumberOfTrials > 60) {
         transmissionStatus++;
       }
       else {
