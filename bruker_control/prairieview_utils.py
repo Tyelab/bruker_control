@@ -33,6 +33,9 @@ current_dir = Path.cwd()
 
 
 def prairie_connect():
+
+    # Tell user program is connecting to Prairie View, connect, and finally
+    # tell user that the program is connected.
     print("Connecting to Prairie View")
     pl.Connect()
     print("Connected to Prairie View")
@@ -44,9 +47,12 @@ def prairie_connect():
 
 
 def prairie_disconnect():
+
+    # Tell user program is disconnecting from Prairie View, disconnect, and
+    # finally tell user that the program has disconnected.
     print("Disconnecting from Prairie View")
-    pl.disconnect()
-    print("Disonnected from Prairie View")
+    pl.Disconnect()
+    print("Disconnected from Prairie View")
 
 
 # -----------------------------------------------------------------------------
@@ -55,9 +61,20 @@ def prairie_disconnect():
 
 
 def prairie_abort():
+
+    # Tell user recording is being stopped using abort command
     print("Aborting Recording...")
+
+    # Connect to Prairie View
     prairie_connect()
+
+    # Tell user abort command is being sent, send the command, and finally
+    # tell user that the command has been executed.
+    print("Sending Abort Command")
     pl.SendScriptCommands("-Abort")
+    print("Abort Command Sent")
+
+    # Disconnect from Prairie View
     prairie_disconnect()
 
 

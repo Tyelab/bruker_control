@@ -175,5 +175,7 @@ void go_signal() {
       Serial.println(noiseArray[i]);
     }
     Serial.println(sizeof(trialArray));
+    rx = true;
+    acquireMetaData = true;
   }
 }
