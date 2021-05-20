@@ -49,7 +49,7 @@ int transmissionStatus = 0;
 // Initialize the trial type as an integer
 int trialType;
 // Initialize the current trial number as 0 before experiment begins
-int currentTrial = 0;
+int currentTrial = 1;
 
 //// FLAG ASSIGNMENT ////
 // In this version, the vacuum has been removed from the setup.
@@ -76,6 +76,7 @@ boolean sucrose = false;
 boolean airpuff = false;
 boolean noise = false;
 boolean noiseDAQ = false;
+boolean reset = false;
 
 //// TIMING VARIABLES ////
 // Time is measured in milliseconds for this program
@@ -127,10 +128,11 @@ const int bruker2PTriggerPin = 11; // trigger to start Bruker 2P Recording on Pr
 //// PIN ASSIGNMENT: NIDAQ ////
 const int NIDAQ_READY = 9; // how do we do this with Bruker?
 // NIDAQ output
-const int airDeliveryPin = 23; // airpuff delivery
-const int sucroseDeliveryPin = 27; // sucrose delivery
 const int lickDetectPin = 41; // detect sucrose licks
 const int speakerDeliveryPin = 51; // noise delivery
+
+//// PIN ASSIGNMENT: RESET ////
+const int resetPin = 0; // reset Arduino by driving this pin LOW
 
 //// RECIEVE METADATA FUNCTIONS ////
 // These three functions will be run in order.
@@ -251,6 +253,7 @@ int pythonGo_rx() {
   }
 }
 
+// Arduino go signal for flow control
 void go_signal() {
   if (arduinoGoSignal) {
     arduinoGoSignal = false;
@@ -259,7 +262,7 @@ void go_signal() {
   }
 }
 
-//// BRUKER TRIGGER Function ////
+//// BRUKER TRIGGER FUNCTION ////
 void bruker_trigger() {
   if (brukerTrigger) {
     Serial.println("Sending Bruker Trigger");
@@ -351,13 +354,11 @@ void USDelivery(long ms) {
         USDeliveryMS = (ms + metadata.USDeliveryTime_Air);
         Serial.println(metadata.USDeliveryTime_Air);
         digitalWriteFast(solPin_air, HIGH);
-        digitalWriteFast(airDeliveryPin, HIGH);
         break;
       case 1:
         Serial.println("Delivering Sucrose");
         USDeliveryMS = (ms + metadata.USDeliveryTime_Sucrose);
         digitalWriteFast(solPin_liquid, HIGH);
-        digitalWriteFast(sucroseDeliveryPin, HIGH);
         break;
     }
   }
@@ -370,7 +371,6 @@ void offSolenoid(long ms) {
         Serial.println("Air Solenoid Off");
         solenoidOn = false;
         digitalWriteFast(solPin_air, LOW);
-        digitalWriteFast(airDeliveryPin, LOW);
         newTrial = true;
         currentTrial++;
         break;
@@ -378,7 +378,6 @@ void offSolenoid(long ms) {
         Serial.println("Liquid Solenoid Off");
         solenoidOn = false;
         digitalWriteFast(solPin_liquid, LOW);
-        digitalWriteFast(sucroseDeliveryPin, LOW);
         newTrial = true;
         currentTrial++;
         break;
@@ -386,6 +385,14 @@ void offSolenoid(long ms) {
   }
 }
 
+//// RESET ARDUINO FUNCTION ////
+void reset_fx() {
+  if (reset) {
+  Serial.println("Resetting Arduino after 5 seconds");
+  delay(5000);
+  digitalWriteFast(resetPin, HIGH); 
+  }
+}
 
 //// SETUP ////
 void setup() {
@@ -412,6 +419,11 @@ void setup() {
   pinMode(bruker2PTriggerPin, OUTPUT);
   pinMode(lickDetectPin, OUTPUT);
 
+  //reset pin
+  pinMode(resetPin, OUTPUT);
+  digitalWriteFast(resetPin, LOW);
+  reset = false;
+
   // -- INITIALIZE TOUCH SENSOR -- //
   Serial.println("MPR121 check...");
   if (!cap.begin(0x5A)) {
@@ -435,5 +447,9 @@ void loop() {
     onTone(ms);
     USDelivery(ms);
     offSolenoid(ms);
+  }
+  else if (currentTrial == metadata.totalNumberOfTrials) {
+    reset = true;
+    reset_fx();
   }
 }

@@ -174,6 +174,9 @@ def config_parser(metadata_args):
     # Gather status of template flag
     template_flag = metadata_args['template']
 
+    # Gather number of imaging planes to be collected
+    num_planes = metadata_args['imaging_planes']
+
     # If the user doesn't submit a configuration file
     if metadata_args['config'] is None:
 
@@ -182,7 +185,7 @@ def config_parser(metadata_args):
 
         # By default, it will be assumed the user would like to make a config.
         # Set a make_metadata status as true.  However, just in case, let the
-        # user confirm if they want to.
+        # user confirm if they want to.  If they're not ready, they can say no.
         make_metadata = True
 
         # Use a while loop to ask for user input
@@ -212,8 +215,10 @@ def config_parser(metadata_args):
                 print("Only 'y' and 'n' are acceptable options.")
 
         config_list = [config, config_filename, config_fullpath]
+        video_list = [project_name, config_filename, num_planes]
+
         # Return the config object for use in next steps
-        return config_list, project_name
+        return config_list, video_list
 
     # elif metadata_args['config'] is not None and metadata_args['modify'] is True:
     #     Modify configuration function in development...
@@ -256,8 +261,10 @@ def config_parser(metadata_args):
             sys.exit()
 
         config_list = [config, config_filename, config_fullpath]
+        video_list = [project_name, config_filename, num_planes]
+
         # Return the config object for use in next steps
-        return config_list, project_name
+        return config_list, video_list
 
         # If something can't be interpreted, tell the user
     else:
