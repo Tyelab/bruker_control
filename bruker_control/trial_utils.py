@@ -93,10 +93,10 @@ def gen_ITIArray(trials, config_fullpath, demo_flag):
     else:
 
         # Define lower and upper limits on ITI values in ms
-        iti_lower, iti_upper = 10000, 20000
+        iti_lower, iti_upper = 0, 30000
 
         # Define mean and variance for ITI values
-        mu, sigma = 15000, 5000
+        mu, sigma = 15000, 15000
 
     # Upper bound calculation
     upper_bound = (iti_upper - mu)/sigma
@@ -147,10 +147,10 @@ def gen_noiseArray(trials, config_fullpath):
     noise_array = []
 
     # Define lower and upper limits on ITI values in ms
-    noise_lower, noise_upper = 2500, 3500
+    noise_lower, noise_upper = 1000, 5000
 
     # Define mean and variance for ITI values
-    mu, sigma = 3000, 1000
+    mu, sigma = 3000, 2000
 
     # Upper bound calculation
     upper_bound = (noise_upper - mu)/sigma

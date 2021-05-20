@@ -24,7 +24,7 @@ from datetime import datetime
 current_dir = Path.cwd()
 
 # Static template file location
-template_config_file = current_dir.joinpath("Documents/gitrepos/headfix_control/configs/templatevalues.json")
+fooddep_template_config_file = current_dir.joinpath("Documents/gitrepos/headfix_control/configs/templatefooddep.json")
 
 # Static empty json file location
 empty_config_file = current_dir.joinpath("Documents/gitrepos/headfix_control/configs/templateempty.json")
@@ -55,7 +55,7 @@ def build_from_template(config_fullpath):
     print("Using template values for experiment")
 
     # Load config file with template values
-    with open(template_config_file, 'r') as inFile:
+    with open(fooddep_template_config_file, 'r') as inFile:
         contents = inFile.read()
 
         # Save template configuration
