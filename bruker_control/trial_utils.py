@@ -36,18 +36,17 @@ def gen_trialArray(trials, config_fullpath):
     # Define number of samples needed from generator
     num_samples = trials - len(trialArray)
 
-    # Define probability that the animal will receive sucrose 50% of the time
-    sucrose_prob = 0.5
-
     # Initialize random number generator with default_rng
     rng = default_rng()
 
-    # Generate a random trial array with Generator.binomial.  Use n=1 to pull
-    # one sample at a time and p=0.5 as probability of sucrose.  Use
-    # num_samples to generate the correct number of trials.  Finally, use
-    # tolist() to convert random_trials from an np.array to a list.
-    random_trials = rng.uniform(
-                                 n=1, p=sucrose_prob, size=num_samples
+    # Generate a random trial array with Generator.integers.  The function is
+    # inclusive of the low value and exclusive of the high value.  Therefore,
+    # use a low of 0 and high of 2 which will sample from a discrete uniform
+    # distribution for either ones or zeros.  Use num_samples to generate the
+    # correct number of trials.  Finally, use tolist() to convert random_trials
+    # from an np.array to a list.
+    random_trials = rng.integers(
+                                low=0, high=2, size=num_samples
                                 ).tolist()
 
     # Append the two arrays together
