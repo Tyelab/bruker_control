@@ -35,6 +35,111 @@ empty_config_file = current_dir.joinpath("Documents/gitrepos/headfix_control/con
 # Functions expect metadata_args as found in bruker_control.py
 
 
+def config_parser(metadata_args):
+
+    # Gather project name for use in each case
+    project_name = metadata_args['project']
+
+    # Gather status of template flag
+    template_flag = metadata_args['template']
+
+    # Gather number of imaging planes to be collected
+    num_planes = metadata_args['imaging_planes']
+
+    # If the user doesn't submit a configuration file
+    if metadata_args['config'] is None:
+
+        # Tell the user there was not metadata file provided
+        print("No metadata file provided")
+
+        # By default, it will be assumed the user would like to make a config.
+        # Set a make_metadata status as true.  However, just in case, let the
+        # user confirm if they want to.  If they're not ready, they can say no.
+        make_metadata = True
+
+        # Use a while loop to ask for user input
+        while make_metadata is True:
+
+            # Ask the user if they want to make the file with input()
+            user_choice = input("Do you want to create a metadata file? y/n ")
+
+            # If the user replies with 'y', enter new_metadata() function
+            if user_choice == 'y':
+                config_file, config_filename, config_fullpath = build_config(project_name,
+                                                                             template_flag)
+                config = read_config(config_file)
+
+                make_metadata = False
+
+            # If the user replies with 'n', tell user metadata is needed and
+            # then exit the program
+            elif user_choice == 'n':
+                print("Experiment requires metadata to run.")
+                print("Exiting...")
+                sys.exit()
+
+            # If the user doesn't give appropriate response, tell them and
+            # let them try again.
+            else:
+                print("Only 'y' and 'n' are acceptable options.")
+
+        config_list = [config, config_filename, config_fullpath]
+        video_list = [project_name, config_filename, num_planes]
+
+        # Return the config object for use in next steps
+        return config_list, video_list
+
+    # elif metadata_args['config'] is not None and metadata_args['modify'] is True:
+    #     Modify configuration function in development...
+    #     # TODO: Write config modification functions
+
+    # If the name of a metadata file is given and the user doesn't want to
+    # modify it, confirm the file is present.  If the file is present, load
+    # its contents.
+    elif metadata_args['config'] is not None and metadata_args['modify'] is False:
+
+        # Let user know that the program is looking for the file
+        print("Trying to find file...")
+
+        # Use the correct base path for configuration files for the
+        # project
+        config_basepath = "E:/studies/" + project_name + "/config/"
+
+        # Gather the configuration file name from the config argument
+        config_filename = metadata_args['config']
+
+        # Combine the basepath, filename, and extension
+        # TODO: Interpret other file types like .csv and then save them as
+        # a json file.
+        # TODO: Create new argument that allows some other absolute
+        # path to import the config file.  This should be discouraged...
+        config_fullpath = Path(config_basepath + config_filename + '.json')
+
+        # If there is a file with this name in the correct directory
+        if Path.exists(config_fullpath) is True:
+
+            # Tell the user the config file was found
+            print("Found config file!")
+
+            # Save the configuration variables as config
+            config = read_config(config_fullpath)
+
+        else:
+            print("No config found...")
+            print("Exiting")
+            sys.exit()
+
+        config_list = [config, config_filename, config_fullpath]
+        video_list = [project_name, config_filename, num_planes]
+
+        # Return the config object for use in next steps
+        return config_list, video_list
+
+        # If something can't be interpreted, tell the user
+    else:
+        print("Invalid Configuration File Supplied")
+
+
 def read_config(config_file):
     with open(config_file, 'r') as inFile:
         contents = inFile.read()
@@ -164,108 +269,3 @@ def build_config(project_name, template_flag):
         config_file = build_from_template(config_fullpath)
 
     return config_file, config_filename, config_fullpath
-
-
-def config_parser(metadata_args):
-
-    # Gather project name for use in each case
-    project_name = metadata_args['project']
-
-    # Gather status of template flag
-    template_flag = metadata_args['template']
-
-    # Gather number of imaging planes to be collected
-    num_planes = metadata_args['imaging_planes']
-
-    # If the user doesn't submit a configuration file
-    if metadata_args['config'] is None:
-
-        # Tell the user there was not metadata file provided
-        print("No metadata file provided")
-
-        # By default, it will be assumed the user would like to make a config.
-        # Set a make_metadata status as true.  However, just in case, let the
-        # user confirm if they want to.  If they're not ready, they can say no.
-        make_metadata = True
-
-        # Use a while loop to ask for user input
-        while make_metadata is True:
-
-            # Ask the user if they want to make the file with input()
-            user_choice = input("Do you want to create a metadata file? y/n ")
-
-            # If the user replies with 'y', enter new_metadata() function
-            if user_choice == 'y':
-                config_file, config_filename, config_fullpath = build_config(project_name,
-                                                                             template_flag)
-                config = read_config(config_file)
-
-                make_metadata = False
-
-            # If the user replies with 'n', tell user metadata is needed and
-            # then exit the program
-            elif user_choice == 'n':
-                print("Experiment requires metadata to run.")
-                print("Exiting...")
-                sys.exit()
-
-            # If the user doesn't give appropriate response, tell them and
-            # let them try again.
-            else:
-                print("Only 'y' and 'n' are acceptable options.")
-
-        config_list = [config, config_filename, config_fullpath]
-        video_list = [project_name, config_filename, num_planes]
-
-        # Return the config object for use in next steps
-        return config_list, video_list
-
-    # elif metadata_args['config'] is not None and metadata_args['modify'] is True:
-    #     Modify configuration function in development...
-    #     # TODO: Write config modification functions
-
-    # If the name of a metadata file is given and the user doesn't want to
-    # modify it, confirm the file is present.  If the file is present, load
-    # its contents.
-    elif metadata_args['config'] is not None and metadata_args['modify'] is False:
-
-        # Let user know that the program is looking for the file
-        print("Trying to find file...")
-
-        # Use the correct base path for configuration files for the
-        # project
-        config_basepath = "E:/studies/" + project_name + "/config/"
-
-        # Gather the configuration file name from the config argument
-        config_filename = metadata_args['config']
-
-        # Combine the basepath, filename, and extension
-        # TODO: Interpret other file types like .csv and then save them as
-        # a json file.
-        # TODO: Create new argument that allows some other absolute
-        # path to import the config file.  This should be discouraged...
-        config_fullpath = Path(config_basepath + config_filename + '.json')
-
-        # If there is a file with this name in the correct directory
-        if Path.exists(config_fullpath) is True:
-
-            # Tell the user the config file was found
-            print("Found config file!")
-
-            # Save the configuration variables as config
-            config = read_config(config_fullpath)
-
-        else:
-            print("No config found...")
-            print("Exiting")
-            sys.exit()
-
-        config_list = [config, config_filename, config_fullpath]
-        video_list = [project_name, config_filename, num_planes]
-
-        # Return the config object for use in next steps
-        return config_list, video_list
-
-        # If something can't be interpreted, tell the user
-    else:
-        print("Invalid Configuration File Supplied")

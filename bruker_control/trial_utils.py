@@ -12,10 +12,8 @@
 # Import numpy for trial array generation/manipulation and Harvesters
 import numpy as np
 
-# Import numpy default_rng
+# Import numpy default_rng for random trial generation
 from numpy.random import default_rng
-
-import numpy.random as random
 
 # Import json for writing trial data to config file
 import json
@@ -42,13 +40,13 @@ def gen_trialArray(trials, config_fullpath):
     sucrose_prob = 0.5
 
     # Initialize random number generator with default_rng
-    rng = default_rng(2)
+    rng = default_rng()
 
     # Generate a random trial array with Generator.binomial.  Use n=1 to pull
     # one sample at a time and p=0.5 as probability of sucrose.  Use
     # num_samples to generate the correct number of trials.  Finally, use
     # tolist() to convert random_trials from an np.array to a list.
-    random_trials = rng.binomial(
+    random_trials = rng.uniform(
                                  n=1, p=sucrose_prob, size=num_samples
                                 ).tolist()
 
@@ -89,28 +87,19 @@ def gen_ITIArray(trials, config_fullpath, demo_flag):
         # Define lower and upper limits on ITI values in ms
         iti_lower, iti_upper = 1000, 3000
 
-        # Define mean and variance for ITI values
-        mu, sigma = 2000, 500
-
     else:
 
         # Define lower and upper limits on ITI values in ms
         iti_lower, iti_upper = 15000, 30000
 
-        # Define mean and variance for ITI values
-        mu, sigma = 22500, 7500
+    # Initialize random number generator with default_rng
+    rng = default_rng()
 
-    # Upper bound calculation
-    upper_bound = (iti_upper - mu)/sigma
-
-    # Lower bound calculation
-    lower_bound = (iti_lower - mu)/sigma
-
-    # Generate array by sampling from truncated normal distribution w/scipy
-    iti_array = random.uniform(
-                              low=iti_lower, high=iti_upper,
-                              size=trials
-                             )
+    # Generate array by sampling from unfiorm distribution
+    iti_array = rng.uniform(
+                            low=iti_lower, high=iti_upper,
+                            size=trials
+                            )
 
     # ITI Array generated will have decimals in it and be float type
     # Use np.round() to round the elements in the array and type them as int
@@ -151,20 +140,14 @@ def gen_noiseArray(trials, config_fullpath):
     # Define lower and upper limits on ITI values in ms
     noise_lower, noise_upper = 1000, 5000
 
-    # Define mean and variance for ITI values
-    mu, sigma = 3000, 2000
+    # Initialize random number generator with default_rng
+    rng = default_rng()
 
-    # Upper bound calculation
-    upper_bound = (noise_upper - mu)/sigma
-
-    # Lower bound calculation
-    lower_bound = (noise_lower - mu)/sigma
-
-    # Generate array by sampling from truncated normal distribution w/scipy
-    noise_array = random.uniform(
-                              low=noise_lower, high=noise_upper,
-                              size=trials
-                             )
+    # Generate array by sampling from uniform distribution
+    noise_array = rng.uniform(
+                                 low=noise_lower, high=noise_upper,
+                                 size=trials
+                                )
 
     # Noise Array generated will have decimals in it and be float type.
     # Use np.round() to round the elements in the array and type them as int.
