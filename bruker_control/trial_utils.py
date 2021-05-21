@@ -7,13 +7,15 @@
 
 # Trial Array Generation
 # Import scipy.stats truncated normal distribution for ITI Array
-from scipy.stats import truncnorm
+# from scipy.stats import truncnorm
 
 # Import numpy for trial array generation/manipulation and Harvesters
 import numpy as np
 
 # Import numpy default_rng
 from numpy.random import default_rng
+
+import numpy.random as random
 
 # Import json for writing trial data to config file
 import json
@@ -31,7 +33,7 @@ import json
 def gen_trialArray(trials, config_fullpath):
 
     # Always initialize trial array with 3 reward trials
-    trialArray = [1, 1, 1]
+    trialArray = [1, 1]
 
     # Define number of samples needed from generator
     num_samples = trials - len(trialArray)
@@ -93,10 +95,10 @@ def gen_ITIArray(trials, config_fullpath, demo_flag):
     else:
 
         # Define lower and upper limits on ITI values in ms
-        iti_lower, iti_upper = 0, 30000
+        iti_lower, iti_upper = 15000, 30000
 
         # Define mean and variance for ITI values
-        mu, sigma = 15000, 15000
+        mu, sigma = 22500, 7500
 
     # Upper bound calculation
     upper_bound = (iti_upper - mu)/sigma
@@ -105,8 +107,8 @@ def gen_ITIArray(trials, config_fullpath, demo_flag):
     lower_bound = (iti_lower - mu)/sigma
 
     # Generate array by sampling from truncated normal distribution w/scipy
-    iti_array = truncnorm.rvs(
-                              lower_bound, upper_bound, loc=mu, scale=sigma,
+    iti_array = random.uniform(
+                              low=iti_lower, high=iti_upper,
                               size=trials
                              )
 
@@ -159,10 +161,10 @@ def gen_noiseArray(trials, config_fullpath):
     lower_bound = (noise_lower - mu)/sigma
 
     # Generate array by sampling from truncated normal distribution w/scipy
-    noise_array = truncnorm.rvs(
-                                lower_bound, upper_bound, loc=mu, scale=sigma,
-                                size=trials
-                                )
+    noise_array = random.uniform(
+                              low=noise_lower, high=noise_upper,
+                              size=trials
+                             )
 
     # Noise Array generated will have decimals in it and be float type.
     # Use np.round() to round the elements in the array and type them as int.

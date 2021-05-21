@@ -133,42 +133,37 @@ if __name__ == "__main__":
     # transfer.  Single packets are all that's needed for sizes less than 45.
     if trials <= 60:
 
-        for plane in range(num_planes + 1):
-            plane_number = str(plane + 1)
+        # Send configuration file
+        serialtransfer_utils.transfer_metadata(config_list[0])
 
-            print("Starting experiment for imaging plane " + plane_number)
+        # Use single packet serial transfer for arrays
+        serialtransfer_utils.onepacket_transfers(array_list)
 
-            # Send configuration file
-            serialtransfer_utils.transfer_metadata(config_list[0])
+        # Send update that python is done sending data
+        serialtransfer_utils.update_python_status()
 
-            # Use single packet serial transfer for arrays
-            serialtransfer_utils.onepacket_transfers(array_list)
+        # TODO Gather number of frames expected from microscope for num_frames
+        # Now that the packets have been sent, the Arduino will start soon.  We
+        # now start the camera for recording the experiment!
+        video_utils.capture_recording(30000, video_list)
 
-            # Send update that python is done sending data
-            serialtransfer_utils.update_python_status()
+        # Now that the microscopy session has ended, let user know the
+        # experiment is complete!
+        print("Experiment Over!")
 
-            # TODO Gather number of frames expected from microscope for num_frames
-            # Now that the packets have been sent, the Arduino will start soon.  We
-            # now start the camera for recording the experiment!
-            # video_utils.capture_recording(2000, video_list, plane_number)
+        # ready = False
+        #
+        # while ready is False:
+        #     ready_input = str(input("Ready to continue? y/n "))
+        #
+        #     if ready_input == 'y':
+        #         exp = True
+        #
+        # video_utils.capture_preview()
 
-            # Now that the microscopy session has ended, let user know the
-            # experiment is complete!
-            print("Experiment Over!")
-
-            ready = False
-
-            while ready is False:
-                ready_input = str(input("Ready to continue? y/n "))
-
-                if ready_input == 'y':
-                    ready = True
-
-            video_utils.capture_preview()
-
-        # End Prairie View's imaging session with abort command
+        # # End Prairie View's imaging session with abort command
         prairieview_utils.prairie_abort()
-
+        #
         # Exit the program
         print("Exiting...")
         sys.exit()

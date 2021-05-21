@@ -165,7 +165,7 @@ int trials_rx() {
 
       myTransfer.sendDatum(trialArray);
       Serial.println("Sent Trial Array");
-      if (metadata.totalNumberOfTrials > 45) {
+      if (metadata.totalNumberOfTrials > 60) {
         transmissionStatus++;
       }
       else {
@@ -189,7 +189,7 @@ int iti_rx() {
 
       myTransfer.sendDatum(ITIArray);
       Serial.println("Sent ITI Array");
-      if (metadata.totalNumberOfTrials > 45) {
+      if (metadata.totalNumberOfTrials > 60) {
         transmissionStatus++;
       }
       else {
@@ -213,7 +213,7 @@ int noise_rx() {
 
       myTransfer.sendDatum(noiseArray);
       Serial.println("Sent Noise Array");
-      if (metadata.totalNumberOfTrials > 45) {
+      if (metadata.totalNumberOfTrials > 60) {
         transmissionStatus++;
       }
       else {
@@ -387,10 +387,10 @@ void offSolenoid(long ms) {
 
 //// RESET ARDUINO FUNCTION ////
 void reset_fx() {
-  if (reset) {
-  Serial.println("Resetting Arduino after 5 seconds");
-  delay(5000);
-  digitalWriteFast(resetPin, HIGH); 
+    if (reset) {
+    Serial.println("Resetting Arduino after 5 seconds");
+    delay(5000);
+    digitalWriteFast(resetPin, HIGH); 
   }
 }
 
@@ -448,8 +448,9 @@ void loop() {
     USDelivery(ms);
     offSolenoid(ms);
   }
-  else if (currentTrial == metadata.totalNumberOfTrials) {
-    reset = true;
-    reset_fx();
-  }
+//  else if (currentTrial == metadata.totalNumberOfTrials && currentTrial != 1) {
+//    reset = true;
+//    reset_fx();
+//    setup();
+//  }
 }

@@ -165,10 +165,10 @@ def init_camera_recording():
 # -----------------------------------------------------------------------------
 
 
-def capture_recording(number_frames, video_list, plane_number):
+def capture_recording(number_frames, video_list):
 
     # Assign video name as the config_filename for readability
-    video_name = video_list[1] + "_" + plane_number + ".avi"
+    video_name = video_list[1] + "_" + ".avi"
 
     # Give basepath for video using supplied project name
     video_basepath = "E:/studies/" + video_list[0] + "/video/"
