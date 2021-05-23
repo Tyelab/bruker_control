@@ -7,7 +7,7 @@
 # Genie Nano manufactured by Teledyne DALSA
 
 # Version Number
-__version__ = "0.50"
+__version__ = "0.70"
 
 ###############################################################################
 # Import Packages
