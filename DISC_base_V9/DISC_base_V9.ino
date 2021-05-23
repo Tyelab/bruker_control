@@ -49,7 +49,7 @@ int transmissionStatus = 0;
 // Initialize the trial type as an integer
 int trialType;
 // Initialize the current trial number as 0 before experiment begins
-int currentTrial = 1;
+int currentTrial = 0;
 
 //// FLAG ASSIGNMENT ////
 // In this version, the vacuum has been removed from the setup.
@@ -390,8 +390,7 @@ void reset_fx() {
     if (reset) {
     Serial.println("Resetting Arduino after 5 seconds");
     delay(5000);
-    digitalWriteFast(resetPin, HIGH); 
-  }
+    }
 }
 
 //// SETUP ////

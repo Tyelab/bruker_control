@@ -63,11 +63,11 @@ if __name__ == "__main__":
                                  required=False)
 
     # Add modify configuration file argument
-    metadata_parser.add_argument('-m', '--modify',
-                                 action='store_true',
-                                 dest='modify',
-                                 help='Modify given config file (bool flag)',
-                                 required=False)
+    # metadata_parser.add_argument('-m', '--modify',
+    #                              action='store_true',
+    #                              dest='modify',
+    #                              help='Modify given config file (bool flag)',
+    #                              required=False)
 
     # Add template configuration file argument
     metadata_parser.add_argument('-t', '--template',
@@ -86,13 +86,21 @@ if __name__ == "__main__":
                                  required=True)
 
     # Add number of imaging planes argument
-    metadata_parser.add_argument('-i', '--imaging_planes',
-                                 type=int,
+    # metadata_parser.add_argument('-i', '--imaging_planes',
+    #                              type=int,
+    #                              action='store',
+    #                              dest='imaging_planes',
+    #                              help='Number of Imaging Planes',
+    #                              default=1,
+    #                              required=False)
+
+    # Add mouse id argument
+    metadata_parser.add_argument('-m', '--mouse_id',
+                                 type=str,
                                  action='store',
-                                 dest='imaging_planes',
-                                 help='Number of Imaging Planes',
-                                 default=1,
-                                 required=False)
+                                 dest='mouse',
+                                 help='Mouse ID (required)',
+                                 required=True)
 
     # Add demo flag
     metadata_parser.add_argument('-d', '--demo',
@@ -109,96 +117,123 @@ if __name__ == "__main__":
     # Parse the arguments given by the user
     metadata_args = vars(metadata_parser.parse_args())
 
-    # Use config_utils module to parse metadata_config
-    config_list, video_list = config_utils.config_parser(metadata_args)
+    # Gather number of planes that will be collected for this mouse, ask user
+    number_img_planes = int(input("How many planes will you image? "))
 
-    # Grab status of template flag for demonstration ITIs
-    demo_flag = metadata_args['demo']
+    # Create ready flag for whether or not user is ready to move forward with
+    # experiment plane
+    ready = False
 
-    # TODO: Let user change configurations on the fly with parser
+    # Create experiment running flag to keep experiment session running
+    exp_running = True
 
-    # Gather total number of trials
-    trials = config_list[0]["metadata"]["totalNumberOfTrials"]["value"]
+    # Initialize current plane at value of 0, to be incremented later
+    current_plane = 0
 
-    # Gather total number of planes to be imaged
-    num_planes = video_list[2]
+    # Initialize number of completed imaging planes at value of 1, to be
+    # incremented later if necessary
+    completed_planes = 1
 
-    # Preview video for headfixed mouse placement
-    video_utils.capture_preview()
+    while exp_running is True:
 
-    # Generate trial arrays
-    array_list = trial_utils.generate_arrays(trials, config_list[2], demo_flag)
+        while ready is False:
 
-    # If only one packet is required, use single packet generation and
-    # transfer.  Single packets are all that's needed for sizes less than 45.
-    if trials <= 60:
+            ready_input = str(input("Ready to continue? y/n "))
 
-        # Send configuration file
-        serialtransfer_utils.transfer_metadata(config_list[0])
+            if ready_input == "y":
+                current_plane += 1
 
-        # Use single packet serial transfer for arrays
-        serialtransfer_utils.onepacket_transfers(array_list)
+                # Use config_utils module to parse metadata_config
+                config_list, video_list = config_utils.config_parser(metadata_args, current_plane)
 
-        # Send update that python is done sending data
-        serialtransfer_utils.update_python_status()
+                # Grab status of template flag for demonstration ITIs
+                demo_flag = metadata_args['demo']
 
-        # TODO Gather number of frames expected from microscope for num_frames
-        # Now that the packets have been sent, the Arduino will start soon.  We
-        # now start the camera for recording the experiment!
-        video_utils.capture_recording(30000, video_list)
+                prairieview_utils.prairie_dir_and_filename(video_list[0], config_list[1])
 
-        # Now that the microscopy session has ended, let user know the
-        # experiment is complete!
-        print("Experiment Over!")
+                # TODO: Let user change configurations on the fly with parser
 
-        # ready = False
-        #
-        # while ready is False:
-        #     ready_input = str(input("Ready to continue? y/n "))
-        #
-        #     if ready_input == 'y':
-        #         exp = True
-        #
-        # video_utils.capture_preview()
+                # Gather total number of trials
+                trials = config_list[0]["metadata"]["totalNumberOfTrials"]["value"]
 
-        # # End Prairie View's imaging session with abort command
-        prairieview_utils.prairie_abort()
-        #
-        # Exit the program
-        print("Exiting...")
-        sys.exit()
-    #
-    # # If there's multiple packets required, use multipacket generation and
-    # # transfer.  Multiple packets are required for sizes greater than 45.
-    elif trials > 60:
+                # Generate trial arrays
+                array_list, video_frames = trial_utils.generate_arrays(trials,
+                                                                       config_list[2],
+                                                                       demo_flag)
 
-        # Send configuration file
-        serialtransfer_utils.transfer_metadata(config_list[0])
+                # Preview video for headfixed mouse placement
+                video_utils.capture_preview()
 
-        # Use multipacket serial transfer for arrays
-        serialtransfer_utils.multipacket_transfer(array_list)
+                # If only one packet is required, use single packet generation and
+                # transfer.  Single packets are all that's needed for sizes less than 45.
+                if trials <= 60:
 
-        # Send update that python is done sending data
-        serialtransfer_utils.update_python_status()
+                    # Send configuration file
+                    serialtransfer_utils.transfer_metadata(config_list[0])
 
-        # Now that the packets have been sent, the Arduino will start soon.  We
-        # now start the camera for recording the experiment!
-        # video_utils.capture_recording(60, project_name, config_filename)
+                    # Use single packet serial transfer for arrays
+                    serialtransfer_utils.onepacket_transfers(array_list)
 
-        # End Prairie View's imaging session with abort command
-        # prairieview_utils.prairie_abort()
+                    # Send update that python is done sending data
+                    serialtransfer_utils.update_python_status()
 
-        # Now that the microscopy session has ended, let user know the
-        # experiment is complete!
-        print("Experiment Over!")
+                    # TODO Gather number of frames expected from microscope for num_frames
+                    # Now that the packets have been sent, the Arduino will start soon.  We
+                    # now start the camera for recording the experiment!
+                    video_utils.capture_recording(video_frames, video_list)
 
-        # Exit the program
-        print("Exiting...")
-        sys.exit()
+                    # Now that the microscopy session has ended, let user know
+                    # the plane is complete!
+                    print("Plane Completed!")
 
-    # If some other value that doesn't fit in these categories is given, there
-    # is something wrong. Let the user know and exit the program.
-    else:
-        print("Something is wrong with the config file...")
-        print("Exiting...")
-        sys.exit()
+                    # Abort this plane's recording
+                    prairieview_utils.prairie_abort()
+
+                    if completed_planes == number_img_planes:
+
+                        # Experiment completed! Tell the user that this mouse
+                        # is done.
+                        print("Experiment Completed for",
+                              metadata_args['mouse'])
+
+                        # Tell the user the program is exiting and exit
+                        print("Exiting...")
+                        sys.exit()
+
+                    else:
+                        completed_planes += 1
+
+                # # If there's multiple packets required, use multipacket generation and
+                # # transfer.  Multiple packets are required for sizes greater than 45.
+                elif trials > 60:
+
+                    # Send configuration file
+                    serialtransfer_utils.transfer_metadata(config_list[0])
+
+                    # Use multipacket serial transfer for arrays
+                    serialtransfer_utils.multipacket_transfer(array_list)
+
+                    # Send update that python is done sending data
+                    serialtransfer_utils.update_python_status()
+
+                    # Now that the packets have been sent, the Arduino will start soon.  We
+                    # now start the camera for recording the experiment!
+                    # video_utils.capture_recording(60, project_name, config_filename)
+
+                    # End Prairie View's imaging session with abort command
+                    # prairieview_utils.prairie_abort()
+
+                    # Now that the microscopy session has ended, let user know the
+                    # experiment is complete!
+                    print("Experiment Over!")
+
+                    # Exit the program
+                    print("Exiting...")
+                    sys.exit()
+
+                # If some other value that doesn't fit in these categories is given, there
+                # is something wrong. Let the user know and exit the program.
+                else:
+                    print("Something is wrong with the config file...")
+                    print("Exiting...")
+                    sys.exit()

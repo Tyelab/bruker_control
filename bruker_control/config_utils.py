@@ -35,7 +35,7 @@ empty_config_file = current_dir.joinpath("Documents/gitrepos/headfix_control/con
 # Functions expect metadata_args as found in bruker_control.py
 
 
-def config_parser(metadata_args):
+def config_parser(metadata_args, plane):
 
     # Gather project name for use in each case
     project_name = metadata_args['project']
@@ -44,13 +44,16 @@ def config_parser(metadata_args):
     template_flag = metadata_args['template']
 
     # Gather number of imaging planes to be collected
-    num_planes = metadata_args['imaging_planes']
+    # num_planes = metadata_args['imaging_planes']
+
+    # Gather mouse id for naming files
+    mouse_id = metadata_args['mouse']
 
     # If the user doesn't submit a configuration file
-    if metadata_args['config'] is None:
+    if metadata_args['config'] is None and template_flag is True:
 
         # Tell the user there was not metadata file provided
-        print("No metadata file provided")
+        print("Building metadata using template from ", project_name)
 
         # By default, it will be assumed the user would like to make a config.
         # Set a make_metadata status as true.  However, just in case, let the
@@ -61,12 +64,15 @@ def config_parser(metadata_args):
         while make_metadata is True:
 
             # Ask the user if they want to make the file with input()
-            user_choice = input("Do you want to create a metadata file? y/n ")
+            # user_choice = input("Do you want to create a metadata file? y/n ")
+            user_choice = "y"
 
             # If the user replies with 'y', enter new_metadata() function
             if user_choice == 'y':
                 config_file, config_filename, config_fullpath = build_config(project_name,
-                                                                             template_flag)
+                                                                             template_flag,
+                                                                             mouse_id,
+                                                                             plane)
                 config = read_config(config_file)
 
                 make_metadata = False
@@ -84,7 +90,7 @@ def config_parser(metadata_args):
                 print("Only 'y' and 'n' are acceptable options.")
 
         config_list = [config, config_filename, config_fullpath]
-        video_list = [project_name, config_filename, num_planes]
+        video_list = [project_name, config_filename, plane]
 
         # Return the config object for use in next steps
         return config_list, video_list
@@ -130,7 +136,7 @@ def config_parser(metadata_args):
             sys.exit()
 
         config_list = [config, config_filename, config_fullpath]
-        video_list = [project_name, config_filename, num_planes]
+        video_list = [project_name, config_filename]
 
         # Return the config object for use in next steps
         return config_list, video_list
@@ -211,7 +217,7 @@ def build_from_user(config_fullpath):
     return config_fullpath
 
 
-def build_config(project_name, template_flag):
+def build_config(project_name, template_flag, mouse_id, plane):
 
     # Create status for duplicate filename.  For now, overwriting is not
     # allowed.  Assume duplicate is occuring unless proven otherwise...
@@ -227,11 +233,11 @@ def build_config(project_name, template_flag):
         # State base path for config file
         config_basepath = "E:/studies/" + project_name + "/config/"
 
-        # Ask user for mouse ID and convert it to a string
-        mouse_id = str(input("Mouse ID: "))
+        # Convert num_planes to a string
+        plane = str(plane)
 
         # Assign config file name
-        config_filename = session_date + "_" + mouse_id
+        config_filename = session_date + "_" + mouse_id + "_plane" + plane
 
         # Make full filepath for config file
         config_fullpath = Path(config_basepath + config_filename + ".json")
@@ -252,6 +258,8 @@ def build_config(project_name, template_flag):
             # Tell the user and ask for unique filename
             print("File already exists!")
             print("Unique filename is required. Please provide one.")
+            print("Exiting...")
+            sys.exit()
 
     # Start building the configuration values.  The user may not know about
     # template flag which might make this section redundant.  Print a help

@@ -12,7 +12,8 @@
 # Import numpy for trial array generation/manipulation and Harvesters
 import numpy as np
 
-# Import numpy default_rng for random trial generation
+# Import numpy, default_rng for random trial generation
+import numpy
 from numpy.random import default_rng
 
 # Import json for writing trial data to config file
@@ -33,11 +34,33 @@ def gen_trialArray(trials, config_fullpath):
     # Always initialize trial array with 3 reward trials
     trialArray = [1, 1]
 
+    #TODO Implement automatic checking for trial complying with rules
+    # Check out https://en.wikipedia.org/wiki/Derangement and stack overflow...
     # Define number of samples needed from generator
-    num_samples = trials - len(trialArray)
+    # num_samples = trials - len(trialArray)
 
     # Initialize random number generator with default_rng
     rng = default_rng()
+
+    shuff_trialArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1]
+
+    check_trials = True
+
+    while check_trials is True:
+
+        rng.shuffle(shuff_trialArray)
+        for i in shuff_trialArray:
+            trialArray.append(i)
+        print(trialArray)
+        trial_check = str(input("Are these trials acceptable? y/n"))
+
+        if trial_check == 'y':
+            print("Accepted trials")
+            check_trials = False
+
+        else:
+            print("reshuffling...")
+            trialArray = [1, 1]
 
     # Generate a random trial array with Generator.integers.  The function is
     # inclusive of the low value and exclusive of the high value.  Therefore,
@@ -45,13 +68,13 @@ def gen_trialArray(trials, config_fullpath):
     # distribution for either ones or zeros.  Use num_samples to generate the
     # correct number of trials.  Finally, use tolist() to convert random_trials
     # from an np.array to a list.
-    random_trials = rng.integers(
-                                low=0, high=2, size=num_samples
-                                ).tolist()
-
-    # Append the two arrays together
-    for i in random_trials:
-        trialArray.append(i)
+    # random_trials = rng.integers(
+    #                             low=0, high=2, size=num_samples
+    #                             ).tolist()
+    #
+    # # Append the two arrays together
+    # for i in random_trials:
+    #     trialArray.append(i)
 
     # Open config file to write array to file
     with open(config_fullpath, 'r') as inFile:
@@ -190,8 +213,18 @@ def generate_arrays(trials, config_fullpath, demo_flag):
     # Create Noise Array
     noiseArray = gen_noiseArray(trials, config_fullpath)
 
-    # Put them together in a list
+    # Calculate how long the experiment will run for
+    session_length = (sum(ITIArray) + sum(noiseArray))/1000
+
+    # Calculate number of video frames by multiplying number of seconds by 30
+    # frames per second. Add a buffer of 300 frames to make sure all
+    # data is captured
+    video_frames = round((session_length * 30) + 300)
+
+    print("Number of video frames to be collected:", video_frames)
+
+    # Put arrays together in a list
     array_list = [trialArray, ITIArray, noiseArray]
 
-    # Return list of arrays to be transferred
-    return array_list
+    # Return list of arrays to be transferred and number of video frames
+    return array_list, video_frames
