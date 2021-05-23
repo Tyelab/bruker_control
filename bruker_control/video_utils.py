@@ -190,6 +190,8 @@ def capture_recording(number_frames, video_list):
     # Create VideoWriter object: file, codec, framerate, dims, color value
     out = cv2.VideoWriter(video_fullpath, fourcc, 30, (width, height),
                           isColor=False)
+
+    # Tell user Video Writer weas created successfully
     print("VideoWriter created")
 
     frame_number_list = []

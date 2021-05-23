@@ -118,19 +118,26 @@ if __name__ == "__main__":
     metadata_args = vars(metadata_parser.parse_args())
 
     # Gather number of planes that will be collected for this mouse, ask user
-    number_planes = int(input("How many planes will you image? "))
+    number_img_planes = int(input("How many planes will you image? "))
 
+    # Create ready flag for whether or not user is ready to move forward with
+    # experiment plane
     ready = False
 
+    # Create experiment running flag to keep experiment session running
     exp_running = True
 
+    # Initialize current plane at value of 0, to be incremented later
     current_plane = 0
 
-    total_planes = 1
+    # Initialize number of completed imaging planes at value of 1, to be
+    # incremented later if necessary
+    completed_planes = 1
 
     while exp_running is True:
 
         while ready is False:
+
             ready_input = str(input("Ready to continue? y/n "))
 
             if ready_input == "y":
@@ -142,16 +149,20 @@ if __name__ == "__main__":
                 # Grab status of template flag for demonstration ITIs
                 demo_flag = metadata_args['demo']
 
+                prairieview_utils.prairie_dir_and_filename(video_list[0], config_list[1])
+
                 # TODO: Let user change configurations on the fly with parser
 
                 # Gather total number of trials
                 trials = config_list[0]["metadata"]["totalNumberOfTrials"]["value"]
 
+                # Generate trial arrays
+                array_list, video_frames = trial_utils.generate_arrays(trials,
+                                                                       config_list[2],
+                                                                       demo_flag)
+
                 # Preview video for headfixed mouse placement
                 video_utils.capture_preview()
-
-                # Generate trial arrays
-                array_list = trial_utils.generate_arrays(trials, config_list[2], demo_flag)
 
                 # If only one packet is required, use single packet generation and
                 # transfer.  Single packets are all that's needed for sizes less than 45.
@@ -169,23 +180,28 @@ if __name__ == "__main__":
                     # TODO Gather number of frames expected from microscope for num_frames
                     # Now that the packets have been sent, the Arduino will start soon.  We
                     # now start the camera for recording the experiment!
-                    video_utils.capture_recording(60, video_list)
+                    video_utils.capture_recording(video_frames, video_list)
 
-                    # Now that the microscopy session has ended, let user know the
-                    # experiment is complete!
+                    # Now that the microscopy session has ended, let user know
+                    # the plane is complete!
                     print("Plane Completed!")
 
-                    if total_planes == number_planes:
+                    # Abort this plane's recording
+                    prairieview_utils.prairie_abort()
 
-                        # Experiment completed
-                        print("Experiment Completed for", metadata_args['mouse'])
-                        prairieview_utils.prairie_abort()
+                    if completed_planes == number_img_planes:
 
+                        # Experiment completed! Tell the user that this mouse
+                        # is done.
+                        print("Experiment Completed for",
+                              metadata_args['mouse'])
+
+                        # Tell the user the program is exiting and exit
                         print("Exiting...")
                         sys.exit()
 
                     else:
-                        total_planes += 1
+                        completed_planes += 1
 
                 # # If there's multiple packets required, use multipacket generation and
                 # # transfer.  Multiple packets are required for sizes greater than 45.

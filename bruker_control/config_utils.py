@@ -258,6 +258,8 @@ def build_config(project_name, template_flag, mouse_id, plane):
             # Tell the user and ask for unique filename
             print("File already exists!")
             print("Unique filename is required. Please provide one.")
+            print("Exiting...")
+            sys.exit()
 
     # Start building the configuration values.  The user may not know about
     # template flag which might make this section redundant.  Print a help
