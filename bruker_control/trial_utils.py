@@ -34,7 +34,7 @@ def gen_trialArray(trials, config_fullpath):
     # Always initialize trial array with 3 reward trials
     trialArray = [1, 1]
 
-    #TODO Implement automatic checking for trial complying with rules
+    # TODO Implement automatic checking for trial complying with rules
     # Check out https://en.wikipedia.org/wiki/Derangement and stack overflow...
     # Define number of samples needed from generator
     # num_samples = trials - len(trialArray)

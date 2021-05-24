@@ -144,12 +144,14 @@ if __name__ == "__main__":
                 current_plane += 1
 
                 # Use config_utils module to parse metadata_config
-                config_list, video_list = config_utils.config_parser(metadata_args, current_plane)
+                config_list, video_list = config_utils.config_parser(metadata_args,
+                                                                     current_plane)
 
                 # Grab status of template flag for demonstration ITIs
                 demo_flag = metadata_args['demo']
 
-                prairieview_utils.prairie_dir_and_filename(video_list[0], config_list[1])
+                prairieview_utils.prairie_dir_and_filename(video_list[0],
+                                                           config_list[1])
 
                 # TODO: Let user change configurations on the fly with parser
 
@@ -164,8 +166,11 @@ if __name__ == "__main__":
                 # Preview video for headfixed mouse placement
                 video_utils.capture_preview()
 
-                # If only one packet is required, use single packet generation and
-                # transfer.  Single packets are all that's needed for sizes less than 45.
+                prairieview_utils.start_tseries()
+
+                # If only one packet is required, use single packet generation
+                # and transfer.  Single packets are all that's needed for sizes
+                # less than or equal to 60.
                 if trials <= 60:
 
                     # Send configuration file
@@ -177,9 +182,9 @@ if __name__ == "__main__":
                     # Send update that python is done sending data
                     serialtransfer_utils.update_python_status()
 
-                    # TODO Gather number of frames expected from microscope for num_frames
-                    # Now that the packets have been sent, the Arduino will start soon.  We
-                    # now start the camera for recording the experiment!
+                    # Now that the packets have been sent, the Arduino will
+                    # start soon.  We now start the camera for recording the
+                    # experiment!
                     # video_utils.capture_recording(video_frames, video_list)
                     video_utils.capture_recording(60, video_list)
 
@@ -204,8 +209,8 @@ if __name__ == "__main__":
                     else:
                         completed_planes += 1
 
-                # # If there's multiple packets required, use multipacket generation and
-                # # transfer.  Multiple packets are required for sizes greater than 45.
+                # If there's multiple packets required, use multipacket generation and
+                # transfer.  Multiple packets are required for sizes greater than 60.
                 elif trials > 60:
 
                     # Send configuration file
@@ -232,8 +237,9 @@ if __name__ == "__main__":
                     print("Exiting...")
                     sys.exit()
 
-                # If some other value that doesn't fit in these categories is given, there
-                # is something wrong. Let the user know and exit the program.
+                # If some other value that doesn't fit in these categories is
+                # given, there is something wrong with the configuration file.
+                # Let the user know and exit the program.
                 else:
                     print("Something is wrong with the config file...")
                     print("Exiting...")

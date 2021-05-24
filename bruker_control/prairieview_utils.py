@@ -125,5 +125,10 @@ def prairie_dir_and_filename(project_name, config_filename):
 # TODO: Automate start of imaging session with PrairieLink commands
 def start_tseries():
 
+    prairie_connect()
+
     print("Starting T-Series: Waiting for Input Trigger")
-    pl.SendScriptCommands("-")
+    # pl.SendScriptCommands("-WaitForInputTrigger")
+    pl.SendScriptCommands("-TSeries")
+
+    prairie_disconnect()
