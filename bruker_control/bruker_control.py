@@ -185,8 +185,8 @@ if __name__ == "__main__":
                     # Now that the packets have been sent, the Arduino will
                     # start soon.  We now start the camera for recording the
                     # experiment!
-                    # video_utils.capture_recording(video_frames, video_list)
-                    video_utils.capture_recording(60, video_list)
+                    video_utils.capture_recording(video_frames, video_list)
+                    # video_utils.capture_recording(60, video_list)
 
                     # Now that the microscopy session has ended, let user know
                     # the plane is complete!

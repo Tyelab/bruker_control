@@ -52,14 +52,14 @@ def gen_trialArray(trials, config_fullpath):
         for i in shuff_trialArray:
             trialArray.append(i)
         print(trialArray)
-        trial_check = str(input("Are these trials acceptable? y/n"))
+        trial_check = str(input("Are these trials acceptable? y/n "))
 
         if trial_check == 'y':
-            print("Accepted trials")
+            print("Accepted trials!")
             check_trials = False
 
         else:
-            print("reshuffling...")
+            print("Reshuffling...")
             trialArray = [1, 1]
 
     # Generate a random trial array with Generator.integers.  The function is
@@ -118,10 +118,7 @@ def gen_ITIArray(trials, config_fullpath, demo_flag):
     rng = default_rng()
 
     # Generate array by sampling from unfiorm distribution
-    iti_array = rng.uniform(
-                            low=iti_lower, high=iti_upper,
-                            size=trials
-                            )
+    iti_array = rng.uniform(low=iti_lower, high=iti_upper, size=trials)
 
     # ITI Array generated will have decimals in it and be float type
     # Use np.round() to round the elements in the array and type them as int
@@ -166,10 +163,7 @@ def gen_noiseArray(trials, config_fullpath):
     rng = default_rng()
 
     # Generate array by sampling from uniform distribution
-    noise_array = rng.uniform(
-                                 low=noise_lower, high=noise_upper,
-                                 size=trials
-                                )
+    noise_array = rng.uniform(low=noise_lower, high=noise_upper, size=trials)
 
     # Noise Array generated will have decimals in it and be float type.
     # Use np.round() to round the elements in the array and type them as int.
@@ -213,7 +207,7 @@ def generate_arrays(trials, config_fullpath, demo_flag):
     # Create Noise Array
     noiseArray = gen_noiseArray(trials, config_fullpath)
 
-    # Calculate how long the experiment will run for
+    # Calculate how long the imaging session for one plane will run for
     session_length = (sum(ITIArray) + sum(noiseArray))/1000
 
     # Calculate number of video frames by multiplying number of seconds by 30

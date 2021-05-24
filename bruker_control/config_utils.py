@@ -67,6 +67,7 @@ def config_parser(metadata_args, plane):
             # user_choice = input("Do you want to create a metadata file? y/n ")
             user_choice = "y"
 
+            # TODO Update code so this user_choice is no longer necessary...
             # If the user replies with 'y', enter new_metadata() function
             if user_choice == 'y':
                 config_file, config_filename, config_fullpath = build_config(project_name,
