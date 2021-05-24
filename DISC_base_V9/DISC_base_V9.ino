@@ -64,6 +64,7 @@ boolean rx = true;
 boolean pythonGoSignal = false;
 boolean arduinoGoSignal = false;
 // Experiment State Flags
+boolean cameraDelay = false;
 boolean brukerTrigger = false;
 boolean newTrial = false;
 boolean ITI = false;
@@ -248,7 +249,7 @@ int pythonGo_rx() {
       myTransfer.sendDatum(pythonGo);
       Serial.println("Sent Python Status");
 
-      arduinoGoSignal = true;
+      cameraDelay = true;
     }
   }
 }
@@ -262,6 +263,15 @@ void go_signal() {
   }
 }
 
+//// CAMERA WAIT FUNCTION ////
+void camera_delay() {
+  if (cameraDelay) {
+    Serial.println("Delaying Bruker Trigger for Camera Startup...");
+    cameraDelay = false;
+    delay(5000);
+    arduinoGoSignal = true;
+  }
+}
 //// BRUKER TRIGGER FUNCTION ////
 void bruker_trigger() {
   if (brukerTrigger) {
@@ -437,6 +447,7 @@ void loop() {
   rx_function();
   pythonGo_rx();
   go_signal();
+  camera_delay();
   bruker_trigger();
   if (currentTrial < metadata.totalNumberOfTrials) {
     ms = millis();
