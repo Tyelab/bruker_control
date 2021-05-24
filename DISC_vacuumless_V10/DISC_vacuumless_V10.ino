@@ -1,9 +1,30 @@
-// Control code for Arduino and Matlab integration of headfix-room training boxes
-// Discrimination task with liquid delivery as positive and air puff as negative
-// Jeremy Delahanty Mar. 2021, Dexter Tsin Apr. 2021
-// Adapted from DISC_V7.ino by Kyle Fischer and Mauri van der Huevel Oct. 2019
-// digitalWriteFast.h written by Watterott Electronic https://github.com/watterott/Arduino-Libs/tree/master/digitalWriteFast
-// SerialTransfer.h written by PowerBroker2 https://github.com/PowerBroker2/SerialTransfer
+/*
+ * Control code for Arduino using Python integration for headfixed behavior
+ * Discrimination task: Liquid Sucrose = Positive, Airpuff = Negative
+ * 
+ * Jeremy Delahanty Mar. 2021, Dexter Tsin Apr. 2021
+ * Adapted from DISC_V7.ino by Kyle Fischer and Mauri van der Huevel Oct. 2019
+ * digitalWriteFast.h written by Watterott Electronic
+ * https://github.com/watterott/Arduino-Libs/tree/master/digitalWriteFast
+ * SerialTransfer.h written by PowerBroker2
+ * https://github.com/PowerBroker2/SerialTransfer
+ * 
+ * This program is intended to run vacuumless discrimination tasks for head-fixed 
+ * behavior using Python for trial structures, metadata, and timing arrays.
+ * 
+ * The program operates following these steps:
+ *    1. Open communications to Python on Bruker PC
+ *    2. Receive metadata, trial type array, ITI array, and noise duration array
+ *    3. Confirm Python has finished sending data
+ *    4. Delay the program for 5 seconds to allow Teledyne Genie Nano to start up
+ *    5. Send a start trigger to the Bruker DAQ to start microscopy
+ *    6. Run through trials until finished
+ *    
+ * As of 5/24/21, automatic resetting of the arduino to receive new trials is
+ * still in development. The board can be reset adequately, but the values
+ * stored in memory are not purged and reinitialized properly.
+ * 
+*/
 
 //// PACKAGES ////
 #include <Adafruit_MPR121.h> // Adafruit MPR121 capicitance board recording
