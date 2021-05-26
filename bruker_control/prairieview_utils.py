@@ -5,9 +5,6 @@
 ###############################################################################
 # Import Packages
 ###############################################################################
-###############################################################################
-# Import Packages
-###############################################################################
 
 # Import Prairie View Application
 # NOTE Prairie View Interface Installation:  Do NOT use pip install, use conda.
@@ -122,13 +119,16 @@ def prairie_dir_and_filename(project_name, config_filename):
 # -----------------------------------------------------------------------------
 
 
-# TODO: Automate start of imaging session with PrairieLink commands
-def start_tseries():
+def prairie_start_tseries():
 
+    # Connect to Prairie View
     prairie_connect()
 
+    # Tell user that the T-Series is starting and waiting for trigger
     print("Starting T-Series: Waiting for Input Trigger")
-    # pl.SendScriptCommands("-WaitForInputTrigger")
+
+    # Send T-Series command
     pl.SendScriptCommands("-TSeries")
 
+    # Disconnect from Prairie View
     prairie_disconnect()

@@ -259,7 +259,7 @@ void rx_function() {
   }
 }
 
-// Python status function for flow control
+// PYTHON STATUS FUNCTION ////
 int pythonGo_rx() {
   if (pythonGoSignal && transmissionStatus == 7) {
     if (myTransfer.available())
@@ -340,7 +340,7 @@ void startITI(long ms) {
 }
 
 
-// Noise Functions
+//// NOISE FUNCTIONS ////
 // Play tone function
 void tonePlayer(long ms) {
   if (noise) {
@@ -353,17 +353,17 @@ void tonePlayer(long ms) {
     switch (trialType) {
       case 0:
         Serial.println("Air");
-        tone(speakerPin, 2000, thisNoiseDuration);
+        tone(speakerPin, metadata.punishTone, thisNoiseDuration);
         break;
       case 1:
         Serial.println("Sucrose");
-        tone(speakerPin, 9000, thisNoiseDuration);
+        tone(speakerPin, metadata.rewardTone, thisNoiseDuration);
         break;
     }
   }
 }
 
-
+// Send noise signal to DAQ function
 void onTone(long ms) {
   if (noiseDAQ && (ms >= noiseListeningMS)){
     noiseDAQ = false;
@@ -372,18 +372,17 @@ void onTone(long ms) {
   }
 }
 
-
+//// STIMULUS DELIVERY FUNCTIONS ////
+// Stimulus Delivery: 0 is airpuff, 1 is sucrose
 void USDelivery(long ms) {
   if (newUSDelivery && (ms >= noiseListeningMS)) {
     Serial.println("Delivering US");
-    Serial.println(trialType);
     newUSDelivery = false;
     solenoidOn = true;
     switch (trialType) {
       case 0:
         Serial.println("Delivering Airpuff");
         USDeliveryMS = (ms + metadata.USDeliveryTime_Air);
-        Serial.println(metadata.USDeliveryTime_Air);
         digitalWriteFast(solPin_air, HIGH);
         break;
       case 1:
@@ -395,6 +394,7 @@ void USDelivery(long ms) {
   }
 }
 
+// Turn off Solenoid
 void offSolenoid(long ms) {
   if (solenoidOn && (ms >= USDeliveryMS)) {
     switch (trialType) {

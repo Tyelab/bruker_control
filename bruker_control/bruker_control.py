@@ -166,7 +166,8 @@ if __name__ == "__main__":
                 # Preview video for headfixed mouse placement
                 video_utils.capture_preview()
 
-                prairieview_utils.start_tseries()
+                # Start the T-Series which waits for a trigger from Arduino
+                prairieview_utils.prairie_start_tseries()
 
                 # If only one packet is required, use single packet generation
                 # and transfer.  Single packets are all that's needed for sizes
@@ -194,6 +195,9 @@ if __name__ == "__main__":
 
                     # Abort this plane's recording
                     prairieview_utils.prairie_abort()
+
+                    # TODO: Move to next plane, create mouse configuration
+                    # that defines planes of interest and distance between them
 
                     if completed_planes == number_img_planes:
 

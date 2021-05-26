@@ -31,7 +31,7 @@ import json
 
 def gen_trialArray(trials, config_fullpath):
 
-    # Always initialize trial array with 3 reward trials
+    # Always initialize trial array with 2 reward trials
     trialArray = [1, 1]
 
     # TODO Implement automatic checking for trial complying with rules
@@ -211,9 +211,9 @@ def generate_arrays(trials, config_fullpath, demo_flag):
     session_length = (sum(ITIArray) + sum(noiseArray))/1000
 
     # Calculate number of video frames by multiplying number of seconds by 30
-    # frames per second. Add a buffer of 300 frames to make sure all
+    # frames per second. Add a buffer of 90 frames to make sure all
     # data is captured
-    video_frames = round((session_length * 30) + 300)
+    video_frames = round((session_length * 30) + 90)
 
     print("Number of video frames to be collected:", video_frames)
 

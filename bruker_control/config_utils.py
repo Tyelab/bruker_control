@@ -32,6 +32,7 @@ empty_config_file = current_dir.joinpath("Documents/gitrepos/headfix_control/con
 ###############################################################################
 # Functions
 ###############################################################################
+
 # Functions expect metadata_args as found in bruker_control.py
 
 
@@ -43,53 +44,28 @@ def config_parser(metadata_args, plane):
     # Gather status of template flag
     template_flag = metadata_args['template']
 
-    # Gather number of imaging planes to be collected
+    # Gather number of imaging planes to be collected [DEPRECATED for now...]
     # num_planes = metadata_args['imaging_planes']
 
     # Gather mouse id for naming files
     mouse_id = metadata_args['mouse']
 
-    # If the user doesn't submit a configuration file
+    # If the user doesn't submit a configuration file, but does submit the
+    # template flag
     if metadata_args['config'] is None and template_flag is True:
 
-        # Tell the user there was not metadata file provided
-        print("Building metadata using template from ", project_name)
+        # Tell the user the program is building from template for their project
+        print("Building metadata using template from", project_name)
 
-        # By default, it will be assumed the user would like to make a config.
-        # Set a make_metadata status as true.  However, just in case, let the
-        # user confirm if they want to.  If they're not ready, they can say no.
-        make_metadata = True
+        config_file, config_filename, config_fullpath = build_config(project_name,
+                                                                     template_flag,
+                                                                     mouse_id,
+                                                                     plane)
 
-        # Use a while loop to ask for user input
-        while make_metadata is True:
+        # Get configuration with read_config()
+        config = read_config(config_file)
 
-            # Ask the user if they want to make the file with input()
-            # user_choice = input("Do you want to create a metadata file? y/n ")
-            user_choice = "y"
-
-            # TODO Update code so this user_choice is no longer necessary...
-            # If the user replies with 'y', enter new_metadata() function
-            if user_choice == 'y':
-                config_file, config_filename, config_fullpath = build_config(project_name,
-                                                                             template_flag,
-                                                                             mouse_id,
-                                                                             plane)
-                config = read_config(config_file)
-
-                make_metadata = False
-
-            # If the user replies with 'n', tell user metadata is needed and
-            # then exit the program
-            elif user_choice == 'n':
-                print("Experiment requires metadata to run.")
-                print("Exiting...")
-                sys.exit()
-
-            # If the user doesn't give appropriate response, tell them and
-            # let them try again.
-            else:
-                print("Only 'y' and 'n' are acceptable options.")
-
+        # Create configuration and video lists
         config_list = [config, config_filename, config_fullpath]
         video_list = [project_name, config_filename, plane]
 
@@ -142,7 +118,8 @@ def config_parser(metadata_args, plane):
         # Return the config object for use in next steps
         return config_list, video_list
 
-        # If something can't be interpreted, tell the user
+    # If something can't be interpreted in the configuration file,
+    # tell the user
     else:
         print("Invalid Configuration File Supplied")
 
@@ -185,8 +162,6 @@ def build_from_template(config_fullpath):
 
 
 def build_from_user(config_fullpath):
-    # Print help message
-    print("Note: You can use template values by using the --template flag")
 
     # Ask user for metadata values and force them to be integers
     totalNumberOfTrials = int(input("How many trials do you want to run? "))
@@ -267,6 +242,8 @@ def build_config(project_name, template_flag, mouse_id, plane):
     # message that informs them about the flag.  Let them customize the
     # different values for the experiment.
     if template_flag is False:
+        # Print help message
+        print("Note: You can use template values by using the --template flag")
 
         # Use build_from_user()
         config_file = build_from_user(config_fullpath)
