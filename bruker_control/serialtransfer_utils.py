@@ -183,16 +183,6 @@ def transfer_metadata(config):
         except:
             pass
 
-        # TODO: Move error handling outside of function; need to learn how...
-
-        # if trialArray == rxtrialArray:
-        #     print("Trial Array transfer successful!")
-        #
-        # else:
-        #     link.close()
-        #     print("Trial Array error! Exiting...")
-        #     sys.exit()
-
 
 # -----------------------------------------------------------------------------
 # Trial Array Transfers: One Packet
