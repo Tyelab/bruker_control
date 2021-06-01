@@ -17,7 +17,7 @@
  *    2. Receive metadata, trial type array, ITI array, and noise duration array
  *    3. Confirm Python has finished sending data
  *    4. Delay the program for 5 seconds to allow Teledyne Genie Nano to start up
- *    5. Send a start trigger to the Bruker DAQ to start microscopy
+ *    5. Send a start trigger to the Bruker DAQ to start microscopy/voltage recording
  *    6. Run through trials until finished
  *    
  * As of 5/24/21, automatic resetting of the arduino to receive new trials is

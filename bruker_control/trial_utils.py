@@ -1,23 +1,21 @@
 # Bruker 2-Photon Trial Generation Utils
-# Jeremy Delahanty May 2021
+# Jeremy Delahanty, Aaron Huffman May 2021
 
 ###############################################################################
 # Import Packages
 ###############################################################################
-
-# Trial Array Generation
-# Import scipy.stats truncated normal distribution for ITI Array
-# from scipy.stats import truncnorm
-
-# Import numpy for trial array generation/manipulation and Harvesters
+# Import numpy for trial array generation/manipulation
 import numpy as np
 
 # Import numpy, default_rng for random trial generation
-import numpy
 from numpy.random import default_rng
 
 # Import json for writing trial data to config file
 import json
+
+percent_zeros_dict = {"food_dep": 0.50,
+                      "specialk": 0.25}
+
 
 ###############################################################################
 # Functions
@@ -29,67 +27,86 @@ import json
 # -----------------------------------------------------------------------------
 
 
-def gen_trialArray(trials, config_fullpath):
+def gen_trialArray(trials, config_fullpath, project_name, sucrose_only_flag):
 
-    # Always initialize trial array with 2 reward trials
-    trialArray = [1, 1]
+    # First, check if sucrose_only_flag is True
+    if sucrose_only_flag is True:
 
-    # TODO Implement automatic checking for trial complying with rules
-    # Check out https://en.wikipedia.org/wiki/Derangement and stack overflow...
-    # Define number of samples needed from generator
-    # num_samples = trials - len(trialArray)
+        # Tell the user that it was supplied
+        print("Generating ONLY sucrose trials...")
 
-    # Initialize random number generator with default_rng
-    rng = default_rng()
+        # Create trial array of only sucrose trials
+        trialArray = [1]*trials
 
-    shuff_trialArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1]
+        # Checking trial array is unnecessary, write to config file.
+        # Open config file to write array to file
+        with open(config_fullpath, 'r') as inFile:
 
-    check_trials = True
+            # Dump config file into function
+            data = json.load(inFile)
 
-    while check_trials is True:
+        # Assign json variable to trialArray data
+        data["trialArray"] = trialArray
 
-        rng.shuffle(shuff_trialArray)
-        for i in shuff_trialArray:
-            trialArray.append(i)
-        print(trialArray)
-        trial_check = str(input("Are these trials acceptable? y/n "))
+        # Write trialArray to file
+        with open(config_fullpath, 'w') as outFile:
 
-        if trial_check == 'y':
-            print("Accepted trials!")
-            check_trials = False
+            # Add trialArray into config file
+            json.dump(data, outFile)
 
-        else:
-            print("Reshuffling...")
-            trialArray = [1, 1]
+    # If the sucrose_only flag is not supplied with a value or is false
+    else:
 
-    # Generate a random trial array with Generator.integers.  The function is
-    # inclusive of the low value and exclusive of the high value.  Therefore,
-    # use a low of 0 and high of 2 which will sample from a discrete uniform
-    # distribution for either ones or zeros.  Use num_samples to generate the
-    # correct number of trials.  Finally, use tolist() to convert random_trials
-    # from an np.array to a list.
-    # random_trials = rng.integers(
-    #                             low=0, high=2, size=num_samples
-    #                             ).tolist()
-    #
-    # # Append the two arrays together
-    # for i in random_trials:
-    #     trialArray.append(i)
+        # Collect correct proportion of zeros with percent_zeros_dict
+        percent_zeros = percent_zeros_dict[project_name]
 
-    # Open config file to write array to file
-    with open(config_fullpath, 'r') as inFile:
+        # Collect number of trials to convert to 0
+        num_zeros = round(trials*percent_zeros)
 
-        # Dump config file into function
-        data = json.load(inFile)
+        # Initialize random number generator with default_rng()
+        rng = default_rng()
 
-    # Assign json variable to trialArray data
-    data["trialArray"] = trialArray
+        # Create list of potential flip positions from 3 to the last trial
+        # number
+        potential_flips = np.arange(3, trials)
 
-    # Write trialArray to file
-    with open(config_fullpath, 'w') as outFile:
+        # Make check trials flag to continuously check if trial list is
+        # acceptable
+        check_trials = True
 
-        # Add trialArray into config file
-        json.dump(data, outFile)
+        while check_trials is True:
+
+            # Create a trial array that's all sucrose trials, to be flipped
+            # randomly
+            trialArray = [1]*trials
+
+            # Randomly sample positions for flipping using rng.choice from
+            # potential flips generated earlier
+            flip_positions = rng.choice(potential_flips, size=num_zeros,
+                                        replace=False)
+
+            # For each position in the randomly selected flip positions, flip
+            # the value from one to zero
+            for position in flip_positions:
+                trialArray[position] = 0
+
+            # Check if the trials are acceptable
+            check_trials = check_trial_structure(trialArray)
+
+        # Open config file to write array to file
+        with open(config_fullpath, 'r') as inFile:
+
+            # Dump config file into function
+            data = json.load(inFile)
+
+        # Assign json variable to trialArray data
+        data["trialArray"] = trialArray
+
+        # Write trialArray to file
+        with open(config_fullpath, 'w') as outFile:
+
+            # Add trialArray into config file
+            json.dump(data, outFile)
 
     # Return trialArray
     return trialArray
@@ -106,7 +123,7 @@ def gen_ITIArray(trials, config_fullpath, demo_flag):
 
     if demo_flag is True:
 
-        # Define lower and upper limits on ITI values in ms
+        # Define lower and upper limits on ITI values in ms with small values
         iti_lower, iti_upper = 1000, 3000
 
     else:
@@ -191,15 +208,103 @@ def gen_noiseArray(trials, config_fullpath):
     return noiseArray
 
 
+###############################################################################
+# Trial Check Functions
+###############################################################################
+
+
+# -----------------------------------------------------------------------------
+# Trial Check Function: Zeros and Ones United
+# -----------------------------------------------------------------------------
+
+
+def check_trial_structure(trialArray, project_name):
+
+    print("Checking Trials...")
+
+    if project_name == "specialk":
+        check_trials = check_trial_zeros(trialArray)
+
+        return check_trials
+
+    elif project_name == "food_dep":
+
+        check_zeros = check_trial_zeros(trialArray)
+
+        check_ones = check_trial_ones(trialArray)
+
+    if check_zeros + check_ones == 0:
+
+        print("Trials Acceptable")
+
+        print(trialArray)
+
+        check_trials = False
+
+    else:
+        print("Array unusable. Reshuffling...")
+        check_trials = True
+
+    return check_trials
+
+
+# -----------------------------------------------------------------------------
+# Trial Check Function: Zeros
+# -----------------------------------------------------------------------------
+
+
+def check_trial_zeros(trialArray):
+
+    zeros = 0
+
+    for trial in trialArray:
+        if trial == 1:
+            zeros = 0
+        elif zeros == 3:
+            check_zeros = True
+            return check_zeros
+        else:
+            zeros += 1
+
+    check_zeros = False
+
+    return check_zeros
+
+
+# -----------------------------------------------------------------------------
+# Trial Check Function: Ones
+# -----------------------------------------------------------------------------
+
+
+def check_trial_ones(trialArray):
+
+    ones = 0
+
+    for trial in trialArray:
+        if trial == 0:
+            ones = 0
+        elif ones == 3:
+            check_ones = True
+            return check_ones
+        else:
+            ones += 1
+
+    check_ones = False
+
+    return check_ones
+
+
 # -----------------------------------------------------------------------------
 # Generate Arrays function to unite these functions
 # -----------------------------------------------------------------------------
 
 
-def generate_arrays(trials, config_fullpath, demo_flag):
+def generate_arrays(trials, config_fullpath, demo_flag, sucrose_only_flag,
+                    project_name):
 
     # Create Trial Array
-    trialArray = gen_trialArray(trials, config_fullpath)
+    trialArray = gen_trialArray(trials, config_fullpath, project_name,
+                                sucrose_only_flag)
 
     # Create ITI Array
     ITIArray = gen_ITIArray(trials, config_fullpath, demo_flag)
@@ -207,7 +312,7 @@ def generate_arrays(trials, config_fullpath, demo_flag):
     # Create Noise Array
     noiseArray = gen_noiseArray(trials, config_fullpath)
 
-    # Calculate how long the imaging session for one plane will run for
+    # Calculate how long the imaging session for one session will run for
     session_length = (sum(ITIArray) + sum(noiseArray))/1000
 
     # Calculate number of video frames by multiplying number of seconds by 30
@@ -215,10 +320,24 @@ def generate_arrays(trials, config_fullpath, demo_flag):
     # data is captured
     video_frames = round((session_length * 30) + 60)
 
-    print("Number of video frames to be collected:", video_frames)
+    # Open config file to write total number of frames
+    with open(config_fullpath, 'r') as inFile:
+
+        # Load the config file
+        data = json.load(inFile)
+
+    # Assign json variable to video_frames data
+    data["video_frames"] = video_frames
+
+    # Write video_frames to file
+    with open(config_fullpath, 'w') as outFile:
+
+        # Add video_frames to to config file
+        json.dump(data, outFile)
 
     # Put arrays together in a list
     array_list = [trialArray, ITIArray, noiseArray]
 
-    # Return list of arrays to be transferred and number of video frames
+    # Return list of arrays to be transferred and number of video frames to
+    # collect
     return array_list, video_frames
