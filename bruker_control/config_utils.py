@@ -23,11 +23,21 @@ from datetime import datetime
 # Get current working directory for above paths to work
 current_dir = Path.cwd()
 
-# Static template file location
+# Static template file location: food_dep
 fooddep_template_config_file = current_dir.joinpath("Documents/gitrepos/headfix_control/configs/templatefooddep.json")
+
+# Static template file location: specialk
+specialk_template_config_file = current_dir.joinpath("Documents/gitrepos/headfix_control/configs/templatespecialk.json")
 
 # Static empty json file location
 empty_config_file = current_dir.joinpath("Documents/gitrepos/headfix_control/configs/templateempty.json")
+
+# Create dictionary of config files
+# TODO Make this grep from the directory and fill dictionary with right
+# key:value pairs
+config_dict = {"food_dep": fooddep_template_config_file,
+               "specialk": specialk_template_config_file,
+               "empty": empty_config_file}
 
 ###############################################################################
 # Functions
@@ -44,7 +54,8 @@ def config_parser(metadata_args, plane):
     # Gather status of template flag
     template_flag = metadata_args['template']
 
-    # Gather number of imaging planes to be collected [DEPRECATED for now...]
+    # TODO: Reimplement num_planes properly
+    # Gather number of imaging planes to be collected
     # num_planes = metadata_args['imaging_planes']
 
     # Gather mouse id for naming files
@@ -138,13 +149,17 @@ def read_config(config_file):
     return config
 
 
-def build_from_template(config_fullpath):
+def build_from_template(config_fullpath, project_name):
 
     # Tell user that they're using template values for the experiment
     print("Using template values for experiment")
 
+    # Gather which configuration to use for the provided project using
+    # the configuraiton dictionary above
+    project_config = config_dict[project_name]
+
     # Load config file with template values
-    with open(fooddep_template_config_file, 'r') as inFile:
+    with open(project_config, 'r') as inFile:
         contents = inFile.read()
 
         # Save template configuration
@@ -252,6 +267,6 @@ def build_config(project_name, template_flag, mouse_id, plane):
     elif template_flag is True:
 
         # Use build_from_template()
-        config_file = build_from_template(config_fullpath)
+        config_file = build_from_template(config_fullpath, project_name)
 
     return config_file, config_filename, config_fullpath

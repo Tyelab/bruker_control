@@ -10,12 +10,21 @@
 # Teledyne DALSA Genie Nano Interface: Harvesters
 from harvesters.core import Harvester
 
-# Other Packages
 # Import OpenCV2 to write images/videos to file + previews
 import cv2
 
 # Static cti file location
 cti_filepath = "C:/Program Files/MATRIX VISION/mvIMPACT Acquire/bin/x64/mvGENTLProducer.cti"
+
+
+###############################################################################
+# Video Exception Creation
+###############################################################################
+
+
+class FrameDropped(Exception):
+    """Error raised if packet is lost during recording."""
+
 
 ###############################################################################
 # Camera Control
@@ -105,7 +114,7 @@ def capture_preview():
 # -----------------------------------------------------------------------------
 
 
-def init_camera_recording():
+def init_camera_recording(behavior_flag):
     camera = None
 
     # Setup Harvester
@@ -139,8 +148,13 @@ def init_camera_recording():
     # Record continuously
     n.AcquisitionMode.value = "Continuous"
 
-    # Enable triggers
-    n.TriggerMode.value = "On"
+    # If the behavior only flag is false, enable triggers
+    if behavior_flag is False:
+        n.TriggerMode.value = "On"
+
+    # If the behavior only flag is true, disable triggers
+    else:
+        n.TriggerMode.value = "Off"
 
     # Trigger camera on rising edge of input signal
     n.TriggerActivation.value = "RisingEdge"
@@ -165,7 +179,7 @@ def init_camera_recording():
 # -----------------------------------------------------------------------------
 
 
-def capture_recording(number_frames, video_list):
+def capture_recording(number_frames, video_list, behavior_flag):
 
     # Assign video name as the config_filename for readability
     video_name = video_list[1] + ".avi"
@@ -184,7 +198,7 @@ def capture_recording(number_frames, video_list):
     fourcc = cv2.VideoWriter_fourcc(*'DIVX')
 
     # Start the Camera
-    h, camera, width, height = init_camera_recording()
+    h, camera, width, height = init_camera_recording(behavior_flag)
 
     # Write file to disk
     # Create VideoWriter object: file, codec, framerate, dims, color value
