@@ -27,10 +27,11 @@
 */
 
 //// PACKAGES ////
-#include <Adafruit_MPR121.h> // Adafruit MPR121 capicitance board recording
-#include <digitalWriteFast.h> // Speeds up communication for digital srite
-#include <Wire.h> // Enhances comms with MPR121
-#include <SerialTransfer.h> // Enables serial comms between Python config and Arduino
+#include <Adafruit_MPR121.h>              // Adafruit MPR121 capicitance board recording
+#include <digitalWriteFast.h>             // Speeds up communication for digital srite
+#include <Wire.h>                         // Enhances comms with MPR121
+#include <SerialTransfer.h>               // Enables serial comms between Python config and Arduino
+
 // rename SerialTransfer to myTransfer
 SerialTransfer myTransfer;
 
