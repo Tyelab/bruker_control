@@ -58,6 +58,7 @@ def array_error_check(transmitted_array, received_array):
 # -----------------------------------------------------------------------------
 
 
+# TODO: Open connection once per experiment instead of once per packet transfer
 def transfer_packet(array, packet_id):
 
     try:

@@ -86,7 +86,7 @@ def imaging_experiment_onepacket(metadata_args):
                 array_list, video_frames = trial_utils.generate_arrays(trials,
                                                                        config_list[2],
                                                                        demo_flag,
-                                                                       sucorse_only_flag,
+                                                                       sucrose_only_flag,
                                                                        project_name)
 
                 # Preview video for headfixed mouse placement
@@ -142,8 +142,15 @@ def imaging_experiment_onepacket(metadata_args):
 
 def behavior_experiment_onepacket(metadata_args):
 
+    # Gather behavior_only flag
     behavior_flag = metadata_args["behavior"]
+
+    # Gather project name
     project_name = metadata_args["project"]
+
+    # Collect sucrose_only flag
+    sucrose_only_flag = metadata_args["sucrose"]
+
     # Create ready flag for whether or not user is ready to move forward with
     # experiment plane
     ready = False
@@ -176,6 +183,7 @@ def behavior_experiment_onepacket(metadata_args):
                 array_list, video_frames = trial_utils.generate_arrays(trials,
                                                                        config_list[2],
                                                                        demo_flag,
+                                                                       sucrose_only_flag,
                                                                        project_name)
 
                 # Preview video for headfixed mouse placement
