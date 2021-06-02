@@ -148,7 +148,8 @@ const int speakerPin = 12; // speaker control pin
 const int bruker2PTriggerPin = 11; // trigger to start Bruker 2P Recording on Prairie View
 
 //// PIN ASSIGNMENT: NIDAQ ////
-const int NIDAQ_READY = 9; // how do we do this with Bruker?
+// NIDAQ input
+// none
 // NIDAQ output
 const int lickDetectPin = 41; // detect sucrose licks
 const int speakerDeliveryPin = 51; // noise delivery
@@ -312,11 +313,11 @@ void bruker_trigger() {
 void lickDetect() {
   currtouched = cap.touched(); // Get currently touched contacts
   // if it is *currently* touched and *wasn't* touched before, alert!
-  if ((currtouched & _BV(1)) && !(lasttouched & _BV(2))) {
+  if ((currtouched & _BV(2)) && !(lasttouched & _BV(2))) {
     digitalWriteFast(lickDetectPin, HIGH);
   }
   // if it *was* touched and now *isn't*, alert!
-  if (!(currtouched & _BV(1)) && (lasttouched & _BV(1))) {
+  if (!(currtouched & _BV(2)) && (lasttouched & _BV(2))) {
     digitalWriteFast(lickDetectPin, LOW);
   }
   lasttouched = currtouched;
@@ -449,11 +450,6 @@ void setup() {
   pinMode(bruker2PTriggerPin, OUTPUT);
   pinMode(lickDetectPin, OUTPUT);
 
-  //reset pin
-  pinMode(resetPin, OUTPUT);
-  digitalWriteFast(resetPin, LOW);
-  reset = false;
-
   // -- INITIALIZE TOUCH SENSOR -- //
   Serial.println("MPR121 check...");
   if (!cap.begin(0x5A)) {
@@ -479,9 +475,4 @@ void loop() {
     USDelivery(ms);
     offSolenoid(ms);
   }
-//  else if (currentTrial == metadata.totalNumberOfTrials && currentTrial != 1) {
-//    reset = true;
-//    reset_fx();
-//    setup();
-//  }
 }
