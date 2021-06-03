@@ -313,11 +313,45 @@ def generate_arrays(trials, config_fullpath, demo_flag, sucrose_only_flag,
     noiseArray = gen_noiseArray(trials, config_fullpath)
 
     # Calculate how long the imaging session for one session will run for
-    session_length = (sum(ITIArray) + sum(noiseArray))/1000
+    # without a vacuum being used
+    trials_length = (sum(ITIArray) + sum(noiseArray))/1000
+
+    # Currently, vacuum is only used by the specialk project. Check if
+    # the project is being used here
+    if project_name == "specialk":
+
+        # Vacuum duration is set at a constant 500msec. Calculate seconds the
+        # vacuum will be engaged
+        vacuum_duration = (500*trials)/1000
+
+        # Consumption duration is set according to the config file
+        # TODO: Gather what the consumption duration is from the config file
+        consumption_duration = (3000*trials)/1000
+
+    else:
+
+        # If the project isn't specialk, the project doesn't use the vacuum.
+        # Set the vacuum duration and consumption duration to zero
+        vacuum_duration = 0
+
+        consumption_duration = 0
+
+    # Session length is the sum of the time needed for the trials,
+    # consumption duration, and vacuum duration
+    session_length = vacuum_duration + consumption_duration + trials_length
 
     # Calculate number of video frames by multiplying number of seconds by 30
     # frames per second. Add a buffer of 60 frames to make sure all
     # data is captured
+    # BUG: Video frames are correctly calculated, but in behavior_only mode,
+    # the camera doesn't wait 5 seconds to start, it starts right when the
+    # camera is initialized. Additionally, the behavior that Austin runs uses
+    # the vacuum after a consumption delay. These two timings need to be
+    # incorporated into the code, probably using if/else statement depending on
+    # which project it is and whether or not they use the vacuum
+    # HACK: Artificially adding 3950 frames to buffer to ensure behavior_only
+    # mode gathers all video frames
+
     video_frames = round((session_length * 30) + 60)
 
     # Open config file to write total number of frames

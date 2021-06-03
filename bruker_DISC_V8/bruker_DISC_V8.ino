@@ -14,7 +14,7 @@ SerialTransfer myTransfer;
 
 //// EXPERIMENT METADATA ////
 // The maximum number of trials that can be run for a given experiment is 90
-const int MAX_NUM_TRIALS = 46;
+const int MAX_NUM_TRIALS = 60;
 // Metadata is received as a struct and then renamed metadata
 struct __attribute__((__packed__)) metadata_struct {
   uint8_t totalNumberOfTrials;              // total number of trials for experiment
@@ -61,7 +61,7 @@ boolean rx = true;
 boolean pythonGoSignal = false;
 boolean arduinoGoSignal = false;
 // Experiment State Flags
-boolean goSignal = false;
+boolean cameraDelay = false;
 boolean brukerTrigger = false;
 boolean newTrial = false;
 boolean ITI = false;
@@ -119,10 +119,9 @@ const int speakerPin = 12; // speaker control pin
 const int bruker2PTriggerPin = 11; // trigger to start Bruker 2P Recording on Prairie View
 
 //// PIN ASSIGNMENT: NIDAQ ////
-const int NIDAQ_READY = 9; // how do we do this with Bruker?
+// NIDAQ input
+// none
 // NIDAQ output
-const int airDeliveryPin = 23; // airpuff delivery
-const int sucroseDeliveryPin = 27; // sucrose delivery
 const int lickDetectPin = 41; // detect sucrose licks
 const int speakerDeliveryPin = 51; // noise delivery
 
@@ -240,16 +239,27 @@ int pythonGo_rx() {
       myTransfer.sendDatum(pythonGo);
       Serial.println("Sent Python Status");
 
-      arduinoGoSignal = true;
+      cameraDelay = true;
     }
   }
 }
 
+// Arduino go signal for flow control
 void go_signal() {
   if (arduinoGoSignal) {
     arduinoGoSignal = false;
     Serial.println("GO!");
     brukerTrigger = true;
+  }
+}
+
+//// CAMERA WAIT FUNCTION ////
+void camera_delay() {
+  if (cameraDelay) {
+    Serial.println("Delaying Bruker Trigger for Camera Startup...");
+    cameraDelay = false;
+    delay(3000);
+    arduinoGoSignal = true;
   }
 }
 
@@ -272,11 +282,11 @@ void bruker_trigger() {
 void lickDetect() {
   currtouched = cap.touched(); // Get currently touched contacts
   // if it is *currently* touched and *wasn't* touched before, alert!
-  if ((currtouched & _BV(1)) && !(lasttouched & _BV(2))) {
+  if ((currtouched & _BV(2)) && !(lasttouched & _BV(2))) {
     digitalWriteFast(lickDetectPin, HIGH);
   }
   // if it *was* touched and now *isn't*, alert!
-  if (!(currtouched & _BV(1)) && (lasttouched & _BV(1))) {
+  if (!(currtouched & _BV(2)) && (lasttouched & _BV(2))) {
     digitalWriteFast(lickDetectPin, LOW);
   }
   lasttouched = currtouched;
@@ -286,7 +296,7 @@ void lickDetect() {
 void startITI(long ms) {
   if (newTrial) {                                 // start new ITI
     Serial.print("Starting New Trial: ");
-    Serial.println(currentTrial);
+    Serial.println(currentTrial + 1);
     trialType = trialArray[currentTrial];         // gather trial type
     newTrial = false;
     ITI = true;
@@ -313,17 +323,17 @@ void tonePlayer(long ms) {
     switch (trialType) {
       case 0:
         Serial.println("Air");
-        tone(speakerPin, 2000, thisNoiseDuration);
+        tone(speakerPin, metadata.punishTone, thisNoiseDuration);
         break;
       case 1:
         Serial.println("Sucrose");
-        tone(speakerPin, 9000, thisNoiseDuration);
+        tone(speakerPin, metadata.rewardTone, thisNoiseDuration);
         break;
     }
   }
 }
 
-
+// Send noise signal to DAQ function
 void onTone(long ms) {
   if (noiseDAQ && (ms >= noiseListeningMS)){
     noiseDAQ = false;
@@ -332,11 +342,11 @@ void onTone(long ms) {
   }
 }
 
-
+//// STIMULUS DELIVERY FUNCTIONS ////
+// Stimulus Delivery: 0 is airpuff, 1 is sucrose
 void USDelivery(long ms) {
   if (newUSDelivery && (ms >= noiseListeningMS)) {
     Serial.println("Delivering US");
-    Serial.println(trialType);
     newUSDelivery = false;
     solenoidOn = true;
     switch (trialType) {
@@ -344,18 +354,17 @@ void USDelivery(long ms) {
         Serial.println("Delivering Airpuff");
         USDeliveryMS = (ms + metadata.USDeliveryTime_Air);
         digitalWriteFast(solPin_air, HIGH);
-        digitalWriteFast(airDeliveryPin, HIGH);
         break;
       case 1:
         Serial.println("Delivering Sucrose");
         USDeliveryMS = (ms + metadata.USDeliveryTime_Sucrose);
         digitalWriteFast(solPin_liquid, HIGH);
-        digitalWriteFast(sucroseDeliveryPin, HIGH);
         break;
     }
   }
 }
 
+// Turn off Solenoid
 void offSolenoid(long ms) {
   if (solenoidOn && (ms >= USDeliveryMS)) {
     switch (trialType) {
@@ -363,7 +372,6 @@ void offSolenoid(long ms) {
         Serial.println("Air Solenoid Off");
         solenoidOn = false;
         digitalWriteFast(solPin_air, LOW);
-        digitalWriteFast(airDeliveryPin, LOW);
         newTrial = true;
         currentTrial++;
         break;
@@ -373,7 +381,6 @@ void offSolenoid(long ms) {
         sucroseConsumptionMS = (ms + metadata.USConsumptionTime_Sucrose);
         consume = true;
         digitalWriteFast(solPin_liquid, LOW);
-        digitalWriteFast(sucroseDeliveryPin, LOW);
         break;
     }
   }
@@ -441,8 +448,9 @@ void loop() {
   rx_function();
   pythonGo_rx();
   go_signal();
+  camera_delay();
   bruker_trigger();
-  if (currentTrial <= metadata.totalNumberOfTrials) {
+  if (currentTrial < metadata.totalNumberOfTrials) {
     ms = millis();
     lickDetect();
     startITI(ms);
@@ -452,10 +460,5 @@ void loop() {
     offSolenoid(ms);
     consuming(ms);
     vacuum(ms);
-  }
-  else {
-    newTrial = false;
-    Serial.println("OVER");
-
   }
 }

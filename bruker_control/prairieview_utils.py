@@ -88,6 +88,7 @@ def prairie_dir_and_filename(project_name, config_filename):
     # Tell user that the program is setting up a directory for session
     print("Setting Directory")
 
+    # TODO: All the path names/folder creation should happen outside the fx
     # Gather session date using datetime
     session_date = datetime.today().strftime("%Y%m%d")
 
@@ -109,6 +110,9 @@ def prairie_dir_and_filename(project_name, config_filename):
 
     # Set Prairie View filename
     pl.SendScriptCommands("-SetFileName Tseries {}".format(microscopy_filename))
+
+    # Set Voltage Recording (Behavior) Name
+    # pl.SendScriptCommands()
 
     # Disconnect from Prairie View
     prairie_disconnect()

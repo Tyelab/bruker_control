@@ -261,7 +261,7 @@ void rx_function() {
   }
 }
 
-// PYTHON STATUS FUNCTION ////
+//// PYTHON STATUS FUNCTION ////
 int pythonGo_rx() {
   if (pythonGoSignal && transmissionStatus == 7) {
     if (myTransfer.available())
@@ -295,6 +295,7 @@ void camera_delay() {
     arduinoGoSignal = true;
   }
 }
+
 //// BRUKER TRIGGER FUNCTION ////
 void bruker_trigger() {
   if (brukerTrigger) {
