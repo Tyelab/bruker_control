@@ -328,6 +328,9 @@ def generate_arrays(trials, config_fullpath, demo_flag, sucrose_only_flag,
         # TODO: Gather what the consumption duration is from the config file
         consumption_duration = (3000*trials)/1000
 
+        # BUG: Timing for vacuum trials is still incorect despite fix morning
+        # of 6/3/21. Re-opening Issue 23
+
     else:
 
         # If the project isn't specialk, the project doesn't use the vacuum.
@@ -341,9 +344,9 @@ def generate_arrays(trials, config_fullpath, demo_flag, sucrose_only_flag,
     session_length = vacuum_duration + consumption_duration + trials_length
 
     # Calculate number of video frames by multiplying number of seconds by 30
-    # frames per second. Add a buffer of 60 frames to make sure all
+    # frames per second. Add a buffer of 300 frames to make sure all
     # data is captured
-    video_frames = round((session_length * 30) + 60)
+    video_frames = round((session_length * 30) + 360)
 
     # Open config file to write total number of frames
     with open(config_fullpath, 'r') as inFile:
