@@ -336,22 +336,13 @@ def generate_arrays(trials, config_fullpath, demo_flag, sucrose_only_flag,
 
         consumption_duration = 0
 
-    # Session length is the sum of the time needed for the trials,
-    # consumption duration, and vacuum duration
+    # Session length is the sum of the time needed for the trials, consumption
+    # duration, and vacuum duration
     session_length = vacuum_duration + consumption_duration + trials_length
 
     # Calculate number of video frames by multiplying number of seconds by 30
     # frames per second. Add a buffer of 60 frames to make sure all
     # data is captured
-    # BUG: Video frames are correctly calculated, but in behavior_only mode,
-    # the camera doesn't wait 5 seconds to start, it starts right when the
-    # camera is initialized. Additionally, the behavior that Austin runs uses
-    # the vacuum after a consumption delay. These two timings need to be
-    # incorporated into the code, probably using if/else statement depending on
-    # which project it is and whether or not they use the vacuum
-    # HACK: Artificially adding 3950 frames to buffer to ensure behavior_only
-    # mode gathers all video frames
-
     video_frames = round((session_length * 30) + 60)
 
     # Open config file to write total number of frames
