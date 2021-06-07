@@ -13,20 +13,27 @@
 */
 
 const int solPin_liquid = 26;
+const int vacPin = 24;
 
 void setup() {
   // Initialize liquid solenoid pin for cleaning
   pinMode(solPin_liquid, OUTPUT);
+  pinMode(vacPin, OUTPUT);
 }
 
 // the loop function runs over and over again forever
 void loop() {
   // Open solenoid for 10 seconds or 150msec if making sure needle is ready
   digitalWrite(solPin_liquid, HIGH);
-  delay(10000);
-//  delay(150);
-
-  // Close solenoid for 500ms
+//  delay(10000);
+  delay(200);
   digitalWrite(solPin_liquid, LOW);
+  delay(3000);
+
+  digitalWrite(vacPin, HIGH);
+  delay(500);
+  digitalWrite(vacPin, LOW);
   delay(1000);
+
+  
 }

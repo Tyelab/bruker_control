@@ -174,6 +174,14 @@ def behavior_experiment_onepacket(metadata_args):
                 # Grab status of template flag for demonstration ITIs
                 demo_flag = metadata_args['demo']
 
+                # BUG: Prairie View doesn't yet allow for me to set unique
+                # voltage recording directory that's independent from the
+                # microscopy filepath. Likely needs Prairie View 5.6 release
+                # expected in early July.
+                prairieview_utils.prairie_dir_and_filename(video_list[0],
+                                                           config_list[1],
+                                                           behavior_flag)
+
                 # TODO: Let user change configurations on the fly with parser
 
                 # Gather total number of trials

@@ -31,7 +31,7 @@ struct __attribute__((__packed__)) metadata_struct {
 int32_t trialArray[MAX_NUM_TRIALS];
 // The ITI for each trial is transmitted from Python to the Arduino
 int32_t ITIArray[MAX_NUM_TRIALS];
-// The amount of time a tone is transmitted from Python to the Arudino
+// The amount of time a tone is played is transmitted from Python to the Arudino
 int32_t noiseArray[MAX_NUM_TRIALS];
 
 //// PYTHON TRANSMISSION STATUS ////

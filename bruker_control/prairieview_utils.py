@@ -83,7 +83,7 @@ def prairie_abort():
 # -----------------------------------------------------------------------------
 
 
-def prairie_dir_and_filename(project_name, config_filename):
+def prairie_dir_and_filename(project_name, config_filename, behavior_flag):
 
     # Tell user that the program is setting up a directory for session
     print("Setting Directory")
@@ -101,21 +101,52 @@ def prairie_dir_and_filename(project_name, config_filename):
     # Set microscopy full path for telling user where session is saved
     microscopy_fullpath = microscopy_basepath + microscopy_filename
 
-    # Connect to Praire View
-    prairie_connect()
+    # Not usable until PV 5.6 release
+    # Set behavior session basepath
+    # behavior_basepath = "E:/studies/" + project_name + "/behavior/" + session_date + "/"
 
-    # Set Prairie View path for saving files
-    pl.SendScriptCommands("-SetSavePath {}".format(microscopy_basepath))
-    print("Set 2P Image Path: " + microscopy_fullpath)
+    # Set behavior filename
+    behavior_filename = config_filename
 
-    # Set Prairie View filename
-    pl.SendScriptCommands("-SetFileName Tseries {}".format(microscopy_filename))
+    # Not usable until PV 5.6 release
+    # Set behavior full path for telling user where session is saved
+    # behavior_fullpath = behavior_basepath + behavior_filename
 
-    # Set Voltage Recording (Behavior) Name
-    # pl.SendScriptCommands()
+    if behavior_flag is True:
 
-    # Disconnect from Prairie View
-    prairie_disconnect()
+        # Connect to Prairie View
+        prairie_connect()
+
+        # Set Voltage Recording (Behavior) Name
+        pl.SendScriptCommands("-SetState directory {} VoltageRecording".format(behavior_filename))
+        print("Set Prairie View Voltage Recording Filename: ", behavior_filename)
+
+        # Disconnect from Prairie View
+        prairie_disconnect()
+
+    else:
+
+        # Connect to Praire View
+        prairie_connect()
+
+        # Set Prairie View path for saving files
+        pl.SendScriptCommands("-SetSavePath {}".format(microscopy_basepath))
+        print("Set 2P Image Path: " + microscopy_fullpath)
+
+        # Set Prairie View filename
+        pl.SendScriptCommands("-SetFileName Tseries {}".format(microscopy_filename))
+
+        # BUG: While I can name the voltage recording something new, I can't
+        # assign where it goes. This is likely something that will require us
+        # waiting for Prairie View 5.6 release in about 1 month (Early July)
+        # Set Voltage Recording (Behavior) Name
+        # pl.SendScriptCommands("-SetState directory {} VoltageRecording".format(behavior_filename))
+        # print("Set VoltageRecording Path: " + behavior_fullpath)
+
+        # pl.SendScriptCommands("-SetFileName VoltageRecording {}".format(behavior_filename))
+
+        # Disconnect from Prairie View
+        prairie_disconnect()
 
 
 # -----------------------------------------------------------------------------

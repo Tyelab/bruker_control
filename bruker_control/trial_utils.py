@@ -91,7 +91,7 @@ def gen_trialArray(trials, config_fullpath, project_name, sucrose_only_flag):
                 trialArray[position] = 0
 
             # Check if the trials are acceptable
-            check_trials = check_trial_structure(trialArray)
+            check_trials = check_trial_structure(trialArray, project_name)
 
         # Open config file to write array to file
         with open(config_fullpath, 'r') as inFile:
