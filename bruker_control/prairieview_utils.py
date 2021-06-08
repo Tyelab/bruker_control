@@ -93,7 +93,7 @@ def prairie_dir_and_filename(project_name, config_filename, behavior_flag):
     session_date = datetime.today().strftime("%Y%m%d")
 
     # Set microscopy session basepath
-    microscopy_basepath = "E:/studies/" + project_name + "/microscopy/" + session_date + "/"
+    microscopy_basepath = "E:/studies/" + project_name + "/microscopy/" + session_date + "/raw/"
 
     # Set microscopy filename
     microscopy_filename = config_filename
