@@ -1,2 +1,5 @@
 
 bruker_cleanup/bruker_cleanup.ino
+bruker_cleanup/bruker_cleanup.ino
+bruker_control/__pycache__/experiment_utils.cpython-37.pyc
+bruker_control/__pycache__/serialtransfer_utils.cpython-37.pyc

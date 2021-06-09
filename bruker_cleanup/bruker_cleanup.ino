@@ -24,14 +24,14 @@ void setup() {
 // the loop function runs over and over again forever
 void loop() {
   // Open solenoid for 10 seconds or 150msec if making sure needle is ready
-  digitalWrite(solPin_liquid, HIGH);
+//  digitalWrite(solPin_liquid, HIGH);
 //  delay(10000);
-  delay(200);
-  digitalWrite(solPin_liquid, LOW);
-  delay(3000);
+////  delay(200);
+//  digitalWrite(solPin_liquid, LOW);
+//  delay(100);
 
   digitalWrite(vacPin, HIGH);
-  delay(500);
+  delay(10000);
   digitalWrite(vacPin, LOW);
   delay(1000);
 
