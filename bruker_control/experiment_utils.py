@@ -29,6 +29,9 @@ import sys
 
 def imaging_experiment_onepacket(metadata_args):
 
+    # Gather behavior_only flag
+    behavior_flag = metadata_args["behavior"]
+
     # Collect project name from arguments
     project_name = metadata_args["project"]
 
@@ -75,7 +78,8 @@ def imaging_experiment_onepacket(metadata_args):
                 demo_flag = metadata_args['demo']
 
                 prairieview_utils.prairie_dir_and_filename(video_list[0],
-                                                           config_list[1])
+                                                           config_list[1],
+                                                           behavior_flag)
 
                 # TODO: Let user change configurations on the fly with parser
 
