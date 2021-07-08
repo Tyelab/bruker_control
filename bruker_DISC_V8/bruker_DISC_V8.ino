@@ -338,6 +338,12 @@ void onTone(long ms) {
   if (noiseDAQ && (ms >= noiseListeningMS)){
     noiseDAQ = false;
     digitalWriteFast(speakerDeliveryPin, LOW);
+//    newUSDelivery = true;
+  }
+}
+
+void giveStimulus(long ms) {
+  if (noiseDAQ && ms >= noiseListeningMS - metadata.USDeliveryTime_Sucrose){
     newUSDelivery = true;
   }
 }
@@ -345,7 +351,8 @@ void onTone(long ms) {
 //// STIMULUS DELIVERY FUNCTIONS ////
 // Stimulus Delivery: 0 is airpuff, 1 is sucrose
 void USDelivery(long ms) {
-  if (newUSDelivery && (ms >= noiseListeningMS)) {
+//  if (newUSDelivery && (ms >= noiseListeningMS)) {
+  if (newUSDelivery) {
     Serial.println("Delivering US");
     newUSDelivery = false;
     solenoidOn = true;
@@ -366,7 +373,8 @@ void USDelivery(long ms) {
 
 // Turn off Solenoid
 void offSolenoid(long ms) {
-  if (solenoidOn && (ms >= USDeliveryMS)) {
+  // This is a hack that needs to be corrected; unacceptably bad...
+  if (solenoidOn && (ms >= USDeliveryMS - 199)) {
     switch (trialType) {
       case 0:
         Serial.println("Air Solenoid Off");
@@ -456,6 +464,7 @@ void loop() {
     startITI(ms);
     tonePlayer(ms);
     onTone(ms);
+    giveStimulus(ms);
     USDelivery(ms);
     offSolenoid(ms);
     consuming(ms);
