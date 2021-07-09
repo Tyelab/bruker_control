@@ -343,16 +343,23 @@ void onTone(long ms) {
   }
 }
 
+// Initiate new US Delivery during the last moments of the tone.
 void giveStimulus(long ms) {
-  if (giveStim && (ms >= noiseListeningMS - metadata.USDeliveryTime_Sucrose)) {
-    newUSDelivery = true;
+  switch (trialType) {
+    case 0:
+      if (giveStim && (ms >=  noiseListeningMS - metadata.USDeliveryTime_Air)) {
+        newUSDelivery = true;
+      }
+    case 1:
+      if (giveStim && (ms >= noiseListeningMS - metadata.USDeliveryTime_Sucrose)) {
+        newUSDelivery = true;
+      }
+    }
   }
-}
 
 //// STIMULUS DELIVERY FUNCTIONS ////
 // Stimulus Delivery: 0 is airpuff, 1 is sucrose
 void USDelivery(long ms) {
-//  if (newUSDelivery && (ms >= noiseListeningMS)) {
   if (newUSDelivery) {
     Serial.println("Delivering US");
     newUSDelivery = false;
@@ -361,7 +368,7 @@ void USDelivery(long ms) {
     switch (trialType) {
       case 0:
         Serial.println("Delivering Airpuff");
-        USDeliveryMS = (ms + metadata.USDeliveryTime_Air);
+        USDeliveryMS = ms + metadata.USDeliveryTime_Air;
         digitalWriteFast(solPin_air, HIGH);
         break;
       case 1:
@@ -375,7 +382,6 @@ void USDelivery(long ms) {
 
 // Turn off Solenoid
 void offSolenoid(long ms) {
-  // This is a hack that needs to be corrected; unacceptably bad...
   if (solenoidOn && (noiseDAQ == false)) {
     switch (trialType) {
       case 0:
