@@ -65,6 +65,7 @@ boolean cameraDelay = false;
 boolean brukerTrigger = false;
 boolean newTrial = false;
 boolean ITI = false;
+boolean giveStim = false;
 boolean newUSDelivery = false;
 boolean solenoidOn = false;
 boolean vacOn = false;
@@ -318,6 +319,7 @@ void tonePlayer(long ms) {
     int thisNoiseDuration = noiseArray[currentTrial];
     noise = false;
     noiseDAQ = true;
+    giveStim = true;
     noiseListeningMS = ms + thisNoiseDuration;
     digitalWriteFast(speakerDeliveryPin, HIGH);
     switch (trialType) {
@@ -338,12 +340,11 @@ void onTone(long ms) {
   if (noiseDAQ && (ms >= noiseListeningMS)){
     noiseDAQ = false;
     digitalWriteFast(speakerDeliveryPin, LOW);
-//    newUSDelivery = true;
   }
 }
 
 void giveStimulus(long ms) {
-  if (noiseDAQ && ms >= noiseListeningMS - metadata.USDeliveryTime_Sucrose){
+  if (giveStim && (ms >= noiseListeningMS - metadata.USDeliveryTime_Sucrose)) {
     newUSDelivery = true;
   }
 }
@@ -355,6 +356,7 @@ void USDelivery(long ms) {
   if (newUSDelivery) {
     Serial.println("Delivering US");
     newUSDelivery = false;
+    giveStim = false;
     solenoidOn = true;
     switch (trialType) {
       case 0:
@@ -364,7 +366,7 @@ void USDelivery(long ms) {
         break;
       case 1:
         Serial.println("Delivering Sucrose");
-        USDeliveryMS = (ms + metadata.USDeliveryTime_Sucrose);
+        USDeliveryMS = ms + metadata.USDeliveryTime_Sucrose;
         digitalWriteFast(solPin_liquid, HIGH);
         break;
     }
@@ -374,7 +376,7 @@ void USDelivery(long ms) {
 // Turn off Solenoid
 void offSolenoid(long ms) {
   // This is a hack that needs to be corrected; unacceptably bad...
-  if (solenoidOn && (ms >= USDeliveryMS - 199)) {
+  if (solenoidOn && (noiseDAQ == false)) {
     switch (trialType) {
       case 0:
         Serial.println("Air Solenoid Off");
