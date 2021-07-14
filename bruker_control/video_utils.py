@@ -179,7 +179,7 @@ def init_camera_recording(behavior_flag):
 # -----------------------------------------------------------------------------
 
 
-def capture_recording(number_frames, video_list, behavior_flag):
+def capture_recording(number_frames, video_list, behavior_flag=False):
 
     # Assign video name as the config_filename for readability
     video_name = video_list[1] + ".avi"
