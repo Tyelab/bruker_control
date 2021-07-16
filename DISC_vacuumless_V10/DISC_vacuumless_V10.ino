@@ -2,7 +2,7 @@
  * Control code for Arduino using Python integration for headfixed behavior
  * Discrimination task: Liquid Sucrose = Positive, Airpuff = Negative
  * 
- * Jeremy Delahanty Mar. 2021, Dexter Tsin Apr. 2021
+ * Deryn LeDuke 2019, Jeremy Delahanty Mar. 2021, Dexter Tsin Apr. 2021
  * Adapted from DISC_V7.ino by Kyle Fischer and Mauri van der Huevel Oct. 2019
  * digitalWriteFast.h written by Watterott Electronic
  * https://github.com/watterott/Arduino-Libs/tree/master/digitalWriteFast

@@ -1,5 +1,5 @@
 # Bruker 2-Photon Experiment Control
-# Jeremy Delahanty May 2021
+# Jeremy Delahanty May 2021, Deryn LeDuke July 2021
 # Harvesters written by Kazunari Kudo
 # https://github.com/genicam/harvesters
 # pySerialTransfer written by PowerBroker2

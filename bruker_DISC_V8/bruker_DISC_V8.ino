@@ -1,5 +1,5 @@
 // Control code for Arduino Delivery of Stimuli for Bruker 2P Experiments
-// Jeremy Delahanty, Dexter Tsin, Kyle Fischer May 2021
+// Deryn LeDuke 2019, Jeremy Delahanty, Dexter Tsin, Kyle Fischer May 2021
 // Adapted from DISC_V7.ino by Kyle Fischer and Mauri van der Huevel Oct. 2019
 // digitalWriteFast.h written by Watterott Electronic https://github.com/watterott/Arduino-Libs/tree/master/digitalWriteFast
 // SerialTransfer.h written by PowerBroker2 https://github.com/PowerBroker2/SerialTransfer
