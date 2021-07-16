@@ -36,6 +36,7 @@ class FrameDropped(Exception):
 
 
 def init_camera_preview():
+
     camera = None
 
     # Setup Harvester

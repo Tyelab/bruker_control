@@ -13,6 +13,8 @@ from numpy.random import default_rng
 # Import json for writing trial data to config file
 import json
 
+# Dictionary for the percent of trials that should be flipped to zero
+# TODO: Should be moved to be part of the configuration file for a project
 percent_zeros_dict = {"food_dep": 0.50,
                       "specialk": 0.25}
 
