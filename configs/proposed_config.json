@@ -1,0 +1,25 @@
+{"metadata": {
+ "totalNumberOfTrials": {"value": 40},
+ "punishTone": {"value": 2000},
+ "rewardTone": {"value": 9000},
+ "USDeliveryTime_Sucrose": {"value": 200},
+ "USDeliveryTime_Air": {"value": 1000},
+ "USConsumptionTime_Sucrose": {"value": 3000},
+ "ITIJitter": {"value": True},
+ "baseITI": {"value": 22.50},
+ "minITI": {"value": 15},
+ "maxITI": {"value": 30},
+ "toneJitter": {"value": False},
+ "baseTone": {"value": 5},
+ "minTone": {"value": None},
+ "maxTone": {"value": None},
+ "catchTrials": {"value": False},
+ "percentCatch": {"value": None},
+ "percentPunish": {"value": 50},
+ }
+ "trialArray": {},
+ "ITIArray": {},
+ "noiseArray": {},
+ "video_frames": {},
+ "missed_frames": {}
+}
