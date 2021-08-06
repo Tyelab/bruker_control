@@ -16,7 +16,7 @@
  "catchTrials": {"value": False},
  "percentCatch": {"value": None},
  "percentPunish": {"value": 50},
- }
+ },
  "trialArray": {},
  "ITIArray": {},
  "noiseArray": {},
