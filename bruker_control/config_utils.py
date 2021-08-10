@@ -228,7 +228,7 @@ def build_config(project_name, template_flag, mouse_id, plane):
         plane = str(plane)
 
         # Assign config file name
-        config_filename = session_date + "_" + mouse_id + "_plane" + plane
+        config_filename = session_date + "_" + mouse_id + "_plane" + plane + "_config"
 
         # Make full filepath for config file
         config_fullpath = Path(config_basepath + config_filename + ".json")
