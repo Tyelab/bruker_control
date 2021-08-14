@@ -23,8 +23,11 @@ import experiment_utils
 # -----------------------------------------------------------------------------
 # Python Libraries
 # -----------------------------------------------------------------------------
-# Import argparse if you want to create a configuration on the fly
+# Import argparse for runtime control
 import argparse
+
+# Import pathlib for creating valid choices list for project
+from pathlib import Path
 
 #  TODO Use ctrl+c to kill entire program from __main__ if needed
 # Import sys for exiting program safely
@@ -38,19 +41,27 @@ import argparse
 
 if __name__ == "__main__":
 
+    # Dynamically generate available projects by globbing raw data study
+    # directory.
+    team_choices = [team for team in Path("E:/").glob("*") if team.is_dir()]
+
+    project_choices = [project for project in team_choices.glob("*") if
+                       project.is_dir()]
+
     # Create argument parser for metadata configuration
     metadata_parser = argparse.ArgumentParser(description='Set Metadata',
                                               epilog="Good luck on your work!",
                                               prog='Bruker Experiment Control')
 
-    # Add configuration file argument
-    metadata_parser.add_argument('-c', '--config_file',
-                                 type=str,
-                                 action='store',
-                                 dest='config',
-                                 help='Config Filename (yyyymmdd_animalid)',
-                                 default=None,
-                                 required=False)
+    # Add configuration file argument [DEPRECATED]
+    # Will use provided project choice for finding appropriate config file
+    # metadata_parser.add_argument('-c', '--config_file',
+    #                              type=str,
+    #                              action='store',
+    #                              dest='config',
+    #                              help='Config Filename (yyyymmdd_animalid)',
+    #                              default=None,
+    #                              required=False)
 
     # Add modify configuration file argument [DEPRECATED]
     # metadata_parser.add_argument('-m', '--modify',
@@ -59,12 +70,13 @@ if __name__ == "__main__":
     #                              help='Modify given config file (bool flag)',
     #                              required=False)
 
-    # Add template configuration file argument
-    metadata_parser.add_argument('-t', '--template',
-                                 action='store_true',
-                                 dest='template',
-                                 help='Use template config file (bool flag)',
-                                 required=False)
+    # Add template configuration file argument [DEPRECATED]
+    # Using template for a given experiment is done by default
+    # metadata_parser.add_argument('-t', '--template',
+    #                              action='store_true',
+    #                              dest='template',
+    #                              help='Use template config file (bool flag)',
+    #                              required=False)
 
     # Add project name argument
     metadata_parser.add_argument('-p', '--project',
@@ -72,7 +84,7 @@ if __name__ == "__main__":
                                  action='store',
                                  dest='project',
                                  help='Project Name (required)',
-                                 choices=['specialk', 'food_dep'],
+                                 choices=project_choices,
                                  required=True)
 
     # Add number of imaging planes argument
@@ -82,7 +94,7 @@ if __name__ == "__main__":
                                  dest='imaging_planes',
                                  help='Number of Imaging Planes',
                                  default=None,
-                                 required=False)
+                                 required=True)
 
     # Add mouse id argument
     metadata_parser.add_argument('-m', '--mouse_id',
@@ -99,19 +111,21 @@ if __name__ == "__main__":
                                  help='Use Demonstration Values (bool flag)',
                                  required=False)
 
-    # Add behavior_only flag
-    metadata_parser.add_argument('-b', '--behavior',
-                                 action='store_true',
-                                 dest='behavior',
-                                 help='Perform behavior ONLY (bool flag)',
-                                 required=False)
+    # Add behavior_only flag [DEPRECATED]
+    # People should NOT be using the behavior only flag
+    # metadata_parser.add_argument('-b', '--behavior',
+    #                              action='store_true',
+    #                              dest='behavior',
+    #                              help='Perform behavior ONLY (bool flag)',
+    #                              required=False)
 
-    # Add sucrose_only flag
-    metadata_parser.add_argument('-s', '--sucrose',
-                                 action='store_true',
-                                 dest='sucrose',
-                                 help='Give ONLY sucrose trials (bool flag)',
-                                 required=False)
+    # Add sucrose_only flag [DEPRECATED]
+    # Handled now with more descriptive configuration file
+    # metadata_parser.add_argument('-s', '--sucrose',
+    #                              action='store_true',
+    #                              dest='sucrose',
+    #                              help='Give ONLY sucrose trials (bool flag)',
+    #                              required=False)
 
     # Add program version argument
     metadata_parser.add_argument('--version',
@@ -121,14 +135,8 @@ if __name__ == "__main__":
     # Parse the arguments given by the user
     metadata_args = vars(metadata_parser.parse_args())
 
-    # Gather behavior_only flag
-    behavior_flag = metadata_args["behavior"]
-
-    if behavior_flag is True:
-        experiment_utils.behavior_experiment_onepacket(metadata_args)
-
-    else:
-        experiment_utils.imaging_experiment_onepacket(metadata_args)
+    # Run an imaging experiment using the provided arguments by the user
+    experiment_utils.imaging_experiment_onepacket(metadata_args)
 
                 # # If there's multiple packets required, use multipacket generation and
                 # # transfer.  Multiple packets are required for sizes greater than 60.

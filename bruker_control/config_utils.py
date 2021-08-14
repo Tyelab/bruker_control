@@ -20,24 +20,9 @@ import sys
 # Import datetime for generating config file names correctly
 from datetime import datetime
 
-# Get current working directory for above paths to work
-current_dir = Path.cwd()
-
-# Static template file location: food_dep
-fooddep_template_config_file = current_dir.joinpath("Documents/gitrepos/headfix_control/configs/templatefooddep.json")
-
-# Static template file location: specialk
-specialk_template_config_file = current_dir.joinpath("Documents/gitrepos/headfix_control/configs/templatespecialk.json")
-
-# Static empty json file location
-empty_config_file = current_dir.joinpath("Documents/gitrepos/headfix_control/configs/templateempty.json")
-
-# Create dictionary of config files
-# TODO Make this grep from the directory and fill dictionary with right
-# key:value pairs
-config_dict = {"food_dep": fooddep_template_config_file,
-               "specialk": specialk_template_config_file,
-               "empty": empty_config_file}
+# Configuration directories are within project directories.  The server is
+# mounted to the X: volume on the machine BRUKER.
+config_dir = Path("X:/")
 
 ###############################################################################
 # Functions
@@ -142,11 +127,11 @@ def read_config(config_file):
         # Use json.loads to gather metadata and save them in an
         # ordered dictionary for checking if contents are correct
         # during transmission later
-        config = json.loads(contents,
+        config_contents = json.loads(contents,
                             object_pairs_hook=OrderedDict)
 
     # Return the config object for use in next steps
-    return config
+    return config_contents
 
 
 def build_from_template(config_fullpath, project_name):
