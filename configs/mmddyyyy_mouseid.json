@@ -1,9 +1,0 @@
-{"metadata": {
-"totalNumberOfTrials": {"value": 20},
-"punishTone": {"value": 2000},
-"rewardTone": {"value": 18000},
-"USDeliveryTime_Sucrose": {"value": 5},
-"USDeliveryTime_Air": {"value": 20},
-"USConsumptionTime_Sucrose": {"value": 1000}
-  }
-}
