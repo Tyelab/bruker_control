@@ -30,6 +30,31 @@ percent_zeros_dict = {"food_dep": 0.50,
 
 
 def gen_trialArray(trials, config_fullpath, project_name, sucrose_only_flag):
+    """
+    Creates pseudorandom trial structure for binary discrimination task.
+
+    Generates array of trials using ones and zeros to denote trials. 1 is
+    reward while 0 is aversive. Generates trials appropriate for each project
+    using values contained in percent_zeros_dict.
+
+    Args:
+
+        behavior_flag:
+            Flag obtained from bruker_control.py argparser.  If True,
+            a continous recording is obtained without relying on TTL triggers
+            fromt the microscope. If False, the recording will use TTL
+            triggers from the microscope.
+
+    Returns:
+
+        Harvester object
+
+        Camera object
+
+        Camera's height (pixels)
+
+        Camera's width (pixels)
+    """
 
     # First, check if sucrose_only_flag is True
     if sucrose_only_flag is True:

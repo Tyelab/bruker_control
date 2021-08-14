@@ -180,11 +180,36 @@
 <h1>Welcome to Bruker Control’s documentation!<a class="headerlink" href="#welcome-to-bruker-control-s-documentation" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
 </div>
-<span class="target" id="module-video_utils"></span><dl class="py exception">
-<dt class="sig sig-object py" id="video_utils.FrameDropped">
-<em class="property"><span class="pre">exception</span> </em><span class="sig-prename descclassname"><span class="pre">video_utils.</span></span><span class="sig-name descname"><span class="pre">FrameDropped</span></span><a class="headerlink" href="#video_utils.FrameDropped" title="Permalink to this definition">¶</a></dt>
-<dd><p>Error raised if packet is lost during recording.</p>
+</section>
+<section id="video-utils-py">
+<h1>video_utils.py<a class="headerlink" href="#video-utils-py" title="Permalink to this headline">¶</a></h1>
+<p>Module contains functions for configuring GenICam compliant cameras as well as
+grabbing, displaying, and writing video frames the cameras acquire. It has
+been written with flexibility of number of cameras in mind, but has only been
+tested using one camera so far.</p>
+<section id="init-camera-preview">
+<h2>init_camera_preview<a class="headerlink" href="#init-camera-preview" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="video_utils.init_camera_preview">
+<span class="sig-prename descclassname"><span class="pre">video_utils.</span></span><span class="sig-name descname"><span class="pre">init_camera_preview</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#video_utils.init_camera_preview" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates, configures, describes, and starts harvesters camera object in
+preview setting.</p>
+<p>Initializes harvester camera, sets camera properties appropriate for
+preview, gathers the camera’s width and height in pixels, and starts
+video acquisition. The function takes no arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><p>Harvester object</p>
+<p>Camera object</p>
+<p>Camera’s height (pixels)</p>
+<p>Camera’s width (pixels)</p>
+</p>
+</dd>
+</dl>
 </dd></dl>
+</section>
+<section id="capture-preview">
+<h2>capture_preview<a class="headerlink" href="#capture-preview" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="video_utils.capture_preview">
 <span class="sig-prename descclassname"><span class="pre">video_utils.</span></span><span class="sig-name descname"><span class="pre">capture_preview</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#video_utils.capture_preview" title="Permalink to this definition">¶</a></dt>
@@ -192,16 +217,39 @@
 <p>Takes values from init_camera_preview() to capture images delivered by
 camera buffer, reshapes the image to appropriate height and width, and
 finally displays the image to an opencv window. When user hits the ‘Esc’
-key, the window closes and the camera object is destroyed.</p>
+key, the window closes and the camera object is destroyed. This function
+takes no arguments and returns nothing.</p>
+</dd></dl>
+</section>
+<section id="init-camera-recording">
+<h2>init_camera_recording<a class="headerlink" href="#init-camera-recording" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="video_utils.init_camera_recording">
+<span class="sig-prename descclassname"><span class="pre">video_utils.</span></span><span class="sig-name descname"><span class="pre">init_camera_recording</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">behavior_flag</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#video_utils.init_camera_recording" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates, configures, describes, and starts harvesters camera object in
+recording setting.</p>
+<p>Initializes harvester camera, sets camera properties appropriate for
+behavior recording, gathers the camera’s width and height in pixels, and
+starts video acquisition.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>None</strong> – </p>
+<dd class="field-odd"><p><strong>behavior_flag</strong> – Flag obtained from bruker_control.py argparser.  If True,
+a continous recording is obtained without relying on TTL triggers
+fromt the microscope. If False, the recording will use TTL
+triggers from the microscope.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>None</p>
+<dd class="field-even"><p><p>Harvester object</p>
+<p>Camera object</p>
+<p>Camera’s height (pixels)</p>
+<p>Camera’s width (pixels)</p>
+</p>
 </dd>
 </dl>
 </dd></dl>
+</section>
+<section id="capture-recording">
+<h2>capture_recording<a class="headerlink" href="#capture-recording" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="video_utils.capture_recording">
 <span class="sig-prename descclassname"><span class="pre">video_utils.</span></span><span class="sig-name descname"><span class="pre">capture_recording</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">number_frames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">video_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">behavior_flag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#video_utils.capture_recording" title="Permalink to this definition">¶</a></dt>
@@ -230,87 +278,15 @@ config file.</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py function">
-<dt class="sig sig-object py" id="video_utils.init_camera_preview">
-<span class="sig-prename descclassname"><span class="pre">video_utils.</span></span><span class="sig-name descname"><span class="pre">init_camera_preview</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#video_utils.init_camera_preview" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates, configures, describes, and starts harvesters camera object in
-preview setting.</p>
-<p>Initializes harvester camera, sets camera properties appropriate for
-preview, gathers the camera’s width and height in pixels, and starts
-video acquisition.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>None</strong> – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ol class="arabic simple">
-<li><dl class="simple">
-<dt>Harvester object</dt><dd><ol class="arabic simple" start="2">
-<li><p>Camera object</p></li>
-</ol>
-</dd>
-</dl>
-</li>
-</ol>
-<dl class="simple">
-<dt>Two variables:</dt><dd><ol class="arabic simple">
-<li><p>Camera’s height (pixels)</p></li>
-<li><p>Camera’s width (pixels)</p></li>
-</ol>
-</dd>
-</dl>
-</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Two objects</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py function">
-<dt class="sig sig-object py" id="video_utils.init_camera_recording">
-<span class="sig-prename descclassname"><span class="pre">video_utils.</span></span><span class="sig-name descname"><span class="pre">init_camera_recording</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">behavior_flag</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#video_utils.init_camera_recording" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates, configures, describes, and starts harvesters camera object in
-recording setting.</p>
-<p>Initializes harvester camera, sets camera properties appropriate for
-behavior recording, gathers the camera’s width and height in pixels, and
-starts video acquisition.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>behavior_flag</strong> – Flag obtained from bruker_control.py argparser.  If True,
-a continous recording is obtained without relying on TTL triggers
-fromt the microscope. If False, the recording will use TTL
-triggers from the microscope.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ol class="arabic simple">
-<li><dl class="simple">
-<dt>Harvester object</dt><dd><ol class="arabic simple" start="2">
-<li><p>Camera object</p></li>
-</ol>
-</dd>
-</dl>
-</li>
-</ol>
-<dl class="simple">
-<dt>Two variables:</dt><dd><ol class="arabic simple">
-<li><p>Camera’s height (pixels)</p></li>
-<li><p>Camera’s width (pixels)</p></li>
-</ol>
-</dd>
-</dl>
-</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Two objects</p>
-</dd>
-</dl>
-</dd></dl>
+</section>
+<section id="shutdown-camera">
+<h2>shutdown_camera<a class="headerlink" href="#shutdown-camera" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="video_utils.shutdown_camera">
 <span class="sig-prename descclassname"><span class="pre">video_utils.</span></span><span class="sig-name descname"><span class="pre">shutdown_camera</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">camera</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">harvester</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#video_utils.shutdown_camera" title="Permalink to this definition">¶</a></dt>
 <dd><p>Deactivates and resets both harvester and camera after acquisition.</p>
 <p>Turns off camera, resets its configuration values, and resets the harvester
-object once acquisition is done.</p>
+object once acquisition is done. The function does not return anything</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -318,11 +294,9 @@ object once acquisition is done.</p>
 <li><p><strong>harvester</strong> – Haverster object</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>None</p>
-</dd>
 </dl>
 </dd></dl>
+</section>
 </section>
 <section id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
@@ -370,6 +344,14 @@ object once acquisition is done.</p>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Welcome to Bruker Control’s documentation!</a></li>
+<li><a class="reference internal" href="#video-utils-py">video_utils.py</a><ul>
+<li><a class="reference internal" href="#init-camera-preview">init_camera_preview</a></li>
+<li><a class="reference internal" href="#capture-preview">capture_preview</a></li>
+<li><a class="reference internal" href="#init-camera-recording">init_camera_recording</a></li>
+<li><a class="reference internal" href="#capture-recording">capture_recording</a></li>
+<li><a class="reference internal" href="#shutdown-camera">shutdown_camera</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
 </ul>
 

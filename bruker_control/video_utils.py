@@ -42,19 +42,17 @@ def init_camera_preview():
 
     Initializes harvester camera, sets camera properties appropriate for
     preview, gathers the camera's width and height in pixels, and starts
-    video acquisition.
-
-    Args:
-        None
+    video acquisition. The function takes no arguments.
 
     Returns:
-        Two objects:
-            1. Harvester object
-            2. Camera object
 
-        Two variables:
-            1. Camera's height (pixels)
-            2. Camera's width (pixels)
+        Harvester object
+
+        Camera object
+
+        Camera's height (pixels)
+
+        Camera's width (pixels)
 
     """
 
@@ -115,13 +113,9 @@ def capture_preview():
     Takes values from init_camera_preview() to capture images delivered by
     camera buffer, reshapes the image to appropriate height and width, and
     finally displays the image to an opencv window. When user hits the 'Esc'
-    key, the window closes and the camera object is destroyed.
+    key, the window closes and the camera object is destroyed. This function
+    takes no arguments and returns nothing.
 
-    Args:
-        None
-
-    Returns:
-        None
     """
 
     h, camera, width, height = init_camera_preview()
@@ -167,6 +161,7 @@ def init_camera_recording(behavior_flag):
     starts video acquisition.
 
     Args:
+
         behavior_flag:
             Flag obtained from bruker_control.py argparser.  If True,
             a continous recording is obtained without relying on TTL triggers
@@ -174,13 +169,14 @@ def init_camera_recording(behavior_flag):
             triggers from the microscope.
 
     Returns:
-        Two objects:
-            1. Harvester object
-            2. Camera object
 
-        Two variables:
-            1. Camera's height (pixels)
-            2. Camera's width (pixels)
+        Harvester object
+
+        Camera object
+
+        Camera's height (pixels)
+
+        Camera's width (pixels)
 
     """
 
@@ -261,6 +257,7 @@ def capture_recording(number_frames, video_list, behavior_flag=False):
     to disk.
 
     Args:
+
         number_frames:
             Number of frames specified to collect for the video recording
         video_list:
@@ -272,6 +269,7 @@ def capture_recording(number_frames, video_list, behavior_flag=False):
             triggers from the microscope.
 
     Returns:
+
         A list of dropped frames from the recording to be appended to the
         config file.
     """
@@ -361,7 +359,7 @@ def shutdown_camera(camera, harvester):
     Deactivates and resets both harvester and camera after acquisition.
 
     Turns off camera, resets its configuration values, and resets the harvester
-    object once acquisition is done.
+    object once acquisition is done. The function does not return anything
 
     Args:
         camera:
@@ -369,8 +367,6 @@ def shutdown_camera(camera, harvester):
         harvester:
             Haverster object
 
-    Returns:
-        None
     """
     # Stop the camera's acquisition
     print("Stopping Acquisition")

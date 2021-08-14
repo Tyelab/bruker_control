@@ -10,8 +10,40 @@ Welcome to Bruker Control's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-.. automodule:: video_utils
-    :members:
+video_utils.py
+==============
+
+Module contains functions for configuring GenICam compliant cameras as well as
+grabbing, displaying, and writing video frames the cameras acquire. It has
+been written with flexibility of number of cameras in mind, but has only been
+tested using one camera so far.
+
+.. currentmodule:: video_utils
+
+init_camera_preview
+-------------------
+
+.. autofunction:: init_camera_preview
+
+capture_preview
+---------------
+
+.. autofunction:: capture_preview
+
+init_camera_recording
+---------------------
+
+.. autofunction:: init_camera_recording
+
+capture_recording
+-----------------
+
+.. autofunction:: capture_recording
+
+shutdown_camera
+---------------
+
+.. autofunction:: shutdown_camera
 
 
 Indices and tables
