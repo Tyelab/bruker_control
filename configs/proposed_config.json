@@ -15,7 +15,7 @@
  "maxTone": {"value": None},
  "catchTrials": {"value": False},
  "percentCatch": {"value": None},
- "percentPunish": {"value": 50},
+ "percentPunish": {"value": 50}
  },
  "trialArray": {},
  "ITIArray": {},
