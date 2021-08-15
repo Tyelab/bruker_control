@@ -10,14 +10,7 @@ import numpy as np
 # Import numpy, default_rng for random trial generation
 from numpy.random import default_rng
 
-# Import json for writing trial data to config file
-import json
-
-# Dictionary for the percent of trials that should be flipped to zero
-# TODO: Should be moved to be part of the configuration file for a project
-percent_zeros_dict = {"food_dep": 0.50,
-                      "specialk": 0.25}
-
+from operator import itemgetter
 
 ###############################################################################
 # Functions
@@ -29,114 +22,161 @@ percent_zeros_dict = {"food_dep": 0.50,
 # -----------------------------------------------------------------------------
 
 
-def gen_trialArray(trials, config_fullpath, project_name, sucrose_only_flag):
+def gen_trialArray(config_template):
     """
     Creates pseudorandom trial structure for binary discrimination task.
 
-    Generates array of trials using ones and zeros to denote trials. 1 is
-    reward while 0 is aversive. Generates trials appropriate for each project
-    using values contained in percent_zeros_dict.
+    Generates array of stimuli and catch trials from configuration file the
+    user provides.  1s and 0s encode stimuli where 1 is reward and 0 is
+    punishment. 2s and 3s encode catch trials where 2 is aversive catch and
+    3 is reward catch.
 
     Args:
 
-        behavior_flag:
-            Flag obtained from bruker_control.py argparser.  If True,
-            a continous recording is obtained without relying on TTL triggers
-            fromt the microscope. If False, the recording will use TTL
-            triggers from the microscope.
+        Configuration template value dictionary gathered from team's
+        configuration .json file.
 
     Returns:
 
-        Harvester object
-
-        Camera object
-
-        Camera's height (pixels)
-
-        Camera's width (pixels)
+        ndarray: Trial array with user specified trial structure.
     """
 
-    # First, check if sucrose_only_flag is True
-    if sucrose_only_flag is True:
+    # Create trial array that's all reward trials, to be flipped randomly
+    fresh_array = np.ones(config_template["metadata"]["totalNumberOfTrials"],
+                         dtype=int)
 
-        # Tell the user that it was supplied
-        print("Generating ONLY sucrose trials...")
+    # Calculate the number of punishment trials to deliver
+    num_punish = round(config_template["metadata"]["percentPunish"]
+                       * len(fresh_array))
 
-        # Create trial array of only sucrose trials
-        trialArray = [1]*trials
+    # Generate potential flip positions for punish trials
+    potential_flips = np.arange(config_template["metadata"]["startingReward"],
+                                len(fresh_array))
 
-        # Checking trial array is unnecessary, write to config file.
-        # Open config file to write array to file
-        with open(config_fullpath, 'r') as inFile:
+    punish_check = True
+    catch_check = True
 
-            # Dump config file into function
-            data = json.load(inFile)
+    while punish_check + catch_check != 0:
 
-        # Assign json variable to trialArray data
-        data["trialArray"] = trialArray
+        tmp_array = fresh_array.copy()
 
-        # Write trialArray to file
-        with open(config_fullpath, 'w') as outFile:
+        trialArray, punish_check = flip_punishments(tmp_array, potential_flips,
+                                                    num_punish)
 
-            # Add trialArray into config file
-            json.dump(data, outFile)
+        trialArray, catch_check = flip_catch(trialArray,
+                                             config_template)
 
-    # If the sucrose_only flag is not supplied with a value or is false
-    else:
-
-        # Collect correct proportion of zeros with percent_zeros_dict
-        percent_zeros = percent_zeros_dict[project_name]
-
-        # Collect number of trials to convert to 0
-        num_zeros = round(trials*percent_zeros)
-
-        # Initialize random number generator with default_rng()
-        rng = default_rng()
-
-        # Create list of potential flip positions from 3 to the last trial
-        # number
-        potential_flips = np.arange(3, trials)
-
-        # Make check trials flag to continuously check if trial list is
-        # acceptable
-        check_trials = True
-
-        while check_trials is True:
-
-            # Create a trial array that's all sucrose trials, to be flipped
-            # randomly
-            trialArray = [1]*trials
-
-            # Randomly sample positions for flipping using rng.choice from
-            # potential flips generated earlier
-            flip_positions = rng.choice(potential_flips, size=num_zeros,
-                                        replace=False)
-
-            # For each position in the randomly selected flip positions, flip
-            # the value from one to zero
-            for position in flip_positions:
-                trialArray[position] = 0
-
-            # Check if the trials are acceptable
-            check_trials = check_trial_structure(trialArray, project_name)
-
-        # Open config file to write array to file
-        with open(config_fullpath, 'r') as inFile:
-
-            # Dump config file into function
-            data = json.load(inFile)
-
-        # Assign json variable to trialArray data
-        data["trialArray"] = trialArray
-
-        # Write trialArray to file
-        with open(config_fullpath, 'w') as outFile:
-
-            # Add trialArray into config file
-            json.dump(data, outFile)
-
-    # Return trialArray
     return trialArray
+
+
+def flip_catch(trialArray, config_template):
+
+    # Initialize new random number generator with default_rng()
+    rng = default_rng()
+
+    # Get number of reward catch trials to deliver
+    num_catch_reward = config_template["metadata"]["numCatchReward"]
+
+    # Get number of punishment catch trials
+    num_catch_punish = config_template["metadata"]["numCatchPunish"]
+
+    # Get position for where catch trials are to start for session
+    catch_offset = config_template["metadata"]["catchOffset"]
+
+    # Get position to start flipping catch trials
+    catch_index_start = round(len(trialArray) -
+                              (len(trialArray) * catch_offset))
+
+    # Get indexes for the possible catch trials
+    catch_idxs = [idx for idx in range(catch_index_start, len(trialArray))]
+
+    # Get values of possible catch trials
+    catch_values = list(itemgetter(*catch_idxs)(trialArray))
+
+    # Make dictionary of values for punish trials
+    catch_dict = {catch_idxs[i]: catch_values[i] for i in range(len(catch_idxs))}
+
+    # Make list of punish trial indexes
+    punish_trials = [key for key in catch_dict if catch_dict[key] == 0]
+
+    # Make list of reward trial indexes
+    reward_trials = [key for key in catch_dict if catch_dict[key] == 1]
+
+    if len(punish_trials) < num_catch_punish:
+        print("Not enough punish trials to flip into catch trials! Reshuffling...")
+        return trialArray, catch_check
+
+    elif len(reward_trials) < num_catch_reward:
+        print("Not enough reward trials to flip into catch trials! Reshuffling...")
+        return trialArray, catch_check
+
+    else:
+        catch_check = False
+
+    punish_catch_list = punish_catch_sample(punish_trials, num_catch_punish)
+
+    for index in punish_catch_list:
+        trialArray[index] = 2
+
+    reward_catch_list = reward_catch_sample(reward_trials, num_catch_reward)
+
+    for index in reward_catch_list:
+        trialArray[index] = 3
+
+    return trialArray, catch_check
+
+
+def reward_catch_sample(reward_trials, num_catch_reward):
+
+    rng = default_rng()
+
+    reward_catch_list = rng.choice(reward_trials, size=num_catch_reward).tolist()
+
+    return reward_catch_list
+
+
+def punish_catch_sample(punish_trials, num_catch_punish):
+
+    rng = default_rng()
+
+    punish_catch_list = rng.choice(punish_trials, size=num_catch_punish).tolist()
+
+    return punish_catch_list
+
+
+def check_trial_punishments(trialArray):
+
+    zeros = 0
+
+    punish_check = False
+
+    for trial in trialArray:
+        if trial == 1:
+            zeros = 0
+        elif zeros == 3:
+            punish_check = True
+            break
+        else:
+            zeros += 1
+
+    return punish_check
+
+def flip_punishments(tmp_array, potential_flips, num_punish):
+
+    # Initialize new random number generator with default_rng()
+    rng = default_rng()
+
+    punish_flips = rng.choice(potential_flips, size=num_punish,
+                              replace=False)
+
+    for index in punish_flips:
+        tmp_array[index] = 0
+
+    # Select flip positions for punish trials by random sample
+    punish_status = check_trial_punishments(tmp_array)
+
+    return tmp_array, punish_status
+
 
 # -----------------------------------------------------------------------------
 # ITI Array Generation
@@ -280,22 +320,6 @@ def check_trial_structure(trialArray, project_name):
 # -----------------------------------------------------------------------------
 
 
-def check_trial_zeros(trialArray):
-
-    zeros = 0
-
-    for trial in trialArray:
-        if trial == 1:
-            zeros = 0
-        elif zeros == 3:
-            check_zeros = True
-            return check_zeros
-        else:
-            zeros += 1
-
-    check_zeros = False
-
-    return check_zeros
 
 
 # -----------------------------------------------------------------------------

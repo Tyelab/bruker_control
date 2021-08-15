@@ -19,7 +19,6 @@ __version__ = "0.74"
 # Import experiment utils to run different experiments
 import experiment_utils
 
-
 # -----------------------------------------------------------------------------
 # Python Libraries
 # -----------------------------------------------------------------------------
@@ -33,6 +32,11 @@ from pathlib import Path
 # Import sys for exiting program safely
 # import sys
 
+# Static Directory for teams directory in Raw Data, drive E:
+teams_path = Path("E:/teams")
+
+# Generate valid team choices for argparser
+team_choices = [team.name for team in teams_path.glob("*")]
 
 ###############################################################################
 # Main Function
@@ -41,12 +45,6 @@ from pathlib import Path
 
 if __name__ == "__main__":
 
-    # Dynamically generate available projects by globbing raw data study
-    # directory.
-    team_choices = [team for team in Path("E:/").glob("*") if team.is_dir()]
-
-    project_choices = [project for project in team_choices.glob("*") if
-                       project.is_dir()]
 
     # Create argument parser for metadata configuration
     metadata_parser = argparse.ArgumentParser(description='Set Metadata',
@@ -78,13 +76,13 @@ if __name__ == "__main__":
     #                              help='Use template config file (bool flag)',
     #                              required=False)
 
-    # Add project name argument
-    metadata_parser.add_argument('-p', '--project',
+    # Add team name argument
+    metadata_parser.add_argument('-t', '--team',
                                  type=str,
                                  action='store',
-                                 dest='project',
-                                 help='Project Name (required)',
-                                 choices=project_choices,
+                                 dest='team',
+                                 help='Team Name (required)',
+                                 choices=team_choices,
                                  required=True)
 
     # Add number of imaging planes argument
@@ -92,7 +90,7 @@ if __name__ == "__main__":
                                  type=int,
                                  action='store',
                                  dest='imaging_planes',
-                                 help='Number of Imaging Planes',
+                                 help='Number of Imaging Planes (required)',
                                  default=None,
                                  required=True)
 
