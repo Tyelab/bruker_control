@@ -17,6 +17,9 @@ import numpy as np
 # Import sys for exiting program safely
 import sys
 
+# Import Tuple for appropriate typehinting of functions
+from typing import Tuple
+
 ###############################################################################
 # Functions
 ###############################################################################

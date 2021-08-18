@@ -28,12 +28,16 @@ import argparse
 # Import pathlib for creating valid choices list for project
 from pathlib import Path
 
+# Import datetime for generating config file names correctly
+from datetime import datetime
+from dateutil.tz import tzlocal
+
 #  TODO Use ctrl+c to kill entire program from __main__ if needed
 # Import sys for exiting program safely
 # import sys
 
 # Static Directory for teams directory in Raw Data, drive E:
-teams_path = Path("E:/teams")
+teams_path = Path("Y:/bruker_refactor_testing")
 
 # Generate valid team choices for argparser
 team_choices = [team.name for team in teams_path.glob("*")]
@@ -45,36 +49,10 @@ team_choices = [team.name for team in teams_path.glob("*")]
 
 if __name__ == "__main__":
 
-
     # Create argument parser for metadata configuration
     metadata_parser = argparse.ArgumentParser(description='Set Metadata',
                                               epilog="Good luck on your work!",
                                               prog='Bruker Experiment Control')
-
-    # Add configuration file argument [DEPRECATED]
-    # Will use provided project choice for finding appropriate config file
-    # metadata_parser.add_argument('-c', '--config_file',
-    #                              type=str,
-    #                              action='store',
-    #                              dest='config',
-    #                              help='Config Filename (yyyymmdd_animalid)',
-    #                              default=None,
-    #                              required=False)
-
-    # Add modify configuration file argument [DEPRECATED]
-    # metadata_parser.add_argument('-m', '--modify',
-    #                              action='store_true',
-    #                              dest='modify',
-    #                              help='Modify given config file (bool flag)',
-    #                              required=False)
-
-    # Add template configuration file argument [DEPRECATED]
-    # Using template for a given experiment is done by default
-    # metadata_parser.add_argument('-t', '--template',
-    #                              action='store_true',
-    #                              dest='template',
-    #                              help='Use template config file (bool flag)',
-    #                              required=False)
 
     # Add team name argument
     metadata_parser.add_argument('-t', '--team',
@@ -95,11 +73,11 @@ if __name__ == "__main__":
                                  required=True)
 
     # Add mouse id argument
-    metadata_parser.add_argument('-m', '--mouse_id',
+    metadata_parser.add_argument('-s', '--subject_id',
                                  type=str,
                                  action='store',
-                                 dest='mouse',
-                                 help='Mouse ID (required)',
+                                 dest='subject_id',
+                                 help='Subject ID (required)',
                                  required=True)
 
     # Add demo flag
@@ -108,22 +86,6 @@ if __name__ == "__main__":
                                  dest='demo',
                                  help='Use Demonstration Values (bool flag)',
                                  required=False)
-
-    # Add behavior_only flag [DEPRECATED]
-    # People should NOT be using the behavior only flag
-    # metadata_parser.add_argument('-b', '--behavior',
-    #                              action='store_true',
-    #                              dest='behavior',
-    #                              help='Perform behavior ONLY (bool flag)',
-    #                              required=False)
-
-    # Add sucrose_only flag [DEPRECATED]
-    # Handled now with more descriptive configuration file
-    # metadata_parser.add_argument('-s', '--sucrose',
-    #                              action='store_true',
-    #                              dest='sucrose',
-    #                              help='Give ONLY sucrose trials (bool flag)',
-    #                              required=False)
 
     # Add program version argument
     metadata_parser.add_argument('--version',
@@ -134,7 +96,7 @@ if __name__ == "__main__":
     metadata_args = vars(metadata_parser.parse_args())
 
     # Run an imaging experiment using the provided arguments by the user
-    experiment_utils.imaging_experiment_onepacket(metadata_args)
+    experiment_utils.run_imaging_experiment(metadata_args)
 
                 # # If there's multiple packets required, use multipacket generation and
                 # # transfer.  Multiple packets are required for sizes greater than 60.

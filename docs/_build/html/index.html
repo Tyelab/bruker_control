@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" />
 
     <meta name="generator" content="sphinx-4.0.2, furo 2021.08.11.beta42"/>
-        <title>Bruker Control 0.74.0 documentation</title>
+        <title>Bruker Control 0.5.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=197f00461d56902ea7ca048ec6e6ba026f62c97b" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=93475b62d1c3bc01323a0eefdc14a62d77b12690" />
@@ -121,7 +121,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="#"><div class="brand">Bruker Control 0.74.0 documentation</div></a>
+      <a href="#"><div class="brand">Bruker Control 0.5.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -144,7 +144,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="#">
   
   
-  <span class="sidebar-brand-text">Bruker Control 0.74.0 documentation</span>
+  <span class="sidebar-brand-text">Bruker Control 0.5.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -198,8 +198,11 @@ preview setting.</p>
 preview, gathers the camera’s width and height in pixels, and starts
 video acquisition. The function takes no arguments.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><p>Harvester object</p>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Harvester</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Harvester</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>Harvester object</p>
 <p>Camera object</p>
 <p>Camera’s height (pixels)</p>
 <p>Camera’s width (pixels)</p>
@@ -225,18 +228,15 @@ takes no arguments and returns nothing.</p>
 <h2>init_camera_recording<a class="headerlink" href="#init-camera-recording" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="video_utils.init_camera_recording">
-<span class="sig-prename descclassname"><span class="pre">video_utils.</span></span><span class="sig-name descname"><span class="pre">init_camera_recording</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">behavior_flag</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#video_utils.init_camera_recording" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">video_utils.</span></span><span class="sig-name descname"><span class="pre">init_camera_recording</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#video_utils.init_camera_recording" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates, configures, describes, and starts harvesters camera object in
 recording setting.</p>
 <p>Initializes harvester camera, sets camera properties appropriate for
 behavior recording, gathers the camera’s width and height in pixels, and
-starts video acquisition.</p>
+starts video acquisition. There are no arguments.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>behavior_flag</strong> – Flag obtained from bruker_control.py argparser.  If True,
-a continous recording is obtained without relying on TTL triggers
-fromt the microscope. If False, the recording will use TTL
-triggers from the microscope.</p>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Harvester</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Harvester</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><p>Harvester object</p>
@@ -252,7 +252,7 @@ triggers from the microscope.</p>
 <h2>capture_recording<a class="headerlink" href="#capture-recording" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="video_utils.capture_recording">
-<span class="sig-prename descclassname"><span class="pre">video_utils.</span></span><span class="sig-name descname"><span class="pre">capture_recording</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">number_frames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">video_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">behavior_flag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#video_utils.capture_recording" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">video_utils.</span></span><span class="sig-name descname"><span class="pre">capture_recording</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">number_frames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">video_list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#video_utils.capture_recording" title="Permalink to this definition">¶</a></dt>
 <dd><p>Capture frames generated by camera object, display them in recording mode,
 and write frames to .avi file.</p>
 <p>Takes values from init_camera_recording() to capture images delivered by
@@ -264,16 +264,15 @@ to disk.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>number_frames</strong> – Number of frames specified to collect for the video recording</p></li>
-<li><p><strong>video_list</strong> – List of video parameters including filename, path values,</p></li>
-<li><p><strong>behavior_flag</strong> – Flag obtained from bruker_control.py argparser.  If True,
-a continous recording is obtained without relying on TTL triggers
-fromt the microscope. If False, the recording will use TTL
-triggers from the microscope.</p></li>
+<li><p><strong>number_frames</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Number of frames specified to collect for the video recording</p></li>
+<li><p><strong>video_list</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – List of video parameters including filename, path values,</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A list of dropped frames from the recording to be appended to the
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A list of dropped frames from the recording to be appended to the
 config file.</p>
 </dd>
 </dl>
@@ -297,6 +296,318 @@ object once acquisition is done. The function does not return anything</p>
 </dl>
 </dd></dl>
 </section>
+</section>
+<section id="trial-utils-py">
+<h1>trial_utils.py<a class="headerlink" href="#trial-utils-py" title="Permalink to this headline">¶</a></h1>
+<p>Module contains functions for interpreting configuration file parameters and
+using them for generating pseudorandom trial arrays following user defined
+rules with the capability of producing catch trials in given subsets of the
+trial order, for generating ITIs from a uniform random distribution between
+bounds defined by the user, and tone durations that vary between user
+defined bounds.</p>
+<span class="target" id="module-trial_utils"></span><dl class="py function">
+<dt class="sig sig-object py" id="trial_utils.check_session_punishments">
+<span class="sig-prename descclassname"><span class="pre">trial_utils.</span></span><span class="sig-name descname"><span class="pre">check_session_punishments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trialArray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_seq_punish</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trial_utils.check_session_punishments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if too many punish trials happen sequentially</p>
+<p>Takes in trialArray after punish trial flips and determines if more than
+user defined max number of punish trials occur in a row. If so, the
+punish_check is returned True.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>trialArray</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Trial array post punish trial flips</p></li>
+<li><p><strong>max_seq_punish</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Maximum number of sequential punishment trials from config_template</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>punish_check</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="trial_utils.check_session_rewards">
+<span class="sig-prename descclassname"><span class="pre">trial_utils.</span></span><span class="sig-name descname"><span class="pre">check_session_rewards</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trialArray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_seq_reward</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trial_utils.check_session_rewards" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if too many reward trials happen sequentially.</p>
+<p>Takes in trialArray after punish trial flips and determines if more than
+user defined max number of reward trials occur in a row. If so, the
+reward_check is returned True.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>trialArray</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Trial array post punish trial flips</p></li>
+<li><p><strong>max_seq_reward</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Maximum number of sequential reward trials from config_template</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>punish_check_status</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="trial_utils.flip_catch">
+<span class="sig-prename descclassname"><span class="pre">trial_utils.</span></span><span class="sig-name descname"><span class="pre">flip_catch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trialArray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_template</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">catch_check</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trial_utils.flip_catch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flips trials to catches in checked trialArray.</p>
+<p>Flips subset of trials depending on user specified offset and selected
+number of reward/punish catch trials.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>trialArray</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Checked trialArray returned by flip_punishments()</p></li>
+<li><p><strong>config_template</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Configuration template value dictionary gathered from team’s
+configuration .json file.</p></li>
+<li><p><strong>catch_check</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Boolean status for catch trials being flipped or not.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>]</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>trialArray</dt><dd><p>trialArray with catch trials added</p>
+</dd>
+<dt>catch_check</dt><dd><p>Boolean status for catch trials being flipped or not.</p>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="trial_utils.flip_punishments">
+<span class="sig-prename descclassname"><span class="pre">trial_utils.</span></span><span class="sig-name descname"><span class="pre">flip_punishments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potential_flips</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_punish</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_seq_punish</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trial_utils.flip_punishments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flips user specified number of trials to punishments over trialArray copy.</p>
+<p>Takes in a copy of the fresh trialArray called tmp_array, takes a random
+sample of potential flip positions for punishment trials, and flips their
+value from 1, reward, to 0, punishment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tmp_array</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Copy of fresh trialArray consisting of all reward trials</p></li>
+<li><p><strong>potential_flips</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Array of potential indexes to flip to punishments</p></li>
+<li><p><strong>num_punish</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Integer of number of punishment trials to flip for session</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>]</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>tmp_array</dt><dd><p>Modified array containing flipped values, to be saved as trialArray</p>
+</dd>
+<dt>punish_check</dt><dd><p>Boolean status of whether the array meets experimenter defined
+criteria. False if successful, True if failed.</p>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="trial_utils.gen_ITIArray">
+<span class="sig-prename descclassname"><span class="pre">trial_utils.</span></span><span class="sig-name descname"><span class="pre">gen_ITIArray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trial_utils.gen_ITIArray" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate ITIArray for experimental runtime from configuration.</p>
+<p>Generates ITIArray from users configuration file.  Generates either static
+or jittered ITIs depending on user’s selection.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config_template</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Configuration template value dictionary gathered from team’s
+configuration .json file.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>ITIArray</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="trial_utils.gen_jitter_ITIArray">
+<span class="sig-prename descclassname"><span class="pre">trial_utils.</span></span><span class="sig-name descname"><span class="pre">gen_jitter_ITIArray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trial_utils.gen_jitter_ITIArray" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate jittered ITIArray for given experiment from user specified bounds.</p>
+<p>Generates array of ITIs from configuration the user provides.  Uses a
+random uniform distribution bounded by the lower and upper ITIs as defined
+in the configuration file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config_template</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Configuration template value dictionary gathered from team’s
+configuration .json file.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Jittered ITIArray.</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="trial_utils.gen_jitter_toneArray">
+<span class="sig-prename descclassname"><span class="pre">trial_utils.</span></span><span class="sig-name descname"><span class="pre">gen_jitter_toneArray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trial_utils.gen_jitter_toneArray" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate jittered ITIArray for given experiment from user specified bounds.</p>
+<p>Generates array of ITIs from configuration the user provides.  Uses a
+random uniform distribution bounded by the lower and upper ITIs as defined
+in the configuration file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config_template</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Configuration template value dictionary gathered from team’s
+configuration .json file.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Jittered toneArray.</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="trial_utils.gen_static_ITIArray">
+<span class="sig-prename descclassname"><span class="pre">trial_utils.</span></span><span class="sig-name descname"><span class="pre">gen_static_ITIArray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trial_utils.gen_static_ITIArray" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate static, or without jitter, ITIArray.</p>
+<p>Generates array of ITIs using baseITI from configuration file for the
+number of trials specified by the user.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config_template</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Configuration template value dictionary gathered from team’s
+configuration .json file.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Static ITIArray</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="trial_utils.gen_static_toneArray">
+<span class="sig-prename descclassname"><span class="pre">trial_utils.</span></span><span class="sig-name descname"><span class="pre">gen_static_toneArray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trial_utils.gen_static_toneArray" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate static, or without jitter, toneArray.</p>
+<p>Generates array of tones durations using baseTone from configuration file
+for the number of trials specified by the user.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config_template</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Configuration template value dictionary gathered from team’s
+configuration .json file.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Static toneArray</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="trial_utils.gen_toneArray">
+<span class="sig-prename descclassname"><span class="pre">trial_utils.</span></span><span class="sig-name descname"><span class="pre">gen_toneArray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trial_utils.gen_toneArray" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate toneArray for experimental runtime from configuration.</p>
+<p>Generates toneArray from user’s configuration file.  Generates either
+static or jittered ITIs depending on user’s selection.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config_template</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Configuration template value dictionary gathered from team’s
+configuration .json file.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>toneArray</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="trial_utils.gen_trialArray">
+<span class="sig-prename descclassname"><span class="pre">trial_utils.</span></span><span class="sig-name descname"><span class="pre">gen_trialArray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trial_utils.gen_trialArray" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates pseudorandom trial structure for binary discrimination task.</p>
+<p>Generates array of stimuli and catch trials from configuration file the
+user provides.  1s and 0s encode stimuli where 1 is reward and 0 is
+punishment. 2s and 3s encode catch trials where 2 is aversive catch and
+3 is reward catch.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config_template</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Configuration template value dictionary gathered from team’s
+configuration .json file.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Trial array with user specified trial structure.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>trialArray</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="trial_utils.generate_arrays">
+<span class="sig-prename descclassname"><span class="pre">trial_utils.</span></span><span class="sig-name descname"><span class="pre">generate_arrays</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trial_utils.generate_arrays" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates all necessary arrays for Bruker experimental runtime.</p>
+<p>Creates arrays as specified by user’s configuration file.  Builds the
+trialArray, ITIArray, and noiseArray according to user defined rules.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config_template</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Configuration template value dictionary gathered from team’s
+configuration .json file</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of experimental arrays to be sent via pySerialTransfer</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>experimental_array_list</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="trial_utils.punish_catch_sample">
+<span class="sig-prename descclassname"><span class="pre">trial_utils.</span></span><span class="sig-name descname"><span class="pre">punish_catch_sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">punish_trials</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_catch_punish</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trial_utils.punish_catch_sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate random sample of punish trial indexes to flip.</p>
+<p>Randomly select trials out of possible punish positions to flip to catch
+trials depending on the number of catch trials specified by the user.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>punish_trials</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – List of reward trial indexes past specified offset contained in the
+trialArray.</p></li>
+<li><p><strong>num_catch_punish</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Number of punish catch trials to implement as specified by the user</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Sampled punish catch trial index list.</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="trial_utils.reward_catch_sample">
+<span class="sig-prename descclassname"><span class="pre">trial_utils.</span></span><span class="sig-name descname"><span class="pre">reward_catch_sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reward_trials</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_catch_reward</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trial_utils.reward_catch_sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate random sample of reward trial indexes to flip.</p>
+<p>Randomly select trials out of possible reweard positions to flip to catch
+trials depending on the number of catch trials specified by the user.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reward_trials</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – List of reward trial indexes past specified offset contained in the
+trialArray.</p></li>
+<li><p><strong>num_catch_reward</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Number of reward catch trials to implement as specified by the user</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Sampled reward catch trial index list.</p>
+</dd>
+</dl>
+</dd></dl>
 </section>
 <section id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
@@ -352,6 +663,7 @@ object once acquisition is done. The function does not return anything</p>
 <li><a class="reference internal" href="#shutdown-camera">shutdown_camera</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#trial-utils-py">trial_utils.py</a></li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
 </ul>
 

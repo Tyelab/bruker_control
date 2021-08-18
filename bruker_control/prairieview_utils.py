@@ -9,19 +9,20 @@
 # Import Prairie View Application
 # NOTE Prairie View Interface Installation:  Do NOT use pip install, use conda.
 # conda install pywin32
-import win32com.client
-
-# Import pathlib for file manipulation and directory creation
-from pathlib import Path
+# import win32com.client
 
 # Import datetime for folder naming
 from datetime import datetime
 
 # Save the Praire View application as pl
-pl = win32com.client.Dispatch("PrairieLink.Application")
+# pl = win32com.client.Dispatch("PrairieLink.Application")
 
 # Get current working directory for above paths to work
-current_dir = Path.cwd()
+# current_dir = Path.cwd()
+
+# Define microscopy basebath for where raw files are written to.  This is onto
+# the E: drive on machine BRUKER.  Set it as a string to be joined later.
+basepath = "E:/"
 
 ###############################################################################
 # Functions
@@ -32,11 +33,8 @@ current_dir = Path.cwd()
 # -----------------------------------------------------------------------------
 
 
-def prairie_connect():
+def pv_connect():
 
-    # Tell user program is connecting to Prairie View, connect, and finally
-    # tell user that the program is connected.
-    print("Connecting to Prairie View")
     pl.Connect()
     print("Connected to Prairie View")
 
@@ -46,11 +44,8 @@ def prairie_connect():
 # -----------------------------------------------------------------------------
 
 
-def prairie_disconnect():
+def pv_disconnect():
 
-    # Tell user program is disconnecting from Prairie View, disconnect, and
-    # finally tell user that the program has disconnected.
-    print("Disconnecting from Prairie View")
     pl.Disconnect()
     print("Disconnected from Prairie View")
 
@@ -60,22 +55,21 @@ def prairie_disconnect():
 # -----------------------------------------------------------------------------
 
 
-def prairie_abort():
+def abort_recording():
 
     # Tell user recording is being stopped using abort command
     print("Aborting Recording...")
 
     # Connect to Prairie View
-    prairie_connect()
+    pv_connect()
 
     # Tell user abort command is being sent, send the command, and finally
     # tell user that the command has been executed.
-    print("Sending Abort Command")
     pl.SendScriptCommands("-Abort")
     print("Abort Command Sent")
 
     # Disconnect from Prairie View
-    prairie_disconnect()
+    pv_disconnect()
 
 
 # -----------------------------------------------------------------------------
@@ -83,70 +77,48 @@ def prairie_abort():
 # -----------------------------------------------------------------------------
 
 
-def prairie_dir_and_filename(project_name, config_filename, behavior_flag):
+def set_filename(team: str, subject_id: str):
 
-    # Tell user that the program is setting up a directory for session
-    print("Setting Directory")
+    # TODO: Get current imaging location from prairie view
+    # imaging_plane = pl.SendScriptCommands("-?GETIMAGINGPLANENUMBER")
+    imaging_plane = 289
 
-    # TODO: All the path names/folder creation should happen outside the fx
     # Gather session date using datetime
     session_date = datetime.today().strftime("%Y%m%d")
 
-    # Set microscopy session basepath
-    microscopy_basepath = "E:/studies/" + project_name + "/microscopy/" + session_date + "/raw/"
+    # Set microscopy session's path
+    imaging_dir = basepath + team + "/microscopy/"
 
-    # Set microscopy filename
-    microscopy_filename = config_filename
+    # TODO: Need to see if this with behavior dir change is stable...
+    # Set Prairie View path for saving files
+    # pl.SendScriptCommands("-SetSavePath {}".format(imaging_dir))
 
-    # Set microscopy full path for telling user where session is saved
-    microscopy_fullpath = microscopy_basepath + microscopy_filename
+    # Set session name by joining variables with underscores
+    session_name = "_".join([session_date, subject_id,
+                             "plane{}".format(imaging_plane),
+                             "raw"])
+
+    # Set imaging filename by adding 2p to session_name
+    imaging_filename = "_".join([session_name, "2p"])
+
+    # pl.SendScriptCommands("-SetFileName Tseries {}".format(imaging_filename))
+
+    print(imaging_dir + imaging_filename)
 
     # Not usable until PV 5.6 release
     # Set behavior session basepath
-    # behavior_basepath = "E:/studies/" + project_name + "/behavior/" + session_date + "/"
+    behavior_dir = basepath + team + "/behavior/"
+
+    # pl.SendScriptCommands("-SetState directory {} VoltageRecording".format(behavior_dir))
 
     # Set behavior filename
-    behavior_filename = config_filename
+    behavior_filename = "_".join([session_name, "behavior"])
 
-    # Not usable until PV 5.6 release
-    # Set behavior full path for telling user where session is saved
-    # behavior_fullpath = behavior_basepath + behavior_filename
+    # pl.SendScriptCommands("-SetFileName VoltageRecording {}".format(behavior_filename))
 
-    if behavior_flag is True:
+    print(behavior_dir + behavior_filename)
 
-        # Connect to Prairie View
-        prairie_connect()
-
-        # Set Voltage Recording (Behavior) Name
-        pl.SendScriptCommands("-SetState directory {} VoltageRecording".format(behavior_filename))
-        print("Set Prairie View Voltage Recording Filename: ", behavior_filename)
-
-        # Disconnect from Prairie View
-        prairie_disconnect()
-
-    else:
-
-        # Connect to Praire View
-        prairie_connect()
-
-        # Set Prairie View path for saving files
-        pl.SendScriptCommands("-SetSavePath {}".format(microscopy_basepath))
-        print("Set 2P Image Path: " + microscopy_fullpath)
-
-        # Set Prairie View filename
-        pl.SendScriptCommands("-SetFileName Tseries {}".format(microscopy_filename))
-
-        # BUG: While I can name the voltage recording something new, I can't
-        # assign where it goes. This is likely something that will require us
-        # waiting for Prairie View 5.6 release in about 1 month (Early July)
-        # Set Voltage Recording (Behavior) Name
-        # pl.SendScriptCommands("-SetState directory {} VoltageRecording".format(behavior_filename))
-        # print("Set VoltageRecording Path: " + behavior_fullpath)
-
-        # pl.SendScriptCommands("-SetFileName VoltageRecording {}".format(behavior_filename))
-
-        # Disconnect from Prairie View
-        prairie_disconnect()
+    return imaging_plane
 
 
 # -----------------------------------------------------------------------------
@@ -154,16 +126,31 @@ def prairie_dir_and_filename(project_name, config_filename, behavior_flag):
 # -----------------------------------------------------------------------------
 
 
-def prairie_start_tseries():
+def start_tseries():
 
     # Connect to Prairie View
-    prairie_connect()
+    # pv_connect()
 
     # Tell user that the T-Series is starting and waiting for trigger
     print("Starting T-Series: Waiting for Input Trigger")
 
     # Send T-Series command
-    pl.SendScriptCommands("-TSeries")
+    # pl.SendScriptCommands("-TSeries")
 
     # Disconnect from Prairie View
-    prairie_disconnect()
+    # pv_disconnect()
+
+
+def start_microscopy_session(project: str, subject_id: str):
+    """
+    Readies the Bruker 2-Photon microscope for an experiment
+
+    Sets directories, filenames, and initializes Bruker T-Series for imaging
+    and Voltage Recording for behavior data.
+
+    Args:
+        project:
+            Name of project for recording
+        subject_id:
+            Name of the experimental subject
+    """

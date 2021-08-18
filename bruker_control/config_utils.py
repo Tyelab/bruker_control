@@ -14,23 +14,17 @@ from collections import OrderedDict
 # Import pathlib for searching for files and grabbing relevant configs
 from pathlib import Path
 
-# Import sys for exiting program safely
-import sys
-
-# Import datetime for generating config file names correctly
-from datetime import datetime
-
 # Template configuration directories are within project directories.  The snlkt
 # server housing these directories is mounted to the X: volume on the machine
 # BRUKER.
-base_template_config_dir = Path("X:/")
+base_template_config_dir = Path("Y:/")
 
 # Experimental configuration directories are in the Raw Data volume on the
-# machine BRUKER which is mounted to E:
-base_experiment_config_dir = Path("E:/")
+# machine BRUKER which is mounted to E:. This is where configs will be written
+base_experiment_config_dir = Path("Y:/specialk/bruker_refactor_testing/testerino")
 
 # Configuration files generated for a team's session are placed in their team's
-# directory on drive E:.
+# directory on drive E:
 
 ###############################################################################
 # Functions
@@ -56,12 +50,10 @@ def get_template(team):
     # Append base directory with selected team
     template_dir = base_template_config_dir / team / "2p_template_configs"
 
-    # Until consistent naming conventions for studies and animals are
-    # established, automatically populating different files for a given team's
-    # selected study is not practical.  Therefore, teams must be restricted to
-    # a single configuration file despite there being clear potential for one
-    # team to have multiple projects with their own specific configurations
-    # for an experiment.
+    # Until consistent conventions for studies are established, automatically
+    # populating different files for a given team's selected study is not
+    # practical.  Therefore, teams must be restricted to a single configuration
+    # file.
 
     # Glob the configuration directory for the .json file, convert it to a list
     # and grab the file itself
@@ -99,9 +91,59 @@ def read_config(config_file_path):
     return config_values
 
 
-def write_experiment(experiment_config):
+def write_experiment_config(experiment_arrays, dropped_frames):
     """
+
     """
+
+
+    # Open config file to write array to file
+    with open(config_fullpath, 'r') as inFile:
+
+        # Dump config file into function
+        data = json.load(inFile)
+
+    # Assign json variable to ITIArray data
+    data["ITIArray"] = ITIArray
+
+    # Write ITIArray to file
+    with open(config_fullpath, 'w') as outFile:
+
+        # Add ITIArray into config file
+        json.dump(data, outFile)
+
+
+def get_arduino_metadata(config_template: dict) -> json:
+    """
+    Grabs metadata relevent to Arduino runtime
+
+    Parses the template configuration supplied by the user and grabs only the
+    metadata that is relevant for the Arduino's function using dictionary
+    comprehension. Finally converts dictionary to json object for transfer.
+
+    Args:
+        config_template:
+            Configuration template value dictionary gathered from team's
+            configuration .json file.
+
+    Returns:
+        arduino_metadata
+    """
+
+    # Define the variables required for Arduino function
+    arduino_metadata_keys = ["totalNumberOfTrials", "punishTone", "rewardTone",
+                             "USDeliveryTime_sucrose", "USDeliveryTime_Air",
+                             "USConsumptionTime_Sucrose"]
+
+    # Generate Dictionary of relevant Arduino metadata
+    arduino_metadata = {key: value for (key, value) in
+                        config_template["metadata"].items() if
+                        key in arduino_metadata_keys}
+
+    # Convert dictionary to json ojbect for pySerialTransfer
+    arduino_metadata = json.dumps(arduino_metadata)
+
+    return arduino_metadata
 
 # def config_parser(metadata_args, plane):
 #

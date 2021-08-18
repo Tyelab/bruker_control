@@ -45,6 +45,20 @@ shutdown_camera
 
 .. autofunction:: shutdown_camera
 
+trial_utils.py
+==============
+
+Module contains functions for interpreting configuration file parameters and
+using them for generating pseudorandom trial arrays following user defined
+rules with the capability of producing catch trials in given subsets of the
+trial order, for generating ITIs from a uniform random distribution between
+bounds defined by the user, and tone durations that vary between user
+defined bounds.
+
+.. currentmodule:: trial_utils
+
+.. automodule:: trial_utils
+  :members:
 
 Indices and tables
 ==================

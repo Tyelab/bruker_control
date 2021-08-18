@@ -27,8 +27,16 @@ import sys
 ###############################################################################
 
 
-def imaging_experiment_onepacket(metadata_args):
+def run_imaging_experiment(metadata_args):
 
+    # Gather subject_id
+    subject_id = metadata_args["subject_id"]
+
+    # Gather team information
+    team = metadata_args["team"]
+
+    # Gather number of planes to image
+    requested_planes = metadata_args["imaging_planes"]
 
     # Create experiment running flag
     exp_running = True
@@ -43,43 +51,41 @@ def imaging_experiment_onepacket(metadata_args):
     while exp_running is True:
 
         # Get configuration template with config_utils.get_template
-        config_template = config_utils.get_template(metadata_args["team"])
+        config_template = config_utils.get_template(team)
 
-        config_template["trialArray"] = trial_utils.gen_trialArray(config_template).tolist()
+        # Get metadata that the Arduino requires
+        arduino_metadata = config_utils.get_arduino_metadata(config_template)
 
-        print(config_template)
-        break
-        # Use config_utils module to parse metadata_config
-        # config_list, video_list = config_utils.config_parser(metadata_args,
-        #                                                      current_plane)
-        #
-        # prairieview_utils.prairie_dir_and_filename(video_list[0],
-        #                                            config_list[1],
-        #                                            behavior_flag)
-        #
-        # # TODO: Let user change configurations on the fly with parser
-        #
-        # # Gather total number of trials
-        # trials = config_list[0]["metadata"]["totalNumberOfTrials"]["value"]
-        #
-        # # Generate trial arrays
-        # array_list, video_frames = trial_utils.generate_arrays(trials,
-        #                                                        config_list[2],
-        #                                                        demo_flag,
-        #                                                        sucrose_only_flag,
-        #                                                        project_name)
-        #
-        # # Preview video for headfixed mouse placement
+        # Create experiment runtime arrays
+        experiment_arrays = trial_utils.generate_arrays(config_template)
+
+        # Calculate session length in seconds
+        session_len_s = trial_utils.calculate_session_length(experiment_arrays,
+                                                             config_template)
+
+        # Calculate number of frames
+        num_frames = video_utils.calculate_frames(session_len_s)
+
+        # Start preview of animal's face and then zero microscope over lens
         # video_utils.capture_preview()
-        #
-        # # Start the T-Series which waits for a trigger from Arduino
-        # prairieview_utils.prairie_start_tseries()
-        #
-        # # If only one packet is required, use single packet generation
-        # # and transfer.  Single packets are all that's needed for sizes
-        # # less than or equal to 60.
-        # if trials <= 60:
-        #
+
+        # Once the preview is escaped, start the microscopy session.
+        # imaging_plane = prairieview_utils.start_microscopy_session(team,
+        #                                                            subject_id)
+        imaging_plane = 280
+        # Now that the Bruker scope is ready and waiting, send the data to
+        # the Arduino through pySerialTransfer!
+        # serialtransfer_utils.transfer_data(arduino_metadata, experiment_arrays)
+
+        # Now that the packets have been sent, the Arduino will start soon.
+        # We now start the camera for recording the experiment!
+        dropped_frames = video_utils.capture_recording(num_frames,
+                                                       imaging_plane,
+                                                       team, subject_id)
+
+        break
+
+
         #     # Send configuration file
         #     serialtransfer_utils.transfer_metadata(config_list[0])
         #
@@ -89,9 +95,6 @@ def imaging_experiment_onepacket(metadata_args):
         #     # Send update that python is done sending data
         #     serialtransfer_utils.update_python_status()
         #
-        #     # Now that the packets have been sent, the Arduino will
-        #     # start soon.  We now start the camera for recording the
-        #     # experiment!
         #     video_utils.capture_recording(video_frames, video_list)
         #     # video_utils.capture_recording(60, video_list)
         #
@@ -105,7 +108,7 @@ def imaging_experiment_onepacket(metadata_args):
         #     # TODO: Move to next plane, create mouse configuration
         #     # that defines planes of interest and distance between them
         #
-        #     if completed_planes == metadata_args["imaging_planes"]:
+        #     if completed_planes == requested_planes:
         #
         #         # Experiment completed! Tell the user that this mouse
         #         # is done.
@@ -118,95 +121,3 @@ def imaging_experiment_onepacket(metadata_args):
         #
         #     else:
         #         completed_planes += 1
-
-
-# DEPRECATED: Behavior experiments are no longer permitted for the 2P room
-# def behavior_experiment_onepacket(metadata_args):
-#
-#     # Gather behavior_only flag
-#     behavior_flag = metadata_args["behavior"]
-#
-#     # Gather project name
-#     project_name = metadata_args["project"]
-#
-#     # Collect sucrose_only flag
-#     sucrose_only_flag = metadata_args["sucrose"]
-#
-#     # Create ready flag for whether or not user is ready to move forward with
-#     # experiment plane
-#     ready = False
-#
-#     # Create experiment running flag
-#     exp_running = True
-#
-#     while exp_running is True:
-#
-#         while ready is False:
-#
-#             ready_input = str(input("Ready to continue? y/n "))
-#
-#             current_plane = 0
-#
-#             if ready_input == "y":
-#                 # Use config_utils module to parse metadata_config
-#                 config_list, video_list = config_utils.config_parser(metadata_args,
-#                                                                      current_plane)
-#
-#                 # Grab status of template flag for demonstration ITIs
-#                 demo_flag = metadata_args['demo']
-#
-#                 # BUG: Prairie View doesn't yet allow for me to set unique
-#                 # voltage recording directory that's independent from the
-#                 # microscopy filepath. Likely needs Prairie View 5.6 release
-#                 # expected in early July.
-#                 prairieview_utils.prairie_dir_and_filename(video_list[0],
-#                                                            config_list[1],
-#                                                            behavior_flag)
-#
-#                 # TODO: Let user change configurations on the fly with parser
-#
-#                 # Gather total number of trials
-#                 trials = config_list[0]["metadata"]["totalNumberOfTrials"]["value"]
-#
-#                 # Generate trial arrays
-#                 array_list, video_frames = trial_utils.generate_arrays(trials,
-#                                                                        config_list[2],
-#                                                                        demo_flag,
-#                                                                        sucrose_only_flag,
-#                                                                        project_name)
-#
-#                 # Preview video for headfixed mouse placement
-#                 video_utils.capture_preview()
-#
-#                 # If only one packet is required, use single packet generation
-#                 # and transfer.  Single packets are all that's needed for sizes
-#                 # less than or equal to 60.
-#                 if trials <= 60:
-#
-#                     # Send configuration file
-#                     serialtransfer_utils.transfer_metadata(config_list[0])
-#
-#                     # Use single packet serial transfer for arrays
-#                     serialtransfer_utils.onepacket_transfers(array_list)
-#
-#                     # Send update that python is done sending data
-#                     serialtransfer_utils.update_python_status()
-#
-#                     # Now that the packets have been sent, the Arduino will
-#                     # start soon.  We now start the camera for recording the
-#                     # experiment!
-#                     video_utils.capture_recording(video_frames, video_list,
-#                                                   behavior_flag)
-#                     # video_utils.capture_recording(60, video_list)
-#
-#                     # Abort the voltage recording
-#                     prairieview_utils.prairie_abort()
-#
-#                     # Experiment completed! Tell the user that this mouse
-#                     # is done.
-#                     print("Experiment Completed for",
-#                           metadata_args['mouse'])
-#
-#                     # Tell the user the program is finished and exit
-#                     print("Exiting...")
-#                     sys.exit()
