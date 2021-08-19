@@ -45,6 +45,7 @@ shutdown_camera
 
 .. autofunction:: shutdown_camera
 
+
 trial_utils.py
 ==============
 
@@ -58,6 +59,18 @@ defined bounds.
 .. currentmodule:: trial_utils
 
 .. automodule:: trial_utils
+  :members:
+
+
+config_utils.py
+===============
+
+Module contains functions for reading, writing, and passing configuration
+information to different modules or files.
+
+.. currentmodule:: config_utils
+
+.. automodule:: config_utils
   :members:
 
 Indices and tables

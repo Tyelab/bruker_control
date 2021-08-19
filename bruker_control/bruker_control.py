@@ -39,7 +39,8 @@ from dateutil.tz import tzlocal
 # Static Directory for teams directory in Raw Data, drive E:
 teams_path = Path("Y:/bruker_refactor_testing")
 
-# Generate valid team choices for argparser
+# Generate valid team choices for argparser variable "team" by checking the
+# directories on the server
 team_choices = [team.name for team in teams_path.glob("*")]
 
 ###############################################################################

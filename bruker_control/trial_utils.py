@@ -43,7 +43,7 @@ def gen_trialArray(config_template: dict) -> np.ndarray:
             configuration .json file.
 
     Returns:
-        trialArray:
+        trialArray
             Trial array with user specified trial structure.
     """
 
@@ -651,8 +651,8 @@ def calculate_session_length(experiment_arrays: list,
 
 
     Returns:
-        session_len_s
-            Session length in seconds for the given experiment.
+        Session length in seconds for the given experiment.
+
     """
 
     # Get vacuum status for the experiment
@@ -803,7 +803,7 @@ def generate_arrays(config_template: dict) -> list:
             configuration .json file
 
     Returns:
-        experiment_arrays:
+        experiment_arrays
             List of experimental arrays to be sent via pySerialTransfer
     """
 

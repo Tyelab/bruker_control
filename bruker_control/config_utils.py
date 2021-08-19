@@ -31,7 +31,7 @@ base_experiment_config_dir = Path("Y:/specialk/bruker_refactor_testing/testerino
 ###############################################################################
 
 
-def get_template(team):
+def get_template(team: str) -> dict:
     """
     Grab team's template configuration file for experiment runtime.
 
@@ -40,7 +40,8 @@ def get_template(team):
     a session.
 
     Args:
-        Team from metadata_args["team"]
+        team:
+            Team from metadata_args["team"]
 
     Returns:
         dict: Dictionary of template configuration values for experimental
@@ -51,9 +52,8 @@ def get_template(team):
     template_dir = base_template_config_dir / team / "2p_template_configs"
 
     # Until consistent conventions for studies are established, automatically
-    # populating different files for a given team's selected study is not
-    # practical.  Therefore, teams must be restricted to a single configuration
-    # file.
+    # populating different files for a given team's studies is not practical.
+    # Therefore, teams must be restricted to a single configuration file.
 
     # Glob the configuration directory for the .json file, convert it to a list
     # and grab the file itself
@@ -65,7 +65,7 @@ def get_template(team):
     return config_template
 
 
-def read_config(config_file_path):
+def read_config(config_file_path: Path) -> dict:
     """
     Utility function for reading config files
 
@@ -73,10 +73,12 @@ def read_config(config_file_path):
     values for an experiment
 
     Args:
-        Pathlib path to the configuration file.
+        config_file_path:
+            Pathlib path to the configuration file.
 
     Returns:
-        dict: Dictionary of contents inside the configuration .json file
+        Dictionary of contents inside the configuration .json file
+
     """
 
     with open(config_file_path, 'r') as inFile:
@@ -91,29 +93,29 @@ def read_config(config_file_path):
     return config_values
 
 
-def write_experiment_config(experiment_arrays, dropped_frames):
-    """
+# def write_experiment_config(experiment_arrays, dropped_frames):
+#     """
+#
+#     """
+#
+#
+#     # Open config file to write array to file
+#     with open(config_fullpath, 'r') as inFile:
+#
+#         # Dump config file into function
+#         data = json.load(inFile)
+#
+#     # Assign json variable to ITIArray data
+#     data["ITIArray"] = ITIArray
+#
+#     # Write ITIArray to file
+#     with open(config_fullpath, 'w') as outFile:
+#
+#         # Add ITIArray into config file
+#         json.dump(data, outFile)
 
-    """
 
-
-    # Open config file to write array to file
-    with open(config_fullpath, 'r') as inFile:
-
-        # Dump config file into function
-        data = json.load(inFile)
-
-    # Assign json variable to ITIArray data
-    data["ITIArray"] = ITIArray
-
-    # Write ITIArray to file
-    with open(config_fullpath, 'w') as outFile:
-
-        # Add ITIArray into config file
-        json.dump(data, outFile)
-
-
-def get_arduino_metadata(config_template: dict) -> json:
+def get_arduino_metadata(config_template: dict) -> str:
     """
     Grabs metadata relevent to Arduino runtime
 
@@ -128,6 +130,7 @@ def get_arduino_metadata(config_template: dict) -> json:
 
     Returns:
         arduino_metadata
+            JSON formatted string
     """
 
     # Define the variables required for Arduino function
