@@ -79,9 +79,8 @@ def abort_recording():
 
 def set_filename(team: str, subject_id: str):
 
-    # TODO: Get current imaging location from prairie view
-    # imaging_plane = pl.SendScriptCommands("-?GETIMAGINGPLANENUMBER")
-    imaging_plane = 289
+    # TODO: Test this function and see if it works
+    imaging_plane = pl.SendScriptCommands("-GetMotorPosition('Z')")
 
     # Gather session date using datetime
     session_date = datetime.today().strftime("%Y%m%d")
