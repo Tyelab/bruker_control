@@ -20,30 +20,8 @@ tested using one camera so far.
 
 .. currentmodule:: video_utils
 
-init_camera_preview
--------------------
-
-.. autofunction:: init_camera_preview
-
-capture_preview
----------------
-
-.. autofunction:: capture_preview
-
-init_camera_recording
----------------------
-
-.. autofunction:: init_camera_recording
-
-capture_recording
------------------
-
-.. autofunction:: capture_recording
-
-shutdown_camera
----------------
-
-.. autofunction:: shutdown_camera
+.. automodule:: video_utils
+  :members:
 
 
 trial_utils.py
@@ -71,6 +49,30 @@ information to different modules or files.
 .. currentmodule:: config_utils
 
 .. automodule:: config_utils
+  :members:
+
+
+prairieview_utils.py
+====================
+
+Module contains functions for interacting with Prairie View's API to set data
+directories, filenames, and gathering imaging plane information.
+
+.. currentmodule:: prairieview_utils
+
+.. automodule:: prairieview_utils
+  :members:
+
+
+serialtransfer_utils.py
+=======================
+
+Module contains functions for sending, receiving, and checking trial information
+to the Arduino delivering stimuli via pySerialTransfer.
+
+.. currentmodule:: serialtransfer_utils
+
+.. automodule:: serialtransfer_utils
   :members:
 
 Indices and tables

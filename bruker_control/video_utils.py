@@ -30,7 +30,7 @@ cti_filepath = "C:/Program Files/MATRIX VISION/mvIMPACT Acquire/bin/x64/mvGENTLP
 basepath = "E:/"
 
 ###############################################################################
-# Video Exception Creation
+# Exceptions
 ###############################################################################
 
 
@@ -42,15 +42,14 @@ class CameraNotFound(Exception):
             self.message = None
 
     def __str__(self):
-        print("calling str")
         if self.message:
-            return "MyCustomError, {0} ".format(self.message)
+            return "Camera Not Found! {0} ".format(self.message)
         else:
-            return "Custom Error has been raised"
+            return "Camera not found! Is it disconnected?"
 
 
 ###############################################################################
-# Camera Control
+# Functions
 ###############################################################################
 
 # -----------------------------------------------------------------------------
@@ -94,9 +93,16 @@ def init_camera_preview() -> Tuple[Harvester, Harvester, int, int]:
     # Update Harvester object
     h.update()
 
-    # Print device list to make sure camera is present
-    # TODO: Raise an error if no camera is detected
-    print("Connected to Camera: \n", h.device_info_list)
+    camera_list = h.device_info_list
+
+    # Try printing the camera list
+    try:
+        print("Connected to camera: ", camera_list[0])
+
+    # If no devices are detected, the list will have no elements!  Raise an
+    # exception to quit the program.
+    except IndexError:
+        raise CameraNotFound()
 
     # Grab Camera, Change Settings
     # Create image_acquirer object for Harvester, grab first (only) device
@@ -298,11 +304,11 @@ def capture_recording(num_frames: int, imaging_plane: str, team: str,
     fourcc = cv2.VideoWriter_fourcc(*'DIVX')
 
     # Start the Camera
-    # h, camera, width, height = init_camera_recording()
+    h, camera, width, height = init_camera_recording()
 
     # Create VideoWriter object: file, codec, framerate, dims, color value
-    # out = cv2.VideoWriter(video_fullpath, fourcc, 30, (width, height),
-    #                       isColor=False)
+    out = cv2.VideoWriter(video_fullpath, fourcc, 30, (width, height),
+                          isColor=False)
 
     dropped_frames = []
 
@@ -316,34 +322,35 @@ def capture_recording(num_frames: int, imaging_plane: str, team: str,
             # Use with statement to acquire buffer, payload, an data
             # Payload is 1D numpy array, RESHAPE WITH HEIGHT THEN WIDTH
             # Numpy is backwards, reshaping as heightxwidth writes correctly
-            # with camera.fetch_buffer() as buffer:
+            with camera.fetch_buffer() as buffer:
 
-            # Define frame content with buffer.payload
-            # content = buffer.payload.components[0].data.reshape(height, width)
+                # Define frame content with buffer.payload
+                content = buffer.payload.components[0].data.reshape(height,
+                                                                    width)
 
             # Debugging statment, print content shape and frame number
             # print(content.shape)
             # print(frame_number)
-            # out.write(content)
-            # cv2.imshow("Live", content)
-            # cv2.waitKey(1)
+                out.write(content)
+                cv2.imshow("Live", content)
+                cv2.waitKey(1)
 
-            frame_number += 1
+                frame_number += 1
 
-        # # TODO Raise warning for frame drops
+        # # TODO Raise warning for frame drops? What is this error...
         except:
             dropped_frames.append(frame_number)
             frame_number += 1
             pass
 
     # Release VideoWriter object
-    # out.release()
-    #
+    out.release()
+
     # # Destroy camera window
-    # cv2.destroyAllWindows()
+    cv2.destroyAllWindows()
     #
     # # Shutdown the camera
-    # shutdown_camera(camera, h)
+    shutdown_camera(camera, h)
 
     return dropped_frames
 

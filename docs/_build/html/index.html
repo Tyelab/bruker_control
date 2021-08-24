@@ -187,32 +187,28 @@
 grabbing, displaying, and writing video frames the cameras acquire. It has
 been written with flexibility of number of cameras in mind, but has only been
 tested using one camera so far.</p>
-<section id="init-camera-preview">
-<h2>init_camera_preview<a class="headerlink" href="#init-camera-preview" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-video_utils"></span><dl class="py exception">
+<dt class="sig sig-object py" id="video_utils.CameraNotFound">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-prename descclassname"><span class="pre">video_utils.</span></span><span class="sig-name descname"><span class="pre">CameraNotFound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#video_utils.CameraNotFound" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 <dl class="py function">
-<dt class="sig sig-object py" id="video_utils.init_camera_preview">
-<span class="sig-prename descclassname"><span class="pre">video_utils.</span></span><span class="sig-name descname"><span class="pre">init_camera_preview</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#video_utils.init_camera_preview" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates, configures, describes, and starts harvesters camera object in
-preview setting.</p>
-<p>Initializes harvester camera, sets camera properties appropriate for
-preview, gathers the camera’s width and height in pixels, and starts
-video acquisition. The function takes no arguments.</p>
+<dt class="sig sig-object py" id="video_utils.calculate_frames">
+<span class="sig-prename descclassname"><span class="pre">video_utils.</span></span><span class="sig-name descname"><span class="pre">calculate_frames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_len_s</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#video_utils.calculate_frames" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates number of images to collect during the experiment.</p>
+<p>Converts imaging session length into number of frames to collect by
+microscope and, therefore, camera.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Harvester</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Harvester</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>session_len_s</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Experimental session length in seconds</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><p>Harvester object</p>
-<p>Camera object</p>
-<p>Camera’s height (pixels)</p>
-<p>Camera’s width (pixels)</p>
-</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>num_frames</p>
 </dd>
 </dl>
 </dd></dl>
-</section>
-<section id="capture-preview">
-<h2>capture_preview<a class="headerlink" href="#capture-preview" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="video_utils.capture_preview">
 <span class="sig-prename descclassname"><span class="pre">video_utils.</span></span><span class="sig-name descname"><span class="pre">capture_preview</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#video_utils.capture_preview" title="Permalink to this definition">¶</a></dt>
@@ -223,33 +219,6 @@ finally displays the image to an opencv window. When user hits the ‘Esc’
 key, the window closes and the camera object is destroyed. This function
 takes no arguments and returns nothing.</p>
 </dd></dl>
-</section>
-<section id="init-camera-recording">
-<h2>init_camera_recording<a class="headerlink" href="#init-camera-recording" title="Permalink to this headline">¶</a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="video_utils.init_camera_recording">
-<span class="sig-prename descclassname"><span class="pre">video_utils.</span></span><span class="sig-name descname"><span class="pre">init_camera_recording</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#video_utils.init_camera_recording" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates, configures, describes, and starts harvesters camera object in
-recording setting.</p>
-<p>Initializes harvester camera, sets camera properties appropriate for
-behavior recording, gathers the camera’s width and height in pixels, and
-starts video acquisition. There are no arguments.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Harvester</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Harvester</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><p>Harvester object</p>
-<p>Camera object</p>
-<p>Camera’s height (pixels)</p>
-<p>Camera’s width (pixels)</p>
-</p>
-</dd>
-</dl>
-</dd></dl>
-</section>
-<section id="capture-recording">
-<h2>capture_recording<a class="headerlink" href="#capture-recording" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="video_utils.capture_recording">
 <span class="sig-prename descclassname"><span class="pre">video_utils.</span></span><span class="sig-name descname"><span class="pre">capture_recording</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_frames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imaging_plane</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">team</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#video_utils.capture_recording" title="Permalink to this definition">¶</a></dt>
@@ -279,9 +248,48 @@ View</p></li>
 </dd>
 </dl>
 </dd></dl>
-</section>
-<section id="shutdown-camera">
-<h2>shutdown_camera<a class="headerlink" href="#shutdown-camera" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="video_utils.init_camera_preview">
+<span class="sig-prename descclassname"><span class="pre">video_utils.</span></span><span class="sig-name descname"><span class="pre">init_camera_preview</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#video_utils.init_camera_preview" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates, configures, describes, and starts harvesters camera object in
+preview setting.</p>
+<p>Initializes harvester camera, sets camera properties appropriate for
+preview, gathers the camera’s width and height in pixels, and starts
+video acquisition. The function takes no arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Harvester</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Harvester</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>Harvester object</p>
+<p>Camera object</p>
+<p>Camera’s height (pixels)</p>
+<p>Camera’s width (pixels)</p>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="video_utils.init_camera_recording">
+<span class="sig-prename descclassname"><span class="pre">video_utils.</span></span><span class="sig-name descname"><span class="pre">init_camera_recording</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#video_utils.init_camera_recording" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates, configures, describes, and starts harvesters camera object in
+recording setting.</p>
+<p>Initializes harvester camera, sets camera properties appropriate for
+behavior recording, gathers the camera’s width and height in pixels, and
+starts video acquisition. There are no arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Harvester</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Harvester</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>Harvester object</p>
+<p>Camera object</p>
+<p>Camera’s height (pixels)</p>
+<p>Camera’s width (pixels)</p>
+</p>
+</dd>
+</dl>
+</dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="video_utils.shutdown_camera">
 <span class="sig-prename descclassname"><span class="pre">video_utils.</span></span><span class="sig-name descname"><span class="pre">shutdown_camera</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">camera</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">harvester</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#video_utils.shutdown_camera" title="Permalink to this definition">¶</a></dt>
@@ -297,7 +305,6 @@ object once acquisition is done. The function does not return anything</p>
 </dd>
 </dl>
 </dd></dl>
-</section>
 </section>
 <section id="trial-utils-py">
 <h1>trial_utils.py<a class="headerlink" href="#trial-utils-py" title="Permalink to this headline">¶</a></h1>
@@ -376,7 +383,7 @@ configuration .json file.</p></li>
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></p>
 </dd>
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Session length in seconds for the given experiment.</p>
+<dd class="field-odd"><p>Session length in seconds.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -696,7 +703,12 @@ trialArray.</p></li>
 <h1>config_utils.py<a class="headerlink" href="#config-utils-py" title="Permalink to this headline">¶</a></h1>
 <p>Module contains functions for reading, writing, and passing configuration
 information to different modules or files.</p>
-<span class="target" id="module-config_utils"></span><dl class="py function">
+<span class="target" id="module-config_utils"></span><dl class="py exception">
+<dt class="sig sig-object py" id="config_utils.ConfigDirEmpty">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-prename descclassname"><span class="pre">config_utils.</span></span><span class="sig-name descname"><span class="pre">ConfigDirEmpty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#config_utils.ConfigDirEmpty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception for when the team’s template configuration folder is empty.</p>
+</dd></dl>
+<dl class="py function">
 <dt class="sig sig-object py" id="config_utils.get_arduino_metadata">
 <span class="sig-prename descclassname"><span class="pre">config_utils.</span></span><span class="sig-name descname"><span class="pre">get_arduino_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#config_utils.get_arduino_metadata" title="Permalink to this definition">¶</a></dt>
 <dd><p>Grabs metadata relevent to Arduino runtime</p>
@@ -731,12 +743,11 @@ a session.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>team</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Team from metadata_args[“team”]</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Dictionary of template configuration values for experimental
-runtime</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>template_config</p>
 </dd>
 </dl>
 </dd></dl>
@@ -755,6 +766,244 @@ values for an experiment</p>
 </dd>
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Dictionary of contents inside the configuration .json file</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="config_utils.write_experiment_config">
+<span class="sig-prename descclassname"><span class="pre">config_utils.</span></span><span class="sig-name descname"><span class="pre">write_experiment_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_template</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment_arrays</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropped_frames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">team</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imaging_plane</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#config_utils.write_experiment_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes experiental configuration file to Raw Data drive.</p>
+<p>Takes the configuration template and appends on the experimental arrays and
+dropped frames from the experiment. Then writes the configuration to disk.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config_template</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Configuration template value dictionary gathered from team’s
+configuration .json file.</p></li>
+<li><p><strong>experiment_arrays</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – List of arrays used for experimental runtime. [0] is trialArray,
+[1] is ITIArray, [2] is toneArray. These will always be in this
+order.</p></li>
+<li><p><strong>dropped_frames</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – List of dropped frames from the camera during the experiment</p></li>
+<li><p><strong>team</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Team from metadata_args[“team”]</p></li>
+<li><p><strong>subject_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Subject ID from metadata_args[“subject_id”]</p></li>
+<li><p><strong>imaging_plane</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Plane 2P images were acquired at, the Z-axis value</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+</section>
+<section id="prairieview-utils-py">
+<h1>prairieview_utils.py<a class="headerlink" href="#prairieview-utils-py" title="Permalink to this headline">¶</a></h1>
+<p>Module contains functions for interacting with Prairie View’s API to set data
+directories, filenames, and gathering imaging plane information.</p>
+<span class="target" id="module-prairieview_utils"></span><dl class="py function">
+<dt class="sig sig-object py" id="prairieview_utils.abort_recording">
+<span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">abort_recording</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.abort_recording" title="Permalink to this definition">¶</a></dt>
+<dd><p>Aborts T-Series Microscopy recording</p>
+<p>Once the number of frames specified is collected, a signal to abort the
+microscopy session is sent to Prairie View.  Once aborted, Python will
+disconnect from Prairie View.  This function takes no arguments and returns
+nothing.</p>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="prairieview_utils.end_microscopy_session">
+<span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">end_microscopy_session</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.end_microscopy_session" title="Permalink to this definition">¶</a></dt>
+<dd><p>Aborts the microscopy session and disconnects from Prairie View.</p>
+<p>Used when the data for the given experiment has been collected and written
+to disk.  Invokes the abort command and disconnects from Prarie View with
+their API.  This function takes no arguments and returns nothing.</p>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="prairieview_utils.pv_connect">
+<span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">pv_connect</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.pv_connect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Connect to Prairie View</p>
+<p>Used to connect to Prairie View at the beginning of each session with their
+API.  This function takes no arguments and returns nothing.</p>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="prairieview_utils.pv_disconnect">
+<span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">pv_disconnect</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.pv_disconnect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Disconnect from Prairie View</p>
+<p>Used to disconnect from Prairie View at the end of each session with their
+API.  This function takes no arguments and returns nothing.</p>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="prairieview_utils.set_filename">
+<span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">set_filename</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">team</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.set_filename" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets Microscopy and Behavior recording filenames and directories.</p>
+<p>Gathers what plane is being imaged for the session generates appropriately
+named imaging and behavior directories and filenames for data coming off
+the microscope.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>team</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The team performing the experiment</p></li>
+<li><p><strong>subject_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The subject being recorded</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>imaging_plane</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="prairieview_utils.start_microscopy_session">
+<span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">start_microscopy_session</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.start_microscopy_session" title="Permalink to this definition">¶</a></dt>
+<dd><p>Readies the Bruker 2-Photon microscope for an experiment</p>
+<p>Sets directories, filenames, and initializes Bruker T-Series for imaging
+and Voltage Recording for behavior data. Returns the current imaging_plane
+as found in Prairie View.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>project</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Name of project for recording</p></li>
+<li><p><strong>subject_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Name of the experimental subject</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>imaging_plane</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="prairieview_utils.start_tseries">
+<span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">start_tseries</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.start_tseries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Starts Prairie View T-Series 2P Recording</p>
+<p>Connects to Prairie View and starts the T-Series which will wait for an
+input trigger. Waiting for an input trigger is done within Prairie View’s
+GUI.  This argument takes no arguments and returns nothing.</p>
+</dd></dl>
+</section>
+<section id="serialtransfer-utils-py">
+<h1>serialtransfer_utils.py<a class="headerlink" href="#serialtransfer-utils-py" title="Permalink to this headline">¶</a></h1>
+<p>Module contains functions for sending, receiving, and checking trial information
+to the Arduino delivering stimuli via pySerialTransfer.</p>
+<span class="target" id="module-serialtransfer_utils"></span><dl class="py function">
+<dt class="sig sig-object py" id="serialtransfer_utils.array_error_check">
+<span class="sig-prename descclassname"><span class="pre">serialtransfer_utils.</span></span><span class="sig-name descname"><span class="pre">array_error_check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transmitted_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">received_array</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#serialtransfer_utils.array_error_check" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs Python side error checking for array transmission.</p>
+<p>While pySerialTransfer performs error checking for different errors, this
+allows for something simple that is independent of the package for error
+checking.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>transmitted_array</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – Array that was sent to the Arduino</p></li>
+<li><p><strong>received_array</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – Array that was received by the Arduino</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="serialtransfer_utils.onepacket_transfer">
+<span class="sig-prename descclassname"><span class="pre">serialtransfer_utils.</span></span><span class="sig-name descname"><span class="pre">onepacket_transfer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment_arrays</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#serialtransfer_utils.onepacket_transfer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for completing experiment arrays one packet transfers to Arduino.</p>
+<p>Iterates over transfer_packet() function for each experiment array and
+invoked if the session length is less than or equal to 60 trials.  Finally
+invokes the update_python_status() function to say transmission is
+complete.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>experiment_arrays</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – List of arrays generated for a given microscopy session’s behavior.
+0th index is trialArray, 1st is ITIArray, 2nd is toneArray.</p></li>
+<li><p><strong>link</strong> (<em>&lt;module 'pySerialTransfer.pySerialTransfer' from 'C:\Users\jdelahanty.SNL\Miniconda3\envs\bruker_control\lib\site-packages\pySerialTransfer\pySerialTransfer.py'&gt;</em>) – pySerialTransfer transmission object</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="serialtransfer_utils.transfer_data">
+<span class="sig-prename descclassname"><span class="pre">serialtransfer_utils.</span></span><span class="sig-name descname"><span class="pre">transfer_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arduino_metadata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment_arrays</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#serialtransfer_utils.transfer_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sends metadata and trial information to the Arduino.</p>
+<p>Takes each array assembled for transmission to the Arduino and stuffs it
+into packets to be sent via pySerialTransfer. Unites several functions used
+for transmitting, receiving, and checking data during transfer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>arduino_metadata</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Metadata gathered from config_template that’s relevant for Arduino
+runtime. Formatted as a json string.</p></li>
+<li><p><strong>experiment_arrays</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – List of arrays generated for a given microscopy session’s behavior.
+0th index is trialArray, 1st is ITIArray, 2nd is toneArray.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="serialtransfer_utils.transfer_experiment_arrays">
+<span class="sig-prename descclassname"><span class="pre">serialtransfer_utils.</span></span><span class="sig-name descname"><span class="pre">transfer_experiment_arrays</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment_arrays</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#serialtransfer_utils.transfer_experiment_arrays" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transfers experimental arrays to Arduino via pySerialTransfer.</p>
+<p>Determines what type of packet transfer is required (single or multi) for
+the generated trials.  If the number of trials is greater than 60, then
+multiple packets are required for transferring each array.  If less, then
+only one packet is required for each array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>experiment_arrays</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – List of arrays generated for a given microscopy session’s behavior.
+0th index is trialArray, 1st is ITIArray, 2nd is toneArray.</p></li>
+<li><p><strong>link</strong> (<em>&lt;module 'pySerialTransfer.pySerialTransfer' from 'C:\Users\jdelahanty.SNL\Miniconda3\envs\bruker_control\lib\site-packages\pySerialTransfer\pySerialTransfer.py'&gt;</em>) – pySerialTransfer transmission object</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="serialtransfer_utils.transfer_metadata">
+<span class="sig-prename descclassname"><span class="pre">serialtransfer_utils.</span></span><span class="sig-name descname"><span class="pre">transfer_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arduino_metadata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#serialtransfer_utils.transfer_metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transfers arduino_metadata to the Arduino.</p>
+<p>Arduino metadata collected from config_template is formatted into a json
+string that the Arduino knows how to interpret.  Each variable is encoded
+according to a specific byte size depending on the variable type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>arduino_metadata</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Metadata gathered from config_template that’s relevant for Arduino
+runtime. Formatted as a json string.</p></li>
+<li><p><strong>link</strong> (<em>&lt;module 'pySerialTransfer.pySerialTransfer' from 'C:\Users\jdelahanty.SNL\Miniconda3\envs\bruker_control\lib\site-packages\pySerialTransfer\pySerialTransfer.py'&gt;</em>) – pySerialTransfer transmission object</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="serialtransfer_utils.transfer_packet">
+<span class="sig-prename descclassname"><span class="pre">serialtransfer_utils.</span></span><span class="sig-name descname"><span class="pre">transfer_packet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packet_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#serialtransfer_utils.transfer_packet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transfers an individual packet to the Arduino.</p>
+<p>Each packet is given a unique ID the Arduino can identify and transmitted
+through the pySerialTransfer link. While the link is unavailable, that is
+there’s an active transfer, the function passes. When finished
+transmitting, the function receives what the Arduino encoded and an error
+check is performed. If it passes, the program continues.  If it fails,
+an exception is raised and the program exits.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>array</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – Experimental array to be transferred</p></li>
+<li><p><strong>packet_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Unique ID for encoding an array</p></li>
+<li><p><strong>link</strong> (<em>&lt;module 'pySerialTransfer.pySerialTransfer' from 'C:\Users\jdelahanty.SNL\Miniconda3\envs\bruker_control\lib\site-packages\pySerialTransfer\pySerialTransfer.py'&gt;</em>) – pySerialTransfer transmission object</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="serialtransfer_utils.update_python_status">
+<span class="sig-prename descclassname"><span class="pre">serialtransfer_utils.</span></span><span class="sig-name descname"><span class="pre">update_python_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">packet_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#serialtransfer_utils.update_python_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates python side of program as ready to continue post serial transfer.</p>
+<p>Once the packets have all been transmitted to the Arduino, this final step
+is performed to ensure that all information has made it across the link.
+Once this check is passed, the experiment will start!</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>packet_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Unique ID for encoding an array</p></li>
+<li><p><strong>link</strong> (<em>&lt;module 'pySerialTransfer.pySerialTransfer' from 'C:\Users\jdelahanty.SNL\Miniconda3\envs\bruker_control\lib\site-packages\pySerialTransfer\pySerialTransfer.py'&gt;</em>) – pySerialTransfer transmission object</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -805,16 +1054,11 @@ values for an experiment</p>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Welcome to Bruker Control’s documentation!</a></li>
-<li><a class="reference internal" href="#video-utils-py">video_utils.py</a><ul>
-<li><a class="reference internal" href="#init-camera-preview">init_camera_preview</a></li>
-<li><a class="reference internal" href="#capture-preview">capture_preview</a></li>
-<li><a class="reference internal" href="#init-camera-recording">init_camera_recording</a></li>
-<li><a class="reference internal" href="#capture-recording">capture_recording</a></li>
-<li><a class="reference internal" href="#shutdown-camera">shutdown_camera</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#video-utils-py">video_utils.py</a></li>
 <li><a class="reference internal" href="#trial-utils-py">trial_utils.py</a></li>
 <li><a class="reference internal" href="#config-utils-py">config_utils.py</a></li>
+<li><a class="reference internal" href="#prairieview-utils-py">prairieview_utils.py</a></li>
+<li><a class="reference internal" href="#serialtransfer-utils-py">serialtransfer_utils.py</a></li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
 </ul>
 

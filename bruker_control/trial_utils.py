@@ -632,6 +632,10 @@ def gen_toneArray(config_template: dict) -> list:
 
     return toneArray
 
+###############################################################################
+# Session Length Calculations
+###############################################################################
+
 
 def calculate_session_length(experiment_arrays: list,
                              config_template: dict) -> int:
@@ -649,10 +653,8 @@ def calculate_session_length(experiment_arrays: list,
             Configuration template value dictionary gathered from team's
             configuration .json file.
 
-
     Returns:
-        Session length in seconds for the given experiment.
-
+        Session length in seconds.
     """
 
     # Get vacuum status for the experiment
@@ -773,21 +775,13 @@ def calculate_punish_seconds(punish_delivery_ms: int, trialArray: list) -> int:
     punish_seconds = (punish_delivery_ms * len(punish_list))/1000
 
     return punish_seconds
-
-    #     # Consumption duration is set according to the config file
-    #     # TODO: Gather what the consumption duration is from the config file
-    #     consumption_duration = (3000*trials)/1000
-    #
     #     # BUG: Timing for vacuum trials is still incorect despite fix morning
     #     # of 6/3/21. Re-opening Issue 23
 
-###############################################################################
-# Trial Check Functions
-###############################################################################
 
-# -----------------------------------------------------------------------------
-# Generate Arrays function to unite these functions
-# -----------------------------------------------------------------------------
+###############################################################################
+# Generate Arrays function to unite aboves functions
+###############################################################################
 
 
 def generate_arrays(config_template: dict) -> list:
