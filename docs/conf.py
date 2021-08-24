@@ -32,8 +32,8 @@ release = '0.5.0'
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
-    'sphinx.ext.napoleon',
-    'sphinx_autodoc_typehints'
+    'sphinx.ext.napoleon'
+    # 'sphinx_autodoc_typehints'
 ]
 
 autoclass_content = "both"
