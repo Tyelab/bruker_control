@@ -5,3 +5,4 @@ furo
 harvesters
 pySerialTransfer
 numpy
+cv2
