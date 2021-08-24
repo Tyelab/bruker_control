@@ -11,7 +11,7 @@
 from harvesters.core import Harvester
 
 # Import OpenCV2 to write images/videos to file + previews
-import cv2
+# import cv2
 
 # Import datetime for filenaming
 from datetime import datetime
