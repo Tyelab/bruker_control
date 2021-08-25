@@ -17,9 +17,6 @@ import numpy as np
 # Import sys for exiting program safely
 import sys
 
-# Import Tuple for appropriate typehinting of functions
-from typing import Tuple
-
 ###############################################################################
 # Functions
 ###############################################################################
@@ -267,8 +264,6 @@ def transfer_metadata(arduino_metadata: str, link: txfer):
         rxmetaData['USDeliveryTime_Air'] = link.rx_obj(obj_type='B', start_pos=rxmetaData_size)
         rxmetaData_size += txfer.ARRAY_FORMAT_LENGTHS['B']
         rxmetaData['USConsumptionTime_Sucrose'] = link.rx_obj(obj_type='H', start_pos=rxmetaData_size)
-
-        print(rxmetaData)
 
     except KeyboardInterrupt:
         try:

@@ -691,7 +691,7 @@ def calculate_session_length(experiment_arrays: list,
     session_len_s += iti_seconds
 
     # Calculate total number of seconds tones are played.  The 2nd element in
-    # the experimental_array_list is always the toneArray.  Add to session
+    # the experiment_arrays list is always the toneArray.  Add to session
     # length.
     tone_seconds = sum(experiment_arrays[2])/1000
     session_len_s += tone_seconds
