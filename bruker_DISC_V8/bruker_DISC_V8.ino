@@ -13,9 +13,10 @@
 SerialTransfer myTransfer;
 
 //// EXPERIMENT METADATA ////
-// The maximum number of trials that can be run for a given experiment is 90
+// The maximum number of trials that can be run for a given experiment is 60
 const int MAX_NUM_TRIALS = 60;
 // Metadata is received as a struct and then renamed metadata
+// Struct allows for different datatypes of different sizes to be stored in an array
 struct __attribute__((__packed__)) metadata_struct {
   uint8_t totalNumberOfTrials;              // total number of trials for experiment
   uint16_t punishTone;                      // airpuff frequency tone in Hz
@@ -66,7 +67,9 @@ boolean brukerTrigger = false;
 boolean newTrial = false;
 boolean ITI = false;
 boolean giveStim = false;
+boolean giveCatch = false;
 boolean newUSDelivery = false;
+boolean newUSDeliveryCatch = false;
 boolean solenoidOn = false;
 boolean vacOn = false;
 boolean consume = false;
@@ -319,23 +322,34 @@ void tonePlayer(long ms) {
     int thisNoiseDuration = noiseArray[currentTrial];
     noise = false;
     noiseDAQ = true;
-    giveStim = true;
     noiseListeningMS = ms + thisNoiseDuration;
     digitalWriteFast(speakerDeliveryPin, HIGH);
     switch (trialType) {
       case 0:
         Serial.println("Air");
         tone(speakerPin, metadata.punishTone, thisNoiseDuration);
+        giveStim = true;
         break;
       case 1:
         Serial.println("Sucrose");
         tone(speakerPin, metadata.rewardTone, thisNoiseDuration);
+        giveStim = true;
+        break;
+      case 2:
+        Serial.println("Air Catch");
+        tone(speakerPin, metadata.punishTone, thisNoiseDuration);
+        giveCatch = true;
+        break;
+      case 3:
+        Serial.println("Sucrose Catch");
+        tone(speakerPin, metadata.rewardTone, thisNoiseDuration);
+        giveCatch = true;
         break;
     }
   }
 }
 
-// Send noise signal to DAQ function
+// Send tone signal to DAQ function
 void onTone(long ms) {
   if (noiseDAQ && (ms >= noiseListeningMS)){
     noiseDAQ = false;
@@ -343,19 +357,37 @@ void onTone(long ms) {
   }
 }
 
-// Initiate new US Delivery during the last moments of the tone.
-void giveStimulus(long ms) {
+// Initiate new US Delivery during the last moments of the tone if stimuli trial.
+void presentStimulus(long ms) {
   switch (trialType) {
     case 0:
       if (giveStim && (ms >=  noiseListeningMS - metadata.USDeliveryTime_Air)) {
         newUSDelivery = true;
+        break;
       }
     case 1:
       if (giveStim && (ms >= noiseListeningMS - metadata.USDeliveryTime_Sucrose)) {
         newUSDelivery = true;
+        break;
       }
-    }
   }
+}
+
+// Initiate catch trial during the last moments of the tone delivery if catch trial processed.
+void presentCatch(long ms) {
+  switch (trialType) {
+    case 2:
+      if (giveCatch && (ms >= noiseListeningMS - metadata.USDeliveryTime_Air)) {
+        newUSDeliveryCatch = true;
+        break;
+      }
+    case 3:
+       if (giveCatch && (ms >- noiseListeningMS - metadata.USDeliveryTime_Sucrose)) {
+        newUSDeliveryCatch = true;
+        break;
+      }
+  }
+}
 
 //// STIMULUS DELIVERY FUNCTIONS ////
 // Stimulus Delivery: 0 is airpuff, 1 is sucrose
@@ -378,7 +410,24 @@ void USDelivery(long ms) {
         break;
     }
   }
+  else if (newUSDeliveryCatch) {
+    Serial.println("Delivering US Catch");
+    newUSDeliveryCatch = false;
+    giveCatch = false;
+    solenoidOn = true;
+    switch (trialType) {
+      case 2:
+        Serial.println("Delivering Airpuff Catch");
+        USDeliveryMS = ms + metadata.USDeliveryTime_Air;
+        break;
+      case 3:
+        Serial.println("Delivering Sucrose Catch");
+        USDeliveryMS = ms + metadata.USDeliveryTime_Sucrose;
+        break;
+    }
+  }
 }
+
 
 // Turn off Solenoid
 void offSolenoid(long ms) {
@@ -397,6 +446,18 @@ void offSolenoid(long ms) {
         sucroseConsumptionMS = (ms + metadata.USConsumptionTime_Sucrose);
         consume = true;
         digitalWriteFast(solPin_liquid, LOW);
+        break;
+      case 2:
+        Serial.println("Air Solenoid Off (Catch)");
+        solenoidOn = false;
+        newTrial = true;
+        currentTrial++;
+        break;
+      case 3:
+        Serial.println("Sucrose Solenoid Off (Catch)");
+        solenoidOn = false;
+        sucroseConsumptionMS = (ms + metadata.USConsumptionTime_Sucrose);
+        consume = true;
         break;
     }
   }
@@ -472,7 +533,8 @@ void loop() {
     startITI(ms);
     tonePlayer(ms);
     onTone(ms);
-    giveStimulus(ms);
+    presentStimulus(ms);
+    presentCatch(ms);
     USDelivery(ms);
     offSolenoid(ms);
     consuming(ms);
