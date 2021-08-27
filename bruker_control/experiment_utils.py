@@ -64,7 +64,8 @@ def run_imaging_experiment(metadata_args):
                                                              config_template)
 
         # Calculate number of frames
-        num_frames = video_utils.calculate_frames(session_len_s)
+        # num_frames = video_utils.calculate_frames(session_len_s)
+        num_frames = 60
 
         # Start preview of animal's face.  Zero microscope over lens here.
         video_utils.capture_preview()
