@@ -9,17 +9,17 @@
 # Import Prairie View Application
 # NOTE Prairie View Interface Installation:  Do NOT use pip install, use conda.
 # conda install pywin32
-# import win32com.client
+import win32com.client
 
 # Import datetime for folder naming
 from datetime import datetime
 
 # Save the Praire View application as pl
-# pl = win32com.client.Dispatch("PrairieLink.Application")
+pl = win32com.client.Dispatch("PrairieLink.Application")
 
 # Define microscopy basebath for where raw files are written to.  This is onto
 # the E: drive on machine BRUKER.  Set it as a string to be joined later.
-basepath = "E:/"
+basepath = "E:/teams/"
 
 ###############################################################################
 # Functions
@@ -109,8 +109,8 @@ def set_filename(team: str, subject_id: str) -> str:
         imaging_plane
     """
 
-    # TODO: Test this function and see if it works
-    imaging_plane = pl.SendScriptCommands("-GetMotorPosition('Z')")
+    # Get Z Axis Imaging plane from Prairie View
+    imaging_plane = pl.GetMotorPosition("Z")
 
     # Gather session date using datetime
     session_date = datetime.today().strftime("%Y%m%d")
@@ -118,7 +118,6 @@ def set_filename(team: str, subject_id: str) -> str:
     # Set microscopy session's path
     imaging_dir = basepath + team + "/microscopy/"
 
-    # TODO: Need to see if this with behavior dir change is stable...
     # Set Prairie View path for saving files
     pl.SendScriptCommands("-SetSavePath {}".format(imaging_dir))
 
@@ -132,22 +131,18 @@ def set_filename(team: str, subject_id: str) -> str:
 
     pl.SendScriptCommands("-SetFileName Tseries {}".format(imaging_filename))
 
-    print(imaging_dir + imaging_filename)
-
     # Not usable until PV 5.6 release
     # Set behavior session basepath
-    behavior_dir = basepath + team + "/behavior/"
-
-    pl.SendScriptCommands("-SetState directory {} VoltageRecording"
-                          .format(behavior_dir))
+    # behavior_dir = basepath + team + "/behavior/"
+    #
+    # pl.SendScriptCommands("-SetState directory {} VoltageRecording"
+    #                       .format(behavior_dir))
 
     # Set behavior filename
     behavior_filename = "_".join([session_name, "behavior"])
 
-    pl.SendScriptCommands("-SetFileName VoltageRecording {}"
+    pl.SendScriptCommands("-SetState directory {} VoltageRecording"
                           .format(behavior_filename))
-
-    print(behavior_dir + behavior_filename)
 
     return imaging_plane
 
