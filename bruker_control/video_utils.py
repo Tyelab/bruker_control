@@ -27,7 +27,7 @@ cti_filepath = "C:/Program Files/MATRIX VISION/mvIMPACT Acquire/bin/x64/mvGENTLP
 
 # Experiment videos are written to the Raw Data volume on the machine BRUKER
 # which is mounted to E:
-basepath = "E:/"
+basepath = "E:/teams/"
 
 ###############################################################################
 # Exceptions
@@ -288,7 +288,7 @@ def capture_recording(num_frames: int, imaging_plane: str, team: str,
     session_date = datetime.today().strftime("%Y%m%d")
 
     # Set microscopy session's path
-    video_dir = basepath + team + "/video/"
+    video_dir = basepath + team + "/behavior/"
 
     # Set session name by joining variables with underscores
     session_name = "_".join([session_date, subject_id,
@@ -383,7 +383,7 @@ def shutdown_camera(camera: Harvester, harvester: Harvester):
 
     # Reset Harvester object
     print("Resetting Harvester")
-    camera.reset()
+    harvester.reset()
 
 
 def calculate_frames(session_len_s: int) -> int:
