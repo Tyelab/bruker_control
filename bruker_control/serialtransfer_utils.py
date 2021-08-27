@@ -68,7 +68,8 @@ def transfer_data(arduino_metadata: str, experiment_arrays: list):
             pass
 
 
-def transfer_experiment_arrays(experiment_arrays: list, link: txfer):
+def transfer_experiment_arrays(experiment_arrays: list,
+                               link: txfer.SerialTransfer):
     """
     Transfers experimental arrays to Arduino via pySerialTransfer.
 
@@ -117,8 +118,7 @@ def array_error_check(transmitted_array: list, received_array: list):
     # If the transmitted array and received array are equal
     if transmitted_array == received_array:
 
-        # Tell the user the transfer was successful
-        print("Successful Transfer")
+        pass
 
     # TODO: Raise an exception here that quits the program
     # If the transmission failed
@@ -144,7 +144,7 @@ def array_error_check(transmitted_array: list, received_array: list):
 # -----------------------------------------------------------------------------
 
 
-def transfer_packet(array: list, packet_id: int, link: txfer):
+def transfer_packet(array: list, packet_id: int, link: txfer.SerialTransfer):
     """
     Transfers an individual packet to the Arduino.
 
@@ -209,7 +209,7 @@ def transfer_packet(array: list, packet_id: int, link: txfer):
 
 
 # TODO: Add error checking function for configuration
-def transfer_metadata(arduino_metadata: str, link: txfer):
+def transfer_metadata(arduino_metadata: str, link: txfer.SerialTransfer):
     """
     Transfers arduino_metadata to the Arduino.
 
@@ -229,12 +229,12 @@ def transfer_metadata(arduino_metadata: str, link: txfer):
 
         # stuff TX buffer (https://docs.python.org/3/library/struct.html#format-characters)
         metaData_size = 0
-        metaData_size = link.tx_obj(arduino_metadata['metadata']['totalNumberOfTrials'],       metaData_size, val_type_override='B')
-        metaData_size = link.tx_obj(arduino_metadata['metadata']['punishTone'],                metaData_size, val_type_override='H')
-        metaData_size = link.tx_obj(arduino_metadata['metadata']['rewardTone'],                metaData_size, val_type_override='H')
-        metaData_size = link.tx_obj(arduino_metadata['metadata']['USDeliveryTime_Sucrose'],    metaData_size, val_type_override='B')
-        metaData_size = link.tx_obj(arduino_metadata['metadata']['USDeliveryTime_Air'],        metaData_size, val_type_override='B')
-        metaData_size = link.tx_obj(arduino_metadata['metadata']['USConsumptionTime_Sucrose'], metaData_size, val_type_override='H')
+        metaData_size = link.tx_obj(arduino_metadata['totalNumberOfTrials'],       metaData_size, val_type_override='B')
+        metaData_size = link.tx_obj(arduino_metadata['punishTone'],                metaData_size, val_type_override='H')
+        metaData_size = link.tx_obj(arduino_metadata['rewardTone'],                metaData_size, val_type_override='H')
+        metaData_size = link.tx_obj(arduino_metadata['USDeliveryTime_Sucrose'],    metaData_size, val_type_override='B')
+        metaData_size = link.tx_obj(arduino_metadata['USDeliveryTime_Air'],        metaData_size, val_type_override='B')
+        metaData_size = link.tx_obj(arduino_metadata['USConsumptionTime_Sucrose'], metaData_size, val_type_override='H')
 
         # Send the metadata to the Arduino.  The metadata is transferred first
         # and therefore receives the packet_id of 0.
@@ -285,7 +285,7 @@ def transfer_metadata(arduino_metadata: str, link: txfer):
 # -----------------------------------------------------------------------------
 
 
-def onepacket_transfer(experiment_arrays: list, link: txfer):
+def onepacket_transfer(experiment_arrays: list, link: txfer.SerialTransfer):
     """
     Function for completing experiment arrays one packet transfers to Arduino.
 
@@ -316,7 +316,7 @@ def onepacket_transfer(experiment_arrays: list, link: txfer):
 
     # Once all arrays are transferred, send signal that Python is ready to
     # continue!
-    update_python_status(packet_id)
+    update_python_status(packet_id, link)
 
 
 ###############################################################################
@@ -453,13 +453,14 @@ def multipacket_dev(split_array, packet_id):
 ###############################################################################
 
 
-def update_python_status(packet_id: int, link: txfer):
+def update_python_status(packet_id: int, link: txfer.SerialTransfer):
     """
     Updates python side of program as ready to continue post serial transfer.
 
     Once the packets have all been transmitted to the Arduino, this final step
     is performed to ensure that all information has made it across the link.
-    Once this check is passed, the experiment will start!
+    Once this check is passed, the connection to the Arduino closes and the
+    experiment will start!
 
     Args:
         packet_id:
@@ -491,6 +492,8 @@ def update_python_status(packet_id: int, link: txfer):
         print("Received END OF TRANSMISSION Status")
 
         array_error_check(status, rxarray)
+
+        link.close()
 
     except KeyboardInterrupt:
         try:
