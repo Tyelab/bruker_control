@@ -16,15 +16,16 @@ from pathlib import Path
 
 # Import datetime for folder naming
 from datetime import datetime
+from dateutil.tz import tzlocal
 
 # Template configuration directories are within project directories.  The snlkt
 # server housing these directories is mounted to the X: volume on the machine
 # BRUKER.
-base_template_config_dir = Path("Y:/")
+base_template_config_dir = Path("X:/")
 
 # Experimental configuration directories are in the Raw Data volume on the
 # machine BRUKER which is mounted to E:. This is where configs will be written
-config_basepath = "Y:/bruker_refactor_testing/"
+config_basepath = "E:/teams/"
 
 # Configuration files generated for a team's session are placed in their team's
 # directory on drive E:
@@ -162,8 +163,6 @@ def write_experiment_config(config_template: dict, experiment_arrays: list,
     # Append .json for the file
     config_filename += ".json"
 
-    print(config_filename)
-
     # Complete the fullpath for the config file to be written
     config_fullpath = config_dir + config_filename
 
@@ -179,6 +178,9 @@ def write_experiment_config(config_template: dict, experiment_arrays: list,
     # always the toneArray.
     config_template["toneArray"] = experiment_arrays[2]
 
+    # Assign dropped_frames key the dropped_frames data.
+    config_template["dropped_frames"] = dropped_frames
+
     # # Write the new configuration file
     with open(config_fullpath, 'w') as outFile:
 
@@ -186,7 +188,7 @@ def write_experiment_config(config_template: dict, experiment_arrays: list,
         json.dump(config_template, outFile)
 
 
-def get_arduino_metadata(config_template: dict) -> str:
+def get_arduino_metadata(config_template: dict) -> dict:
     """
     Grabs metadata relevent to Arduino runtime
 
@@ -201,20 +203,17 @@ def get_arduino_metadata(config_template: dict) -> str:
 
     Returns:
         arduino_metadata
-            JSON formatted string
+            Dictionary of relevant Arduino metadata for experiment.
     """
 
     # Define the variables required for Arduino function
     arduino_metadata_keys = ["totalNumberOfTrials", "punishTone", "rewardTone",
-                             "USDeliveryTime_sucrose", "USDeliveryTime_Air",
+                             "USDeliveryTime_Sucrose", "USDeliveryTime_Air",
                              "USConsumptionTime_Sucrose"]
 
     # Generate Dictionary of relevant Arduino metadata
     arduino_metadata = {key: value for (key, value) in
                         config_template["metadata"].items() if
                         key in arduino_metadata_keys}
-
-    # Convert dictionary to json ojbect for pySerialTransfer
-    arduino_metadata = json.dumps(arduino_metadata)
 
     return arduino_metadata
