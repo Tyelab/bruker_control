@@ -6,7 +6,7 @@
 # https://github.com/PowerBroker2/pySerialTransfer
 # Genie Nano manufactured by Teledyne DALSA
 
-__version__ = "0.50"
+__version__ = "0.5.0"
 
 ###############################################################################
 # Import Packages
@@ -27,20 +27,20 @@ import argparse
 # Import pathlib for creating valid choices list for project
 from pathlib import Path
 
-# Import datetime for generating config file names correctly
-# from datetime import datetime
-# from dateutil.tz import tzlocal
-
 #  TODO Use ctrl+c to kill entire program from __main__ if needed
 # Import sys for exiting program safely
 # import sys
 
 # Static Directory for teams directory in Raw Data, drive E:
-teams_path = Path("Y:/bruker_refactor_testing")
+teams_path = Path("X:/bruker_refactor_testing")
+
+# Make list of authorized teams that can use the Bruker Scope
+authorized_teams = ["specialk", "Deryn"]
 
 # Generate valid team choices for argparser variable "team" by checking the
 # directories on the server
-team_choices = [team.name for team in teams_path.glob("*")]
+team_choices = [team.name for team in teams_path.glob("*") if team
+                in authorized_teams]
 
 ###############################################################################
 # Main Function
@@ -78,6 +78,14 @@ if __name__ == "__main__":
                                  action='store',
                                  dest='subject_id',
                                  help='Subject ID (required)',
+                                 required=True)
+
+    # Add experimenter id argument
+    metadata_parser.add_argument('-e', '--experimenter',
+                                 type=str,
+                                 action='store',
+                                 dest='experimenter',
+                                 help='Experimenter Full Name (required)',
                                  required=True)
 
     # Add demo flag
