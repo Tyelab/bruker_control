@@ -49,7 +49,7 @@ int transmissionStatus = 0;
 // Initialize the trial type as an integer
 int trialType;
 // Initialize the current trial number as 0 before experiment begins
-int currentTrial = 0;
+int currentTrial = -1;
 
 //// FLAG ASSIGNMENT ////
 // Flags can be categorized by purpose:
@@ -121,6 +121,7 @@ const int vacPin = 24; // solenoid for vacuum control
 const int solPin_liquid = 26; // solenoid for liquid control: sucrose, water, EtOH
 const int speakerPin = 12; // speaker control pin
 const int bruker2PTriggerPin = 11; // trigger to start Bruker 2P Recording on Prairie View
+const int resetPin = 0; // Pin driven LOW for resetting the Arduino through software.
 
 //// PIN ASSIGNMENT: NIDAQ ////
 // NIDAQ input
@@ -243,6 +244,8 @@ int pythonGo_rx() {
       myTransfer.sendDatum(pythonGo);
       Serial.println("Sent Python Status");
 
+      currentTrial++;
+
       cameraDelay = true;
     }
   }
@@ -262,7 +265,7 @@ void camera_delay() {
   if (cameraDelay) {
     Serial.println("Delaying Bruker Trigger for Camera Startup...");
     cameraDelay = false;
-    delay(3000);
+    delay(5000);
     arduinoGoSignal = true;
   }
 }
@@ -489,6 +492,39 @@ void vacuum(long ms) {
   }
 }
 
+// Reset Function
+void reset_board() {
+  transmissionStatus = 0;
+  currentTrial = -1;
+  acquireMetaData = true;
+  acquireTrials = false;
+  acquireITI = false;
+  acquireNoise = false;
+  rx = true;
+  pythonGoSignal = false;
+  arduinoGoSignal = false;
+  cameraDelay = false;
+  brukerTrigger = false;
+  newTrial = false;
+  ITI = false;
+  giveStim = false;
+  giveCatch = false;
+  newUSDelivery = false;
+  newUSDeliveryCatch = false;
+  solenoidOn = false;
+  vacOn = false;
+  consume = false;
+  cleanIt = false;
+  sucrose = false;
+  airpuff = false;
+  noise = false;
+  noiseDAQ = false;
+  Serial.println("Resetting Arduino after 3 seconds...");
+  delay(3000);
+  Serial.println("RESETTING");
+  digitalWriteFast(resetPin, LOW);
+}
+
 //// SETUP ////
 void setup() {
   // -- DEFINE BITRATE -- //
@@ -500,6 +536,7 @@ void setup() {
   myTransfer.begin(Serial1, true);
 
   // -- DEFINE PINS -- //
+  digitalWriteFast(resetPin, HIGH);
   // input
   pinMode(lickPin, INPUT);
   //output
@@ -510,6 +547,7 @@ void setup() {
   pinMode(speakerDeliveryPin, OUTPUT);
   pinMode(lickDetectPin, OUTPUT);
   pinMode(bruker2PTriggerPin, OUTPUT);
+  pinMode(resetPin, OUTPUT);
 
   // -- INITIALIZE TOUCH SENSOR -- //
   Serial.println("MPR121 check...");
@@ -539,5 +577,8 @@ void loop() {
     offSolenoid(ms);
     consuming(ms);
     vacuum(ms);
+  }
+  else if (currentTrial == metadata.totalNumberOfTrials) {
+    reset_board();
   }
 }
