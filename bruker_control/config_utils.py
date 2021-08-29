@@ -122,7 +122,7 @@ def read_config(config_file_path: Path) -> dict:
 
 def write_experiment_config(config_template: dict, experiment_arrays: list,
                             dropped_frames: list, team: str, subject_id: str,
-                            imaging_plane: str):
+                            imaging_plane: str, current_plane: int):
     """
     Writes experiental configuration file to Raw Data drive.
 
@@ -145,6 +145,8 @@ def write_experiment_config(config_template: dict, experiment_arrays: list,
             Subject ID from metadata_args["subject_id"]
         imaging_plane:
             Plane 2P images were acquired at, the Z-axis value
+        current_plane:
+            Current plane being imaged as in 1st, 2nd, 3rd, etc
     """
 
     # Gather session date using datetime

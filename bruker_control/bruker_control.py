@@ -31,15 +31,15 @@ from pathlib import Path
 # Import sys for exiting program safely
 # import sys
 
-# Static Directory for teams directory in Raw Data, drive E:
-teams_path = Path("X:/bruker_refactor_testing")
+# Static Directory for teams found in SNLKT Server
+teams_path = Path("X:/")
 
-# Make list of authorized teams that can use the Bruker Scope
+# Make list of authorized teams that can use the Bruker Scope for imaging
 authorized_teams = ["specialk", "Deryn"]
 
 # Generate valid team choices for argparser variable "team" by checking the
 # directories on the server
-team_choices = [team.name for team in teams_path.glob("*") if team
+team_choices = [team.name for team in teams_path.glob("*") if team.name
                 in authorized_teams]
 
 ###############################################################################
@@ -69,7 +69,6 @@ if __name__ == "__main__":
                                  action='store',
                                  dest='imaging_planes',
                                  help='Number of Imaging Planes (required)',
-                                 default=None,
                                  required=True)
 
     # Add mouse id argument
@@ -85,8 +84,9 @@ if __name__ == "__main__":
                                  type=str,
                                  action='store',
                                  dest='experimenter',
-                                 help='Experimenter Full Name (required)',
-                                 required=True)
+                                 help='Experimenter Full Name (optional)',
+                                 default=None,
+                                 required=False)
 
     # Add demo flag
     metadata_parser.add_argument('-d', '--demo',

@@ -13,6 +13,7 @@ import win32com.client
 
 # Import datetime for folder naming
 from datetime import datetime
+from dateutil.tz import tzlocal
 
 # Save the Praire View application as pl
 pl = win32com.client.Dispatch("PrairieLink.Application")
@@ -91,7 +92,7 @@ def abort_recording():
 # -----------------------------------------------------------------------------
 
 
-def set_filename(team: str, subject_id: str) -> str:
+def set_filename(team: str, subject_id: str, current_plane: int) -> str:
     """
     Sets Microscopy and Behavior recording filenames and directories.
 
@@ -110,7 +111,7 @@ def set_filename(team: str, subject_id: str) -> str:
     """
 
     # Get Z Axis Imaging plane from Prairie View
-    imaging_plane = pl.GetMotorPosition("Z")
+    imaging_plane = str(pl.GetMotorPosition("Z"))
 
     # Gather session date using datetime
     session_date = datetime.today().strftime("%Y%m%d")
@@ -123,8 +124,8 @@ def set_filename(team: str, subject_id: str) -> str:
 
     # Set session name by joining variables with underscores
     session_name = "_".join([session_date, subject_id,
-                             "plane{}".format(imaging_plane),
-                             "raw"])
+                             "plane{}".format(current_plane),
+                             imaging_plane, "raw"])
 
     # Set imaging filename by adding 2p to session_name
     imaging_filename = "_".join([session_name, "2p"])
@@ -171,7 +172,8 @@ def start_tseries():
     pl.SendScriptCommands("-TSeries")
 
 
-def start_microscopy_session(project: str, subject_id: str) -> str:
+def start_microscopy_session(project: str, subject_id: str,
+                             current_plane: int) -> str:
     """
     Readies the Bruker 2-Photon microscope for an experiment
 
@@ -184,6 +186,8 @@ def start_microscopy_session(project: str, subject_id: str) -> str:
             Name of project for recording
         subject_id:
             Name of the experimental subject
+        current_plane:
+            Current plane being imaged as in 1st, 2nd, 3rd, etc
 
     Returns:
         imaging_plane
@@ -191,20 +195,27 @@ def start_microscopy_session(project: str, subject_id: str) -> str:
 
     pv_connect()
 
-    imaging_plane = set_filename(project, subject_id)
+    imaging_plane = set_filename(project, subject_id, current_plane)
 
     start_tseries()
 
     return imaging_plane
 
 
-def end_microscopy_session():
+def end_microscopy_session() -> datetime:
     """
     Aborts the microscopy session and disconnects from Prairie View.
 
     Used when the data for the given experiment has been collected and written
     to disk.  Invokes the abort command and disconnects from Prarie View with
-    their API.  This function takes no arguments and returns nothing.
+    their API.  This function takes no arguments.
+
+    Returns:
+        session_end_time
+            Date and time that the session ended.
     """
 
     abort_recording()
+    session_end_time = datetime.now(tzlocal())
+
+    return session_end_time
