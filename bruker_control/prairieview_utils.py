@@ -105,6 +105,8 @@ def set_filename(team: str, subject_id: str, current_plane: int) -> str:
             The team performing the experiment
         subject_id:
             The subject being recorded
+        current_plane:
+            The plane being imaged as in 1st, 2nd, 3rd, etc
 
     Returns:
         imaging_plane
@@ -127,8 +129,17 @@ def set_filename(team: str, subject_id: str, current_plane: int) -> str:
                              "plane{}".format(current_plane),
                              imaging_plane, "raw"])
 
+    # # Set behavior filename
+    # behavior_filename = "_".join([session_name, "behavior"])
+    #
+    # pl.SendScriptCommands("-SetState directory {} VoltageRecording"
+    #                       .format(behavior_filename))
+
     # Set imaging filename by adding 2p to session_name
-    imaging_filename = "_".join([session_name, "2p"])
+    # Until 5.6 Update, having 2P in the name is redundant.  This will just
+    # assign imaging_filename to session_name until then.
+    # imaging_filename = "_".join([session_name, "2p"])
+    imaging_filename = session_name
 
     pl.SendScriptCommands("-SetFileName Tseries {}".format(imaging_filename))
 
@@ -138,12 +149,6 @@ def set_filename(team: str, subject_id: str, current_plane: int) -> str:
     #
     # pl.SendScriptCommands("-SetState directory {} VoltageRecording"
     #                       .format(behavior_dir))
-
-    # Set behavior filename
-    behavior_filename = "_".join([session_name, "behavior"])
-
-    pl.SendScriptCommands("-SetState directory {} VoltageRecording"
-                          .format(behavior_filename))
 
     return imaging_plane
 
@@ -158,15 +163,17 @@ def start_tseries():
     Starts Prairie View T-Series 2P Recording
 
     Connects to Prairie View and starts the T-Series which will wait for an
-    input trigger. Waiting for an input trigger is done within Prairie View's
-    GUI.  This argument takes no arguments and returns nothing.
+    input trigger.  Waiting for an input trigger is done within Prairie View's
+    GUI.  It also ensures that the microscope's setting is put to Resonant
+    Galvo in case the user forgot.  This argument takes no arguments and
+    returns nothing.
     """
-
-    # Connect to Prairie View
-    pv_connect()
 
     # Tell user that the T-Series is starting and waiting for trigger
     print("Starting T-Series: Waiting for Input Trigger")
+
+    # Make sure that the acquisition mode is in Resonant Galvo
+    pl.SendScriptCommands("-SetAcquisitionMode 'Resonant Galvo'")
 
     # Send T-Series command
     pl.SendScriptCommands("-TSeries")
@@ -208,14 +215,7 @@ def end_microscopy_session() -> datetime:
 
     Used when the data for the given experiment has been collected and written
     to disk.  Invokes the abort command and disconnects from Prarie View with
-    their API.  This function takes no arguments.
-
-    Returns:
-        session_end_time
-            Date and time that the session ended.
+    their API.  This function takes no arguments and returns nothing.
     """
 
     abort_recording()
-    session_end_time = datetime.now(tzlocal())
-
-    return session_end_time

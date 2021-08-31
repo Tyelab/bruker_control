@@ -4,7 +4,7 @@
 ###############################################################################
 # Import Packages
 ###############################################################################
-# File Types
+
 # Import JSON for configuration file
 import json
 
@@ -154,7 +154,8 @@ def write_experiment_config(config_template: dict, experiment_arrays: list,
 
     # Generate the session_name
     session_name = "_".join([session_date, subject_id,
-                             "plane{}".format(imaging_plane)])
+                             "plane{}".format(current_plane),
+                             imaging_plane])
 
     # Generate Experiment Configuration Directory Path
     config_dir = config_basepath + team + "/config/"

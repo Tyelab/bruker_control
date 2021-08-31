@@ -145,7 +145,6 @@ int metadata_rx() {
       
       acquireMetaData = false;
       transmissionStatus++;
-      Serial.println(transmissionStatus);
       acquireTrials = true;
     }
   }
@@ -168,7 +167,6 @@ int trials_rx() {
         transmissionStatus++;
         transmissionStatus++;
       }
-      Serial.println(transmissionStatus);
       acquireITI = true;
     }
   }
@@ -192,7 +190,6 @@ int iti_rx() {
         transmissionStatus++;
         transmissionStatus++;
       }
-      Serial.println(transmissionStatus);
       acquireNoise = true;
     }
   }
@@ -216,8 +213,6 @@ int noise_rx() {
         transmissionStatus++;
         transmissionStatus++;
       }
-      Serial.println(transmissionStatus);
-
       pythonGoSignal = true;
     }
   }
@@ -239,10 +234,10 @@ int pythonGo_rx() {
     if (myTransfer.available())
     {
       myTransfer.rxObj(pythonGo);
-      Serial.println("Received Python Status");
+      Serial.println("Python transmission complete!");
   
       myTransfer.sendDatum(pythonGo);
-      Serial.println("Sent Python Status");
+      Serial.println("Sent confirmation to Python");
 
       currentTrial++;
 

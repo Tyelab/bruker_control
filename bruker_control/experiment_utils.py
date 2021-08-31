@@ -70,8 +70,8 @@ def run_imaging_experiment(metadata_args):
                                                              config_template)
 
         # Calculate number of frames
-        # num_frames = video_utils.calculate_frames(session_len_s)
-        num_frames = 60
+        num_frames = video_utils.calculate_frames(session_len_s)
+        # num_frames = 60
 
         # Start preview of animal's face.  Zero microscope over lens here.
         video_utils.capture_preview()
@@ -97,7 +97,7 @@ def run_imaging_experiment(metadata_args):
                                              team, subject_id, imaging_plane,
                                              current_plane)
 
-        session_end_time = prairieview_utils.end_microscopy_session()
+        prairieview_utils.end_microscopy_session()
 
         if current_plane == requested_planes:
 
@@ -105,11 +105,12 @@ def run_imaging_experiment(metadata_args):
             exp_running = False
 
         else:
-            completed_planes += 1
+            current_plane += 1
 
     if team == "specialk":
-        nwb_utils.build_nwb_file(experimenter, team, session_end_time,
-                                 imaging_plane, subject_id)
+
+        nwb_utils.build_nwb_file(experimenter, team, subject_id, imaging_plane)
+
         print("Exiting...")
         sys.exit()
 

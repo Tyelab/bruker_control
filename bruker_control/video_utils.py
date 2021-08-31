@@ -290,7 +290,7 @@ def capture_recording(num_frames: int, current_plane: int, imaging_plane: str,
     session_date = datetime.today().strftime("%Y%m%d")
 
     # Set microscopy session's path
-    video_dir = basepath + team + "/behavior/"
+    video_dir = basepath + team + "/video/"
 
     # Set session name by joining variables with underscores
     session_name = "_".join([session_date, subject_id,
@@ -317,7 +317,8 @@ def capture_recording(num_frames: int, current_plane: int, imaging_plane: str,
 
     frame_number = 1
 
-    for frame in tqdm(range(num_frames), desc="Experiment Progress"):
+    for frame in tqdm(range(num_frames), desc="Experiment Progress",
+                      ascii=True):
 
         # Introduce try/except block in case of dropped frames
         try:
@@ -403,7 +404,7 @@ def calculate_frames(session_len_s: int) -> int:
 
     # Generate buffer of 300 images to ensure enough data is captured when
     # session ends.
-    imaging_buffer = 300
+    imaging_buffer = 150
 
     # Calculate number of video frames
     video_frames = (round(session_len_s)*30) + imaging_buffer

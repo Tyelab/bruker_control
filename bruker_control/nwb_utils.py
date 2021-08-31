@@ -3,18 +3,33 @@
 # Neurodata Without Borders at https://nwb.org/
 # pyNWB at https://github.com/NeurodataWithoutBorders/pynwb
 # pyNWB docs at https://pynwb.readthedocs.io/en/stable/
+# Assistance from Chris Roat, Stanford University Deisseroth Lab August 2021
+# https://github.com/chrisroat
+# https://github.com/deisseroth-lab/two-photon/blob/main/two_photon/metadata.py
+# Assistance from Ryan Ly, Berkeley Lawrence National Lab August 2021
+# https://github.com/rly
 
+# Import datetime for file grepping and date manipulation
 from datetime import datetime
+# Import dateutil.tz for timezone functions
 from dateutil.tz import tzlocal
+# Import datetime parser for getting Bruker's timestamps into correct format
 from dateutil import parser as dt_parser
+# Import uuid module for generating unique IDs for given recording
 import uuid
+# Import pathlib for path manipulation and creation
 from pathlib import Path
+# Import xml.etree for parsing data from Bruker .env files
 import xml.etree.ElementTree as ET
-
+# Import YAML for gathering metadata about project
 from ruamel.yaml import YAML
+# Import Tuple typing for typehints in documentation
+from typing import Tuple
+
+# Import necessary pyNWB modules for writing out base NWB file to disk
 from pynwb import NWBFile, TimeSeries, NWBHDF5IO
 from pynwb.image import ImageSeries
-from pynwb.ophys import TwoPhotonSeries, OpticalChannel
+from pynwb.ophys import OpticalChannel
 
 # NWB Metadata Requirements: Prairie View Keys
 # Environment keys at Root node of .env file
@@ -27,82 +42,171 @@ pv_state_idx_keys = {"laserWavelength": 0, "laserPower": 0, "pmtGain": 0}
 # Project template configuration directories are within project directories.
 # The snlkt server housing these directories is mounted to the X: volume on the
 # machine BRUKER.
-yaml_basepath = "X:/"
+server_basepath = "X:/"
 
-# Experimental configuration directories are in the Raw Data volume on the
-# machine BRUKER which is mounted to E:. This is where configs will be written
+# Bruker environment files are written to folders within the selected teams'
+# directories in the Raw Data volume E: on the machine BRUKER. This is where
+# Bruker .env files are written.
 env_basepath = "E:/teams/"
 
 
-def build_nwb_file(experimenter: str, team: str, session_end_time: datetime,
-                   imaging_plane: str, subject_id: str):
+def build_nwb_file(experimenter: str, team: str, subject_id: str,
+                   imaging_plane: str):
+    """
+    Builds base NWB file with relevant metadata for session.
 
+    Generates an NWB file and writes it to the project's directory according
+    to animal's place along the study (ie baseline).  Unites different
+    functions together when buliding the NWB file.
+
+    Args:
+        experimenter:
+            Experimenter value from the metadata_args["experimenter"]
+        team:
+            Team value from metadata_args["team"]
+        subject_id:
+            Subject ID from metadata_args["subject"]
+        imaging_plane:
+            Plane 2P images were acquired at, the Z-axis value
+    """
+
+    # Get the formatted session_id and newly created session path
+    session_id, session_fullpath = gen_session_id(team, subject_id)
+
+    # Parse Bruker's metadata for NWB file
     bruker_metadata = get_bruker_metadata(team, imaging_plane)
 
+    # Grab project's specific metadata for NWB file
     project_metadata = get_project_metadata(team, subject_id)
 
-    nwbfile = gen_base_nwbfile(experimenter, team, bruker_metadata,
-                               session_end_time, project_metadata)
+    # Build the base NWB file
+    nwbfile = gen_base_nwbfile(experimenter, session_id, bruker_metadata,
+                               project_metadata)
 
-    nwbfile = append_device_info(nwbfile, project_metadata, bruker_metadata,
+    # Add imaging information to the NWB file
+    nwbfile = append_imaging_info(nwbfile, project_metadata, bruker_metadata,
                                  imaging_plane)
 
-    print(nwbfile)
-    # nwbfile = append_subject_info(nwbfile, mouse_metadata)
+    # TODO: Implement append_behavior_info
+    # nwbfile = append_behavior_info(nwbfile)
+
+    # Write the NWB files to disk
+    write_nwb_file(nwbfile, session_fullpath, subject_id, session_id)
+
+
+def write_nwb_file(nwbfile: NWBFile, session_fullpath: Path, subject_id: str,
+                   session_id: str):
+    """
+    Writes base NWB file to disk
+
+    Receives base NWB file and writes file to disk according to subject's place
+    in the study.
+
+    Args:
+        nwbfile:
+            Base NWB file generated during build_nwb_file()
+        session_fullpath:
+            Full path to the appropriate session that was just completed for
+            the subject
+        subject_id:
+            Subject ID from metadata_args["subject"]
+        session_id:
+            Formatted session ID describing the session's place in the broader
+            context of the study.
+    """
+
+    # Get today's date for file formatting and convert to formatted string
+    today = datetime.today()
+    today = today.strftime("%Y%m%d")
+
+    # Create filename for the NWB file
+    nwb_filename = "_".join([today, subject_id, session_id])
+
+    # Append the NWB filename just created to the session path
+    nwb_path = session_fullpath / (nwb_filename + ".nwb")
+
+    # Create NWBHDF5IO object and give it the nwb_path, write the file to disk,
+    # and close the IO writer.
+    io = NWBHDF5IO(nwb_path, mode="w")
+    io.write(nwbfile)
+    io.close()
 
 
 def get_bruker_metadata(team: str, imaging_plane: str) -> dict:
+    """
+    Parses Prairie View .env file for NWB metadata.
+
+    Grabs newly created .env file from Prairie View session and formats
+    the information into NWB metadata.
+
+    Args:
+        team:
+            Team value from metadata_args["team"]
+        imaging_plane:
+            Plane 2P images were acquired at, the Z-axis value
+
+    Returns:
+        bruker_metadata:
+    """
 
     # Build base path for microscopy session
     base_env_path = env_basepath + team + "/microscopy/"
 
+    # Get today's date for file formatting and convert to formatted string
     today = datetime.today()
     today = today.strftime("%Y%m%d")
-    env_glob_pattern = f"{today}*{imaging_plane}*/*2p*.env"
 
-    # Glob the current plane's path to find the environment file
+    # Build .env file glob pattern
+    env_glob_pattern = f"{today}*{imaging_plane}*/*raw*.env"
+
+    # Glob the current plane's path to find the environment file and put
+    # results into a list
     bruker_env_glob = [path for path in
                        Path(base_env_path).glob(env_glob_pattern)]
 
     # TODO: If there's multiple 2p environment files in one imaging plane's
     # set up there's something wrong. A warning at least or an exception should
     # be raised
+    # There will only be one .env file for the globbed files, so grab it's path
     bruker_env_path = bruker_env_glob[0]
 
+    # Parse the Bruker metadata .env, which is formatted as XML, and get the
+    # "root" of the XML tree
     metadata_root = ET.parse(bruker_env_path).getroot()
 
+    # Get Prairie View states out of the XML with get_pv_states
     bruker_metadata = get_pv_states(pv_state_idx_keys, pv_state_noidx_keys,
                                     metadata_root)
 
     return bruker_metadata
 
 
-def get_project_metadata(team: str, subject_id: str):
-
-    # Define YAML object parser with safe loading
-    yaml = YAML(typ='safe')
-
-    # Construct the base path for the project's YAML file
-    base_yaml_path = yaml_basepath + team + "/2p_template_configs/"
-
-    # Until teams and studies/projects are implemented across all directories,
-    # this if/else will have to do
-    if "LH" in subject_id:
-        project_yaml_path = Path(base_yaml_path) / "nwb_lh_base.yml"
-    else:
-        project_yaml_path = base_yaml_path + "nwb_cs_base.yml"
-
-    project_metadata = yaml.load(project_yaml_path)
-
-    return project_metadata
-
 def get_pv_states(pv_idx_keys: dict, pv_noidx_keys: list,
                   metadata_root: ET) -> dict:
+    """
+    Parse Bruker .env file for NWB standard metadata.
+
+    Gets values from Bruker .env file based on selected keys relevant for NWB
+    standard.  Parses file for both indexed and non-indexed values.
+
+    Args:
+        pv_idx_keys:
+            Indexed keys in the .env file
+        pv_noidx_keys:
+            Keys that are directly accessible in PVStateValues
+        metadata_root:
+            Parsed XML root from .env tree
+
+    Returns:
+        bruker_metadata
+    """
 
     # Use dictionary comprehension for environment values in Root of .env to
     # start the bruker_metadata dictionary
     bruker_metadata = {key: value for key, value in metadata_root.items()}
 
+    # Get start time from .env file and convert to datetime object.  Then add
+    # the local timezone information for NWB standard.
     bruker_metadata["date"] = dt_parser.parse(bruker_metadata["date"])
     bruker_metadata["date"] = bruker_metadata["date"].replace(tzinfo=tzlocal())
 
@@ -122,10 +226,27 @@ def get_pv_states(pv_idx_keys: dict, pv_noidx_keys: list,
 
     return bruker_metadata
 
-def get_idx_states(pv_idx_keys, metadata_root):
 
+def get_idx_states(pv_idx_keys: dict, metadata_root: ET) -> dict:
+    """
+    Gets indexed values from Prairie View .env file.
+
+    Args:
+        pv_idx_keys:
+            Indexed keys in the .env file
+        metadata_root:
+            Parsed XML root from .env tree
+
+    Returns:
+        pv_idx_metadata
+    """
+
+    # Build empty metadata dictionary to append metadata to
     pv_idx_metadata = {}
 
+    # For each key and index requested in the pv_idx_keys, build an xpath for
+    # the values and search the metadata root for it.  Finally, append those
+    # values to the dictionary.
     for key, idx in pv_idx_keys.items():
         xpath = f".//PVStateValue[@key='{key}']/IndexedValue[@index='{idx}']"
         element = metadata_root.find(xpath)
@@ -134,10 +255,25 @@ def get_idx_states(pv_idx_keys, metadata_root):
     return pv_idx_metadata
 
 
-def get_noidx_states(pv_noidx_keys, metadata_root):
+def get_noidx_states(pv_noidx_keys, metadata_root) -> dict:
+    """
+    Gets non-indexed values from Prairie View .env file.
 
+    Args:
+        pv_noidx_keys:
+            Keys that are directly accessible in PVStateValues
+        metadata_root:
+            Parsed XML root from .env tree
+
+    Returns:
+        pv_noidx_metadata
+    """
+
+    # Build empty metadata dictionary to append metadata to
     pv_noidx_metadata = {}
 
+    # For the keys in pv_noidx_keys, build an xpath for each one and search the
+    # metadata root for it.  Finally, append those values to the dictionary.
     for key in pv_noidx_keys:
         xpath = f".//PVStateValue[@key='{key}']"
         element = metadata_root.find(xpath)
@@ -146,9 +282,46 @@ def get_noidx_states(pv_noidx_keys, metadata_root):
     return pv_noidx_metadata
 
 
-def gen_base_nwbfile(experimenter: str, team: str,
-                     bruker_metadata: dict, session_end_time: datetime,
+def get_project_metadata(team: str, subject_id: str):
+    """
+    Grabs and parses project metadata yml file for NWB file generation.
+
+    Each project has its own metadata associated with it that NWB uses in its
+    standard.  This function grabs the proper file and builds a dictionary that
+    is used when populating metadata later.
+
+    Args:
+        team:
+            Team value from metadata_args["team"]
+        subject_id:
+            Subject ID from metadata_args["subject"]
+
+    Returns:
+        project_metadata
+    """
+
+    # Define YAML object parser with safe loading
+    yaml = YAML(typ='safe')
+
+    # Construct the base path for the project's YAML file
+    base_yaml_path = server_basepath + team + "/2p_template_configs/"
+
+    # Until teams and studies/projects are implemented across all directories,
+    # this if/else will have to do
+    if "LH" in subject_id:
+        project_yaml_path = Path(base_yaml_path + "nwb_lh_base.yml")
+    else:
+        project_yaml_path = base_yaml_path + "nwb_cs_base.yml"
+
+    # Load the project metadata into a dictionary
+    project_metadata = yaml.load(project_yaml_path)
+
+    return project_metadata
+
+
+def gen_base_nwbfile(experimenter: str, session_id: str, bruker_metadata: dict,
                      project_metadata: dict) -> NWBFile:
+
     """
     Build base NWB file with appropriate metadata.
 
@@ -160,13 +333,14 @@ def gen_base_nwbfile(experimenter: str, team: str,
     Args:
         experimenter:
             Experimenter value from the metadata_args["experimenter"]
-        project_metadata:
-            Metadata for a given project's information for NWB standard
+        team:
+            Team value from metadata_args["team"]
+        subject_id:
+            Subject ID from metadata_args["subject"]
+        session_id:
+            Appropriately set value for session_id NWB parameter.
         bruker_metadata:
             Metadata for NWB parsed from Prairie View XML and env files.
-        session_end_time:
-            Time session ended the moment prairieview_utils.abort_recording()
-            is completed.
         project_metadata:
             Metadata obtained from team project's YAML file.
 
@@ -179,56 +353,219 @@ def gen_base_nwbfile(experimenter: str, team: str,
         session_description=project_metadata["session_description"] ,
         identifier=str(uuid.uuid4()),
         session_start_time=bruker_metadata["date"],
-        # session_end_time=session_end_time, no session_end_time required?
         experimenter=experimenter,
         lab=project_metadata["lab"],
         institution=project_metadata["institution"],
         experiment_description=project_metadata["experiment_description"],
-        # TODO: Automatically generate the session ID names from subject's
-        # directory. For LH, they should be: Baseline, Post LH, Post Ketamine
-        session_id="Testing ID"
+        # TODO: Get subject understood and add to NWB File properly/make
+        # extension for adding relevant values to the system at runtime
+        # subject=nwbfilelinktosubject?
+        session_id=session_id
     )
 
     return nwbfile
 
 
-def append_device_info(nwbfile: NWBFile, project_metadata: dict,
-                       bruker_metadata: dict, imaging_plane) -> NWBFile:
+def append_imaging_info(nwbfile: NWBFile, project_metadata: dict,
+                        bruker_metadata: dict, imaging_plane) -> NWBFile:
+    """
+    Appends relevant 2P imaging metadata to a base NWB file.
 
+    Creates NWB devices for laser and microscope, optical channel for imaged
+    and populates them with appropriate metadata.
+
+    Args:
+        nwbfile:
+            NWB File with basic metadata for session
+        project_metadata:
+            Metadata for given project from project's yml file
+        bruker_metadata:
+            Metadata for microscopy session from Prairie View .env file
+        imaging_plane:
+            Plane 2P images were acquired at, the Z-axis value
+
+    Returns:
+        NWBFile
+            NWB File with base imaging information appended.
+    """
+
+    # Build microscope object
     microscope = nwbfile.create_device(
         name=project_metadata["microscope_name"],
         description=project_metadata["microscope_description"],
         manufacturer=project_metadata["microscope_manufacturer"]
     )
 
+    # Build laser object
     laser = nwbfile.create_device(
         name=project_metadata["laser_name"],
         description=project_metadata["laser_description"],
         manufacturer=project_metadata["microscope_manufacturer"]
     )
 
+    # Unsure if appropriate in this location, probably should have device
+    # in face recording extension we make...
+    # camera = nwbfile.create_device(
+    #     name=project_metadata["camera_name"],
+    #     description=project_metadata["camera_description"],
+    #     manufacturer=project_metadata["camera_manufacturer"]
+    # )
+
+    # Build optical channel object
     optical_channel = OpticalChannel(
         name="OpticalChannel",
         description="an optical channel",
         emission_lambda = float(bruker_metadata["laserWavelength"])
     )
 
+    # Build imaging plane
     img_plane = nwbfile.create_imaging_plane(
-        name="Imaging Plane at: " + imaging_plane,
+        name=nwbfile.session_id + ": " + imaging_plane,
         optical_channel=optical_channel,
         imaging_rate=float(bruker_metadata["framerate"]),
-        description="Test",
+        description="2P Discrimination Task Imaging at " + imaging_plane,
         device=microscope,
         excitation_lambda=project_metadata["gcamp_excitation_lambda"],
         indicator=project_metadata["gcamp_indicator"],
         location=project_metadata["gcamp_location"],
         grid_spacing=[0.01, 0.01], # is this resolution of each pixel space?
         grid_spacing_unit="meters",
-        origin_coords=[1., 2., 3.], # what are our origin coordinates? 000 right?
+        origin_coords=[0., 0.],
         origin_coords_unit="meters"
     )
 
     return nwbfile
 
-def get_subject_info(nwbfile: NWBFile, mouse_metadata: dict) -> NWBFile:
-    pass
+
+def gen_session_id(team: str, subject_id: str) -> Tuple[str, Path]:
+    """
+    Generates session ID for NWB files.
+
+    NWB IDs for recordings contain information describing basic information
+    about the recording (ie baseline, pre-treatment, post-treatment).  This
+    function creates the ID for the mouse and builds new directories to write
+    NWB files to.
+
+    Args:
+        team:
+            Team value from metadata_args["team"]
+        subject_id:
+            Subject ID from metadata_args["subject"]
+
+    Returns:
+        session_id
+        session_fullpath
+
+    """
+
+    session_elements = [server_basepath, team, "learned_helplessness",
+                        subject_id, "2p"]
+
+    session_basename = "/".join(session_elements)
+
+    session_basepath = Path(session_basename)
+
+    sessions = [session.name for session in session_basepath.glob("*")]
+
+    session, session_fullpath = determine_session(sessions, session_basepath)
+
+    session_id = session.upper()
+
+    return session_id, session_fullpath
+
+
+def determine_session(sessions: list, session_basepath: Path) -> Tuple[str,
+                                                                       Path]:
+    """
+    Determines which imaging session the recording belongs to.
+
+    Takes in list of session paths, determines the length of that list, and
+    builds a new directory for storing the NWB file to be written in the next
+    steps.  In doing so, it also assigns a session ID to the file.
+
+    Args:
+        sessions:
+            List of globbed paths for subjects 2P recordings
+        session_basepath:
+            Base directory for location of subject's 2P recording
+
+    Returns:
+        session
+        session_fullpath
+    """
+
+    if len(sessions) == 0:
+
+        session_fullpath = session_basepath / "baseline"
+        session_fullpath.mkdir(parents=True)
+        session = "baseline"
+
+    elif len(sessions) == 1:
+
+        session_fullpath = session_basepath / "post_lh"
+        session_fullpath.mkdir(parents=True)
+        session = "post_lh"
+
+    elif len(sessions) == 2:
+
+        session_fullpath = session_basepath / "post_ketamine"
+        session_fullpath.mkdir(parents=True)
+        session = "post_ketamine"
+
+    return session, session_fullpath
+
+# Likely unusable for NWB standard, written due to misunderstanding of Subject
+# def get_subject_metadata(team: str, subject_id: str):
+#
+#     # Define YAML object parser with safe loading
+#     yaml = YAML(typ='safe')
+#
+#     # Construct the base path for the subject's YAML file
+#     base_yaml_path = Path(server_basepath + team + "/animal_metadata/")
+#
+#     animal_glob = [subject for subject in
+#                    base_yaml_path.glob(f"{subject_id}.yml")]
+#
+#     # TODO: Raise warning here if there's more than one animal presented in
+#     # this glob
+#     subject_metadata = yaml.load(animal_glob[0])
+#
+#     # Get the session's date to grab the animal's weight for this session
+#     today = datetime.today()
+#     today = today.strftime("%Y%m%d")
+#
+#     weight = subject_metadata["weights"][today]
+#
+#     subject = {
+#         "subject_id": subject_metadata["subject_id"],
+#         "date_of_birth": subject_metadata["date_of_birth"],
+#         "description": subject_metadata["description"],
+#         "genotype": subject_metadata["genotype"],
+#         "sex": subject_metadata["sex"],
+#         "species": subject_metadata["species"],
+#         "strain": subject_metadata["strain"],
+#         "weight": subject_metadata["weights"][today]
+#     }
+#
+#     return subject
+
+# Unsure about usecase for this Subject file in NWB...
+# def append_subject_info(nwbfile: NWBFile, subject_metadata: dict) -> NWBFile:
+#
+    # today = datetime.today()
+    # today = today.strftime("%Y%m%d")
+#
+#     weight = subject_metadata["weights"][today]
+#
+#     subject_metadata = {
+#         subject_id=subject_metadata["subject_id"]
+#         date_of_birth=subject_metadata["date_of_birth"],
+#         description=subject_metadata["description"],
+#         genotype=subject_metadata["genotype"],
+#         sex=subject_metadata["sex"],
+#         species=subject_metadata["species"],
+#         strain=subject_metadata["strain"],
+#         weight=subject_metadata["weights"][today]
+#     }
+#
+#     return subject
