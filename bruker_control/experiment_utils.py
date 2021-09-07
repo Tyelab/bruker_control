@@ -71,7 +71,6 @@ def run_imaging_experiment(metadata_args):
 
         # Calculate number of frames
         num_frames = video_utils.calculate_frames(session_len_s)
-        # num_frames = 60
 
         # Start preview of animal's face.  Zero microscope over lens here.
         video_utils.capture_preview()
@@ -79,7 +78,8 @@ def run_imaging_experiment(metadata_args):
         # Once the preview is escaped, start the microscopy session.
         imaging_plane = prairieview_utils.start_microscopy_session(team,
                                                                    subject_id,
-                                                                   current_plane)
+                                                                   current_plane
+                                                                   )
 
         # Now that the Bruker scope is ready and waiting, send the data to
         # the Arduino through pySerialTransfer!

@@ -6,7 +6,7 @@
 # Assistance from Chris Roat, Stanford University Deisseroth Lab August 2021
 # https://github.com/chrisroat
 # https://github.com/deisseroth-lab/two-photon/blob/main/two_photon/metadata.py
-# Assistance from Ryan Ly, Berkeley Lawrence National Lab August 2021
+# Assistance from Ryan Ly, Lawrence Berkeley National Lab August 2021
 # https://github.com/rly
 
 # Import datetime for file grepping and date manipulation
@@ -28,6 +28,7 @@ from typing import Tuple
 
 # Import necessary pyNWB modules for writing out base NWB file to disk
 from pynwb import NWBFile, TimeSeries, NWBHDF5IO
+from pynwb.file import Subject
 from pynwb.image import ImageSeries
 from pynwb.ophys import OpticalChannel
 
@@ -79,19 +80,25 @@ def build_nwb_file(experimenter: str, team: str, subject_id: str,
     # Grab project's specific metadata for NWB file
     project_metadata = get_project_metadata(team, subject_id)
 
+    subject_metadata = get_subject_metadata(team, subject_id)
+
     # Build the base NWB file
     nwbfile = gen_base_nwbfile(experimenter, session_id, bruker_metadata,
                                project_metadata)
 
     # Add imaging information to the NWB file
     nwbfile = append_imaging_info(nwbfile, project_metadata, bruker_metadata,
-                                 imaging_plane)
+                                  imaging_plane)
+
+    nwbfile = append_subject_info(nwbfile, subject_metadata)
 
     # TODO: Implement append_behavior_info
     # nwbfile = append_behavior_info(nwbfile)
 
+    print(nwbfile)
+
     # Write the NWB files to disk
-    write_nwb_file(nwbfile, session_fullpath, subject_id, session_id)
+    # write_nwb_file(nwbfile, session_fullpath, subject_id, session_id)
 
 
 def write_nwb_file(nwbfile: NWBFile, session_fullpath: Path, subject_id: str,
@@ -120,7 +127,7 @@ def write_nwb_file(nwbfile: NWBFile, session_fullpath: Path, subject_id: str,
     today = today.strftime("%Y%m%d")
 
     # Create filename for the NWB file
-    nwb_filename = "_".join([today, subject_id, session_id])
+    nwb_filename = "_".join([today, subject_id, session_id, "2P"])
 
     # Append the NWB filename just created to the session path
     nwb_path = session_fullpath / (nwb_filename + ".nwb")
@@ -357,9 +364,6 @@ def gen_base_nwbfile(experimenter: str, session_id: str, bruker_metadata: dict,
         lab=project_metadata["lab"],
         institution=project_metadata["institution"],
         experiment_description=project_metadata["experiment_description"],
-        # TODO: Get subject understood and add to NWB File properly/make
-        # extension for adding relevant values to the system at runtime
-        # subject=nwbfilelinktosubject?
         session_id=session_id
     )
 
@@ -403,19 +407,21 @@ def append_imaging_info(nwbfile: NWBFile, project_metadata: dict,
         manufacturer=project_metadata["microscope_manufacturer"]
     )
 
-    # Unsure if appropriate in this location, probably should have device
-    # in face recording extension we make...
-    # camera = nwbfile.create_device(
-    #     name=project_metadata["camera_name"],
-    #     description=project_metadata["camera_description"],
-    #     manufacturer=project_metadata["camera_manufacturer"]
-    # )
+    # Build camera device object
+    camera = nwbfile.create_device(
+        name=project_metadata["camera_name"],
+        description=project_metadata["camera_description"],
+        manufacturer=project_metadata["camera_manufacturer"]
+    )
 
-    # Build optical channel object
+    # TODO: Build arduino device object
+
+    # Build optical channel object; References the gcamp indicator used in
+    # the experiment similar to an RGB channel in an image.
     optical_channel = OpticalChannel(
-        name="OpticalChannel",
-        description="an optical channel",
-        emission_lambda = float(bruker_metadata["laserWavelength"])
+        name=project_metadata["gcamp_indicator"],
+        description=project_metadata["gcamp_description"],
+        emission_lambda = project_metadata["gcamp_emission_lambda"]
     )
 
     # Build imaging plane
@@ -425,12 +431,12 @@ def append_imaging_info(nwbfile: NWBFile, project_metadata: dict,
         imaging_rate=float(bruker_metadata["framerate"]),
         description="2P Discrimination Task Imaging at " + imaging_plane,
         device=microscope,
-        excitation_lambda=project_metadata["gcamp_excitation_lambda"],
+        excitation_lambda=float(bruker_metadata["laserWavelength"]),
         indicator=project_metadata["gcamp_indicator"],
         location=project_metadata["gcamp_location"],
-        grid_spacing=[0.01, 0.01], # is this resolution of each pixel space?
+        grid_spacing=[0.01, 0.01], # is this resolution of each pixel space? <- yes!
         grid_spacing_unit="meters",
-        origin_coords=[0., 0.],
+        origin_coords=[0., 0., 0.], # surgical coordinates of plane we're looking at
         origin_coords_unit="meters"
     )
 
@@ -458,17 +464,24 @@ def gen_session_id(team: str, subject_id: str) -> Tuple[str, Path]:
 
     """
 
+    # Create list of elements that compose the session path
     session_elements = [server_basepath, team, "learned_helplessness",
                         subject_id, "2p"]
 
+    # Build the session's name for converting into a path object
     session_basename = "/".join(session_elements)
 
+    # Convert basename into a path object with pathlib.Path
     session_basepath = Path(session_basename)
 
+    # Gather list of sessions completed for animal by globbing directory
     sessions = [session.name for session in session_basepath.glob("*")]
 
+    # Use determine_session() for finding which session was just completed as
+    # well as the full path for the writing the NWB file to server
     session, session_fullpath = determine_session(sessions, session_basepath)
 
+    # Convert the session ID to all uppercase for consistent string formatting
     session_id = session.upper()
 
     return session_id, session_fullpath
@@ -481,11 +494,14 @@ def determine_session(sessions: list, session_basepath: Path) -> Tuple[str,
 
     Takes in list of session paths, determines the length of that list, and
     builds a new directory for storing the NWB file to be written in the next
-    steps.  In doing so, it also assigns a session ID to the file.
+    steps.  In doing so, it also assigns a session ID to the file. Each project
+    has a known schedule of imaging for their experiments so the appropriate
+    names can be inferred by looking at how many sessions have been completed
+    in a given subject's 2p folder.
 
     Args:
         sessions:
-            List of globbed paths for subjects 2P recordings
+            List of globbed Path objects for subjects 2P recordings
         session_basepath:
             Base directory for location of subject's 2P recording
 
@@ -494,78 +510,108 @@ def determine_session(sessions: list, session_basepath: Path) -> Tuple[str,
         session_fullpath
     """
 
+    # If the length of sessions list is 0, that means this is the first session
+    # for the subject.  Therefore, this is the baseline session.
     if len(sessions) == 0:
 
+        # Append the appropriate session label to the path and build the
+        # directory.
         session_fullpath = session_basepath / "baseline"
         session_fullpath.mkdir(parents=True)
         session = "baseline"
 
+    # If the length of sessions list is 1, that means this is the second
+    # session for the subject.  Therefore, this is the post learned
+    # helplessness session.
     elif len(sessions) == 1:
 
+        # Append the appropriate session label to the path and build the
+        # directory.
         session_fullpath = session_basepath / "post_lh"
         session_fullpath.mkdir(parents=True)
         session = "post_lh"
 
+    # If the length of sessions list is 2, that means this is the third
+    # session for the subject.  Therefore, this is the post ketamine
+    # administration session.
     elif len(sessions) == 2:
 
+        # Append the appropriate session label to the path and build the
+        # directory.
         session_fullpath = session_basepath / "post_ketamine"
         session_fullpath.mkdir(parents=True)
         session = "post_ketamine"
 
     return session, session_fullpath
 
-# Likely unusable for NWB standard, written due to misunderstanding of Subject
-# def get_subject_metadata(team: str, subject_id: str):
-#
-#     # Define YAML object parser with safe loading
-#     yaml = YAML(typ='safe')
-#
-#     # Construct the base path for the subject's YAML file
-#     base_yaml_path = Path(server_basepath + team + "/animal_metadata/")
-#
-#     animal_glob = [subject for subject in
-#                    base_yaml_path.glob(f"{subject_id}.yml")]
-#
-#     # TODO: Raise warning here if there's more than one animal presented in
-#     # this glob
-#     subject_metadata = yaml.load(animal_glob[0])
-#
-#     # Get the session's date to grab the animal's weight for this session
-#     today = datetime.today()
-#     today = today.strftime("%Y%m%d")
-#
-#     weight = subject_metadata["weights"][today]
-#
-#     subject = {
-#         "subject_id": subject_metadata["subject_id"],
-#         "date_of_birth": subject_metadata["date_of_birth"],
-#         "description": subject_metadata["description"],
-#         "genotype": subject_metadata["genotype"],
-#         "sex": subject_metadata["sex"],
-#         "species": subject_metadata["species"],
-#         "strain": subject_metadata["strain"],
-#         "weight": subject_metadata["weights"][today]
-#     }
-#
-#     return subject
 
-# Unsure about usecase for this Subject file in NWB...
-# def append_subject_info(nwbfile: NWBFile, subject_metadata: dict) -> NWBFile:
-#
-    # today = datetime.today()
-    # today = today.strftime("%Y%m%d")
-#
-#     weight = subject_metadata["weights"][today]
-#
-#     subject_metadata = {
-#         subject_id=subject_metadata["subject_id"]
-#         date_of_birth=subject_metadata["date_of_birth"],
-#         description=subject_metadata["description"],
-#         genotype=subject_metadata["genotype"],
-#         sex=subject_metadata["sex"],
-#         species=subject_metadata["species"],
-#         strain=subject_metadata["strain"],
-#         weight=subject_metadata["weights"][today]
-#     }
-#
-#     return subject
+def get_subject_metadata(team: str, subject_id: str) -> dict:
+    """
+    Parses imaging subject's .yml metadata file for NWB fields
+
+    Locates and then uses ruamel.yaml to parse the metadata fields with safe
+    loading. Gathers yaml data and places it into a dictionary for use later
+    in the NWB file.
+
+    Args:
+        team:
+            Team value from metadata_args["team"]
+        subject_id:
+            Subject ID from metadata_args["subject"]
+
+    Returns:
+        subject_metadata
+    """
+
+    # Define YAML object parser with safe loading
+    yaml = YAML(typ='safe')
+
+    # Construct the base path for the subject's YAML file
+    base_yaml_path = Path(server_basepath + team + "/animal_metadata/")
+
+    animal_glob = [subject for subject in
+                   base_yaml_path.glob(f"{subject_id}.yml")]
+
+    # TODO: Raise warning here if there's more than one animal presented in
+    # this glob
+    subject_metadata = yaml.load(animal_glob[0])
+
+    return subject_metadata
+
+
+def append_subject_info(nwbfile: NWBFile, subject_metadata: dict) -> NWBFile:
+    """
+    Adds subject metadata to the base NWB file.
+
+    Takes subject metadata and builds NWB.Subject class.  Also gathers
+    appropriate weight for the animal on the day of the recording through the
+    subject metadata dictionary.
+
+    Args:
+        nwbfile:
+            NWB File with basic metadata for session
+        subject_metadata:
+            Metadata for given subject from subject's yml file
+
+    Returns:
+        NWB file with subject information added
+    """
+
+    today = datetime.today()
+    today = today.strftime("%Y%m%d")
+
+    date_of_birth = dt_parser.parse(subject_metadata["date_of_birth"])
+    date_of_birth = date_of_birth.replace(tzinfo=tzlocal())
+
+    nwbfile.subject = Subject(
+        subject_id=subject_metadata["subject_id"],
+        date_of_birth= date_of_birth,
+        description=subject_metadata["description"],
+        genotype=subject_metadata["genotype"],
+        sex=subject_metadata["sex"],
+        species=subject_metadata["species"],
+        strain=subject_metadata["strain"],
+        weight=subject_metadata["weights"][today]
+    )
+
+    return nwbfile

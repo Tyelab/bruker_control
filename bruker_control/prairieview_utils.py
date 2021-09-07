@@ -9,14 +9,14 @@
 # Import Prairie View Application
 # NOTE Prairie View Interface Installation:  Do NOT use pip install, use conda.
 # conda install pywin32
-import win32com.client
+import win32com.client as client
 
 # Import datetime for folder naming
 from datetime import datetime
 from dateutil.tz import tzlocal
 
 # Save the Praire View application as pl
-pl = win32com.client.Dispatch("PrairieLink.Application")
+pl = client.Dispatch("PrairieLink.Application")
 
 # Define microscopy basebath for where raw files are written to.  This is onto
 # the E: drive on machine BRUKER.  Set it as a string to be joined later.

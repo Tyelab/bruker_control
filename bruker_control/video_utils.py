@@ -338,7 +338,7 @@ def capture_recording(num_frames: int, current_plane: int, imaging_plane: str,
 
                 frame_number += 1
 
-        # # TODO Raise warning for frame drops? What is this error...
+        # TODO Raise warning for frame drops? What is this error...
         except:
             dropped_frames.append(frame_number)
             frame_number += 1
@@ -347,10 +347,10 @@ def capture_recording(num_frames: int, current_plane: int, imaging_plane: str,
     # Release VideoWriter object
     out.release()
 
-    # # Destroy camera window
+    # Destroy camera window
     cv2.destroyAllWindows()
-    #
-    # # Shutdown the camera
+
+    # Shutdown the camera
     shutdown_camera(camera, h)
 
     return dropped_frames
@@ -404,7 +404,7 @@ def calculate_frames(session_len_s: int) -> int:
 
     # Generate buffer of 300 images to ensure enough data is captured when
     # session ends.
-    imaging_buffer = 150
+    imaging_buffer = 300
 
     # Calculate number of video frames
     video_frames = (round(session_len_s)*30) + imaging_buffer
