@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" />
 
     <meta name="generator" content="sphinx-4.0.2, furo 2021.08.11.beta42"/>
-        <title>Bruker Control 0.74.0 documentation</title>
+        <title>Bruker Control 0.5.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=197f00461d56902ea7ca048ec6e6ba026f62c97b" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=93475b62d1c3bc01323a0eefdc14a62d77b12690" />
@@ -121,7 +121,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="#"><div class="brand">Bruker Control 0.74.0 documentation</div></a>
+      <a href="#"><div class="brand">Bruker Control 0.5.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -144,7 +144,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="#">
   
   
-  <span class="sidebar-brand-text">Bruker Control 0.74.0 documentation</span>
+  <span class="sidebar-brand-text">Bruker Control 0.5.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -187,29 +187,28 @@
 grabbing, displaying, and writing video frames the cameras acquire. It has
 been written with flexibility of number of cameras in mind, but has only been
 tested using one camera so far.</p>
-<section id="init-camera-preview">
-<h2>init_camera_preview<a class="headerlink" href="#init-camera-preview" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-video_utils"></span><dl class="py exception">
+<dt class="sig sig-object py" id="video_utils.CameraNotFound">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-prename descclassname"><span class="pre">video_utils.</span></span><span class="sig-name descname"><span class="pre">CameraNotFound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#video_utils.CameraNotFound" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 <dl class="py function">
-<dt class="sig sig-object py" id="video_utils.init_camera_preview">
-<span class="sig-prename descclassname"><span class="pre">video_utils.</span></span><span class="sig-name descname"><span class="pre">init_camera_preview</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#video_utils.init_camera_preview" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates, configures, describes, and starts harvesters camera object in
-preview setting.</p>
-<p>Initializes harvester camera, sets camera properties appropriate for
-preview, gathers the camera’s width and height in pixels, and starts
-video acquisition. The function takes no arguments.</p>
+<dt class="sig sig-object py" id="video_utils.calculate_frames">
+<span class="sig-prename descclassname"><span class="pre">video_utils.</span></span><span class="sig-name descname"><span class="pre">calculate_frames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_len_s</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#video_utils.calculate_frames" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates number of images to collect during the experiment.</p>
+<p>Converts imaging session length into number of frames to collect by
+microscope and, therefore, camera.</p>
 <dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>session_len_s</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Experimental session length in seconds</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></p>
+</dd>
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><p>Harvester object</p>
-<p>Camera object</p>
-<p>Camera’s height (pixels)</p>
-<p>Camera’s width (pixels)</p>
-</p>
+<dd class="field-odd"><p>num_frames</p>
 </dd>
 </dl>
 </dd></dl>
-</section>
-<section id="capture-preview">
-<h2>capture_preview<a class="headerlink" href="#capture-preview" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="video_utils.capture_preview">
 <span class="sig-prename descclassname"><span class="pre">video_utils.</span></span><span class="sig-name descname"><span class="pre">capture_preview</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#video_utils.capture_preview" title="Permalink to this definition">¶</a></dt>
@@ -220,39 +219,9 @@ finally displays the image to an opencv window. When user hits the ‘Esc’
 key, the window closes and the camera object is destroyed. This function
 takes no arguments and returns nothing.</p>
 </dd></dl>
-</section>
-<section id="init-camera-recording">
-<h2>init_camera_recording<a class="headerlink" href="#init-camera-recording" title="Permalink to this headline">¶</a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="video_utils.init_camera_recording">
-<span class="sig-prename descclassname"><span class="pre">video_utils.</span></span><span class="sig-name descname"><span class="pre">init_camera_recording</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">behavior_flag</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#video_utils.init_camera_recording" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates, configures, describes, and starts harvesters camera object in
-recording setting.</p>
-<p>Initializes harvester camera, sets camera properties appropriate for
-behavior recording, gathers the camera’s width and height in pixels, and
-starts video acquisition.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>behavior_flag</strong> – Flag obtained from bruker_control.py argparser.  If True,
-a continous recording is obtained without relying on TTL triggers
-fromt the microscope. If False, the recording will use TTL
-triggers from the microscope.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><p>Harvester object</p>
-<p>Camera object</p>
-<p>Camera’s height (pixels)</p>
-<p>Camera’s width (pixels)</p>
-</p>
-</dd>
-</dl>
-</dd></dl>
-</section>
-<section id="capture-recording">
-<h2>capture_recording<a class="headerlink" href="#capture-recording" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="video_utils.capture_recording">
-<span class="sig-prename descclassname"><span class="pre">video_utils.</span></span><span class="sig-name descname"><span class="pre">capture_recording</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">number_frames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">video_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">behavior_flag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#video_utils.capture_recording" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">video_utils.</span></span><span class="sig-name descname"><span class="pre">capture_recording</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_frames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imaging_plane</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">team</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#video_utils.capture_recording" title="Permalink to this definition">¶</a></dt>
 <dd><p>Capture frames generated by camera object, display them in recording mode,
 and write frames to .avi file.</p>
 <p>Takes values from init_camera_recording() to capture images delivered by
@@ -265,22 +234,62 @@ to disk.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>number_frames</strong> – Number of frames specified to collect for the video recording</p></li>
-<li><p><strong>video_list</strong> – List of video parameters including filename, path values,</p></li>
-<li><p><strong>behavior_flag</strong> – Flag obtained from bruker_control.py argparser.  If True,
-a continous recording is obtained without relying on TTL triggers
-fromt the microscope. If False, the recording will use TTL
-triggers from the microscope.</p></li>
+<li><p><strong>imaging_plane</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Plane the 2P image is currently being taken acquired from Prairie
+View</p></li>
+<li><p><strong>team</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The team performing the experiment</p></li>
+<li><p><strong>subject_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The subject being recorded</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A list of dropped frames from the recording to be appended to the
-config file.</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dropped_frames</p>
 </dd>
 </dl>
 </dd></dl>
-</section>
-<section id="shutdown-camera">
-<h2>shutdown_camera<a class="headerlink" href="#shutdown-camera" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="video_utils.init_camera_preview">
+<span class="sig-prename descclassname"><span class="pre">video_utils.</span></span><span class="sig-name descname"><span class="pre">init_camera_preview</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#video_utils.init_camera_preview" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates, configures, describes, and starts harvesters camera object in
+preview setting.</p>
+<p>Initializes harvester camera, sets camera properties appropriate for
+preview, gathers the camera’s width and height in pixels, and starts
+video acquisition. The function takes no arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Harvester</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Harvester</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>Harvester object</p>
+<p>Camera object</p>
+<p>Camera’s height (pixels)</p>
+<p>Camera’s width (pixels)</p>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="video_utils.init_camera_recording">
+<span class="sig-prename descclassname"><span class="pre">video_utils.</span></span><span class="sig-name descname"><span class="pre">init_camera_recording</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#video_utils.init_camera_recording" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates, configures, describes, and starts harvesters camera object in
+recording setting.</p>
+<p>Initializes harvester camera, sets camera properties appropriate for
+behavior recording, gathers the camera’s width and height in pixels, and
+starts video acquisition. There are no arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Harvester</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Harvester</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>Harvester object</p>
+<p>Camera object</p>
+<p>Camera’s height (pixels)</p>
+<p>Camera’s width (pixels)</p>
+</p>
+</dd>
+</dl>
+</dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="video_utils.shutdown_camera">
 <span class="sig-prename descclassname"><span class="pre">video_utils.</span></span><span class="sig-name descname"><span class="pre">shutdown_camera</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">camera</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">harvester</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#video_utils.shutdown_camera" title="Permalink to this definition">¶</a></dt>
@@ -290,13 +299,714 @@ object once acquisition is done. The function does not return anything</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>camera</strong> – Harverster camera object</p></li>
-<li><p><strong>harvester</strong> – Haverster object</p></li>
+<li><p><strong>camera</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Harvester</span></code>) – Harverster camera object</p></li>
+<li><p><strong>harvester</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Harvester</span></code>) – Haverster object</p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 </section>
+<section id="trial-utils-py">
+<h1>trial_utils.py<a class="headerlink" href="#trial-utils-py" title="Permalink to this headline">¶</a></h1>
+<p>Module contains functions for interpreting configuration file parameters and
+using them for generating pseudorandom trial arrays following user defined
+rules with the capability of producing catch trials in given subsets of the
+trial order, for generating ITIs from a uniform random distribution between
+bounds defined by the user, and tone durations that vary between user
+defined bounds.</p>
+<span class="target" id="module-trial_utils"></span><dl class="py function">
+<dt class="sig sig-object py" id="trial_utils.calculate_punish_seconds">
+<span class="sig-prename descclassname"><span class="pre">trial_utils.</span></span><span class="sig-name descname"><span class="pre">calculate_punish_seconds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">punish_delivery_ms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trialArray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trial_utils.calculate_punish_seconds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates number of seconds punishments are delivered.</p>
+<p>Uses configuration values to calculate how many seconds rewards are present
+for a given session.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>punish_delivery_ms</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Amount of time punishments are delivered in milliseconds from the
+config file.</p></li>
+<li><p><strong>trialArray</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – Experimental runtime trial order gathered from the
+experimental_array_list at index 0</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>punish_seconds</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="trial_utils.calculate_reward_seconds">
+<span class="sig-prename descclassname"><span class="pre">trial_utils.</span></span><span class="sig-name descname"><span class="pre">calculate_reward_seconds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reward_delivery_ms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reward_prsnt_ms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trialArray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vacuum</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trial_utils.calculate_reward_seconds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates number of seconds rewards are presented and removed.</p>
+<p>Uses configuration values to calculate how many seconds rewards are present
+for a given session as well as how many seconds the vacuum is active if
+used. Returns number of seconds rewards are present.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reward_delivery_ms</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Amount of time reward is delivered in milliseconds from the config
+file</p></li>
+<li><p><strong>reward_prsnt_ms</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Amount of time reward is presented to mouse in milliseconds from
+the config file</p></li>
+<li><p><strong>trialArray</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – Experimental runtime trial order gathered from the
+experimental_array_list at index 0</p></li>
+<li><p><strong>vacuum</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Status of whether or not the vacuum is being used for a project</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>reward_seconds</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="trial_utils.calculate_session_length">
+<span class="sig-prename descclassname"><span class="pre">trial_utils.</span></span><span class="sig-name descname"><span class="pre">calculate_session_length</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment_arrays</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trial_utils.calculate_session_length" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates number of imaging frames to collect for experimental session.</p>
+<p>Iterates through experiment runtime arrays to calculate amount of time and,
+therefore, the total number of frames that the microscope and camera should
+collect for the experiment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>experiment_arrays</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – List of experiment runtime arrays generated from generate_arrays().</p></li>
+<li><p><strong>config_template</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Configuration template value dictionary gathered from team’s
+configuration .json file.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Session length in seconds.</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="trial_utils.check_session_punishments">
+<span class="sig-prename descclassname"><span class="pre">trial_utils.</span></span><span class="sig-name descname"><span class="pre">check_session_punishments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trialArray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_seq_punish</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trial_utils.check_session_punishments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if too many punish trials happen sequentially</p>
+<p>Takes in trialArray after punish trial flips and determines if more than
+user defined max number of punish trials occur in a row. If so, the
+punish_check is returned True.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>trialArray</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Trial array post punish trial flips</p></li>
+<li><p><strong>max_seq_punish</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Maximum number of sequential punishment trials from config_template</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>punish_check</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="trial_utils.check_session_rewards">
+<span class="sig-prename descclassname"><span class="pre">trial_utils.</span></span><span class="sig-name descname"><span class="pre">check_session_rewards</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trialArray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_seq_reward</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trial_utils.check_session_rewards" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if too many reward trials happen sequentially.</p>
+<p>Takes in trialArray after punish trial flips and determines if more than
+user defined max number of reward trials occur in a row. If so, the
+reward_check is returned True.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>trialArray</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Trial array post punish trial flips</p></li>
+<li><p><strong>max_seq_reward</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Maximum number of sequential reward trials from config_template</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>punish_check_status</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="trial_utils.flip_catch">
+<span class="sig-prename descclassname"><span class="pre">trial_utils.</span></span><span class="sig-name descname"><span class="pre">flip_catch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trialArray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_template</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">catch_check</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trial_utils.flip_catch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flips trials to catches in checked trialArray.</p>
+<p>Flips subset of trials depending on user specified offset and selected
+number of reward/punish catch trials.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>trialArray</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Checked trialArray returned by flip_punishments()</p></li>
+<li><p><strong>config_template</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Configuration template value dictionary gathered from team’s
+configuration .json file.</p></li>
+<li><p><strong>catch_check</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Boolean status for catch trials being flipped or not.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>]</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>trialArray</dt><dd><p>trialArray with catch trials added</p>
+</dd>
+<dt>catch_check</dt><dd><p>Boolean status for catch trials being flipped or not.</p>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="trial_utils.flip_punishments">
+<span class="sig-prename descclassname"><span class="pre">trial_utils.</span></span><span class="sig-name descname"><span class="pre">flip_punishments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potential_flips</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_punish</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_seq_punish</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trial_utils.flip_punishments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flips user specified number of trials to punishments over trialArray copy.</p>
+<p>Takes in a copy of the fresh trialArray called tmp_array, takes a random
+sample of potential flip positions for punishment trials, and flips their
+value from 1, reward, to 0, punishment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tmp_array</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Copy of fresh trialArray consisting of all reward trials</p></li>
+<li><p><strong>potential_flips</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Array of potential indexes to flip to punishments</p></li>
+<li><p><strong>num_punish</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Integer of number of punishment trials to flip for session</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>]</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>tmp_array</dt><dd><p>Modified array containing flipped values, to be saved as trialArray</p>
+</dd>
+<dt>punish_check</dt><dd><p>Boolean status of whether the array meets experimenter defined
+criteria. False if successful, True if failed.</p>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="trial_utils.gen_ITIArray">
+<span class="sig-prename descclassname"><span class="pre">trial_utils.</span></span><span class="sig-name descname"><span class="pre">gen_ITIArray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trial_utils.gen_ITIArray" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate ITIArray for experimental runtime from configuration.</p>
+<p>Generates ITIArray from users configuration file.  Generates either static
+or jittered ITIs depending on user’s selection.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config_template</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Configuration template value dictionary gathered from team’s
+configuration .json file.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>ITIArray</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="trial_utils.gen_jitter_ITIArray">
+<span class="sig-prename descclassname"><span class="pre">trial_utils.</span></span><span class="sig-name descname"><span class="pre">gen_jitter_ITIArray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trial_utils.gen_jitter_ITIArray" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate jittered ITIArray for given experiment from user specified bounds.</p>
+<p>Generates array of ITIs from configuration the user provides.  Uses a
+random uniform distribution bounded by the lower and upper ITIs as defined
+in the configuration file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config_template</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Configuration template value dictionary gathered from team’s
+configuration .json file.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Jittered ITIArray.</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="trial_utils.gen_jitter_toneArray">
+<span class="sig-prename descclassname"><span class="pre">trial_utils.</span></span><span class="sig-name descname"><span class="pre">gen_jitter_toneArray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trial_utils.gen_jitter_toneArray" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate jittered ITIArray for given experiment from user specified bounds.</p>
+<p>Generates array of ITIs from configuration the user provides.  Uses a
+random uniform distribution bounded by the lower and upper ITIs as defined
+in the configuration file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config_template</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Configuration template value dictionary gathered from team’s
+configuration .json file.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Jittered toneArray.</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="trial_utils.gen_static_ITIArray">
+<span class="sig-prename descclassname"><span class="pre">trial_utils.</span></span><span class="sig-name descname"><span class="pre">gen_static_ITIArray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trial_utils.gen_static_ITIArray" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate static, or without jitter, ITIArray.</p>
+<p>Generates array of ITIs using baseITI from configuration file for the
+number of trials specified by the user.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config_template</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Configuration template value dictionary gathered from team’s
+configuration .json file.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Static ITIArray</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="trial_utils.gen_static_toneArray">
+<span class="sig-prename descclassname"><span class="pre">trial_utils.</span></span><span class="sig-name descname"><span class="pre">gen_static_toneArray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trial_utils.gen_static_toneArray" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate static, or without jitter, toneArray.</p>
+<p>Generates array of tones durations using baseTone from configuration file
+for the number of trials specified by the user.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config_template</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Configuration template value dictionary gathered from team’s
+configuration .json file.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Static toneArray</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="trial_utils.gen_toneArray">
+<span class="sig-prename descclassname"><span class="pre">trial_utils.</span></span><span class="sig-name descname"><span class="pre">gen_toneArray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trial_utils.gen_toneArray" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate toneArray for experimental runtime from configuration.</p>
+<p>Generates toneArray from user’s configuration file.  Generates either
+static or jittered ITIs depending on user’s selection.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config_template</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Configuration template value dictionary gathered from team’s
+configuration .json file.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>toneArray</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="trial_utils.gen_trialArray">
+<span class="sig-prename descclassname"><span class="pre">trial_utils.</span></span><span class="sig-name descname"><span class="pre">gen_trialArray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trial_utils.gen_trialArray" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates pseudorandom trial structure for binary discrimination task.</p>
+<p>Generates array of stimuli and catch trials from configuration file the
+user provides.  1s and 0s encode stimuli where 1 is reward and 0 is
+punishment. 2s and 3s encode catch trials where 2 is aversive catch and
+3 is reward catch.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config_template</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Configuration template value dictionary gathered from team’s
+configuration .json file.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>trialArray</dt><dd><p>Trial array with user specified trial structure.</p>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="trial_utils.generate_arrays">
+<span class="sig-prename descclassname"><span class="pre">trial_utils.</span></span><span class="sig-name descname"><span class="pre">generate_arrays</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trial_utils.generate_arrays" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates all necessary arrays for Bruker experimental runtime.</p>
+<p>Creates arrays as specified by user’s configuration file.  Builds the
+trialArray, ITIArray, and noiseArray according to user defined rules.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config_template</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Configuration template value dictionary gathered from team’s
+configuration .json file</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>experiment_arrays</dt><dd><p>List of experimental arrays to be sent via pySerialTransfer</p>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="trial_utils.punish_catch_sample">
+<span class="sig-prename descclassname"><span class="pre">trial_utils.</span></span><span class="sig-name descname"><span class="pre">punish_catch_sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">punish_trials</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_catch_punish</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trial_utils.punish_catch_sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate random sample of punish trial indexes to flip.</p>
+<p>Randomly select trials out of possible punish positions to flip to catch
+trials depending on the number of catch trials specified by the user.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>punish_trials</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – List of reward trial indexes past specified offset contained in the
+trialArray.</p></li>
+<li><p><strong>num_catch_punish</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Number of punish catch trials to implement as specified by the user</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Sampled punish catch trial index list.</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="trial_utils.reward_catch_sample">
+<span class="sig-prename descclassname"><span class="pre">trial_utils.</span></span><span class="sig-name descname"><span class="pre">reward_catch_sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reward_trials</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_catch_reward</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trial_utils.reward_catch_sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate random sample of reward trial indexes to flip.</p>
+<p>Randomly select trials out of possible reweard positions to flip to catch
+trials depending on the number of catch trials specified by the user.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reward_trials</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – List of reward trial indexes past specified offset contained in the
+trialArray.</p></li>
+<li><p><strong>num_catch_reward</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Number of reward catch trials to implement as specified by the user</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Sampled reward catch trial index list.</p>
+</dd>
+</dl>
+</dd></dl>
+</section>
+<section id="config-utils-py">
+<h1>config_utils.py<a class="headerlink" href="#config-utils-py" title="Permalink to this headline">¶</a></h1>
+<p>Module contains functions for reading, writing, and passing configuration
+information to different modules or files.</p>
+<span class="target" id="module-config_utils"></span><dl class="py exception">
+<dt class="sig sig-object py" id="config_utils.ConfigDirEmpty">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-prename descclassname"><span class="pre">config_utils.</span></span><span class="sig-name descname"><span class="pre">ConfigDirEmpty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#config_utils.ConfigDirEmpty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception for when the team’s template configuration folder is empty.</p>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="config_utils.get_arduino_metadata">
+<span class="sig-prename descclassname"><span class="pre">config_utils.</span></span><span class="sig-name descname"><span class="pre">get_arduino_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#config_utils.get_arduino_metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Grabs metadata relevent to Arduino runtime</p>
+<p>Parses the template configuration supplied by the user and grabs only the
+metadata that is relevant for the Arduino’s function using dictionary
+comprehension. Finally converts dictionary to json object for transfer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config_template</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Configuration template value dictionary gathered from team’s
+configuration .json file.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>arduino_metadata</dt><dd><p>JSON formatted string</p>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="config_utils.get_template">
+<span class="sig-prename descclassname"><span class="pre">config_utils.</span></span><span class="sig-name descname"><span class="pre">get_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">team</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#config_utils.get_template" title="Permalink to this definition">¶</a></dt>
+<dd><p>Grab team’s template configuration file for experiment runtime.</p>
+<p>Uses the metadata_args value “team” found in bruker_control to select the
+specific 2-Photon configuration file that will run the experiment for
+a session.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>team</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Team from metadata_args[“team”]</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>template_config</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="config_utils.read_config">
+<span class="sig-prename descclassname"><span class="pre">config_utils.</span></span><span class="sig-name descname"><span class="pre">read_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#config_utils.read_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Utility function for reading config files</p>
+<p>General purpose function for reading .json files containing configuration
+values for an experiment</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config_file_path</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>) – Pathlib path to the configuration file.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dictionary of contents inside the configuration .json file</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="config_utils.write_experiment_config">
+<span class="sig-prename descclassname"><span class="pre">config_utils.</span></span><span class="sig-name descname"><span class="pre">write_experiment_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_template</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment_arrays</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropped_frames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">team</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imaging_plane</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#config_utils.write_experiment_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes experiental configuration file to Raw Data drive.</p>
+<p>Takes the configuration template and appends on the experimental arrays and
+dropped frames from the experiment. Then writes the configuration to disk.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config_template</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Configuration template value dictionary gathered from team’s
+configuration .json file.</p></li>
+<li><p><strong>experiment_arrays</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – List of arrays used for experimental runtime. [0] is trialArray,
+[1] is ITIArray, [2] is toneArray. These will always be in this
+order.</p></li>
+<li><p><strong>dropped_frames</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – List of dropped frames from the camera during the experiment</p></li>
+<li><p><strong>team</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Team from metadata_args[“team”]</p></li>
+<li><p><strong>subject_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Subject ID from metadata_args[“subject_id”]</p></li>
+<li><p><strong>imaging_plane</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Plane 2P images were acquired at, the Z-axis value</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+</section>
+<section id="prairieview-utils-py">
+<h1>prairieview_utils.py<a class="headerlink" href="#prairieview-utils-py" title="Permalink to this headline">¶</a></h1>
+<p>Module contains functions for interacting with Prairie View’s API to set data
+directories, filenames, and gathering imaging plane information.</p>
+<span class="target" id="module-prairieview_utils"></span><dl class="py function">
+<dt class="sig sig-object py" id="prairieview_utils.abort_recording">
+<span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">abort_recording</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.abort_recording" title="Permalink to this definition">¶</a></dt>
+<dd><p>Aborts T-Series Microscopy recording</p>
+<p>Once the number of frames specified is collected, a signal to abort the
+microscopy session is sent to Prairie View.  Once aborted, Python will
+disconnect from Prairie View.  This function takes no arguments and returns
+nothing.</p>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="prairieview_utils.end_microscopy_session">
+<span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">end_microscopy_session</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.end_microscopy_session" title="Permalink to this definition">¶</a></dt>
+<dd><p>Aborts the microscopy session and disconnects from Prairie View.</p>
+<p>Used when the data for the given experiment has been collected and written
+to disk.  Invokes the abort command and disconnects from Prarie View with
+their API.  This function takes no arguments and returns nothing.</p>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="prairieview_utils.pv_connect">
+<span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">pv_connect</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.pv_connect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Connect to Prairie View</p>
+<p>Used to connect to Prairie View at the beginning of each session with their
+API.  This function takes no arguments and returns nothing.</p>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="prairieview_utils.pv_disconnect">
+<span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">pv_disconnect</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.pv_disconnect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Disconnect from Prairie View</p>
+<p>Used to disconnect from Prairie View at the end of each session with their
+API.  This function takes no arguments and returns nothing.</p>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="prairieview_utils.set_filename">
+<span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">set_filename</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">team</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.set_filename" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets Microscopy and Behavior recording filenames and directories.</p>
+<p>Gathers what plane is being imaged for the session generates appropriately
+named imaging and behavior directories and filenames for data coming off
+the microscope.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>team</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The team performing the experiment</p></li>
+<li><p><strong>subject_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The subject being recorded</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>imaging_plane</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="prairieview_utils.start_microscopy_session">
+<span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">start_microscopy_session</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.start_microscopy_session" title="Permalink to this definition">¶</a></dt>
+<dd><p>Readies the Bruker 2-Photon microscope for an experiment</p>
+<p>Sets directories, filenames, and initializes Bruker T-Series for imaging
+and Voltage Recording for behavior data. Returns the current imaging_plane
+as found in Prairie View.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>project</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Name of project for recording</p></li>
+<li><p><strong>subject_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Name of the experimental subject</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>imaging_plane</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="prairieview_utils.start_tseries">
+<span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">start_tseries</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.start_tseries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Starts Prairie View T-Series 2P Recording</p>
+<p>Connects to Prairie View and starts the T-Series which will wait for an
+input trigger. Waiting for an input trigger is done within Prairie View’s
+GUI.  This argument takes no arguments and returns nothing.</p>
+</dd></dl>
+</section>
+<section id="serialtransfer-utils-py">
+<h1>serialtransfer_utils.py<a class="headerlink" href="#serialtransfer-utils-py" title="Permalink to this headline">¶</a></h1>
+<p>Module contains functions for sending, receiving, and checking trial information
+to the Arduino delivering stimuli via pySerialTransfer.</p>
+<span class="target" id="module-serialtransfer_utils"></span><dl class="py function">
+<dt class="sig sig-object py" id="serialtransfer_utils.array_error_check">
+<span class="sig-prename descclassname"><span class="pre">serialtransfer_utils.</span></span><span class="sig-name descname"><span class="pre">array_error_check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transmitted_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">received_array</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#serialtransfer_utils.array_error_check" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs Python side error checking for array transmission.</p>
+<p>While pySerialTransfer performs error checking for different errors, this
+allows for something simple that is independent of the package for error
+checking.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>transmitted_array</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – Array that was sent to the Arduino</p></li>
+<li><p><strong>received_array</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – Array that was received by the Arduino</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="serialtransfer_utils.onepacket_transfer">
+<span class="sig-prename descclassname"><span class="pre">serialtransfer_utils.</span></span><span class="sig-name descname"><span class="pre">onepacket_transfer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment_arrays</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#serialtransfer_utils.onepacket_transfer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for completing experiment arrays one packet transfers to Arduino.</p>
+<p>Iterates over transfer_packet() function for each experiment array and
+invoked if the session length is less than or equal to 60 trials.  Finally
+invokes the update_python_status() function to say transmission is
+complete.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>experiment_arrays</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – List of arrays generated for a given microscopy session’s behavior.
+0th index is trialArray, 1st is ITIArray, 2nd is toneArray.</p></li>
+<li><p><strong>link</strong> (<em>&lt;module 'pySerialTransfer.pySerialTransfer' from 'C:\Users\jdelahanty.SNL\Miniconda3\envs\bruker_control\lib\site-packages\pySerialTransfer\pySerialTransfer.py'&gt;</em>) – pySerialTransfer transmission object</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="serialtransfer_utils.transfer_data">
+<span class="sig-prename descclassname"><span class="pre">serialtransfer_utils.</span></span><span class="sig-name descname"><span class="pre">transfer_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arduino_metadata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment_arrays</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#serialtransfer_utils.transfer_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sends metadata and trial information to the Arduino.</p>
+<p>Takes each array assembled for transmission to the Arduino and stuffs it
+into packets to be sent via pySerialTransfer. Unites several functions used
+for transmitting, receiving, and checking data during transfer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>arduino_metadata</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Metadata gathered from config_template that’s relevant for Arduino
+runtime. Formatted as a json string.</p></li>
+<li><p><strong>experiment_arrays</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – List of arrays generated for a given microscopy session’s behavior.
+0th index is trialArray, 1st is ITIArray, 2nd is toneArray.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="serialtransfer_utils.transfer_experiment_arrays">
+<span class="sig-prename descclassname"><span class="pre">serialtransfer_utils.</span></span><span class="sig-name descname"><span class="pre">transfer_experiment_arrays</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment_arrays</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#serialtransfer_utils.transfer_experiment_arrays" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transfers experimental arrays to Arduino via pySerialTransfer.</p>
+<p>Determines what type of packet transfer is required (single or multi) for
+the generated trials.  If the number of trials is greater than 60, then
+multiple packets are required for transferring each array.  If less, then
+only one packet is required for each array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>experiment_arrays</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – List of arrays generated for a given microscopy session’s behavior.
+0th index is trialArray, 1st is ITIArray, 2nd is toneArray.</p></li>
+<li><p><strong>link</strong> (<em>&lt;module 'pySerialTransfer.pySerialTransfer' from 'C:\Users\jdelahanty.SNL\Miniconda3\envs\bruker_control\lib\site-packages\pySerialTransfer\pySerialTransfer.py'&gt;</em>) – pySerialTransfer transmission object</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="serialtransfer_utils.transfer_metadata">
+<span class="sig-prename descclassname"><span class="pre">serialtransfer_utils.</span></span><span class="sig-name descname"><span class="pre">transfer_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arduino_metadata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#serialtransfer_utils.transfer_metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transfers arduino_metadata to the Arduino.</p>
+<p>Arduino metadata collected from config_template is formatted into a json
+string that the Arduino knows how to interpret.  Each variable is encoded
+according to a specific byte size depending on the variable type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>arduino_metadata</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Metadata gathered from config_template that’s relevant for Arduino
+runtime. Formatted as a json string.</p></li>
+<li><p><strong>link</strong> (<em>&lt;module 'pySerialTransfer.pySerialTransfer' from 'C:\Users\jdelahanty.SNL\Miniconda3\envs\bruker_control\lib\site-packages\pySerialTransfer\pySerialTransfer.py'&gt;</em>) – pySerialTransfer transmission object</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="serialtransfer_utils.transfer_packet">
+<span class="sig-prename descclassname"><span class="pre">serialtransfer_utils.</span></span><span class="sig-name descname"><span class="pre">transfer_packet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packet_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#serialtransfer_utils.transfer_packet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transfers an individual packet to the Arduino.</p>
+<p>Each packet is given a unique ID the Arduino can identify and transmitted
+through the pySerialTransfer link. While the link is unavailable, that is
+there’s an active transfer, the function passes. When finished
+transmitting, the function receives what the Arduino encoded and an error
+check is performed. If it passes, the program continues.  If it fails,
+an exception is raised and the program exits.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>array</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – Experimental array to be transferred</p></li>
+<li><p><strong>packet_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Unique ID for encoding an array</p></li>
+<li><p><strong>link</strong> (<em>&lt;module 'pySerialTransfer.pySerialTransfer' from 'C:\Users\jdelahanty.SNL\Miniconda3\envs\bruker_control\lib\site-packages\pySerialTransfer\pySerialTransfer.py'&gt;</em>) – pySerialTransfer transmission object</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="serialtransfer_utils.update_python_status">
+<span class="sig-prename descclassname"><span class="pre">serialtransfer_utils.</span></span><span class="sig-name descname"><span class="pre">update_python_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">packet_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#serialtransfer_utils.update_python_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates python side of program as ready to continue post serial transfer.</p>
+<p>Once the packets have all been transmitted to the Arduino, this final step
+is performed to ensure that all information has made it across the link.
+Once this check is passed, the experiment will start!</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>packet_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Unique ID for encoding an array</p></li>
+<li><p><strong>link</strong> (<em>&lt;module 'pySerialTransfer.pySerialTransfer' from 'C:\Users\jdelahanty.SNL\Miniconda3\envs\bruker_control\lib\site-packages\pySerialTransfer\pySerialTransfer.py'&gt;</em>) – pySerialTransfer transmission object</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 </section>
 <section id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
@@ -344,14 +1054,11 @@ object once acquisition is done. The function does not return anything</p>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Welcome to Bruker Control’s documentation!</a></li>
-<li><a class="reference internal" href="#video-utils-py">video_utils.py</a><ul>
-<li><a class="reference internal" href="#init-camera-preview">init_camera_preview</a></li>
-<li><a class="reference internal" href="#capture-preview">capture_preview</a></li>
-<li><a class="reference internal" href="#init-camera-recording">init_camera_recording</a></li>
-<li><a class="reference internal" href="#capture-recording">capture_recording</a></li>
-<li><a class="reference internal" href="#shutdown-camera">shutdown_camera</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#video-utils-py">video_utils.py</a></li>
+<li><a class="reference internal" href="#trial-utils-py">trial_utils.py</a></li>
+<li><a class="reference internal" href="#config-utils-py">config_utils.py</a></li>
+<li><a class="reference internal" href="#prairieview-utils-py">prairieview_utils.py</a></li>
+<li><a class="reference internal" href="#serialtransfer-utils-py">serialtransfer_utils.py</a></li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
 </ul>
 

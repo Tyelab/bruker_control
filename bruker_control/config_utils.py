@@ -4,7 +4,7 @@
 ###############################################################################
 # Import Packages
 ###############################################################################
-# File Types
+
 # Import JSON for configuration file
 import json
 
@@ -14,259 +14,209 @@ from collections import OrderedDict
 # Import pathlib for searching for files and grabbing relevant configs
 from pathlib import Path
 
-# Import sys for exiting program safely
-import sys
-
-# Import datetime for generating config file names correctly
+# Import datetime for folder naming
 from datetime import datetime
+from dateutil.tz import tzlocal
 
-# Get current working directory for above paths to work
-current_dir = Path.cwd()
+# Template configuration directories are within project directories.  The snlkt
+# server housing these directories is mounted to the X: volume on the machine
+# BRUKER.
+base_template_config_dir = Path("X:/")
 
-# Static template file location: food_dep
-fooddep_template_config_file = current_dir.joinpath("Documents/gitrepos/headfix_control/configs/templatefooddep.json")
+# Experimental configuration directories are in the Raw Data volume on the
+# machine BRUKER which is mounted to E:. This is where configs will be written
+config_basepath = "E:/teams/"
 
-# Static template file location: specialk
-specialk_template_config_file = current_dir.joinpath("Documents/gitrepos/headfix_control/configs/templatespecialk.json")
+# Configuration files generated for a team's session are placed in their team's
+# directory on drive E:
 
-# Static empty json file location
-empty_config_file = current_dir.joinpath("Documents/gitrepos/headfix_control/configs/templateempty.json")
+###############################################################################
+# Exceptions
+###############################################################################
 
-# Create dictionary of config files
-# TODO Make this grep from the directory and fill dictionary with right
-# key:value pairs
-config_dict = {"food_dep": fooddep_template_config_file,
-               "specialk": specialk_template_config_file,
-               "empty": empty_config_file}
+
+class ConfigDirEmpty(Exception):
+    """
+    Exception for when the team's template configuration folder is empty.
+    """
+    def __init__(self, *args):
+        if args:
+            self.message = args[0]
+        else:
+            self.message = None
+
+    def __str__(self):
+        if self.message:
+            return "ConfigDirEmpty: " + "{0}".format(self.message)
+        else:
+            return "Config dir empty! Check your 2p_template_configs folder."
 
 ###############################################################################
 # Functions
 ###############################################################################
 
-# Functions expect metadata_args as found in bruker_control.py
+
+def get_template(team: str) -> dict:
+    """
+    Grab team's template configuration file for experiment runtime.
+
+    Uses the metadata_args value "team" found in bruker_control to select the
+    specific 2-Photon configuration file that will run the experiment for
+    a session.
+
+    Args:
+        team:
+            Team from metadata_args["team"]
+
+    Returns:
+        template_config
+    """
+
+    # Append base directory with selected team
+    template_dir = base_template_config_dir / team / "2p_template_configs"
+
+    # Until consistent conventions for studies are established, automatically
+    # populating different files for a given team's studies is not practical.
+    # Therefore, teams must be restricted to a single configuration file.
+
+    # Glob the configuration directory for the .json file, convert it to a list
+    # and grab the file itself
+    try:
+        template_file_path = list(template_dir.glob("*.json"))[0]
+        # Grab template configuration values with read_config
+        config_template = read_config(template_file_path)
+
+    except IndexError:
+        raise ConfigDirEmpty()
+
+    return config_template
 
 
-def config_parser(metadata_args, plane):
+def read_config(config_file_path: Path) -> dict:
+    """
+    Utility function for reading config files
 
-    # Gather project name for use in each case
-    project_name = metadata_args['project']
+    General purpose function for reading .json files containing configuration
+    values for an experiment
 
-    # Gather status of template flag
-    template_flag = metadata_args['template']
+    Args:
+        config_file_path:
+            Pathlib path to the configuration file.
 
-    # TODO: Reimplement num_planes properly
-    # Gather number of imaging planes to be collected
-    # num_planes = metadata_args['imaging_planes']
+    Returns:
+        Dictionary of contents inside the configuration .json file
 
-    # Gather mouse id for naming files
-    mouse_id = metadata_args['mouse']
+    """
 
-    # If the user doesn't submit a configuration file, but does submit the
-    # template flag
-    if metadata_args['config'] is None and template_flag is True:
+    with open(config_file_path, 'r') as inFile:
 
-        # Tell the user the program is building from template for their project
-        print("Building metadata using template from", project_name)
-
-        config_file, config_filename, config_fullpath = build_config(project_name,
-                                                                     template_flag,
-                                                                     mouse_id,
-                                                                     plane)
-
-        # Get configuration with read_config()
-        config = read_config(config_file)
-
-        # Create configuration and video lists
-        config_list = [config, config_filename, config_fullpath]
-        video_list = [project_name, config_filename, plane]
-
-        # Return the config object for use in next steps
-        return config_list, video_list
-
-    # elif metadata_args['config'] is not None and metadata_args['modify'] is True:
-    #     Modify configuration function in development...
-    #     # TODO: Write config modification functions
-
-    # If the name of a metadata file is given and the user doesn't want to
-    # modify it, confirm the file is present.  If the file is present, load
-    # its contents.
-    elif metadata_args['config'] is not None and metadata_args['modify'] is False:
-
-        # Let user know that the program is looking for the file
-        print("Trying to find file...")
-
-        # Use the correct base path for configuration files for the
-        # project
-        config_basepath = "E:/studies/" + project_name + "/config/"
-
-        # Gather the configuration file name from the config argument
-        config_filename = metadata_args['config']
-
-        # Combine the basepath, filename, and extension
-        # TODO: Interpret other file types like .csv and then save them as
-        # a json file.
-        # TODO: Create new argument that allows some other absolute
-        # path to import the config file.  This should be discouraged...
-        config_fullpath = Path(config_basepath + config_filename + '.json')
-
-        # If there is a file with this name in the correct directory
-        if Path.exists(config_fullpath) is True:
-
-            # Tell the user the config file was found
-            print("Found config file!")
-
-            # Save the configuration variables as config
-            config = read_config(config_fullpath)
-
-        else:
-            print("No config found...")
-            print("Exiting")
-            sys.exit()
-
-        config_list = [config, config_filename, config_fullpath]
-        video_list = [project_name, config_filename]
-
-        # Return the config object for use in next steps
-        return config_list, video_list
-
-    # If something can't be interpreted in the configuration file,
-    # tell the user
-    else:
-        print("Invalid Configuration File Supplied")
-
-
-def read_config(config_file):
-    with open(config_file, 'r') as inFile:
         contents = inFile.read()
 
         # Use json.loads to gather metadata and save them in an
-        # ordered dictionary for checking if contents are correct
-        # during transmission later
-        config = json.loads(contents,
-                            object_pairs_hook=OrderedDict)
+        # ordered dictionary
+        config_values = json.loads(contents,
+                                   object_pairs_hook=OrderedDict)
 
-    # Return the config object for use in next steps
-    return config
+    return config_values
 
 
-def build_from_template(config_fullpath, project_name):
+def write_experiment_config(config_template: dict, experiment_arrays: list,
+                            dropped_frames: list, team: str, subject_id: str,
+                            imaging_plane: str, current_plane: int):
+    """
+    Writes experiental configuration file to Raw Data drive.
 
-    # Tell user that they're using template values for the experiment
-    print("Using template values for experiment")
+    Takes the configuration template and appends on the experimental arrays and
+    dropped frames from the experiment. Then writes the configuration to disk.
 
-    # Gather which configuration to use for the provided project using
-    # the configuraiton dictionary above
-    project_config = config_dict[project_name]
+    Args:
+        config_template:
+            Configuration template value dictionary gathered from team's
+            configuration .json file.
+        experiment_arrays:
+            List of arrays used for experimental runtime. [0] is trialArray,
+            [1] is ITIArray, [2] is toneArray. These will always be in this
+            order.
+        dropped_frames:
+            List of dropped frames from the camera during the experiment
+        team:
+            Team from metadata_args["team"]
+        subject_id
+            Subject ID from metadata_args["subject_id"]
+        imaging_plane:
+            Plane 2P images were acquired at, the Z-axis value
+        current_plane:
+            Current plane being imaged as in 1st, 2nd, 3rd, etc
+    """
 
-    # Load config file with template values
-    with open(project_config, 'r') as inFile:
-        contents = inFile.read()
+    # Gather session date using datetime
+    session_date = datetime.today().strftime("%Y%m%d")
 
-        # Save template configuration
-        template_config = json.loads(contents,
-                                     object_pairs_hook=OrderedDict)
+    # Generate the session_name
+    session_name = "_".join([session_date, subject_id,
+                             "plane{}".format(current_plane),
+                             imaging_plane])
 
-    # Write out new config file using the template information
+    # Generate Experiment Configuration Directory Path
+    config_dir = config_basepath + team + "/config/"
+
+    # Generate the filename
+    config_filename = "_".join([session_name, "config"])
+
+    # Append .json for the file
+    config_filename += ".json"
+
+    # Complete the fullpath for the config file to be written
+    config_fullpath = config_dir + config_filename
+
+    # Assign trialArray key to trialArray data.  The 0th index of the list is
+    # always the the trialArray
+    config_template["trialArray"] = experiment_arrays[0]
+
+    # Assign ITIArray key to ITIArray data.  The 1st index of the list is
+    # always the ITIArray
+    config_template["ITIArray"] = experiment_arrays[1]
+
+    # Assign toneArray key the toneArray data.  The 2nd index of the list is
+    # always the toneArray.
+    config_template["toneArray"] = experiment_arrays[2]
+
+    # Assign dropped_frames key the dropped_frames data.
+    config_template["dropped_frames"] = dropped_frames
+
+    # # Write the new configuration file
     with open(config_fullpath, 'w') as outFile:
 
-        # Dump template config contents into new config file
-        json.dump(template_config, outFile)
-
-    # Return the config file for use in the experiment
-    return config_fullpath
+        # Add ITIArray into config file
+        json.dump(config_template, outFile)
 
 
-def build_from_user(config_fullpath):
+def get_arduino_metadata(config_template: dict) -> dict:
+    """
+    Grabs metadata relevent to Arduino runtime
 
-    # Ask user for metadata values and force them to be integers
-    totalNumberOfTrials = int(input("How many trials do you want to run? "))
-    punishTone = int(input("What tone should airpuff stimuli use? (kHz) ")) * 1000
-    rewardTone = int(input("What tone should sucrose stimuli use? (kHz) ")) * 1000
-    USConsumptionTime_Sucrose = int(input("How long should sucrose be present? (s) ")) * 1000
+    Parses the template configuration supplied by the user and grabs only the
+    metadata that is relevant for the Arduino's function using dictionary
+    comprehension. Finally converts dictionary to json object for transfer.
 
-    # Load config file with empty values
-    with open(empty_config_file, 'r') as inFile:
-        contents = inFile.read()
+    Args:
+        config_template:
+            Configuration template value dictionary gathered from team's
+            configuration .json file.
 
-        # Save empty configuration
-        empty_config = json.loads(contents,
-                                  object_pairs_hook=OrderedDict)
+    Returns:
+        arduino_metadata
+            Dictionary of relevant Arduino metadata for experiment.
+    """
 
-        # Update keys in the configuration using user's inputs
-        empty_config["metadata"]["totalNumberOfTrials"]["value"] = totalNumberOfTrials
-        empty_config["metadata"]["punishTone"]["value"] = punishTone
-        empty_config["metadata"]["rewardTone"]["value"] = rewardTone
-        empty_config["metadata"]["USConsumptionTime_Sucrose"]["value"] = USConsumptionTime_Sucrose
+    # Define the variables required for Arduino function
+    arduino_metadata_keys = ["totalNumberOfTrials", "punishTone", "rewardTone",
+                             "USDeliveryTime_Sucrose", "USDeliveryTime_Air",
+                             "USConsumptionTime_Sucrose"]
 
-    # Write config file for session
-    with open(config_fullpath, 'w') as outFile:
+    # Generate Dictionary of relevant Arduino metadata
+    arduino_metadata = {key: value for (key, value) in
+                        config_template["metadata"].items() if
+                        key in arduino_metadata_keys}
 
-        # Dump customized template into new config file
-        json.dump(empty_config, outFile)
-
-    # Return config file for use in the experiment
-    return config_fullpath
-
-
-def build_config(project_name, template_flag, mouse_id, plane):
-
-    # Create status for duplicate filename.  For now, overwriting is not
-    # allowed.  Assume duplicate is occuring unless proven otherwise...
-    # TODO: Incorporate a flag or question that lets you overwrite a file
-    duplicate_config = True
-
-    # Perform check with while true loop
-    while duplicate_config is True:
-
-        # Get todays date with datetime
-        session_date = datetime.today().strftime("%Y%m%d")
-
-        # State base path for config file
-        config_basepath = "E:/studies/" + project_name + "/config/"
-
-        # Convert num_planes to a string
-        plane = str(plane)
-
-        # Assign config file name
-        config_filename = session_date + "_" + mouse_id + "_plane" + plane + "_config"
-
-        # Make full filepath for config file
-        config_fullpath = Path(config_basepath + config_filename + ".json")
-
-        # Check if there's a file that exists with this name already
-        # If there's no file with this name already
-        if config_fullpath.exists() is False:
-
-            # Tell the user
-            print("Unique filename given")
-
-            # Move on by setting duplicate_config to false
-            duplicate_config = False
-
-        # If there's already a file with the same name
-        elif config_fullpath.exists() is True:
-
-            # Tell the user and ask for unique filename
-            print("File already exists!")
-            print("Unique filename is required. Please provide one.")
-            print("Exiting...")
-            sys.exit()
-
-    # Start building the configuration values.  The user may not know about
-    # template flag which might make this section redundant.  Print a help
-    # message that informs them about the flag.  Let them customize the
-    # different values for the experiment.
-    if template_flag is False:
-        # Print help message
-        print("Note: You can use template values by using the --template flag")
-
-        # Use build_from_user()
-        config_file = build_from_user(config_fullpath)
-
-    # If the user did use the --template flag, write a template config file
-    elif template_flag is True:
-
-        # Use build_from_template()
-        config_file = build_from_template(config_fullpath, project_name)
-
-    return config_file, config_filename, config_fullpath
+    return arduino_metadata

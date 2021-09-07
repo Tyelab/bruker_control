@@ -6,8 +6,7 @@
 # https://github.com/PowerBroker2/pySerialTransfer
 # Genie Nano manufactured by Teledyne DALSA
 
-# Version Number
-__version__ = "0.74"
+__version__ = "0.5.0"
 
 ###############################################################################
 # Import Packages
@@ -19,17 +18,29 @@ __version__ = "0.74"
 # Import experiment utils to run different experiments
 import experiment_utils
 
-
 # -----------------------------------------------------------------------------
 # Python Libraries
 # -----------------------------------------------------------------------------
-# Import argparse if you want to create a configuration on the fly
+# Import argparse for runtime control
 import argparse
+
+# Import pathlib for creating valid choices list for project
+from pathlib import Path
 
 #  TODO Use ctrl+c to kill entire program from __main__ if needed
 # Import sys for exiting program safely
 # import sys
 
+# Static Directory for teams found in SNLKT Server
+teams_path = Path("X:/")
+
+# Make list of authorized teams that can use the Bruker Scope for imaging
+authorized_teams = ["specialk", "Deryn"]
+
+# Generate valid team choices for argparser variable "team" by checking the
+# directories on the server
+team_choices = [team.name for team in teams_path.glob("*") if team.name
+                in authorized_teams]
 
 ###############################################################################
 # Main Function
@@ -43,36 +54,13 @@ if __name__ == "__main__":
                                               epilog="Good luck on your work!",
                                               prog='Bruker Experiment Control')
 
-    # Add configuration file argument
-    metadata_parser.add_argument('-c', '--config_file',
+    # Add team name argument
+    metadata_parser.add_argument('-t', '--team',
                                  type=str,
                                  action='store',
-                                 dest='config',
-                                 help='Config Filename (yyyymmdd_animalid)',
-                                 default=None,
-                                 required=False)
-
-    # Add modify configuration file argument [DEPRECATED]
-    # metadata_parser.add_argument('-m', '--modify',
-    #                              action='store_true',
-    #                              dest='modify',
-    #                              help='Modify given config file (bool flag)',
-    #                              required=False)
-
-    # Add template configuration file argument
-    metadata_parser.add_argument('-t', '--template',
-                                 action='store_true',
-                                 dest='template',
-                                 help='Use template config file (bool flag)',
-                                 required=False)
-
-    # Add project name argument
-    metadata_parser.add_argument('-p', '--project',
-                                 type=str,
-                                 action='store',
-                                 dest='project',
-                                 help='Project Name (required)',
-                                 choices=['specialk', 'food_dep'],
+                                 dest='team',
+                                 help='Team Name (required)',
+                                 choices=team_choices,
                                  required=True)
 
     # Add number of imaging planes argument
@@ -80,37 +68,31 @@ if __name__ == "__main__":
                                  type=int,
                                  action='store',
                                  dest='imaging_planes',
-                                 help='Number of Imaging Planes',
-                                 default=None,
-                                 required=False)
+                                 help='Number of Imaging Planes (required)',
+                                 required=True)
 
     # Add mouse id argument
-    metadata_parser.add_argument('-m', '--mouse_id',
+    metadata_parser.add_argument('-s', '--subject_id',
                                  type=str,
                                  action='store',
-                                 dest='mouse',
-                                 help='Mouse ID (required)',
+                                 dest='subject_id',
+                                 help='Subject ID (required)',
                                  required=True)
+
+    # Add experimenter id argument
+    metadata_parser.add_argument('-e', '--experimenter',
+                                 type=str,
+                                 action='store',
+                                 dest='experimenter',
+                                 help='Experimenter Full Name (optional)',
+                                 default=None,
+                                 required=False)
 
     # Add demo flag
     metadata_parser.add_argument('-d', '--demo',
                                  action='store_true',
                                  dest='demo',
                                  help='Use Demonstration Values (bool flag)',
-                                 required=False)
-
-    # Add behavior_only flag
-    metadata_parser.add_argument('-b', '--behavior',
-                                 action='store_true',
-                                 dest='behavior',
-                                 help='Perform behavior ONLY (bool flag)',
-                                 required=False)
-
-    # Add sucrose_only flag
-    metadata_parser.add_argument('-s', '--sucrose',
-                                 action='store_true',
-                                 dest='sucrose',
-                                 help='Give ONLY sucrose trials (bool flag)',
                                  required=False)
 
     # Add program version argument
@@ -121,43 +103,5 @@ if __name__ == "__main__":
     # Parse the arguments given by the user
     metadata_args = vars(metadata_parser.parse_args())
 
-    # Gather behavior_only flag
-    behavior_flag = metadata_args["behavior"]
-
-    if behavior_flag is True:
-        experiment_utils.behavior_experiment_onepacket(metadata_args)
-
-    else:
-        experiment_utils.imaging_experiment_onepacket(metadata_args)
-
-                # # If there's multiple packets required, use multipacket generation and
-                # # transfer.  Multiple packets are required for sizes greater than 60.
-                # elif trials > 60:
-                #
-                #     # Send configuration file
-                #     serialtransfer_utils.transfer_metadata(config_list[0])
-                #
-                #     # Use multipacket serial transfer for arrays
-                #     serialtransfer_utils.multipacket_transfer(array_list)
-                #
-                #     # Send update that python is done sending data
-                #     serialtransfer_utils.update_python_status()
-                #
-                #     # Now that the packets have been sent, the Arduino will start soon.  We
-                #     # now start the camera for recording the experiment!
-                #     # video_utils.capture_recording(60, project_name, config_filename)
-                #
-                #     # End Prairie View's imaging session with abort command
-                #     # prairieview_utils.prairie_abort()
-                #
-                #     # Now that the microscopy session has ended, let user know the
-                #     # experiment is complete!
-                #     print("Experiment Over!")
-                #
-                #     # Exit the program
-                #     print("Exiting...")
-                #     sys.exit()
-
-                # If some other value that doesn't fit in these categories is
-                # given, there is something wrong with the configuration file.
-                # Let the user know and exit the program.
+    # Run an imaging experiment using the provided arguments by the user
+    experiment_utils.run_imaging_experiment(metadata_args)

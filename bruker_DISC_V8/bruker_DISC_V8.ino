@@ -5,17 +5,19 @@
 // SerialTransfer.h written by PowerBroker2 https://github.com/PowerBroker2/SerialTransfer
 
 //// PACKAGES ////
-#include <Adafruit_MPR121.h> // Adafruit MPR121 capicitance board recording
-#include <digitalWriteFast.h> // Speeds up communication for digital write
-#include <Wire.h> // Enhances comms with MPR121
-#include <SerialTransfer.h> // Enables serial comms between Python config and Arduino
+#include <Adafruit_MPR121.h>            // Adafruit MPR121 capicitance board recording
+#include <digitalWriteFast.h>           // Speeds up communication for digital write
+#include <Wire.h>                       // Enhances comms with MPR121
+#include <SerialTransfer.h>             // Enables serial comms between Python config and Arduino
+
 // rename SerialTransfer to myTransfer
 SerialTransfer myTransfer;
 
 //// EXPERIMENT METADATA ////
-// The maximum number of trials that can be run for a given experiment is 90
+// The maximum number of trials that can be run for a given experiment is 60
 const int MAX_NUM_TRIALS = 60;
 // Metadata is received as a struct and then renamed metadata
+// Struct allows for different datatypes of different sizes to be stored in an array
 struct __attribute__((__packed__)) metadata_struct {
   uint8_t totalNumberOfTrials;              // total number of trials for experiment
   uint16_t punishTone;                      // airpuff frequency tone in Hz
@@ -28,11 +30,12 @@ struct __attribute__((__packed__)) metadata_struct {
 //// EXPERIMENT ARRAYS ////
 // The order of stimuli to deliver is stored in the trial array
 // This is transmitted from Python to the Arduino
+// Uses int32_t as Python ints are stored as 32bit integers
 int32_t trialArray[MAX_NUM_TRIALS];
 // The ITI for each trial is transmitted from Python to the Arduino
 int32_t ITIArray[MAX_NUM_TRIALS];
 // The amount of time a tone is played is transmitted from Python to the Arudino
-int32_t noiseArray[MAX_NUM_TRIALS];
+int32_t toneArray[MAX_NUM_TRIALS];
 
 //// PYTHON TRANSMISSION STATUS ////
 // Additional control is required for running the experiment correctly.
@@ -45,10 +48,13 @@ int transmissionStatus = 0;
 //// TRIAL TYPES ////
 // trial variables are encoded as 0 and 1
 // 0 is negative stimulus [air], 1 is  positive stimulus [sucrose]
+// 2 is negative catch [air catch], 3 is positive catch [sucrose catch]
 // Initialize the trial type as an integer
 int trialType;
-// Initialize the current trial number as 0 before experiment begins
-int currentTrial = 0;
+// Initialize the current trial number as -1 before experiment begins
+// Use -1 so 0 indexed trial is first trial in the set
+// Allows for the iteration of max(totalNumberOfTrials) to reset board
+int currentTrial = -1;
 
 //// FLAG ASSIGNMENT ////
 // Flags can be categorized by purpose:
@@ -56,7 +62,7 @@ int currentTrial = 0;
 boolean acquireMetaData = true;
 boolean acquireTrials = false;
 boolean acquireITI = false;
-boolean acquireNoise = false;
+boolean acquireTone = false;
 boolean rx = true;
 boolean pythonGoSignal = false;
 boolean arduinoGoSignal = false;
@@ -66,15 +72,15 @@ boolean brukerTrigger = false;
 boolean newTrial = false;
 boolean ITI = false;
 boolean giveStim = false;
+boolean giveCatch = false;
 boolean newUSDelivery = false;
+boolean newUSDeliveryCatch = false;
 boolean solenoidOn = false;
 boolean vacOn = false;
 boolean consume = false;
 boolean cleanIt = false;
-boolean sucrose = false;
-boolean airpuff = false;
-boolean noise = false;
-boolean noiseDAQ = false;
+boolean noise = false; // can't use tone as it's protected in Arduino
+boolean toneDAQ = false;
 
 //// TIMING VARIABLES ////
 // Time is measured in milliseconds for this program
@@ -90,8 +96,8 @@ long airDelayMS;
 long USDeliveryMS_Air;
 long USDeliveryMS;
 long noiseDeliveryMS;
-long noiseListeningMS;
-long noiseDAQMS;
+long toneListeningMS;
+long toneDAQMS;
 // Vacuum has a set amount of time to be active
 const int vacDelay = 500; // vacuum delay
 
@@ -110,21 +116,25 @@ uint16_t lasttouched = 0;
 
 //// PIN ASSIGNMENT: Stimuli and Solenoids ////
 // input
-const int lickPin = 2; // input from MPR121
-//const int airPin = 3; // measure delay from solenoid to mouse
+const int lickPin = 2;                        // input from MPR121
+//const int airPin = 3;                       // measure delay from solenoid to mouse
 // output
-const int solPin_air = 22; // solenoid for air puff control
-const int vacPin = 24; // solenoid for vacuum control
-const int solPin_liquid = 26; // solenoid for liquid control: sucrose, water, EtOH
-const int speakerPin = 12; // speaker control pin
-const int bruker2PTriggerPin = 11; // trigger to start Bruker 2P Recording on Prairie View
+const int solPin_air = 22;                    // solenoid for air puff control
+const int vacPin = 24;                        // solenoid for vacuum control
+const int solPin_liquid = 26;                 // solenoid for liquid control: sucrose, water, EtOH
+const int speakerPin = 12;                    // speaker control pin
+const int bruker2PTriggerPin = 11;            // trigger to start Bruker 2P Recording on Prairie View
+
+//// PIN ASSIGNMENT: RESET /////
+const int resetPin = 0;                       // Pin driven LOW for resetting the Arduino through software.
 
 //// PIN ASSIGNMENT: NIDAQ ////
 // NIDAQ input
 // none
 // NIDAQ output
-const int lickDetectPin = 41; // detect sucrose licks
-const int speakerDeliveryPin = 51; // noise delivery
+const int itiDeliveryPin = 31;
+const int lickDetectPin = 41;                 // detect sucrose licks
+const int speakerDeliveryPin = 51;            // noise delivery
 
 //// RECIEVE METADATA FUNCTIONS ////
 // These three functions will be run in order.
@@ -141,7 +151,6 @@ int metadata_rx() {
       
       acquireMetaData = false;
       transmissionStatus++;
-      Serial.println(transmissionStatus);
       acquireTrials = true;
     }
   }
@@ -164,7 +173,6 @@ int trials_rx() {
         transmissionStatus++;
         transmissionStatus++;
       }
-      Serial.println(transmissionStatus);
       acquireITI = true;
     }
   }
@@ -188,22 +196,21 @@ int iti_rx() {
         transmissionStatus++;
         transmissionStatus++;
       }
-      Serial.println(transmissionStatus);
-      acquireNoise = true;
+      acquireTone = true;
     }
   }
 }
 
 // Finally, an array of noise duration values are received and stored.
-int noise_rx() {
-  if (acquireNoise && transmissionStatus >= 5 && transmissionStatus < 7) {
+int tone_rx() {
+  if (acquireTone && transmissionStatus >= 5 && transmissionStatus < 7) {
     acquireITI = false;
     if (myTransfer.available())
     {
-      myTransfer.rxObj(noiseArray);
+      myTransfer.rxObj(toneArray);
       Serial.println("Received Noise Array");
 
-      myTransfer.sendDatum(noiseArray);
+      myTransfer.sendDatum(toneArray);
       Serial.println("Sent Noise Array");
       if (metadata.totalNumberOfTrials > 60) {
         transmissionStatus++;
@@ -212,8 +219,6 @@ int noise_rx() {
         transmissionStatus++;
         transmissionStatus++;
       }
-      Serial.println(transmissionStatus);
-
       pythonGoSignal = true;
     }
   }
@@ -225,7 +230,7 @@ void rx_function() {
     metadata_rx();
     trials_rx();
     iti_rx();
-    noise_rx();
+    tone_rx();
   }
 }
 
@@ -235,10 +240,12 @@ int pythonGo_rx() {
     if (myTransfer.available())
     {
       myTransfer.rxObj(pythonGo);
-      Serial.println("Received Python Status");
+      Serial.println("Python transmission complete!");
   
       myTransfer.sendDatum(pythonGo);
-      Serial.println("Sent Python Status");
+      Serial.println("Sent confirmation to Python");
+
+      currentTrial++;
 
       cameraDelay = true;
     }
@@ -259,7 +266,7 @@ void camera_delay() {
   if (cameraDelay) {
     Serial.println("Delaying Bruker Trigger for Camera Startup...");
     cameraDelay = false;
-    delay(3000);
+    delay(5000);
     arduinoGoSignal = true;
   }
 }
@@ -296,6 +303,7 @@ void lickDetect() {
 // ITI Function
 void startITI(long ms) {
   if (newTrial) {                                 // start new ITI
+    digitalWriteFast(itiDeliveryPin, HIGH);
     Serial.print("Starting New Trial: ");
     Serial.println(currentTrial + 1);
     trialType = trialArray[currentTrial];         // gather trial type
@@ -305,6 +313,7 @@ void startITI(long ms) {
     ITIend = ms + thisITI;
     // turn off when done
   } else if (ITI && (ms >= ITIend)) {             // ITI is over
+    digitalWriteFast(itiDeliveryPin, LOW);
     ITI = false;
     noise = true;
   }
@@ -316,46 +325,75 @@ void startITI(long ms) {
 void tonePlayer(long ms) {
   if (noise) {
     Serial.println("Playing Tone");
-    int thisNoiseDuration = noiseArray[currentTrial];
+    int thisNoiseDuration = toneArray[currentTrial];
     noise = false;
-    noiseDAQ = true;
-    giveStim = true;
-    noiseListeningMS = ms + thisNoiseDuration;
+    toneDAQ = true;
+    toneListeningMS = ms + thisNoiseDuration;
     digitalWriteFast(speakerDeliveryPin, HIGH);
     switch (trialType) {
       case 0:
         Serial.println("Air");
         tone(speakerPin, metadata.punishTone, thisNoiseDuration);
+        giveStim = true;
         break;
       case 1:
         Serial.println("Sucrose");
         tone(speakerPin, metadata.rewardTone, thisNoiseDuration);
+        giveStim = true;
+        break;
+      case 2:
+        Serial.println("Air Catch");
+        tone(speakerPin, metadata.punishTone, thisNoiseDuration);
+        giveCatch = true;
+        break;
+      case 3:
+        Serial.println("Sucrose Catch");
+        tone(speakerPin, metadata.rewardTone, thisNoiseDuration);
+        giveCatch = true;
         break;
     }
   }
 }
 
-// Send noise signal to DAQ function
+// Send tone signal to DAQ function
 void onTone(long ms) {
-  if (noiseDAQ && (ms >= noiseListeningMS)){
-    noiseDAQ = false;
+  if (toneDAQ && (ms >= toneListeningMS)){
+    toneDAQ = false;
     digitalWriteFast(speakerDeliveryPin, LOW);
   }
 }
 
-// Initiate new US Delivery during the last moments of the tone.
-void giveStimulus(long ms) {
+// Initiate new US Delivery during the last moments of the tone if stimuli trial.
+void presentStimulus(long ms) {
   switch (trialType) {
     case 0:
-      if (giveStim && (ms >=  noiseListeningMS - metadata.USDeliveryTime_Air)) {
+      if (giveStim && (ms >=  toneListeningMS - metadata.USDeliveryTime_Air)) {
         newUSDelivery = true;
+        break;
       }
     case 1:
-      if (giveStim && (ms >= noiseListeningMS - metadata.USDeliveryTime_Sucrose)) {
+      if (giveStim && (ms >= toneListeningMS - metadata.USDeliveryTime_Sucrose)) {
         newUSDelivery = true;
+        break;
       }
-    }
   }
+}
+
+// Initiate catch trial during the last moments of the tone delivery if catch trial processed.
+void presentCatch(long ms) {
+  switch (trialType) {
+    case 2:
+      if (giveCatch && (ms >= toneListeningMS - metadata.USDeliveryTime_Air)) {
+        newUSDeliveryCatch = true;
+        break;
+      }
+    case 3:
+       if (giveCatch && (ms >= toneListeningMS - metadata.USDeliveryTime_Sucrose)) {
+        newUSDeliveryCatch = true;
+        break;
+      }
+  }
+}
 
 //// STIMULUS DELIVERY FUNCTIONS ////
 // Stimulus Delivery: 0 is airpuff, 1 is sucrose
@@ -378,11 +416,28 @@ void USDelivery(long ms) {
         break;
     }
   }
+  else if (newUSDeliveryCatch) {
+    Serial.println("Delivering US Catch");
+    newUSDeliveryCatch = false;
+    giveCatch = false;
+    solenoidOn = true;
+    switch (trialType) {
+      case 2:
+        Serial.println("Delivering Airpuff Catch");
+        USDeliveryMS = ms + metadata.USDeliveryTime_Air;
+        break;
+      case 3:
+        Serial.println("Delivering Sucrose Catch");
+        USDeliveryMS = ms + metadata.USDeliveryTime_Sucrose;
+        break;
+    }
+  }
 }
+
 
 // Turn off Solenoid
 void offSolenoid(long ms) {
-  if (solenoidOn && (noiseDAQ == false)) {
+  if (solenoidOn && (toneDAQ == false)) {
     switch (trialType) {
       case 0:
         Serial.println("Air Solenoid Off");
@@ -397,6 +452,18 @@ void offSolenoid(long ms) {
         sucroseConsumptionMS = (ms + metadata.USConsumptionTime_Sucrose);
         consume = true;
         digitalWriteFast(solPin_liquid, LOW);
+        break;
+      case 2:
+        Serial.println("Air Solenoid Off (Catch)");
+        solenoidOn = false;
+        newTrial = true;
+        currentTrial++;
+        break;
+      case 3:
+        Serial.println("Sucrose Solenoid Off (Catch)");
+        solenoidOn = false;
+        sucroseConsumptionMS = (ms + metadata.USConsumptionTime_Sucrose);
+        consume = true;
         break;
     }
   }
@@ -428,6 +495,37 @@ void vacuum(long ms) {
   }
 }
 
+// Reset Function
+void reset_board() {
+  transmissionStatus = 0;
+  currentTrial = -1;
+  acquireMetaData = true;
+  acquireTrials = false;
+  acquireITI = false;
+  acquireTone = false;
+  rx = true;
+  pythonGoSignal = false;
+  arduinoGoSignal = false;
+  cameraDelay = false;
+  brukerTrigger = false;
+  newTrial = false;
+  ITI = false;
+  giveStim = false;
+  giveCatch = false;
+  newUSDelivery = false;
+  newUSDeliveryCatch = false;
+  solenoidOn = false;
+  vacOn = false;
+  consume = false;
+  cleanIt = false;
+  noise = false;
+  toneDAQ = false;
+  Serial.println("Resetting Arduino after 3 seconds...");
+  delay(3000);
+  Serial.println("RESETTING");
+  digitalWriteFast(resetPin, LOW);
+}
+
 //// SETUP ////
 void setup() {
   // -- DEFINE BITRATE -- //
@@ -439,6 +537,7 @@ void setup() {
   myTransfer.begin(Serial1, true);
 
   // -- DEFINE PINS -- //
+  digitalWriteFast(resetPin, HIGH);
   // input
   pinMode(lickPin, INPUT);
   //output
@@ -449,6 +548,7 @@ void setup() {
   pinMode(speakerDeliveryPin, OUTPUT);
   pinMode(lickDetectPin, OUTPUT);
   pinMode(bruker2PTriggerPin, OUTPUT);
+  pinMode(resetPin, OUTPUT);
 
   // -- INITIALIZE TOUCH SENSOR -- //
   Serial.println("MPR121 check...");
@@ -472,10 +572,14 @@ void loop() {
     startITI(ms);
     tonePlayer(ms);
     onTone(ms);
-    giveStimulus(ms);
+    presentStimulus(ms);
+    presentCatch(ms);
     USDelivery(ms);
     offSolenoid(ms);
     consuming(ms);
     vacuum(ms);
+  }
+  else if (currentTrial == metadata.totalNumberOfTrials) {
+    reset_board();
   }
 }

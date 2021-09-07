@@ -20,31 +20,72 @@ tested using one camera so far.
 
 .. currentmodule:: video_utils
 
-init_camera_preview
--------------------
+.. automodule:: video_utils
+  :members:
 
-.. autofunction:: init_camera_preview
 
-capture_preview
----------------
+trial_utils.py
+==============
 
-.. autofunction:: capture_preview
+Module contains functions for interpreting configuration file parameters and
+using them for generating pseudorandom trial arrays following user defined
+rules with the capability of producing catch trials in given subsets of the
+trial order, for generating ITIs from a uniform random distribution between
+bounds defined by the user, and tone durations that vary between user
+defined bounds.
 
-init_camera_recording
----------------------
+.. currentmodule:: trial_utils
 
-.. autofunction:: init_camera_recording
+.. automodule:: trial_utils
+  :members:
 
-capture_recording
------------------
 
-.. autofunction:: capture_recording
+config_utils.py
+===============
 
-shutdown_camera
----------------
+Module contains functions for reading, writing, and passing configuration
+information to different modules or files.
 
-.. autofunction:: shutdown_camera
+.. currentmodule:: config_utils
 
+.. automodule:: config_utils
+  :members:
+
+
+prairieview_utils.py
+====================
+
+Module contains functions for interacting with Prairie View's API to set data
+directories, filenames, and gathering imaging plane information.
+
+.. currentmodule:: prairieview_utils
+
+.. automodule:: prairieview_utils
+  :members:
+
+
+serialtransfer_utils.py
+=======================
+
+Module contains functions for sending, receiving, and checking trial information
+to the Arduino delivering stimuli via pySerialTransfer.
+
+.. currentmodule:: serialtransfer_utils
+
+.. automodule:: serialtransfer_utils
+  :members:
+
+
+nwb_utils.py
+============
+
+Module contains functions for generating and writing a base Neurodata Without
+Borders file for a given subject to their correct data directory.
+
+.. currentmodule:: nwbutils
+
+.. automodule:: nwb_utils
+  :members:
 
 Indices and tables
 ==================
