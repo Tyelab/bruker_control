@@ -35,6 +35,9 @@ basepath = "E:/teams/"
 
 
 class CameraNotFound(Exception):
+    """
+    Exception class for if Python cannot find a connected GENTL camera.
+    """
     def __init__(self, *args):
         if args:
             self.message = args[0]
