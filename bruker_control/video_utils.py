@@ -160,8 +160,8 @@ def capture_preview():
                 # Provide preview for camera contents:
                 # cv2.imshow("Preview", content)
                 # c = cv2.waitKey(1) % 0x100
-                if c == 27:
-                    preview_status = False
+                # if c == 27:
+                #     preview_status = False
 
         except:
             pass
@@ -169,7 +169,7 @@ def capture_preview():
     # cv2.destroyAllWindows()
 
     # Shutdown the camera
-    shutdown_camera(camera, h)
+    # shutdown_camera(camera, h)
 
 
 # -----------------------------------------------------------------------------
@@ -317,32 +317,32 @@ def capture_recording(num_frames: int, current_plane: int, imaging_plane: str,
 
     frame_number = 1
 
-    for frame in tqdm(range(num_frames), desc="Experiment Progress",
-                      ascii=True):
+    # for frame in tqdm(range(num_frames), desc="Experiment Progress",
+    #                   ascii=True):
 
         # Introduce try/except block in case of dropped frames
-        try:
+        # try:
 
             # Use with statement to acquire buffer, payload, an data
             # Payload is 1D numpy array, RESHAPE WITH HEIGHT THEN WIDTH
             # Numpy is backwards, reshaping as heightxwidth writes correctly
-            with camera.fetch_buffer() as buffer:
+            # with camera.fetch_buffer() as buffer:
 
                 # Define frame content with buffer.payload
-                content = buffer.payload.components[0].data.reshape(height,
-                                                                    width)
+                # content = buffer.payload.components[0].data.reshape(height,
+                #                                                     width)
 
                 # out.write(content)
                 # cv2.imshow("Live", content)
                 # cv2.waitKey(1)
 
-                frame_number += 1
+                # frame_number += 1
 
         # TODO Raise warning for frame drops? What is this error...
-        except:
-            dropped_frames.append(frame_number)
-            frame_number += 1
-            pass
+        # except:
+        #     dropped_frames.append(frame_number)
+        #     frame_number += 1
+        #     pass
 
     # Release VideoWriter object
     # out.release()

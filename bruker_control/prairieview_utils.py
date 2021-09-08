@@ -124,9 +124,9 @@ def set_filename(team: str, subject_id: str, current_plane: int) -> str:
     # pl.SendScriptCommands("-SetSavePath {}".format(imaging_dir))
 
     # Set session name by joining variables with underscores
-    session_name = "_".join([session_date, subject_id,
-                             "plane{}".format(current_plane),
-                             imaging_plane, "raw"])
+    # session_name = "_".join([session_date, subject_id,
+    #                          "plane{}".format(current_plane),
+    #                          imaging_plane, "raw"])
 
     # # Set behavior filename
     # behavior_filename = "_".join([session_name, "behavior"])
@@ -138,7 +138,7 @@ def set_filename(team: str, subject_id: str, current_plane: int) -> str:
     # Until 5.6 Update, having 2P in the name is redundant.  This will just
     # assign imaging_filename to session_name until then.
     # imaging_filename = "_".join([session_name, "2p"])
-    imaging_filename = session_name
+    # imaging_filename = session_name
 
     # pl.SendScriptCommands("-SetFileName Tseries {}".format(imaging_filename))
 
@@ -149,7 +149,7 @@ def set_filename(team: str, subject_id: str, current_plane: int) -> str:
     # pl.SendScriptCommands("-SetState directory {} VoltageRecording"
     #                       .format(behavior_dir))
 
-    return imaging_plane
+    # return imaging_plane
 
 
 # -----------------------------------------------------------------------------
