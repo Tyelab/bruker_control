@@ -1,4 +1,4 @@
-# headfix_control
+# headfix_control v1.0.0
 ## By Deryn LeDuke, Kyle Fischer, Dexter Tsin, and Jeremy Delahanty
 
 Repository for Arduino code controlled by MATLAB and/or Python used to control behavior experiments in the Headfix room and 2P Room.
