@@ -126,7 +126,7 @@ def set_filename(team: str, subject_id: str, current_plane: int) -> str:
     # Set session name by joining variables with underscores
     # session_name = "_".join([session_date, subject_id,
     #                          "plane{}".format(current_plane),
-    #                          imaging_plane, "raw"])
+                             # imaging_plane, "raw"])
 
     # # Set behavior filename
     # behavior_filename = "_".join([session_name, "behavior"])
@@ -201,11 +201,11 @@ def start_microscopy_session(project: str, subject_id: str,
 
     pv_connect()
 
-    imaging_plane = set_filename(project, subject_id, current_plane)
+    # imaging_plane = set_filename(project, subject_id, current_plane)
 
     start_tseries()
 
-    return imaging_plane
+    # return imaging_plane
 
 
 def end_microscopy_session() -> datetime:

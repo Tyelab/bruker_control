@@ -11,7 +11,7 @@
 from harvesters.core import Harvester
 
 # Import OpenCV2 to write images/videos to file + previews
-# import cv2
+import cv2
 
 # Import datetime for filenaming
 from datetime import datetime
@@ -158,18 +158,18 @@ def capture_preview():
                                                                     width)
 
                 # Provide preview for camera contents:
-                # cv2.imshow("Preview", content)
-                # c = cv2.waitKey(1) % 0x100
-                # if c == 27:
-                #     preview_status = False
+                cv2.imshow("Preview", content)
+                c = cv2.waitKey(1) % 0x100
+                if c == 27:
+                    preview_status = False
 
         except:
             pass
 
-    # cv2.destroyAllWindows()
+    cv2.destroyAllWindows()
 
     # Shutdown the camera
-    # shutdown_camera(camera, h)
+    shutdown_camera(camera, h)
 
 
 # -----------------------------------------------------------------------------
@@ -304,51 +304,51 @@ def capture_recording(num_frames: int, current_plane: int, imaging_plane: str,
     video_fullpath = video_dir + video_name
 
     # Define video codec for writing images
-    # fourcc = cv2.VideoWriter_fourcc(*'DIVX')
+    fourcc = cv2.VideoWriter_fourcc(*'DIVX')
 
     # Start the Camera
     h, camera, width, height = init_camera_recording()
 
     # Create VideoWriter object: file, codec, framerate, dims, color value
-    # out = cv2.VideoWriter(video_fullpath, fourcc, 30, (width, height),
-                          # isColor=False)
+    out = cv2.VideoWriter(video_fullpath, fourcc, 30, (width, height),
+                          isColor=False)
 
     dropped_frames = []
 
     frame_number = 1
 
-    # for frame in tqdm(range(num_frames), desc="Experiment Progress",
-    #                   ascii=True):
+    for frame in tqdm(range(num_frames), desc="Experiment Progress",
+                      ascii=True):
 
         # Introduce try/except block in case of dropped frames
-        # try:
+        try:
 
             # Use with statement to acquire buffer, payload, an data
             # Payload is 1D numpy array, RESHAPE WITH HEIGHT THEN WIDTH
             # Numpy is backwards, reshaping as heightxwidth writes correctly
-            # with camera.fetch_buffer() as buffer:
+            with camera.fetch_buffer() as buffer:
 
                 # Define frame content with buffer.payload
-                # content = buffer.payload.components[0].data.reshape(height,
-                #                                                     width)
+                content = buffer.payload.components[0].data.reshape(height,
+                                                                    width)
 
-                # out.write(content)
-                # cv2.imshow("Live", content)
-                # cv2.waitKey(1)
+                out.write(content)
+                cv2.imshow("Live", content)
+                cv2.waitKey(1)
 
-                # frame_number += 1
+                frame_number += 1
 
         # TODO Raise warning for frame drops? What is this error...
-        # except:
-        #     dropped_frames.append(frame_number)
-        #     frame_number += 1
-        #     pass
+        except:
+            dropped_frames.append(frame_number)
+            frame_number += 1
+            pass
 
     # Release VideoWriter object
-    # out.release()
+    out.release()
 
     # Destroy camera window
-    # cv2.destroyAllWindows()
+    cv2.destroyAllWindows()
 
     # Shutdown the camera
     shutdown_camera(camera, h)

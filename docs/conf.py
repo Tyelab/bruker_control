@@ -22,7 +22,7 @@ copyright = '2021, Jeremy Delahanty'
 author = 'Jeremy Delahanty'
 
 # The full version, including alpha/beta/rc tags
-release = '0.5.0'
+release = '1.0.0'
 
 
 # -- General configuration ---------------------------------------------------
