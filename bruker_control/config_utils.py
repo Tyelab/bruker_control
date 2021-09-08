@@ -16,7 +16,6 @@ from pathlib import Path
 
 # Import datetime for folder naming
 from datetime import datetime
-from dateutil.tz import tzlocal
 
 # Template configuration directories are within project directories.  The snlkt
 # server housing these directories is mounted to the X: volume on the machine

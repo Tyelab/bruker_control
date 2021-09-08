@@ -13,7 +13,6 @@ import win32com.client as client
 
 # Import datetime for folder naming
 from datetime import datetime
-from dateutil.tz import tzlocal
 
 # Save the Praire View application as pl
 pl = client.Dispatch("PrairieLink.Application")

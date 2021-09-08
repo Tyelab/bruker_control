@@ -6,7 +6,7 @@
 # https://github.com/PowerBroker2/pySerialTransfer
 # Genie Nano manufactured by Teledyne DALSA
 
-__version__ = "0.5.0"
+__version__ = "1.0.0"
 
 ###############################################################################
 # Import Packages

@@ -75,6 +75,18 @@ to the Arduino delivering stimuli via pySerialTransfer.
 .. automodule:: serialtransfer_utils
   :members:
 
+
+nwb_utils.py
+============
+
+Module contains functions for generating and writing a base Neurodata Without
+Borders file for a given subject to their correct data directory.
+
+.. currentmodule:: nwbutils
+
+.. automodule:: nwb_utils
+  :members:
+
 Indices and tables
 ==================
 
