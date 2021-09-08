@@ -40,6 +40,7 @@ autoclass_content = "both"
 atuodoc_member_order = "bysource"
 
 autodoc_mock_imports = ['cv2']
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
