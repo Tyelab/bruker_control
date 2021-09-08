@@ -798,6 +798,98 @@ order.</p></li>
 <h1>prairieview_utils.py<a class="headerlink" href="#prairieview-utils-py" title="Permalink to this headline">¶</a></h1>
 <p>Module contains functions for interacting with Prairie View’s API to set data
 directories, filenames, and gathering imaging plane information.</p>
+<span class="target" id="module-prairieview_utils"></span><dl class="py function">
+<dt class="sig sig-object py" id="prairieview_utils.abort_recording">
+<span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">abort_recording</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.abort_recording" title="Permalink to this definition">¶</a></dt>
+<dd><p>Aborts T-Series Microscopy recording</p>
+<p>Once the number of frames specified is collected, a signal to abort the
+microscopy session is sent to Prairie View.  Once aborted, Python will
+disconnect from Prairie View.  This function takes no arguments and returns
+nothing.</p>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="prairieview_utils.end_microscopy_session">
+<span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">end_microscopy_session</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.end_microscopy_session" title="Permalink to this definition">¶</a></dt>
+<dd><p>Aborts the microscopy session and disconnects from Prairie View.</p>
+<p>Used when the data for the given experiment has been collected and written
+to disk.  Invokes the abort command and disconnects from Prarie View with
+their API.  This function takes no arguments and returns nothing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="prairieview_utils.pv_connect">
+<span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">pv_connect</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.pv_connect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Connect to Prairie View</p>
+<p>Used to connect to Prairie View at the beginning of each session with their
+API.  This function takes no arguments and returns nothing.</p>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="prairieview_utils.pv_disconnect">
+<span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">pv_disconnect</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.pv_disconnect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Disconnect from Prairie View</p>
+<p>Used to disconnect from Prairie View at the end of each session with their
+API.  This function takes no arguments and returns nothing.</p>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="prairieview_utils.set_filename">
+<span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">set_filename</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">team</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_plane</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.set_filename" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets Microscopy and Behavior recording filenames and directories.</p>
+<p>Gathers what plane is being imaged for the session generates appropriately
+named imaging and behavior directories and filenames for data coming off
+the microscope.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>team</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The team performing the experiment</p></li>
+<li><p><strong>subject_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The subject being recorded</p></li>
+<li><p><strong>current_plane</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The plane being imaged as in 1st, 2nd, 3rd, etc</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>imaging_plane</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="prairieview_utils.start_microscopy_session">
+<span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">start_microscopy_session</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_plane</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.start_microscopy_session" title="Permalink to this definition">¶</a></dt>
+<dd><p>Readies the Bruker 2-Photon microscope for an experiment</p>
+<p>Sets directories, filenames, and initializes Bruker T-Series for imaging
+and Voltage Recording for behavior data. Returns the current imaging_plane
+as found in Prairie View.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>project</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Name of project for recording</p></li>
+<li><p><strong>subject_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Name of the experimental subject</p></li>
+<li><p><strong>current_plane</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Current plane being imaged as in 1st, 2nd, 3rd, etc</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>imaging_plane</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="prairieview_utils.start_tseries">
+<span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">start_tseries</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.start_tseries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Starts Prairie View T-Series 2P Recording</p>
+<p>Connects to Prairie View and starts the T-Series which will wait for an
+input trigger.  Waiting for an input trigger is done within Prairie View’s
+GUI.  It also ensures that the microscope’s setting is put to Resonant
+Galvo in case the user forgot.  This argument takes no arguments and
+returns nothing.</p>
+</dd></dl>
 </section>
 <section id="serialtransfer-utils-py">
 <h1>serialtransfer_utils.py<a class="headerlink" href="#serialtransfer-utils-py" title="Permalink to this headline">¶</a></h1>

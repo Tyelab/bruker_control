@@ -7,4 +7,4 @@ pyserialtransfer==2.1.2
 numpy==1.20.2
 tqdm
 pynwb
-pywin32
+pywin32==228
