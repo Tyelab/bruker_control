@@ -16,7 +16,7 @@ There are three different softwares used for running experiments with the lab's 
 
 #### _Arduino_
 First, use __bruker_cleanup.ino__ to backfill the sucrose line. 
-1. Comment out all the lines in the `loop` portion of the file with `//` characters at the start of the line _except_ for the `digitalWrite(sucrose_delivery_pin, HIGH)` line. Assist the sucrose solution through the line with the syringe plunger until it is flowing continuously through the sucrose delivery needle in the faraday cage. It takes approximately 5mL of solution to backfill the line.
+1. Comment out all the lines in the `loop` portion of the file with `//` characters at the start of the line _except_ for the `digitalWrite(solPin_liquid, HIGH)` line. Assist the sucrose solution through the line with the syringe plunger until it is flowing continuously through the sucrose delivery needle in the faraday cage. It takes approximately 5mL of solution to backfill the line.
 2. Uncomment the rest of the lines in the `loop` to test the vacuum. If the droplet is sucked up properly, you can upload your team's experimental sketch! If it fails, first try drying the sucrose delivery needle and, if that fails, grease the interface between the two needles. Ensure that you don't get any grease where the sucrose droplet forms.
 
 Once you've uploaded your team's Arduino sketch, the Arduino system is ready and waiting for the experiment's trials! The board will reset on its own once the imaging session is complete.
