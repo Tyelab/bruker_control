@@ -69,6 +69,7 @@ be merged into `main` after it's been reviewed by **`Team 2P`** and thoroughly t
 
 #### Software
 1. _NWB Extensions_
+
 After some discussion with [Ryan Ly](https://github.com/rly), a data engineer with NWB, he suggested including as much metadata about our experiments
 as possible including the following (in no particular order):
 - Experimental Configuration Parameters (from config files)
@@ -95,6 +96,7 @@ These issues include:
 - Other?
 
 2. _Containerizing RAW data converstion to HDF5 files onto SNL Cluster_
+
 Kay has expressed the need for file conversion and processing to be done on the SNL cluster instead of locally on the machine.
 The [Deisseroth Lab](https://github.com/deisseroth-lab/two-photon) has a version of Prairie View's utilities that are containerized into
 a [Docker Image](https://www.docker.com/). Jorge recently gave me access to the SNL machines with Docker installed as well as permissions to
@@ -118,6 +120,7 @@ For containerization, testing, and reproducing the image on multiple machines: 3
 are busy/waiting if they are: 1-2 weeks.
 
 3. _GUI Development_
+
 The system would benefit from the development of a GUI, or Graphical User Interface, so it's easier to interact with. I have looked into a couple
 different frameworks including `Tkinter`, `PyQt5/6`, and `Gooey`.
 
@@ -130,6 +133,7 @@ _**Timeline**_
 To build and test a simple GUI shouldn't (hopefully) be too difficult, but there could be some additional refactoring that's necessary: 2-3 weeks.
 
 4. _Automated Plane Searching in Prairie View_
+
 Prairie View has no functionality for automatically searching for the reference plane that was imaged when finding cells unlike the NLW scope.
 A project like this one is likely not particularly necessary and is not something I will work on unless we explicitly need it. It would be
 incredibly fun and cool though if it worked. 👀
@@ -149,6 +153,7 @@ _**Timeline**_
 This would likely take quite a long time to get into a production ready place...
 
 5. _Z-Stacks and Overlaying Different Images Together_
+
 For Austin's project at least, we will need to take a Z-stack for each animal's reference plane for both GCaMP and DLIGHT.
 
 The steps for accomplishing this are as follows:
