@@ -1,5 +1,5 @@
 # Changelog
-Any changes made by the team that make it into the `main` branch are logged here.
+Any changes made by **`Team 2P`** that make it into the `main` branch are logged here.
 
 A changelog for commits and changes before this version will not be added.
 
