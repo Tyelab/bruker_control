@@ -6,6 +6,13 @@ A changelog for commits and changes before this version will not be added.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## bruker_disc_specialk.ino v1.0.1 - 2021-09-15
+
+### Changed
+
+Start new ITI after presentation of sucrose droplet is complete. Now both Deryn and Austin's projects
+start ITIs the moment the tone is complete.
+
 ## bruker_control.py v1.0.0 - 2021-09-13
 This is v1.0! There's been several things added and several things changed after refactoring the code
 for a few weeks. Check out the info below!
