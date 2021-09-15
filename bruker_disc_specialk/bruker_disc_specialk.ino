@@ -4,7 +4,7 @@
    Purpose: Present stimuli to headfixed subject and send signals to DAQ for Tye Lab Team specialk
 
    @author Deryn LeDuke, Kyle Fischer PhD, Dexter Tsin, Jeremy Delahanty
-   @version 1.0.0 9/10/21
+   @version 1.0.1 9/10/21
 
    Adapted from DISC_V7.ino by Kyle Fischer and Mauri van der Huevel Oct. 2019
    digitalWriteFast.h written by Watterott Electronic https://github.com/watterott/Arduino-Libs/tree/master/digitalWriteFast
@@ -580,6 +580,8 @@ void offSolenoid(long ms) {
         solenoidOn = false;
         sucroseConsumptionMS = (ms + metadata.USConsumptionTime_Sucrose);
         consume = true;
+        newTrial = true;
+        currentTrial++;
         digitalWriteFast(solPin_liquid, LOW);
         break;
       case 2:
@@ -593,6 +595,8 @@ void offSolenoid(long ms) {
         solenoidOn = false;
         sucroseConsumptionMS = (ms + metadata.USConsumptionTime_Sucrose);
         consume = true;
+        newTrial = true;
+        currentTrial++;
         break;
     }
   }
@@ -629,8 +633,6 @@ void vacuum(long ms) {
     Serial.println("Stop Cleaning...");
     vacOn = false;
     digitalWriteFast(vacPin, LOW);
-    newTrial = true;
-    currentTrial++;
   }
 }
 
