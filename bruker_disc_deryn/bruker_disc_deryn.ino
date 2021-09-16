@@ -1,24 +1,24 @@
-/*
- * Control code for Arduino using Python integration for headfixed behavior
- * Discrimination task: Liquid Sucrose = Positive, Airpuff = Negative
- * 
- * Deryn LeDuke 2019, Jeremy Delahanty Mar. 2021, Dexter Tsin Apr. 2021
- * Adapted from DISC_V7.ino by Kyle Fischer and Mauri van der Huevel Oct. 2019
- * digitalWriteFast.h written by Watterott Electronic
- * https://github.com/watterott/Arduino-Libs/tree/master/digitalWriteFast
- * SerialTransfer.h written by PowerBroker2
- * https://github.com/PowerBroker2/SerialTransfer
- * 
- * This program is intended to run vacuumless discrimination tasks for head-fixed 
- * behavior using Python for trial structures, metadata, and timing arrays.
- * 
- * The program operates following these steps:
- *    1. Open communications to Python on Bruker PC
- *    2. Receive metadata, trial type array, ITI array, and tone duration array
- *    3. Confirm Python has finished sending data
- *    4. Delay the program for 5 seconds to allow Teledyne Genie Nano to start up
- *    5. Send a start trigger to the Bruker DAQ to start microscopy/voltage recording
- *    6. Run through trials until finished
+/**
+Tye Lab Headfixed Discrimination Task: Bruker 2P Microscope
+Name: bruker_disc_deryn
+Purpose: Present stimuli to headfixed subject and send signals to DAQ for Tye Lab Team specialk
+
+@author Deryn LeDuke, Kyle Fischer PhD, Dexter Tsin, Jeremy Delahanty
+@version 1.0.1 9/10/21
+
+Adapted from DISC_V7.ino by Kyle Fischer and Mauri van der Huevel Oct. 2019
+digitalWriteFast.h written by Watterott Electronic https://github.com/watterott/Arduino-Libs/tree/master/digitalWriteFast
+SerialTransfer.h written by PowerBroker2 https://github.com/PowerBroker2/SerialTransfer
+
+The program operates using these steps:
+  1. Open communications to Python on Bruker PC
+  2. Receive metadata, trial type array, ITI array, and tone duration array
+  3. Confirm Python has finished sending data
+  4. Delay program for 5 seconds to allow Teledyne Genie Nano to start up
+  5. Send trigger to the Bruker DAQ to start the microscopy session
+  6. Run through the trials specified in totalNumberOfTrials
+  7. Reset the Arduino
+
 */
 
 //// PACKAGES ////
@@ -148,9 +148,11 @@ const int speakerDeliveryPin_Liquid = 51;     // tone delivery for sucrose trial
 //// PIN ASSIGNMENT: RESET ////
 const int resetPin = 0;                       // reset Arduino by driving this pin LOW
 
-//// RECIEVE METADATA FUNCTIONS ////
-// These three functions will be run in order.
-// The metadata is first received to initialize correct sizes for arrays
+// Metadata and flow-control functions
+/**
+   Receives, parses, and sends back Arduino Metadata to PC. Increments the
+   transmissionStatus by 1.
+*/
 int metadata_rx() {
   if (acquireMetaData && transmissionStatus == 0) {
     if (myTransfer.available())
@@ -160,7 +162,7 @@ int metadata_rx() {
 
       myTransfer.sendDatum(metadata);
       Serial.println("Sent Metadata");
-      
+
       acquireMetaData = false;
       transmissionStatus++;
       acquireTrials = true;
@@ -168,7 +170,11 @@ int metadata_rx() {
   }
 }
 
-// Next, an array of trials to run is received and stored.
+/**
+   Receives, parses, and sends back array of trial types to be performed
+   for given experiment. Increments transmission status by 1 if totalNumber
+   OfTrials is greater than 60, by 2 if less than 60.
+*/
 int trials_rx() {
   if (acquireTrials && transmissionStatus >= 1 && transmissionStatus < 3) {
     if (myTransfer.available())
@@ -190,7 +196,11 @@ int trials_rx() {
   }
 }
 
-// Next, an array of ITI values are received and stored.
+/**
+   Receives, parses, and sends back array of Inter Trial Intervals (ITIs)
+   to be performed for given experiment. Increments transmission status by
+   1 if totalNumberOfTrials is greater than 60, by 2 if less than 60.
+*/
 int iti_rx() {
   if (acquireITI && transmissionStatus >= 3 && transmissionStatus < 5) {
     acquireTrials = false;
@@ -213,8 +223,12 @@ int iti_rx() {
   }
 }
 
-// Finally, an array of noise duration values are received and stored.
-int noise_rx() {
+/**
+   Receives, parses, and sends back array of Tone Durations to be performed
+   for given experiment. Increments transmission status by 1 if
+   totalNumberOfTrials is greater than 60, by 2 if less than 60.
+*/
+int tone_rx() {
   if (acquireTone && transmissionStatus >= 5 && transmissionStatus < 7) {
     acquireITI = false;
     if (myTransfer.available())
@@ -236,35 +250,51 @@ int noise_rx() {
   }
 }
 
-// Unite array reception functions into one function for better control
+/**
+   Unites receiving functions for serial comms of Python generated trial
+   values. Proceeds at the start of the experiment to set Arduino trials
+   up successfully. ALWAYS proceeds in the following order:
+    1. Metadata transmission
+    2. Trial type transmission
+    3. ITI duration transmission
+    4. Tone duration transmission
+*/
 void rx_function() {
   if (rx) {
     metadata_rx();
     trials_rx();
     iti_rx();
-    noise_rx();
+    tone_rx();
   }
 }
 
-//// PYTHON STATUS FUNCTION ////
+/**
+   Confirms that Python has finished sending data for the session and
+   increments the current trial from -1 to 0, meaning the first element
+   of the trialArray received from Python. Starts the delay for the
+   Genie Nano so it can start up.
+*/
 int pythonGo_rx() {
   if (pythonGoSignal && transmissionStatus == 7) {
     if (myTransfer.available())
     {
       myTransfer.rxObj(pythonGo);
       Serial.println("Received Python Status");
-  
+
       myTransfer.sendDatum(pythonGo);
       Serial.println("Sent Python Status");
 
       currentTrial++;
-      
+
       cameraDelay = true;
     }
   }
 }
 
-// Arduino go signal for flow control
+/**
+   Sends notification to user that experiment will start and
+   signals script to send TTL to Bruker's DAQ to start recording.
+*/
 void go_signal() {
   if (arduinoGoSignal) {
     arduinoGoSignal = false;
@@ -273,7 +303,10 @@ void go_signal() {
   }
 }
 
-//// CAMERA WAIT FUNCTION ////
+/**
+   Delays script for 5 seconds (5000 ms) allowing for the Genie Nano
+   to start up.
+*/
 void camera_delay() {
   if (cameraDelay) {
     Serial.println("Delaying Bruker Trigger for Camera Startup...");
@@ -283,7 +316,9 @@ void camera_delay() {
   }
 }
 
-//// BRUKER TRIGGER FUNCTION ////
+/**
+   Sends TTL to Bruker's DAQ to start the experimental session.
+*/
 void bruker_trigger() {
   if (brukerTrigger) {
     Serial.println("Sending Bruker Trigger");
@@ -296,144 +331,9 @@ void bruker_trigger() {
   }
 }
 
-
-//// TRIAL FUNCTIONS ////
-// Lick Function
-void lickDetect() {
-  currtouched = cap.touched(); // Get currently touched contacts
-  // if it is *currently* touched and *wasn't* touched before, alert!
-  if ((currtouched & _BV(2)) && !(lasttouched & _BV(2))) {
-    digitalWriteFast(lickDetectPin, HIGH);
-  }
-  // if it *was* touched and now *isn't*, alert!
-  if (!(currtouched & _BV(2)) && (lasttouched & _BV(2))) {
-    digitalWriteFast(lickDetectPin, LOW);
-  }
-  lasttouched = currtouched;
-}
-
-// ITI Function
-void startITI(long ms) {
-  if (newTrial) {                                 // start new ITI
-    digitalWriteFast(itiDeliveryPin, HIGH);
-    Serial.print("Starting New Trial: ");
-    Serial.println(currentTrial + 1);
-    trialType = trialArray[currentTrial];         // gather trial type
-    newTrial = false;
-    ITI = true;
-    int thisITI = ITIArray[currentTrial];         // get ITI for this trial
-    ITIend = ms + thisITI;
-    // turn off when done
-  } else if (ITI && (ms >= ITIend)) {             // ITI is over
-    digitalWriteFast(itiDeliveryPin, LOW);
-    ITI = false;
-    noise = true;
-  }
-}
-
-
-//// NOISE FUNCTIONS ////
-// Play tone function
-void tonePlayer(long ms) {
-  if (noise) {
-    Serial.println("Playing Tone");
-    int thisNoiseDuration = toneArray[currentTrial];
-    noise = false;
-    toneDAQ = true;
-    toneListeningMS = ms + thisNoiseDuration;
-    switch (trialType) {
-      case 0:
-        Serial.println("Air");
-        tone(speakerPin, metadata.punishTone, thisNoiseDuration);
-        digitalWriteFast(speakerDeliveryPin_Airpuff, HIGH);
-        giveStim = true;
-        break;
-      case 1:
-        Serial.println("Sucrose");
-        tone(speakerPin, metadata.rewardTone, thisNoiseDuration);
-        digitalWriteFast(speakerDeliveryPin_Liquid, HIGH);
-        giveStim = true;
-        break;
-    }
-  }
-}
-
-// Send noise signal to DAQ function
-void onTone(long ms) {
-  if (toneDAQ && (ms >= toneListeningMS)){
-    toneDAQ = false;
-    switch (trialType) {
-      case 0:
-        digitalWriteFast(speakerDeliveryPin_Airpuff, LOW);
-        break;
-      case 1:
-        digitalWriteFast(speakerDeliveryPin_Liquid, LOW);
-        break;
-    }
-  }
-}
-
-//// STIMULUS DELIVERY FUNCTIONS ////
-
-void presentStimulus(long ms) {
-  switch (trialType) {
-    case 0:
-      if (giveStim && (ms >= toneListeningMS - metadata.USDeliveryTime_Air)) {
-        newUSDelivery = true;
-        break;
-      }
-    case 1:
-      if (giveStim && (ms >= toneListeningMS - metadata.USDeliveryTime_Sucrose)) {
-        newUSDelivery = true;
-        break;
-      }
-  }
-}
-// Stimulus Delivery: 0 is airpuff, 1 is sucrose
-void USDelivery(long ms) {
-  if (newUSDelivery) {
-    Serial.println("Delivering US");
-    newUSDelivery = false;
-    giveStim = false;
-    solenoidOn = true;
-    switch (trialType) {
-      case 0:
-        Serial.println("Delivering Airpuff");
-        USDeliveryMS = ms + metadata.USDeliveryTime_Air;
-        digitalWriteFast(solPin_air, HIGH);
-        break;
-      case 1:
-        Serial.println("Delivering Sucrose");
-        USDeliveryMS = ms + metadata.USDeliveryTime_Sucrose;
-        digitalWriteFast(solPin_liquid, HIGH);
-        break;
-    }
-  }
-}
-
-// Turn off Solenoid
-void offSolenoid(long ms) {
-  if (solenoidOn && (toneDAQ == false)) {
-    switch (trialType) {
-      case 0:
-        Serial.println("Air Solenoid Off");
-        solenoidOn = false;
-        digitalWriteFast(solPin_air, LOW);
-        newTrial = true;
-        currentTrial++;
-        break;
-      case 1:
-        Serial.println("Liquid Solenoid Off");
-        solenoidOn = false;
-        digitalWriteFast(solPin_liquid, LOW);
-        newTrial = true;
-        currentTrial++;
-        break;
-    }
-  }
-}
-
-//// RESET ARDUINO FUNCTION ////
+/**
+   Resets the Arduino's flags to starting values.
+*/
 void reset_board() {
   transmissionStatus = 0;
   currentTrial = -1;
@@ -459,6 +359,181 @@ void reset_board() {
   digitalWriteFast(resetPin, LOW);
 }
 
+// Lick Detection Function
+/**
+   Standard MPR121 capacitance board script monitoring for touches
+   to the sucrose delivery needle. Uses pin 2 on the board for
+   monitoring the capacitance touching.
+*/
+void lickDetect() {
+  currtouched = cap.touched(); // Get currently touched contacts
+  // if it is *currently* touched and *wasn't* touched before, alert!
+  if ((currtouched & _BV(2)) && !(lasttouched & _BV(2))) {
+    digitalWriteFast(lickDetectPin, HIGH);
+  }
+  // if it *was* touched and now *isn't*, alert!
+  if (!(currtouched & _BV(2)) && (lasttouched & _BV(2))) {
+    digitalWriteFast(lickDetectPin, LOW);
+  }
+  lasttouched = currtouched;
+}
+
+// ITI Function
+/**
+   Starts ITI for new trials and continues the ITI for duration
+   specified by trial's index in the ITIARray. Gathers the trial
+   type selected and defines it for the next sessions. Sends
+   ITI signal to DAQ.
+
+   @param ms Current time in milliseconds (ms)
+*/
+void startITI(long ms) {
+  if (newTrial) {                                 // start new ITI
+    digitalWriteFast(itiDeliveryPin, HIGH);
+    Serial.print("Starting New Trial: ");
+    Serial.println(currentTrial + 1);
+    trialType = trialArray[currentTrial];         // gather trial type
+    newTrial = false;
+    ITI = true;
+    int thisITI = ITIArray[currentTrial];         // get ITI for this trial
+    ITIend = ms + thisITI;
+    // turn off when done
+  } else if (ITI && (ms >= ITIend)) {             // ITI is over
+    digitalWriteFast(itiDeliveryPin, LOW);
+    ITI = false;
+    noise = true;
+  }
+}
+
+
+// Tone Functions
+/**
+   Plays tone for given trial type for specified duration defined
+   in toneArray. Sends signal to DAQ that speaker is on.
+
+   @param ms Current time in milliseconds (ms)
+*/
+void tonePlayer(long ms) {
+  if (noise) {
+    Serial.println("Playing Tone");
+    int thisNoiseDuration = toneArray[currentTrial];
+    noise = false;
+    toneDAQ = true;
+    toneListeningMS = ms + thisNoiseDuration;
+    switch (trialType) {
+      case 0:
+        Serial.println("Air");
+        tone(speakerPin, metadata.punishTone, thisNoiseDuration);
+        digitalWriteFast(speakerDeliveryPin_Airpuff, HIGH);
+        giveStim = true;
+        break;
+      case 1:
+        Serial.println("Sucrose");
+        tone(speakerPin, metadata.rewardTone, thisNoiseDuration);
+        digitalWriteFast(speakerDeliveryPin_Liquid, HIGH);
+        giveStim = true;
+        break;
+    }
+  }
+}
+
+/**
+   Signals for the speaker to turn off and stop sending signal to DAQ that
+   the speaker is active.
+
+   @param ms Current time in milliseconds (ms)
+*/
+void onTone(long ms) {
+  if (toneDAQ && (ms >= toneListeningMS)){
+    toneDAQ = false;
+    switch (trialType) {
+      case 0:
+        digitalWriteFast(speakerDeliveryPin_Airpuff, LOW);
+        break;
+      case 1:
+        digitalWriteFast(speakerDeliveryPin_Liquid, LOW);
+        break;
+    }
+  }
+}
+
+// Stimuli functions
+/**
+   Delivers the stimuli before the end of the tone for how long
+   the solenoid delivering it is required to be open.
+
+   @param ms Current time in milliseconds (ms)
+*/
+void presentStimulus(long ms) {
+  switch (trialType) {
+    case 0:
+      if (giveStim && (ms >= toneListeningMS - metadata.USDeliveryTime_Air)) {
+        newUSDelivery = true;
+        break;
+      }
+    case 1:
+      if (giveStim && (ms >= toneListeningMS - metadata.USDeliveryTime_Sucrose)) {
+        newUSDelivery = true;
+        break;
+      }
+  }
+}
+
+// Stimulus Delivery: 0 is airpuff, 1 is sucrose
+/**
+   Signals for solenoid activity depending on current trial type. If
+   stimuli trials, solenoids are opened. If catch trials, only a
+   message indicating that the catch is being "delivered" is displayed.
+
+   @param ms Current time in milliseconds (ms)
+*/
+void USDelivery(long ms) {
+  if (newUSDelivery) {
+    Serial.println("Delivering US");
+    newUSDelivery = false;
+    giveStim = false;
+    solenoidOn = true;
+    switch (trialType) {
+      case 0:
+        Serial.println("Delivering Airpuff");
+        USDeliveryMS = ms + metadata.USDeliveryTime_Air;
+        digitalWriteFast(solPin_air, HIGH);
+        break;
+      case 1:
+        Serial.println("Delivering Sucrose");
+        USDeliveryMS = ms + metadata.USDeliveryTime_Sucrose;
+        digitalWriteFast(solPin_liquid, HIGH);
+        break;
+    }
+  }
+}
+
+/**
+   Turns off solenoids if presenting stimuli and resets the solenoidOn flags.
+
+   @param ms Current time in milliseconds (ms)
+*/
+void offSolenoid(long ms) {
+  if (solenoidOn && (toneDAQ == false)) {
+    switch (trialType) {
+      case 0:
+        Serial.println("Air Solenoid Off");
+        solenoidOn = false;
+        digitalWriteFast(solPin_air, LOW);
+        newTrial = true;
+        currentTrial++;
+        break;
+      case 1:
+        Serial.println("Liquid Solenoid Off");
+        solenoidOn = false;
+        digitalWriteFast(solPin_liquid, LOW);
+        newTrial = true;
+        currentTrial++;
+        break;
+    }
+  }
+}
+
 //// SETUP ////
 void setup() {
   // -- DEFINE BITRATE -- //
@@ -468,7 +543,7 @@ void setup() {
   // Serial transfer of trials on UART Converter COM port
   Serial1.begin(115200);
   myTransfer.begin(Serial1, true);
-  
+
   // -- DEFINE PINS -- //
   digitalWriteFast(resetPin, HIGH);
   // input
