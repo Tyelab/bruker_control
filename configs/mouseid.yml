@@ -1,0 +1,30 @@
+# NWB YML Subject Information Metadata Example
+# These subject metadata files can have their values changed however works
+# for your project, but their keys must remain the same as they are defined
+# used in the NWB support for bruker_control.
+# Jeremy Delahanty August 2021
+
+# You can have any subject ID you would like.  An example is provided for
+# team specialk's naming convention which is the project name, experimental
+# condition, and three digit number. This is an alias for the animal's ID as
+# defined by its eartag. The ID here means: Learned Helplessness Control 001
+subject_id: "LHC001"
+# Date of birth is a string of the day subject was born in YYYYMMDD format
+date_of_birth: "20210516"
+# Descripton of the mouse should be simple and informative. In this case,
+# it just explains the subject ID's project and experimental condition.
+description: "Learned  Helplessness, Control Mouse"
+# Genotypes are named based off standard conventions used in breeding/ordering
+genotype: "wt"
+sex: "F"
+# Species name is its latin description per pyNWB docs
+species: "Mus Musculus"
+strain: "C57BL/6J"
+# Weights are stored on a date by date basis in kg per pyNWB Docs
+# Animal's weight must be obtained and appended here before running
+# bruker_control if you want to use the NWB functionality. pyNWB requests
+# animal weights for each file and, although it is not a required datafield,
+# we believe it should be included for the sake of data completeness especially
+# in the case of stress intensive projects.
+weights:
+  "20210830": 0.02

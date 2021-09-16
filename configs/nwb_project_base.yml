@@ -1,0 +1,38 @@
+# NWB YML Configuration File Example
+# Jeremy Delahanty August 2021
+
+  # Session metadata defined by the team, project, and type of data collection
+  session_description: "<Your project name> Study 2P Session"
+  experiment_description: "2 Choice Discrimination Task: Airpuff and Sucrose
+                           are presented to the headfixed subject."
+
+  # Lab and Institution metadata
+  lab: "Tye Lab"
+  institution: "The Salk Institue for Biological Studies"
+
+  # Basic microscope metadata
+  microscope_name: "Ultima Investigator"
+  microscope_description: "Tye Lab Bruker 2P Microscope"
+  microscope_manufacturer: "Bruker"
+  microscope_objective_power: "20x"
+  microscope_objective_manufacturer: "Olympus"
+
+  # Basic laser metadata
+  laser_name: "Mai Tai DeepSee"
+  laser_description: "Tye Lab Bruker 2P Laser"
+  laser_manufacturer: "Spectra Physics"
+
+  # Basic camera metadata
+  camera_name: "Genie Nano-M1289"
+  camera_description: "Tye Lab Bruker Subject Face Recording Camera"
+  camera_manufacturer: "Teledyne Dalsa"
+  camera_lens: "25mm/F1.4"
+  camera_lens_manufacturer: "Edmund Optics"
+
+  # GCaMP Information What other kind of virus metadata is available?
+  gcamp_indicator: "jGCaMP7f"
+  gcamp_description: "Calcium Sensitive Green Fluorescent Indicator"
+  gcamp_supplier: "The Salk Institute for Biological Studies"
+  gcamp_emission_lambda: 493.0
+  gcamp_location: "mPFC"
+  virus_type: "AAV"
