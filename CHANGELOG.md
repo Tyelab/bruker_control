@@ -6,7 +6,7 @@ A changelog for commits and changes before this version will not be added.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Configurations
+## Configurations- 2021-09-16
 
 ### Added
 - Example animal configuration .yml file
@@ -122,7 +122,7 @@ This cannot be changed to `tone` as tone is a protected name for the `tone()` fu
 - Raw data is written to a `team` directory instead of a `studies` directory
 - Raw Prairie View data is written into a folder with `_raw` appended to the end of it as in `YYYYMMDD_SUBJECTID_PLANE#_PLANELOCATION_raw`.
 - README.md updated with (very basic) `bruker_control.py` procedure
-- Stimulus presentation now overlaps the end of the tone by default 
+- Stimulus presentation now overlaps the end of the tone by default
 
 ### Removed
 - Unused Arduino sketches and configuration files
