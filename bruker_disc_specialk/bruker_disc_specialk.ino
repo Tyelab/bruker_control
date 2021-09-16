@@ -149,7 +149,6 @@ const int resetPin = 0;                       // Pin driven LOW for resetting th
 // NIDAQ input
 // none
 // NIDAQ output
-const int itiDeliveryPin = 31;
 const int lickDetectPin = 41;                 // detect sucrose licks
 const int speakerDeliveryPin = 51;            // noise delivery
 
@@ -393,13 +392,12 @@ void lickDetect() {
 /**
    Starts ITI for new trials and continues the ITI for duration
    specified by trial's index in the ITIARray. Gathers the trial
-   type selected and definse it for the next sessions.
+   type selected and defines it for the next sessions.
 
    @param ms Current time in milliseconds (ms)
 */
 void startITI(long ms) {
   if (newTrial) {                                 // start new ITI
-    digitalWriteFast(itiDeliveryPin, HIGH);
     Serial.print("Starting New Trial: ");
     Serial.println(currentTrial + 1);
     trialType = trialArray[currentTrial];         // gather trial type
@@ -409,7 +407,6 @@ void startITI(long ms) {
     ITIend = ms + thisITI;
   }
   else if (ITI && (ms >= ITIend)) {             // ITI is over, start playing the tone
-    digitalWriteFast(itiDeliveryPin, LOW);
     ITI = false;
     noise = true;
   }
@@ -418,9 +415,9 @@ void startITI(long ms) {
 // Tone Functions
 /**
    Plays tone for given trial type for specified duration defined
-   in toneArray. If non-catch trials, signals script to use giveStim
-   functions. If catch trials, signals script to use giveCatch
-   functions.
+   in toneArray.  Sends signal to DAQ that speaker is on. If
+   non-catch trials, signals script to use giveStim functions. If
+   catch trials, signals script to use giveCatch functions.
 
    @param ms Current time in milliseconds (ms)
 */
