@@ -52,7 +52,8 @@ env_basepath = "E:/teams/"
 
 
 def build_nwb_file(experimenter: str, team: str, subject_id: str,
-                   imaging_plane: str):
+                   imaging_plane: str, subject_metadata: dict,
+                   project_metadata: dict):
     """
     Builds base NWB file with relevant metadata for session.
 
@@ -77,11 +78,6 @@ def build_nwb_file(experimenter: str, team: str, subject_id: str,
     # Parse Bruker's metadata for NWB file
     bruker_metadata = get_bruker_metadata(team, imaging_plane)
 
-    # Grab project's specific metadata for NWB file
-    project_metadata = get_project_metadata(team, subject_id)
-
-    subject_metadata = get_subject_metadata(team, subject_id)
-
     # Build the base NWB file
     nwbfile = gen_base_nwbfile(experimenter, session_id, bruker_metadata,
                                project_metadata)
@@ -98,7 +94,7 @@ def build_nwb_file(experimenter: str, team: str, subject_id: str,
     print(nwbfile)
 
     # Write the NWB files to disk
-    # write_nwb_file(nwbfile, session_fullpath, subject_id, session_id)
+    write_nwb_file(nwbfile, session_fullpath, subject_id, session_id)
 
 
 def write_nwb_file(nwbfile: NWBFile, session_fullpath: Path, subject_id: str,
@@ -153,7 +149,7 @@ def get_bruker_metadata(team: str, imaging_plane: str) -> dict:
             Plane 2P images were acquired at, the Z-axis value
 
     Returns:
-        bruker_metadata:
+        bruker_metadata
     """
 
     # Build base path for microscopy session
@@ -289,45 +285,8 @@ def get_noidx_states(pv_noidx_keys, metadata_root) -> dict:
     return pv_noidx_metadata
 
 
-def get_project_metadata(team: str, subject_id: str):
-    """
-    Grabs and parses project metadata yml file for NWB file generation.
-
-    Each project has its own metadata associated with it that NWB uses in its
-    standard.  This function grabs the proper file and builds a dictionary that
-    is used when populating metadata later.
-
-    Args:
-        team:
-            Team value from metadata_args["team"]
-        subject_id:
-            Subject ID from metadata_args["subject"]
-
-    Returns:
-        project_metadata
-    """
-
-    # Define YAML object parser with safe loading
-    yaml = YAML(typ='safe')
-
-    # Construct the base path for the project's YAML file
-    base_yaml_path = server_basepath + team + "/2p_template_configs/"
-
-    # Until teams and studies/projects are implemented across all directories,
-    # this if/else will have to do
-    if "LH" in subject_id:
-        project_yaml_path = Path(base_yaml_path + "nwb_lh_base.yml")
-    else:
-        project_yaml_path = base_yaml_path + "nwb_cs_base.yml"
-
-    # Load the project metadata into a dictionary
-    project_metadata = yaml.load(project_yaml_path)
-
-    return project_metadata
-
-
-def gen_base_nwbfile(experimenter: str, session_id: str, bruker_metadata: dict,
-                     project_metadata: dict) -> NWBFile:
+def gen_base_nwbfile(experimenter: str, session_id: str,
+                     bruker_metadata: dict, project_metadata: dict) -> NWBFile:
 
     """
     Build base NWB file with appropriate metadata.
@@ -543,40 +502,6 @@ def determine_session(sessions: list, session_basepath: Path) -> Tuple[str,
         session = "post_ketamine"
 
     return session, session_fullpath
-
-
-def get_subject_metadata(team: str, subject_id: str) -> dict:
-    """
-    Parses imaging subject's .yml metadata file for NWB fields
-
-    Locates and then uses ruamel.yaml to parse the metadata fields with safe
-    loading. Gathers yaml data and places it into a dictionary for use later
-    in the NWB file.
-
-    Args:
-        team:
-            Team value from metadata_args["team"]
-        subject_id:
-            Subject ID from metadata_args["subject"]
-
-    Returns:
-        subject_metadata
-    """
-
-    # Define YAML object parser with safe loading
-    yaml = YAML(typ='safe')
-
-    # Construct the base path for the subject's YAML file
-    base_yaml_path = Path(server_basepath + team + "/animal_metadata/")
-
-    animal_glob = [subject for subject in
-                   base_yaml_path.glob(f"{subject_id}.yml")]
-
-    # TODO: Raise warning here if there's more than one animal presented in
-    # this glob
-    subject_metadata = yaml.load(animal_glob[0])
-
-    return subject_metadata
 
 
 def append_subject_info(nwbfile: NWBFile, subject_metadata: dict) -> NWBFile:

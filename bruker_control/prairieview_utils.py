@@ -17,6 +17,9 @@ from datetime import datetime
 # Save the Praire View application as pl
 pl = client.Dispatch("PrairieLink.Application")
 
+# Import NWB Utility for Grabbing Subject Metadata
+from nwb_utils import get_subject_metadata
+
 # Define microscopy basebath for where raw files are written to.  This is onto
 # the E: drive on machine BRUKER.  Set it as a string to be joined later.
 basepath = "E:/teams/"
@@ -64,40 +67,56 @@ def pv_disconnect():
 # -----------------------------------------------------------------------------
 
 
-def abort_recording():
+def end_tseries():
     """
-    Aborts T-Series Microscopy recording
+    Ends T-Series Microscopy recording
 
     Once the number of frames specified is collected, a signal to abort the
-    microscopy session is sent to Prairie View.  Once aborted, Python will
-    disconnect from Prairie View.  This function takes no arguments and returns
-    nothing.
+    microscopy session is sent to Prairie View.  This function takes no
+    arguments and returns nothing.
     """
 
     # Tell user recording is being stopped using abort command
-    print("Aborting Recording...")
+    print("Ending T-Series Recording...")
 
     # Tell user abort command is being sent, send the command, and finally
     # tell user that the command has been executed.
     pl.SendScriptCommands("-Abort")
-    print("Abort Command Sent")
+    print("T-Series Complete")
 
-    # Disconnect from Prairie View
-    pv_disconnect()
 
+# -----------------------------------------------------------------------------
+# PrairieLink Get Z-Axis Function
+# -----------------------------------------------------------------------------
+
+
+def get_imaging_plane() -> float:
+    """
+    Gets current position of Z-axis motor from Prairie View
+
+    Gathers what plane is being imaged for the microscopy session for use in
+    file naming and Z-Stack movement.
+
+    Returns:
+        imaging_plane
+    """
+
+    imaging_plane = pl.GetMotorPosition("Z")
+
+    return imaging_plane
 
 # -----------------------------------------------------------------------------
 # PrairieLink Set Directory and Filename Function
 # -----------------------------------------------------------------------------
 
 
-def set_filename(team: str, subject_id: str, current_plane: int) -> str:
+def set_tseries_filename(team: str, subject_id: str, current_plane: int,
+                         imaging_plane: float):
     """
-    Sets Microscopy and Behavior recording filenames and directories.
+    Sets T-Series and Behavior recording filenames and directories.
 
-    Gathers what plane is being imaged for the session generates appropriately
-    named imaging and behavior directories and filenames for data coming off
-    the microscope.
+    Generates appropriately named imaging and behavior directories and
+    filenames for data coming off the microscope.
 
     Args:
         team:
@@ -106,13 +125,12 @@ def set_filename(team: str, subject_id: str, current_plane: int) -> str:
             The subject being recorded
         current_plane:
             The plane being imaged as in 1st, 2nd, 3rd, etc
-
-    Returns:
-        imaging_plane
+        imaging_plane:
+            Current Z-Motor position for given recording plane
     """
 
-    # Get Z Axis Imaging plane from Prairie View
-    imaging_plane = str(pl.GetMotorPosition("Z"))
+    # Convert imaging plane to string
+    imaging_plane = str(imaging_plane)
 
     # Gather session date using datetime
     session_date = datetime.today().strftime("%Y%m%d")
@@ -149,43 +167,62 @@ def set_filename(team: str, subject_id: str, current_plane: int) -> str:
     # pl.SendScriptCommands("-SetState directory {} VoltageRecording"
     #                       .format(behavior_dir))
 
-    return imaging_plane
 
+# -----------------------------------------------------------------------------
+# PrairieLink Set Resonant Galvo Mode
+# -----------------------------------------------------------------------------
+
+
+def set_resonant_galvo():
+    """
+    Sets acquisition mode to Resonant Galvo.
+
+    Not having resonant galvo mode engaged during T-Series recordings gathers
+    insufficient data and does not trigger the facial recording camera
+    correctly. This ensures that it is enabled before the recording starts.
+    This function takes no arguments and returns nothing.
+    """
+
+    # Change Acquisition Mode to Resonant Galvo
+    pl.SendScriptCommands("-SetAcquisitionMode 'Resonant Galvo'")
+
+
+def set_galvo_galvo():
+    """
+    Sets Acquisition Mode to Galvo Galvo.
+
+    Z-Series recordings are performed in Galvo Galvo mode. This ensures that
+    the mode is switched before the recording starts. This function takes no
+    arguments and returns nothing
+    """
+
+    # Change Acqusition Mode to Galvo Galvo
+    pl.SendScriptCommands("-SetAcquisitionMode 'Galvo'")
+
+
+# -----------------------------------------------------------------------------
+# PrairieLink Set Laser Wavelength
+# -----------------------------------------------------------------------------
+
+
+def set_laser_lambda(subject_metadata):
+    """
+    Sets laser lambda to appropriate wavelength
+    """
 
 # -----------------------------------------------------------------------------
 # PrairieLink Start T-Series Function
 # -----------------------------------------------------------------------------
 
 
-def start_tseries():
+def tseries(project: str, subject_id: str, current_plane: int,
+            imaging_plane: float):
     """
-    Starts Prairie View T-Series 2P Recording
+    Starts Prairie View 2-P T-Series Experiment
 
-    Connects to Prairie View and starts the T-Series which will wait for an
-    input trigger.  Waiting for an input trigger is done within Prairie View's
-    GUI.  It also ensures that the microscope's setting is put to Resonant
-    Galvo in case the user forgot.  This argument takes no arguments and
-    returns nothing.
-    """
-
-    # Tell user that the T-Series is starting and waiting for trigger
-    print("Starting T-Series: Waiting for Input Trigger")
-
-    # Make sure that the acquisition mode is in Resonant Galvo
-    pl.SendScriptCommands("-SetAcquisitionMode 'Resonant Galvo'")
-
-    # Send T-Series command
-    pl.SendScriptCommands("-TSeries")
-
-
-def start_microscopy_session(project: str, subject_id: str,
-                             current_plane: int) -> str:
-    """
-    Readies the Bruker 2-Photon microscope for an experiment
-
-    Sets directories, filenames, and initializes Bruker T-Series for imaging
-    and Voltage Recording for behavior data. Returns the current imaging_plane
-    as found in Prairie View.
+    Function unites t-series preparation function with starting the recording
+    with an input trigger. Starting with an input trigger is done within
+    the Prairie View GUI.
 
     Args:
         project:
@@ -194,27 +231,167 @@ def start_microscopy_session(project: str, subject_id: str,
             Name of the experimental subject
         current_plane:
             Current plane being imaged as in 1st, 2nd, 3rd, etc
-
-    Returns:
-        imaging_plane
+        imaging_plane:
+            Current Z-Motor position for given recording plane
     """
 
-    pv_connect()
+    # Prepare Prairie View for the T-Series Recording
+    prepare_tseries(project, subject_id, current_plane, imaging_plane)
 
-    imaging_plane = set_filename(project, subject_id, current_plane)
+    # Tell user that the T-Series is starting and waiting for trigger
+    print("Starting T-Series: Waiting for Input Trigger")
 
-    start_tseries()
+    # Send T-Series command
+    pl.SendScriptCommands("-TSeries")
 
-    return imaging_plane
 
-
-def end_microscopy_session() -> datetime:
+def prepare_tseries(project: str, subject_id: str, current_plane: int,
+                    imaging_plane: float, subject_metadata: dict):
     """
-    Aborts the microscopy session and disconnects from Prairie View.
+    Readies the Bruker 2-Photon microscope for a T-Series experiment
 
-    Used when the data for the given experiment has been collected and written
-    to disk.  Invokes the abort command and disconnects from Prarie View with
-    their API.  This function takes no arguments and returns nothing.
+    Sets directories and filenames for recording. Ensures that Resonant Galvo
+    mode is selected. and initializes Bruker T-Series for imaging and Voltage
+    Recording for behavior data.
+
+    Args:
+        project:
+            Name of project for recording
+        subject_id:
+            Name of the experimental subject
+        current_plane:
+            Current plane being imaged as in 1st, 2nd, 3rd, etc
+        imaging_plane:
+            Current Z-Motor position for given recording plane
     """
 
-    abort_recording()
+    set_tseries_filename(project, subject_id, current_plane, imaging_plane)
+
+    set_resonant_galvo()
+
+
+# -----------------------------------------------------------------------------
+# PrairieLink Start Z-Series Functions
+# -----------------------------------------------------------------------------
+
+
+def prepare_zseries(zstack_metadata, project: str, subject_id: str,
+                   current_plane: int, imaging_plane: float):
+    """
+    Readies the Bruker 2-Photon microscope for a Z-Series
+
+    Sets directories and filenames for Z-stack recording as well as defines
+    the distance a z-stack should be taken as well as the step distance for the
+    Piezo motor. Transitions Galvo mode to Galvo from Resonant Galvo.
+
+    Args:
+        zstack_metadata:
+            Information about depth for Z-Stack and step distance
+        project:
+            Name of project for recording
+        subject_id:
+            Name of the experimental subject
+        current_plane:
+            Current plane being imaged as in 1st, 2nd, 3rd, etc
+        imaging_plane:
+            Current Z-Motor position for given recording plane
+    """
+
+    # Set the Z-Series to write out specific file names
+    set_zseries_filename(team, subject_id, current_plane, imaging_plane)
+
+    # Set Acquisition Mode to Galvo Galvo for Z-Stack
+    set_galvo_galvo()
+
+    # Set Z-Stack parameters
+
+
+def set_zseries_parameters(zstack_metadata):
+    """
+    Set Z-Series depth and step sizes.
+
+    Sets Prairie View's Z-Series parameters for the depth of the stack as well
+    as the step size between imaging planes
+
+    Args:
+        zstack_metadata:
+            Information about depth for Z-Stack and step distance
+    """
+
+    pl.SetZSeriesStart()
+
+
+def set_zseries_filename(team: str, subject_id: str, current_plane: int,
+                         imaging_plane: float):
+    """
+    Sets Z-Series filename and directory.
+
+    Generates appropriately named Z-Series filenames for data coming off the
+    microscope.
+
+    Args:
+        team:
+            The team performing the experiment
+        subject_id:
+            The subject being recorded
+        current_plane:
+            The plane being imaged as in 1st, 2nd, 3rd, etc
+        imaging_plane:
+            Current Z-Motor position for given recording plane
+    """
+
+    # Convert imaging plane to string
+    imaging_plane = str(imaging_plane)
+
+    # Gather session date using datetime
+    session_date = datetime.today().strftime("%Y%m%d")
+
+    # Set microscopy session's path
+    imaging_dir = basepath + team + "/microscopy/"
+
+    # Set Prairie View path for saving files
+    pl.SendScriptCommands("-SetSavePath {}".format(imaging_dir))
+
+    # Set session name by joining variables with underscores
+    session_name = "_".join([session_date, subject_id,
+                             "plane{}".format(current_plane),
+                             imaging_plane, "raw"])
+
+    # # Set behavior filename
+    # behavior_filename = "_".join([session_name, "behavior"])
+    #
+    # pl.SendScriptCommands("-SetState directory {} VoltageRecording"
+    #                       .format(behavior_filename))
+
+    # Set imaging filename by adding 2p to session_name
+    # Until 5.6 Update, having 2P in the name is redundant.  This will just
+    # assign imaging_filename to session_name until then.
+    imaging_filename = "_".join([session_name, "zseries"])
+    imaging_filename = session_name
+
+    pl.SendScriptCommands("-SetFileName Zseries {}".format(imaging_filename))
+
+
+def zstack(zstack_metadata: dict, project: str, subject_id: str,
+           current_plane: int, imaging_plane: float, subject_metadata: dict):
+    """
+    Starts Prairie View Z-Series 2P Recording
+
+    Starts Z-stack recording at the start of a given session for a subject and
+    moves through configuration specific planes with configuration specific
+    step sizes.  Writes out the raw stack to team's microscopy folder.
+
+    Args:
+        zstack_metadata:
+            Information about depth for Z-Stack and step distance
+        project:
+            Name of project for recording
+        subject_id:
+            Name of the experimental subject
+        current_plane:
+            Current plane being imaged as in 1st, 2nd, 3rd, etc
+        imaging_plane:
+            Current Z-Motor position for given recording plane
+    """
+
+    prepare_zseries()

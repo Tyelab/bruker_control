@@ -59,6 +59,15 @@ def run_imaging_experiment(metadata_args):
         # Get configuration template with config_utils.get_template
         config_template = config_utils.get_template(team)
 
+        # Get subject metadata
+        subject_metadata = config_utils.get_subject_metadata(team, subject_id)
+
+        # Get project metadata
+        project_metadata = config_utils.get_project_metadata(team, subject_id)
+
+        # Get Z-Stack metadata
+        zstack_metadata = config_utils.get_zstack_metadata(config_template)
+
         # Get metadata that the Arduino requires
         arduino_metadata = config_utils.get_arduino_metadata(config_template)
 
@@ -66,8 +75,10 @@ def run_imaging_experiment(metadata_args):
         experiment_arrays = trial_utils.generate_arrays(config_template)
 
         # Calculate session length in seconds
-        session_len_s = trial_utils.calculate_session_length(experiment_arrays,
-                                                             config_template)
+        session_len_s = trial_utils.calculate_session_length(
+            experiment_arrays,
+            config_template
+        )
 
         # Calculate number of frames
         num_frames = video_utils.calculate_frames(session_len_s)
@@ -75,14 +86,29 @@ def run_imaging_experiment(metadata_args):
         # Start preview of animal's face.  Zero microscope over lens here.
         video_utils.capture_preview()
 
-        # Once the preview is escaped, start the microscopy session.
-        imaging_plane = prairieview_utils.start_microscopy_session(team,
-                                                                   subject_id,
-                                                                   current_plane
-                                                                   )
+        # Connect to Prairie View
+        prairieview_utils.pv_connect()
+
+        imaging_plane = prairieview_utils.get_imaging_plane()
+
+        if zstack_metadata["zstack"]:
+            prairieview_utils.zstack(
+                team,
+                subject_id,
+                current_plane,
+                imaging_plane
+            )
+
+        # Once the Z-Stack is collected, start the T-Series
+        prairieview_utils.tseries(
+            team,
+            subject_id,
+            current_plane,
+            imaging_plane
+       )
 
         # Now that the Bruker scope is ready and waiting, send the data to
-        # the Arduino through pySerialTransfer!
+        # the Arduino through pySerialTransfer
         serialtransfer_utils.transfer_data(arduino_metadata, experiment_arrays)
 
         # Now that the packets have been sent, the Arduino will start soon.
@@ -97,11 +123,14 @@ def run_imaging_experiment(metadata_args):
                                              team, subject_id, imaging_plane,
                                              current_plane)
 
-        prairieview_utils.end_microscopy_session()
+        prairieview_utils.end_tseries()
 
         if current_plane == requested_planes:
 
             print("Experiment Completed for", subject_id)
+
+            # Disconnect from Prairie View
+            prairieview_utils.pv_disconnect()
             exp_running = False
 
         else:
@@ -109,7 +138,14 @@ def run_imaging_experiment(metadata_args):
 
     if team == "specialk":
 
-        nwb_utils.build_nwb_file(experimenter, team, subject_id, imaging_plane)
+        nwb_utils.build_nwb_file(
+            experimenter,
+            team,
+            subject_id,
+            imaging_plane,
+            subject_metadata,
+            project_metadata
+        )
 
         print("Exiting...")
         sys.exit()
