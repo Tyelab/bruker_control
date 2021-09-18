@@ -24,6 +24,7 @@ from ruamel.yaml import YAML
 # server housing these directories is mounted to the X: volume on the machine
 # BRUKER.
 base_template_config_dir = Path("X:/")
+server_basepath = "X:/"
 
 # Experimental configuration directories are in the Raw Data volume on the
 # machine BRUKER which is mounted to E:. This is where configs will be written
@@ -277,6 +278,31 @@ def get_subject_metadata(team: str, subject_id: str) -> dict:
     subject_metadata = yaml.load(animal_glob[0])
 
     return subject_metadata
+
+
+def get_surgery_metadata(subject_metadata: dict) -> dict:
+    """
+    Grabs surgery information from subject's metadata file.
+
+    Implant information and virus information for stimulation and recording
+    is contained within the subject's metadata file.  This information is used
+    for filenaming purposes particularly in the Z-Stack files as well as the
+    NWB files' metadata sections.
+
+    Args:
+        subject_metadata:
+            Metadata obtained from get_subject_metadata()
+
+    Returns:
+        surgery_metadata
+    """
+
+    surgery_metadata = subject_metadata["surgery"]
+
+    surgery_metadata = surgery_metadata[next(iter(surgery_metadata))]
+
+    return surgery_metadata
+
 
 def get_project_metadata(team: str, subject_id: str):
     """

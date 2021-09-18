@@ -56,20 +56,30 @@ def run_imaging_experiment(metadata_args):
 
     while exp_running is True:
 
+        print("Gathering metadata...")
+        # TODO: Unite all these functions into one call and build a
+        # metadata Class that contains each of these things in it.  This will
+        # require a significant refactor to transition everything into using
+        # class objects throughout the system.
         # Get configuration template with config_utils.get_template
         config_template = config_utils.get_template(team)
+
+        # Get project metadata
+        project_metadata = config_utils.get_project_metadata(team, subject_id)
 
         # Get subject metadata
         subject_metadata = config_utils.get_subject_metadata(team, subject_id)
 
-        # Get project metadata
-        project_metadata = config_utils.get_project_metadata(team, subject_id)
+        # Get surgery metadata
+        surgery_metadata = config_utils.get_surgery_metadata(subject_metadata)
 
         # Get Z-Stack metadata
         zstack_metadata = config_utils.get_zstack_metadata(config_template)
 
         # Get metadata that the Arduino requires
         arduino_metadata = config_utils.get_arduino_metadata(config_template)
+
+        print("Metadata collected!")
 
         # Create experiment runtime arrays
         experiment_arrays = trial_utils.generate_arrays(config_template)
@@ -83,23 +93,25 @@ def run_imaging_experiment(metadata_args):
         # Calculate number of frames
         num_frames = video_utils.calculate_frames(session_len_s)
 
-        # Start preview of animal's face.  Zero microscope over lens here.
-        video_utils.capture_preview()
-
         # Connect to Prairie View
         prairieview_utils.pv_connect()
+
+        # Start preview of animal's face.  Zero microscope over lens here.
+        video_utils.capture_preview()
 
         imaging_plane = prairieview_utils.get_imaging_plane()
 
         if zstack_metadata["zstack"]:
             prairieview_utils.zstack(
+                zstack_metadata,
                 team,
                 subject_id,
                 current_plane,
-                imaging_plane
+                imaging_plane,
+                surgery_metadata
             )
 
-        # Once the Z-Stack is collected, start the T-Series
+        # Once the Z-Stack is collected (if requested), start the T-Series
         prairieview_utils.tseries(
             team,
             subject_id,
@@ -113,15 +125,22 @@ def run_imaging_experiment(metadata_args):
 
         # Now that the packets have been sent, the Arduino will start soon.
         # We now start the camera for recording the experiment!
-        dropped_frames = video_utils.capture_recording(num_frames,
-                                                       current_plane,
-                                                       imaging_plane,
-                                                       team, subject_id)
+        dropped_frames = video_utils.capture_recording(
+                            num_frames,
+                            current_plane,
+                            imaging_plane,
+                            team, subject_id
+                            )
 
-        config_utils.write_experiment_config(config_template,
-                                             experiment_arrays, dropped_frames,
-                                             team, subject_id, imaging_plane,
-                                             current_plane)
+        config_utils.write_experiment_config(
+            config_template,
+            experiment_arrays,
+            dropped_frames,
+            team,
+            subject_id,
+            imaging_plane,
+            current_plane
+            )
 
         prairieview_utils.end_tseries()
 

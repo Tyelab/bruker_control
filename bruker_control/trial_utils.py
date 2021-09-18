@@ -48,23 +48,23 @@ def gen_trialArray(config_template: dict) -> np.ndarray:
     """
 
     # Create trial array that's all reward trials, to be flipped randomly
-    fresh_array = np.ones(config_template["metadata"]["totalNumberOfTrials"],
+    fresh_array = np.ones(config_template["behavior_metadata"]["totalNumberOfTrials"],
                           dtype=int)
 
     # Calculate the number of punishment trials to deliver
-    num_punish = round(config_template["metadata"]["percentPunish"]
+    num_punish = round(config_template["behavior_metadata"]["percentPunish"]
                        * len(fresh_array))
 
     # Get maximum number of punishment trials that can occur in a row
-    max_seq_punish = config_template["metadata"]["maxSequentialPunish"]
+    max_seq_punish = config_template["behavior_metadata"]["maxSequentialPunish"]
 
     # Get maximum number of reward trials that can occur in a row
-    max_seq_reward = config_template["metadata"]["maxSequentialReward"]
+    max_seq_reward = config_template["behavior_metadata"]["maxSequentialReward"]
 
     # Generate potential flip positions for punish trials by making array of
     # trial indexes starting just after the starting rewards until the end
     # of the experimental session.
-    potential_flips = np.arange(config_template["metadata"]["startingReward"],
+    potential_flips = np.arange(config_template["behavior_metadata"]["startingReward"],
                                 len(fresh_array))
 
     # Create punish, reward, and catch trial statuses for checking after
@@ -87,7 +87,7 @@ def gen_trialArray(config_template: dict) -> np.ndarray:
         # If the number of punish trials is less than half, getting a valid
         # trial set is unlikely if the number of rewards in a row is
         # restricted.  Therefore, sest the reward_check to False.
-        if config_template["metadata"]["percentPunish"] < 0.50:
+        if config_template["behavior_metadata"]["percentPunish"] < 0.50:
             reward_check = False
 
         # Otherwise use check_session_rewards to ensure trial structure is
@@ -129,13 +129,13 @@ def flip_catch(trialArray: np.ndarray, config_template: dict,
     """
 
     # Get number of reward catch trials to deliver
-    num_catch_reward = config_template["metadata"]["numCatchReward"]
+    num_catch_reward = config_template["behavior_metadata"]["numCatchReward"]
 
     # Get number of punishment catch trials
-    num_catch_punish = config_template["metadata"]["numCatchPunish"]
+    num_catch_punish = config_template["behavior_metadata"]["numCatchPunish"]
 
     # Get position for where catch trials are to start for session
-    catch_offset = config_template["metadata"]["catchOffset"]
+    catch_offset = config_template["behavior_metadata"]["catchOffset"]
 
     # Get length of trialArray
     trialArray_len = len(trialArray)
@@ -432,15 +432,15 @@ def gen_jitter_ITIArray(config_template: dict) -> list:
     iti_array = []
 
     # Get total number of trials
-    num_trials = config_template["metadata"]["totalNumberOfTrials"]
+    num_trials = config_template["behavior_metadata"]["totalNumberOfTrials"]
 
     # Get minimum ITI value from configuration and multiply by 1000 to convert
     # to milliseconds
-    iti_lower = config_template["metadata"]["minITI"]*1000
+    iti_lower = config_template["behavior_metadata"]["minITI"]*1000
 
     # Get maximum ITI value from configuation and mulitply by 1000 to convert
     # to milliseconds.
-    iti_upper = config_template["metadata"]["maxITI"]*1000
+    iti_upper = config_template["behavior_metadata"]["maxITI"]*1000
 
     # Initialize random number generator with default_rng
     rng = default_rng()
@@ -560,11 +560,11 @@ def gen_static_toneArray(config_template: dict) -> list:
     toneArray = []
 
     # Get total number of trials for session
-    num_trials = config_template["metadata"]["totalNumberOfTrials"]
+    num_trials = config_template["behavior_metadata"]["totalNumberOfTrials"]
 
     # Get the tone duration to use for the session and multiply by 1000 so
     # its in millisecond format
-    tone_duration = config_template["metadata"]["baseTone"]*1000
+    tone_duration = config_template["behavior_metadata"]["baseTone"]*1000
 
     # Build ITIArray into a list of values
     toneArray = [tone_duration] * num_trials
@@ -590,7 +590,7 @@ def gen_ITIArray(config_template: dict) -> list:
 
     # Generate ITIArray from configuration values
     # Gather jitter status for ITIArray from configuration
-    iti_jitter = config_template["metadata"]["ITIJitter"]
+    iti_jitter = config_template["behavior_metadata"]["ITIJitter"]
 
     # If the iti_jitter status is True, create a jittered ITI
     if iti_jitter:
@@ -620,7 +620,7 @@ def gen_toneArray(config_template: dict) -> list:
     """
 
     # Gather tone_jitter status from configuraiton
-    tone_jitter = config_template["metadata"]["toneJitter"]
+    tone_jitter = config_template["behavior_metadata"]["toneJitter"]
 
     # If the tone_jitter status is true, create a static tone array
     if tone_jitter:
@@ -658,16 +658,16 @@ def calculate_session_length(experiment_arrays: list,
     """
 
     # Get vacuum status for the experiment
-    vacuum = config_template["metadata"]["vacuum"]
+    vacuum = config_template["behavior_metadata"]["vacuum"]
 
     # Get amount of milliseconds reward is delivered for
-    reward_delivery_ms = config_template["metadata"]["USDeliveryTime_Sucrose"]
+    reward_delivery_ms = config_template["behavior_metadata"]["USDeliveryTime_Sucrose"]
 
     # Get amount of milliseconds rewards are present for
-    reward_prsnt_ms = config_template["metadata"]["USConsumptionTime_Sucrose"]
+    reward_prsnt_ms = config_template["behavior_metadata"]["USConsumptionTime_Sucrose"]
 
     # Get amount of milliseconds punishments are present for
-    punish_delivery_ms = config_template["metadata"]["USDeliveryTime_Air"]
+    punish_delivery_ms = config_template["behavior_metadata"]["USDeliveryTime_Air"]
 
     # Make session_length_s variable and add to it as values are calculated
     session_len_s = 0
