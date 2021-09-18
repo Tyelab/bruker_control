@@ -23,6 +23,7 @@ from ruamel.yaml import YAML
 # Template configuration directories are within project directories.  The snlkt
 # server housing these directories is mounted to the X: volume on the machine
 # BRUKER.
+# TODO: This obviously should be the same thing
 base_template_config_dir = Path("X:/")
 server_basepath = "X:/"
 
@@ -173,18 +174,18 @@ def write_experiment_config(config_template: dict, experiment_arrays: list,
 
     # Assign trialArray key to trialArray data.  The 0th index of the list is
     # always the the trialArray
-    config_template["behavior_metadata"]["trialArray"] = experiment_arrays[0]
+    config_template["beh_metadata"]["trialArray"] = experiment_arrays[0]
 
     # Assign ITIArray key to ITIArray data.  The 1st index of the list is
     # always the ITIArray
-    config_template["behavior_metadata"]["ITIArray"] = experiment_arrays[1]
+    config_template["beh_metadata"]["ITIArray"] = experiment_arrays[1]
 
     # Assign toneArray key the toneArray data.  The 2nd index of the list is
     # always the toneArray.
-    config_template["behavior_metadata"]["toneArray"] = experiment_arrays[2]
+    config_template["beh_metadata"]["toneArray"] = experiment_arrays[2]
 
     # Assign dropped_frames key the dropped_frames data.
-    config_template["behavior_metadata"]["dropped_frames"] = dropped_frames
+    config_template["beh_metadata"]["dropped_frames"] = dropped_frames
 
     # # Write the new configuration file
     with open(config_fullpath, 'w') as outFile:
@@ -218,7 +219,7 @@ def get_arduino_metadata(config_template: dict) -> dict:
 
     # Generate Dictionary of relevant Arduino metadata
     arduino_metadata = {key: value for (key, value) in
-                        config_template["behavior_metadata"].items() if
+                        config_template["beh_metadata"].items() if
                         key in arduino_metadata_keys}
 
     return arduino_metadata

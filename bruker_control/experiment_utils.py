@@ -163,7 +163,8 @@ def run_imaging_experiment(metadata_args):
             subject_id,
             imaging_plane,
             subject_metadata,
-            project_metadata
+            project_metadata,
+            surgery_metadata
         )
 
         print("Exiting...")

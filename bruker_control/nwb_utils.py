@@ -53,7 +53,7 @@ env_basepath = "E:/teams/"
 
 def build_nwb_file(experimenter: str, team: str, subject_id: str,
                    imaging_plane: str, subject_metadata: dict,
-                   project_metadata: dict):
+                   project_metadata: dict, surgery_metadata: dict):
     """
     Builds base NWB file with relevant metadata for session.
 

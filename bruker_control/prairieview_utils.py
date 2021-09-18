@@ -18,7 +18,7 @@ from datetime import datetime
 from time import sleep
 
 # Save the Praire View application as pl
-pl = client.Dispatch("PrairieLink.Application")
+pl = client.Dispatch("PrairieLink64.Application")
 
 # Define microscopy basebath for where raw files are written to.  This is onto
 # the E: drive on machine BRUKER.  Set it as a string to be joined later.
@@ -508,9 +508,7 @@ def zstack(zstack_metadata: dict, team: str, subject_id: str,
                 zstack_delta,
                 zstack_step
             )
-# team: str subject_id: str, current_plane: int,
-#                     imaging_plane: float, indicator_name: str, stack: int,
-#                     zstack_delta: float, zstack_step: float
+
             pl.SendScriptCommands("-ZSeries")
 
         # indicator_lambda:
