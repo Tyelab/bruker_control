@@ -178,13 +178,17 @@ Check out the first iteration of developer documentation online [here](https://b
 ## Authors
 
 Jeremy Delahanty, Research Assistant I
+
 Tye Lab, Salk Institute for Biological Studies
 
 Deryn LeDuke, UCSD Neurosciences Graduate Student
+
 Tye Lab, Salk Institute for Biological Studies
 
 Kyle Fischer PhD, Gene Therapy Research Scientist
+
 Gene Therapy Division, Neurocrine
 
 Dexter Tsin, UCSD Bioinformatics Undergraduate Student
+
 Tye Lab, Salk Institute for Biological Studies
