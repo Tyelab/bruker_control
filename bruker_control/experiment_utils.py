@@ -66,8 +66,10 @@ def run_imaging_experiment(metadata_args):
         experiment_arrays = trial_utils.generate_arrays(config_template)
 
         # Calculate session length in seconds
-        session_len_s = trial_utils.calculate_session_length(experiment_arrays,
-                                                             config_template)
+        session_len_s = trial_utils.calculate_session_length(
+            experiment_arrays,
+            config_template
+            )
 
         # Calculate number of frames
         num_frames = video_utils.calculate_frames(session_len_s)
@@ -76,10 +78,11 @@ def run_imaging_experiment(metadata_args):
         video_utils.capture_preview()
 
         # Once the preview is escaped, start the microscopy session.
-        imaging_plane = prairieview_utils.start_microscopy_session(team,
-                                                                   subject_id,
-                                                                   current_plane
-                                                                   )
+        imaging_plane = prairieview_utils.start_microscopy_session(
+            team,
+            subject_id,
+            current_plane
+            )
 
         # Now that the Bruker scope is ready and waiting, send the data to
         # the Arduino through pySerialTransfer!
@@ -87,15 +90,21 @@ def run_imaging_experiment(metadata_args):
 
         # Now that the packets have been sent, the Arduino will start soon.
         # We now start the camera for recording the experiment!
-        dropped_frames = video_utils.capture_recording(num_frames,
-                                                       current_plane,
-                                                       imaging_plane,
-                                                       team, subject_id)
+        dropped_frames = video_utils.capture_recording(
+            num_frames,
+            current_plane,
+            imaging_plane,
+            team,
+            subject_id)
 
-        config_utils.write_experiment_config(config_template,
-                                             experiment_arrays, dropped_frames,
-                                             team, subject_id, imaging_plane,
-                                             current_plane)
+        config_utils.write_experiment_config(
+            config_template,
+            experiment_arrays,
+            dropped_frames,
+            team,
+            subject_id,
+            imaging_plane,
+            current_plane)
 
         prairieview_utils.end_microscopy_session()
 
@@ -109,7 +118,12 @@ def run_imaging_experiment(metadata_args):
 
     if team == "specialk":
 
-        nwb_utils.build_nwb_file(experimenter, team, subject_id, imaging_plane)
+        nwb_utils.build_nwb_file(
+            experimenter,
+            team,
+            subject_id,
+            imaging_plane
+            )
 
         print("Exiting...")
         sys.exit()
