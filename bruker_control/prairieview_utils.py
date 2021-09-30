@@ -271,13 +271,16 @@ def tseries(project: str, subject_id: str, current_plane: int,
             Current plane being imaged as in 1st, 2nd, 3rd, etc
         imaging_plane:
             Current Z-Motor position for given recording plane
+        surgery_metadata:
+
     """
 
     # Prepare Prairie View for the T-Series Recording
     prepare_tseries(project,
         subject_id,
         current_plane,
-        imaging_plane
+        imaging_plane,
+        surgery_metadata
         )
 
     # Tell user that the T-Series is starting and waiting for trigger

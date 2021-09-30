@@ -130,7 +130,7 @@ def run_imaging_experiment(metadata_args):
         dropped_frames = video_utils.capture_recording(
                             num_frames,
                             current_plane,
-                            imaging_plane,
+                            str(imaging_plane),
                             team,
                             subject_id
                             )
