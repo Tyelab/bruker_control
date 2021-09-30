@@ -64,17 +64,18 @@ def run_imaging_experiment(metadata_args):
         # Get configuration template with config_utils.get_template
         config_template = config_utils.get_template(team)
 
-        # Get project metadata
-        project_metadata = config_utils.get_project_metadata(team, subject_id)
+        if team == "specialk":
+            # Get project metadata
+            project_metadata = config_utils.get_project_metadata(team, subject_id)
 
-        # Get subject metadata
-        subject_metadata = config_utils.get_subject_metadata(team, subject_id)
+            # Get subject metadata
+            subject_metadata = config_utils.get_subject_metadata(team, subject_id)
 
-        # Get surgery metadata
-        surgery_metadata = config_utils.get_surgery_metadata(subject_metadata)
+            # Get surgery metadata
+            surgery_metadata = config_utils.get_surgery_metadata(subject_metadata)
 
-        # Get Z-Stack metadata
-        zstack_metadata = config_utils.get_zstack_metadata(config_template)
+            # Get Z-Stack metadata
+            zstack_metadata = config_utils.get_zstack_metadata(config_template)
 
         # Get metadata that the Arduino requires
         arduino_metadata = config_utils.get_arduino_metadata(config_template)
