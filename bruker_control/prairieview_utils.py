@@ -17,6 +17,9 @@ from datetime import datetime
 # Import sleep to let Prairie View change between Galov and Resonant Galvo
 from time import sleep
 
+# Import warnings for letting user know if laser can't reach optimal value
+import warnings
+
 # Save the Praire View application as pl
 pl = client.Dispatch("PrairieLink64.Application")
 
@@ -227,6 +230,14 @@ def set_laser_lambda(indicator_lambda: float):
     """
 
     indicator_lambda = 2 * indicator_lambda
+
+    # If the optimal lambda for the indicator is greater than the Mai Tai
+    # Deep See's max output capabilities (1040nm) raise a warning and set
+    # the laser to that maximum value.
+    if indicator_lambda > 1040:
+        print("Optimal wavelength beyond laser's capabilities! Setting to max.")
+        indicator_lambda = 1040
+
     pl.SendScriptCommands("-SetMultiphotonWavelength '{}' 1".format(indicator_lambda))
 
     sleep(3)
@@ -243,7 +254,7 @@ def set_laser_gain():
 
 
 def tseries(project: str, subject_id: str, current_plane: int,
-            imaging_plane: float):
+            imaging_plane: float, surgery_metadata = None):
     """
     Starts Prairie View 2-P T-Series Experiment
 
@@ -263,7 +274,11 @@ def tseries(project: str, subject_id: str, current_plane: int,
     """
 
     # Prepare Prairie View for the T-Series Recording
-    prepare_tseries(project, subject_id, current_plane, imaging_plane)
+    prepare_tseries(project,
+        subject_id,
+        current_plane,
+        imaging_plane
+        )
 
     # Tell user that the T-Series is starting and waiting for trigger
     print("Starting T-Series: Waiting for Input Trigger")
@@ -273,13 +288,13 @@ def tseries(project: str, subject_id: str, current_plane: int,
 
 
 def prepare_tseries(project: str, subject_id: str, current_plane: int,
-                    imaging_plane: float, subject_metadata: dict):
+                    imaging_plane: float, surgery_metadata: dict):
     """
     Readies the Bruker 2-Photon microscope for a T-Series experiment
 
     Sets directories and filenames for recording. Ensures that Resonant Galvo
     mode is selected. and initializes Bruker T-Series for imaging and Voltage
-    Recording for behavior data.
+    Recording for behavior data. This function returns nothing.
 
     Args:
         project:
@@ -290,11 +305,38 @@ def prepare_tseries(project: str, subject_id: str, current_plane: int,
             Current plane being imaged as in 1st, 2nd, 3rd, etc
         imaging_plane:
             Current Z-Motor position for given recording plane
+        surgery_metadata:
+            Surgical information for a given subject including virus data
+            describing excitation and emission wavelengths.
     """
 
     set_tseries_filename(project, subject_id, current_plane, imaging_plane)
 
     set_resonant_galvo()
+
+    if project == "specialk":
+        set_tseries_parameters(surgery_metadata)
+
+
+def set_tseries_parameters(surgery_metadata):
+    """
+    Changes laser lambda to correct wavelength for t-series.
+
+    The laser may or may not be set to use the appropriate wavelength for
+    imaging.  This ensures that the laser is set to the correct wavelength
+    for the functional indicator specified in the surgical metadata.
+    """
+
+    # Get indicators from the surgery metadata
+    indicator_metadata = get_imaging_indicators(surgery_metadata)
+
+    # Use gcamp function
+    functional_indicator = indicator_metadata["gcamp"]
+
+    functional_lambda = functional_indicator["fluorophore_excitation_lambda"]
+
+    set_laser_lambda(functional_lambda)
+
 
 
 # -----------------------------------------------------------------------------
@@ -365,15 +407,26 @@ def set_zseries_parameters(imaging_plane, zstack_delta, zstack_step):
     """
 
     # Start position is higher than current imaging plane
-    z_start_position = imaging_plane - zstack_delta
+    z_start_position = imaging_plane + zstack_delta
 
+    # End position is lower than the current imaging plane
     z_end_position = imaging_plane - zstack_delta
 
-    pl.SendScriptCommands("-SetZSeriesStart {}".format(z_start_position))
+    pl.SendScriptCommands("-SetMotorPosition 'Z' '{}'".format(z_start_position))
 
-    # pl.SendScriptCommands("-SetZSeriesStop '{}'".format(z_end_position))
+    sleep(0.25)
 
     pl.SendScriptCommands("-SetZSeriesStepSize '{}'".format(zstack_step))
+
+    sleep(0.25)
+
+    pl.SendScriptCommands("-SetZSeriesStart 'allSettings'")
+
+    pl.SendScriptCommands("-SetMotorPosition 'Z' '{}'".format(z_end_position))
+
+    sleep(0.25)
+
+    pl.SendScriptCommands("-SetZSeriesStop 'allSettings")
 
 
 def set_zseries_filename(team: str, subject_id: str,
@@ -510,6 +563,3 @@ def zstack(zstack_metadata: dict, team: str, subject_id: str,
             )
 
             pl.SendScriptCommands("-ZSeries")
-
-        # indicator_lambda:
-        #     Excitation wavelength of the indicator being imaged

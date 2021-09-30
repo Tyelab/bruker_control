@@ -116,7 +116,8 @@ def run_imaging_experiment(metadata_args):
             team,
             subject_id,
             current_plane,
-            imaging_plane
+            imaging_plane,
+            surgery_metadata
        )
 
         # Now that the Bruker scope is ready and waiting, send the data to
