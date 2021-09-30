@@ -130,7 +130,8 @@ def run_imaging_experiment(metadata_args):
                             num_frames,
                             current_plane,
                             imaging_plane,
-                            team, subject_id
+                            team,
+                            subject_id
                             )
 
         config_utils.write_experiment_config(
