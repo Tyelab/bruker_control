@@ -1,5 +1,4 @@
 # headfix_control
-## By Deryn LeDuke, Kyle Fischer PhD, Dexter Tsin, and Jeremy Delahanty
 
 Repository for Arduino code controlled by MATLAB and/or Python used to control behavior experiments in the Headfix room and 2P Room.
 
@@ -175,3 +174,21 @@ If there's anything broken, anything you'd like to help develop, or anything you
 Good luck with your work!
 
 Check out the first iteration of developer documentation online [here](https://bruker-control.readthedocs.io/en/latest/)!
+
+## Authors
+
+Jeremy Delahanty\
+Research Assistant I\
+Tye Lab, Salk Institute for Biological Studies
+
+Deryn LeDuke\
+UCSD Neurosciences Graduate Student\
+Tye Lab, Salk Institute for Biological Studies
+
+Kyle Fischer PhD\
+Gene Therapy Research Scientist\
+Gene Therapy Division, Neurocrine
+
+Dexter Tsin\
+UCSD Bioinformatics Undergraduate Student\
+Tye Lab, Salk Institute for Biological Studies
