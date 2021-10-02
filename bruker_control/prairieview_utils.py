@@ -183,9 +183,15 @@ def set_tseries_filename(team: str, subject_id: str, current_plane: int,
     pl.SendScriptCommands("-SetSavePath {}".format(imaging_dir))
 
     # Set session name by joining variables with underscores
-    session_name = "_".join([session_date, subject_id,
-                             "plane{}".format(current_plane),
-                             imaging_plane, "raw"])
+    session_name = "_".join(
+            [
+                session_date,
+                subject_id,
+                "plane{}".format(current_plane),
+                imaging_plane,
+                "raw"
+            ]
+        )
 
     # # Set behavior filename
     # behavior_filename = "_".join([session_name, "behavior"])
@@ -276,7 +282,8 @@ def tseries(project: str, subject_id: str, current_plane: int,
     """
 
     # Prepare Prairie View for the T-Series Recording
-    prepare_tseries(project,
+    prepare_tseries(
+        project,
         subject_id,
         current_plane,
         imaging_plane,
@@ -333,7 +340,6 @@ def set_tseries_parameters(surgery_metadata):
     # Get indicators from the surgery metadata
     indicator_metadata = get_imaging_indicators(surgery_metadata)
 
-    # Use gcamp function
     functional_indicator = indicator_metadata["gcamp"]
 
     functional_lambda = functional_indicator["fluorophore_excitation_lambda"]
@@ -477,6 +483,8 @@ def set_zseries_filename(team: str, subject_id: str,
     imaging_filename = "_".join([session_name, "zseries"])
     imaging_filename = session_name
 
+    # Use this file iteration parameter for tracking which stack has been
+    # collected for the indicator
     pl.SendScriptCommands("-SetFileIteration Zseries {}".format(stack))
 
     pl.SendScriptCommands("-SetFileName Zseries {}".format(imaging_filename))
@@ -566,3 +574,6 @@ def zstack(zstack_metadata: dict, team: str, subject_id: str,
             )
 
             pl.SendScriptCommands("-ZSeries")
+
+    # Put Z-axis back to imaging plane
+    pl.SendScriptCommands("-SetMotorPosition 'Z' {}".format(imaging_plane))

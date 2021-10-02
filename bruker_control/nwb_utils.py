@@ -70,6 +70,9 @@ def build_nwb_file(experimenter: str, team: str, subject_id: str,
             Subject ID from metadata_args["subject"]
         imaging_plane:
             Plane 2P images were acquired at, the Z-axis value
+        surgery_metadata:
+            Surgical information about the subject being imaged including the
+            types of indicators used and positions of those injections/implants.
     """
 
     # Get the formatted session_id and newly created session path
@@ -83,8 +86,12 @@ def build_nwb_file(experimenter: str, team: str, subject_id: str,
                                project_metadata)
 
     # Add imaging information to the NWB file
-    nwbfile = append_imaging_info(nwbfile, project_metadata, bruker_metadata,
-                                  imaging_plane)
+    nwbfile = append_imaging_info(nwbfile,
+        project_metadata,
+        bruker_metadata,
+        imaging_plane,
+        surgery_metadata
+        )
 
     nwbfile = append_subject_info(nwbfile, subject_metadata)
 
@@ -330,7 +337,8 @@ def gen_base_nwbfile(experimenter: str, session_id: str,
 
 
 def append_imaging_info(nwbfile: NWBFile, project_metadata: dict,
-                        bruker_metadata: dict, imaging_plane) -> NWBFile:
+                        bruker_metadata: dict, imaging_plane,
+                        surgery_metadata: dict) -> NWBFile:
     """
     Appends relevant 2P imaging metadata to a base NWB file.
 
@@ -346,6 +354,9 @@ def append_imaging_info(nwbfile: NWBFile, project_metadata: dict,
             Metadata for microscopy session from Prairie View .env file
         imaging_plane:
             Plane 2P images were acquired at, the Z-axis value
+        surgery_metadata:
+            Surgical information about the subject being imaged including the
+            types of indicators used and positions of those injections/implants.
 
     Returns:
         NWBFile
@@ -378,9 +389,9 @@ def append_imaging_info(nwbfile: NWBFile, project_metadata: dict,
     # Build optical channel object; References the gcamp indicator used in
     # the experiment similar to an RGB channel in an image.
     optical_channel = OpticalChannel(
-        name=project_metadata["gcamp_indicator"],
-        description=project_metadata["gcamp_description"],
-        emission_lambda = project_metadata["gcamp_emission_lambda"]
+        name=surgery_metadata["brain_injections"]["gcamp"]["fluorophore"],
+        description=surgery_metadata["brain_injections"]["gcamp"]["description"],
+        emission_lambda = surgery_metadata["brain_injections"]["gcamp"]["fluorophore_emission_lambda"]
     )
 
     # Build imaging plane
@@ -391,11 +402,15 @@ def append_imaging_info(nwbfile: NWBFile, project_metadata: dict,
         description="2P Discrimination Task Imaging at " + imaging_plane,
         device=microscope,
         excitation_lambda=float(bruker_metadata["laserWavelength"]),
-        indicator=project_metadata["gcamp_indicator"],
-        location=project_metadata["gcamp_location"],
+        indicator=surgery_metadata["brain_injections"]["gcamp"]["fluorophore"],
+        location=surgery_metadata["brain_injections"]["gcamp"]["target"],
         grid_spacing=[0.01, 0.01], # is this resolution of each pixel space? <- yes!
         grid_spacing_unit="meters",
-        origin_coords=[0., 0., 0.], # surgical coordinates of plane we're looking at
+        origin_coords=[
+            surgery_metadata["brain_injections"]["gcamp"]["ap"],
+            surgery_metadata["brain_injections"]["gcamp"]["ml"],
+            surgery_metadata["brain_injections"]["gcamp"]["ml"]
+        ],
         origin_coords_unit="meters"
     )
 
@@ -446,6 +461,11 @@ def gen_session_id(team: str, subject_id: str) -> Tuple[str, Path]:
     return session_id, session_fullpath
 
 
+# TODO: Expand this to include CMS mice; long term, this needs to be
+# far more generalized, probably a part of the project configuration file
+# and the directories to look for/build should be constructed as classes that
+# this function operates upon. Will be part of the refactor of configs into
+# class objects
 def determine_session(sessions: list, session_basepath: Path) -> Tuple[str,
                                                                        Path]:
     """
@@ -525,7 +545,7 @@ def append_subject_info(nwbfile: NWBFile, subject_metadata: dict) -> NWBFile:
     today = datetime.today()
     today = today.strftime("%Y%m%d")
 
-    date_of_birth = dt_parser.parse(subject_metadata["date_of_birth"])
+    date_of_birth = dt_parser.parse(subject_metadata["dob"])
     date_of_birth = date_of_birth.replace(tzinfo=tzlocal())
 
     nwbfile.subject = Subject(

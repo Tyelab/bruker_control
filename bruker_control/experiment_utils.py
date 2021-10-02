@@ -64,6 +64,13 @@ def run_imaging_experiment(metadata_args):
         # Get configuration template with config_utils.get_template
         config_template = config_utils.get_template(team)
 
+        # Get Z-Stack metadata; requried for both Specialk and Deryn
+        zstack_metadata = config_utils.get_zstack_metadata(config_template)
+
+        # Only team specialk has the necessary infrastructure for running
+        # z-stacks.  Any user that wants to run a z-stack for their data must
+        # comply with Specialk-style metadata which is intended to be required
+        # for using bruker_control moving forward.
         if team == "specialk":
             # Get project metadata
             project_metadata = config_utils.get_project_metadata(team, subject_id)
@@ -73,9 +80,8 @@ def run_imaging_experiment(metadata_args):
 
             # Get surgery metadata
             surgery_metadata = config_utils.get_surgery_metadata(subject_metadata)
-
-            # Get Z-Stack metadata
-            zstack_metadata = config_utils.get_zstack_metadata(config_template)
+        else:
+            surgery_metadata = None
 
         # Get metadata that the Arduino requires
         arduino_metadata = config_utils.get_arduino_metadata(config_template)
@@ -141,7 +147,7 @@ def run_imaging_experiment(metadata_args):
             dropped_frames,
             team,
             subject_id,
-            imaging_plane,
+            str(imaging_plane),
             current_plane
             )
 
@@ -151,7 +157,7 @@ def run_imaging_experiment(metadata_args):
 
             print("Experiment Completed for", subject_id)
 
-            # Disconnect from Prairie View
+            # Disconnect from Prairie View and end the experiment
             prairieview_utils.pv_disconnect()
             exp_running = False
 
@@ -164,7 +170,7 @@ def run_imaging_experiment(metadata_args):
             experimenter,
             team,
             subject_id,
-            imaging_plane,
+            str(imaging_plane),
             subject_metadata,
             project_metadata,
             surgery_metadata
