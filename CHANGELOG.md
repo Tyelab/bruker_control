@@ -3,8 +3,42 @@ Any changes made by **`Team 2P`** that make it into the `main` branch are logged
 
 A changelog for commits and changes before this version will not be added.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## bruker_control.py v.1.6.0 *Big Mac* - 2021-10-02
+
+This is v1.6.0!  It might be spooky season, but have no fear! This update isn't so scary.
+This update adds automated z-stack functionality to the system as well as some enhanced
+`subject_metadata` information parsing for performing z-stack to t-series recordings
+seamlessly. Lots of things have been changed so take a bite of the *Big Mac* update by
+reading on! 🍔
+
+:heart: Jeremy Delahanty
+
+### Added
+
+Z-stack functions added to `prairieview_utils` with the following functions:
+- set_galvo_galvo() Function for gathering Z-stack images
+- set_laser_lambda() for changing laser wavelengths according to imaging indicators
+- set_zseries_filename() Sets filename and directories for Z-stacks correctly
+- set_zseries_parameters() Sets up the Z-series values for step size, start/stop positions
+- get_imaging_indicators() Gathers indicator information from surgical metadata in a subject
+
+Configuration Information:
+**Required**
+- `zstack_metadata`: Whether to perform a z-stack or not in a given experiment as well as
+the values required by Prairie View for setting up the acquisition correctly.
+
+**Optional**
+- Surgery metadata added to subject metadata files
+
+### Changed
+- Moved virus information to subject metadata from project metadata
+- Moved `get_subject_metadata()` to `config_utils`
+- Set coordinates for `origin_coords` using surgical information for imaging plane in NWB file
+per Ryan Ly's advice.
+
 
 ## Configurations- 2021-09-16
 

@@ -48,24 +48,29 @@ def gen_trialArray(config_template: dict) -> np.ndarray:
     """
 
     # Create trial array that's all reward trials, to be flipped randomly
-    fresh_array = np.ones(config_template["metadata"]["totalNumberOfTrials"],
-                          dtype=int)
+    fresh_array = np.ones(
+        config_template["beh_metadata"]["totalNumberOfTrials"],
+        dtype=int
+        )
 
     # Calculate the number of punishment trials to deliver
-    num_punish = round(config_template["metadata"]["percentPunish"]
-                       * len(fresh_array))
+    num_punish = round(
+        config_template["beh_metadata"]["percentPunish"] * len(fresh_array)
+        )
 
     # Get maximum number of punishment trials that can occur in a row
-    max_seq_punish = config_template["metadata"]["maxSequentialPunish"]
+    max_seq_punish = config_template["beh_metadata"]["maxSequentialPunish"]
 
     # Get maximum number of reward trials that can occur in a row
-    max_seq_reward = config_template["metadata"]["maxSequentialReward"]
+    max_seq_reward = config_template["beh_metadata"]["maxSequentialReward"]
 
     # Generate potential flip positions for punish trials by making array of
     # trial indexes starting just after the starting rewards until the end
     # of the experimental session.
-    potential_flips = np.arange(config_template["metadata"]["startingReward"],
-                                len(fresh_array))
+    potential_flips = np.arange(
+        config_template["beh_metadata"]["startingReward"],
+        len(fresh_array)
+        )
 
     # Create punish, reward, and catch trial statuses for checking after
     # flipping trial types in the next step
@@ -81,25 +86,34 @@ def gen_trialArray(config_template: dict) -> np.ndarray:
 
         # Perform the flips for punish trials upon the tmp_array using
         # list of potential flips and the number of punish trials specified
-        trialArray, punish_check = flip_punishments(tmp_array, potential_flips,
-                                                    num_punish, max_seq_punish)
+        trialArray, punish_check = flip_punishments(
+            tmp_array,
+            potential_flips,
+            num_punish,
+            max_seq_punish
+            )
 
         # If the number of punish trials is less than half, getting a valid
         # trial set is unlikely if the number of rewards in a row is
         # restricted.  Therefore, sest the reward_check to False.
-        if config_template["metadata"]["percentPunish"] < 0.50:
+        if config_template["beh_metadata"]["percentPunish"] < 0.50:
             reward_check = False
 
         # Otherwise use check_session_rewards to ensure trial structure is
         # compliant with study's rules.
         else:
-            reward_check = check_session_rewards(trialArray, max_seq_reward)
+            reward_check = check_session_rewards(
+                trialArray,
+                max_seq_reward
+                )
 
         # Use generated trialArray and config_template values to perform
         # catch trial flips
-        trialArray, catch_check = flip_catch(trialArray,
-                                             config_template,
-                                             catch_check)
+        trialArray, catch_check = flip_catch(
+            trialArray,
+            config_template,
+            catch_check
+            )
 
     return trialArray
 
@@ -129,13 +143,13 @@ def flip_catch(trialArray: np.ndarray, config_template: dict,
     """
 
     # Get number of reward catch trials to deliver
-    num_catch_reward = config_template["metadata"]["numCatchReward"]
+    num_catch_reward = config_template["beh_metadata"]["numCatchReward"]
 
     # Get number of punishment catch trials
-    num_catch_punish = config_template["metadata"]["numCatchPunish"]
+    num_catch_punish = config_template["beh_metadata"]["numCatchPunish"]
 
     # Get position for where catch trials are to start for session
-    catch_offset = config_template["metadata"]["catchOffset"]
+    catch_offset = config_template["beh_metadata"]["catchOffset"]
 
     # Get length of trialArray
     trialArray_len = len(trialArray)
@@ -226,8 +240,10 @@ def reward_catch_sample(reward_trials: list, num_catch_reward: int) -> list:
 
     # Perform random sample with rng.choice from reward_trials list for the
     # number of reward catch trials specified and finally convert it to a list.
-    reward_catch_list = rng.choice(reward_trials,
-                                   size=num_catch_reward).tolist()
+    reward_catch_list = rng.choice(
+        reward_trials,
+        size=num_catch_reward
+        ).tolist()
 
     return reward_catch_list
 
@@ -256,8 +272,10 @@ def punish_catch_sample(punish_trials: list, num_catch_punish: int) -> list:
 
     # Perform random sample with rng.choice from punish_trials list for the
     # number of punish catch trials specified and finally convert it to a list.
-    punish_catch_list = rng.choice(punish_trials,
-                                   size=num_catch_punish).tolist()
+    punish_catch_list = rng.choice(
+        punish_trials,
+        size=num_catch_punish
+        ).tolist()
 
     return punish_catch_list
 
@@ -391,8 +409,7 @@ def flip_punishments(tmp_array: np.ndarray, potential_flips: np.ndarray,
 
     # Perform random sample with rng.choice from punish_trials list for the
     # number of punish catch trials specified and finally convert it to a list.
-    punish_flips = rng.choice(potential_flips, size=num_punish,
-                              replace=False)
+    punish_flips = rng.choice(potential_flips, size=num_punish, replace=False)
 
     # For each index in the chosen punish_flips, change the trial's value
     # to 0.
@@ -432,15 +449,15 @@ def gen_jitter_ITIArray(config_template: dict) -> list:
     iti_array = []
 
     # Get total number of trials
-    num_trials = config_template["metadata"]["totalNumberOfTrials"]
+    num_trials = config_template["beh_metadata"]["totalNumberOfTrials"]
 
     # Get minimum ITI value from configuration and multiply by 1000 to convert
     # to milliseconds
-    iti_lower = config_template["metadata"]["minITI"]*1000
+    iti_lower = config_template["beh_metadata"]["minITI"]*1000
 
     # Get maximum ITI value from configuation and mulitply by 1000 to convert
     # to milliseconds.
-    iti_upper = config_template["metadata"]["maxITI"]*1000
+    iti_upper = config_template["beh_metadata"]["maxITI"]*1000
 
     # Initialize random number generator with default_rng
     rng = default_rng()
@@ -529,8 +546,7 @@ def gen_jitter_toneArray(config_template: dict) -> list:
     rng = default_rng()
 
     # Generate array by sampling from uniform distribution
-    tone_array = rng.uniform(low=tone_lower, high=tone_upper,
-                             size=num_trials)
+    tone_array = rng.uniform(low=tone_lower, high=tone_upper, size=num_trials)
 
     # Tone Array generated will have decimals in it and be float type.
     # Use np.round() to round the elements in the array and type them as int.
@@ -560,11 +576,11 @@ def gen_static_toneArray(config_template: dict) -> list:
     toneArray = []
 
     # Get total number of trials for session
-    num_trials = config_template["metadata"]["totalNumberOfTrials"]
+    num_trials = config_template["beh_metadata"]["totalNumberOfTrials"]
 
     # Get the tone duration to use for the session and multiply by 1000 so
     # its in millisecond format
-    tone_duration = config_template["metadata"]["baseTone"]*1000
+    tone_duration = config_template["beh_metadata"]["baseTone"]*1000
 
     # Build ITIArray into a list of values
     toneArray = [tone_duration] * num_trials
@@ -590,7 +606,7 @@ def gen_ITIArray(config_template: dict) -> list:
 
     # Generate ITIArray from configuration values
     # Gather jitter status for ITIArray from configuration
-    iti_jitter = config_template["metadata"]["ITIJitter"]
+    iti_jitter = config_template["beh_metadata"]["ITIJitter"]
 
     # If the iti_jitter status is True, create a jittered ITI
     if iti_jitter:
@@ -620,7 +636,7 @@ def gen_toneArray(config_template: dict) -> list:
     """
 
     # Gather tone_jitter status from configuraiton
-    tone_jitter = config_template["metadata"]["toneJitter"]
+    tone_jitter = config_template["beh_metadata"]["toneJitter"]
 
     # If the tone_jitter status is true, create a static tone array
     if tone_jitter:
@@ -658,16 +674,16 @@ def calculate_session_length(experiment_arrays: list,
     """
 
     # Get vacuum status for the experiment
-    vacuum = config_template["metadata"]["vacuum"]
+    vacuum = config_template["beh_metadata"]["vacuum"]
 
     # Get amount of milliseconds reward is delivered for
-    reward_delivery_ms = config_template["metadata"]["USDeliveryTime_Sucrose"]
+    reward_delivery_ms = config_template["beh_metadata"]["USDeliveryTime_Sucrose"]
 
     # Get amount of milliseconds rewards are present for
-    reward_prsnt_ms = config_template["metadata"]["USConsumptionTime_Sucrose"]
+    reward_prsnt_ms = config_template["beh_metadata"]["USConsumptionTime_Sucrose"]
 
     # Get amount of milliseconds punishments are present for
-    punish_delivery_ms = config_template["metadata"]["USDeliveryTime_Air"]
+    punish_delivery_ms = config_template["beh_metadata"]["USDeliveryTime_Air"]
 
     # Make session_length_s variable and add to it as values are calculated
     session_len_s = 0
@@ -676,9 +692,12 @@ def calculate_session_length(experiment_arrays: list,
     trialArray = experiment_arrays[0]
 
     # Calculate reward_seconds and add to session length
-    reward_seconds = calculate_reward_seconds(reward_delivery_ms,
-                                              reward_prsnt_ms, trialArray,
-                                              vacuum)
+    reward_seconds = calculate_reward_seconds(
+        reward_delivery_ms,
+        reward_prsnt_ms,
+        trialArray,
+        vacuum
+        )
     session_len_s += reward_seconds
 
     # Calculate punish seconds
@@ -775,8 +794,6 @@ def calculate_punish_seconds(punish_delivery_ms: int, trialArray: list) -> int:
     punish_seconds = (punish_delivery_ms * len(punish_list))/1000
 
     return punish_seconds
-    #     # BUG: Timing for vacuum trials is still incorect despite fix morning
-    #     # of 6/3/21. Re-opening Issue 23
 
 
 ###############################################################################

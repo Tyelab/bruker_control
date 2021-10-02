@@ -4,7 +4,7 @@ Repository for Arduino code controlled by MATLAB and/or Python used to control b
 
 Currently, the code is functional for the Bruker 2P microscope. Training code is not currently present on the repo. MATLAB's scanbox is not present on the repo.
 
-## bruker_control.py v1.0.0
+## bruker_control.py v1.6.0: Now with Z-Stacks bigger than a Big Mac! 🍔
 A (very) basic rundown of the experimental runtime is included below.
 
 ![User Execution Graph](https://github.com/Tyelab/headfix_control/blob/main/docs/bruker_user_executiongraph.png)
@@ -52,9 +52,9 @@ There's not too much you need to do at this point! The steps are as follows:
 2. When you're certain you're ready to go and that the Farraday cage is completely closed, you can hit the `Esc` key. This will start the experiment!
 3. Watch the magic happen!
 
-At this point, `bruker_control` takes care of the rest! It will automatically generate trial structures that comply with your rules, transmit them to the Arduino, and tell Prairie View to start the recording session of the animal's face and brain activity! It will write out the experiment's information into the `E:` drive appropriate for your team's raw data automatically in it's raw form so its ready for transferring and combining into your team's project directories later.
+At this point, `bruker_control` takes care of the rest! It will automatically generate trial structures that comply with your rules, transmit them to the Arduino, and tell Prairie View to start the recording session of the animal's face and brain activity! It will write out the experiment's information into the `E:` drive appropriate for your team's raw data automatically so its ready for transferring and combining into your team's project directories later.
 
-If you choose to build NWB files at runtime for your animal's microscopy session, `bruker_control` will build an NWB file appropriate for the given experimental session and place that file onto the server for you automatically! For example, if this is the first time you've done some 2P recordings with behavior on the scope (or if you're about to collect the baseline), it will generate NWB formatted files and place them into a newly built `baseline` folder in your project's directory on the server. In order to use this feature, your project must comply with certain directory structure rules. Talk with Jeremy to learn more if you'd like.
+If you choose to build NWB files at runtime for your animal's microscopy session, `bruker_control` will build an NWB file appropriate for the given experimental session and place that file onto the server for you automatically! For example, if this is the first time you've done some 2P recordings with behavior on the scope (meaning baseline), it will generate NWB formatted files and place them into a newly built `baseline` folder in your project's directory on the server. In order to use this feature, your project must comply with certain directory structure rules. Talk with Jeremy to learn more if you'd like.
 
 ### The Future
 There's numerous updates in the works on both the hardware and software side. I include a timeline for how long I think it could take
@@ -150,17 +150,6 @@ The steps for this happening are as follows:
 
 _**Timeline**_
 This would likely take quite a long time to get into a production ready place...
-
-5. _Z-Stacks and Overlaying Different Images Together_
-
-For Austin's project at least, we will need to take a Z-stack for each animal's reference plane for both GCaMP and DLIGHT.
-
-The steps for accomplishing this are as follows:
-- Interface with Prairie View Z-Stack functionality and incorporate into experimental runtime in `bruker_control.py`
-- Determine how to incorporate this into NWB standard, unsure if Z-stacks are supported
-
-_**Timeline**_
-1-2 Weeks
 
 #### Hardware
 1. Optimize lighting conditions

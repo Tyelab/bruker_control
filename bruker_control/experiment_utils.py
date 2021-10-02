@@ -56,11 +56,37 @@ def run_imaging_experiment(metadata_args):
 
     while exp_running is True:
 
+        print("Gathering metadata...")
+        # TODO: Unite all these functions into one call and build a
+        # metadata Class that contains each of these things in it.  This will
+        # require a significant refactor to transition everything into using
+        # class objects throughout the system.
         # Get configuration template with config_utils.get_template
         config_template = config_utils.get_template(team)
 
+        # Get Z-Stack metadata; requried for both Specialk and Deryn
+        zstack_metadata = config_utils.get_zstack_metadata(config_template)
+
+        # Only team specialk has the necessary infrastructure for running
+        # z-stacks.  Any user that wants to run a z-stack for their data must
+        # comply with Specialk-style metadata which is intended to be required
+        # for using bruker_control moving forward.
+        if team == "specialk":
+            # Get project metadata
+            project_metadata = config_utils.get_project_metadata(team, subject_id)
+
+            # Get subject metadata
+            subject_metadata = config_utils.get_subject_metadata(team, subject_id)
+
+            # Get surgery metadata
+            surgery_metadata = config_utils.get_surgery_metadata(subject_metadata)
+        else:
+            surgery_metadata = None
+
         # Get metadata that the Arduino requires
         arduino_metadata = config_utils.get_arduino_metadata(config_template)
+
+        print("Metadata collected!")
 
         # Create experiment runtime arrays
         experiment_arrays = trial_utils.generate_arrays(config_template)
@@ -69,14 +95,38 @@ def run_imaging_experiment(metadata_args):
         session_len_s = trial_utils.calculate_session_length(
             experiment_arrays,
             config_template
-            )
+        )
 
         # Calculate number of frames
         num_frames = video_utils.calculate_frames(session_len_s)
 
+        # Connect to Prairie View
+        prairieview_utils.pv_connect()
+
         # Start preview of animal's face.  Zero microscope over lens here.
         video_utils.capture_preview()
+    
+        imaging_plane = prairieview_utils.get_imaging_plane()
 
+        if zstack_metadata["zstack"]:
+            prairieview_utils.zstack(
+                zstack_metadata,
+                team,
+                subject_id,
+                current_plane,
+                imaging_plane,
+                surgery_metadata
+            )
+
+        # Once the Z-Stack is collected (if requested), start the T-Series
+        prairieview_utils.tseries(
+            team,
+            subject_id,
+            current_plane,
+            imaging_plane,
+            surgery_metadata
+       )
+    
         # Once the preview is escaped, start the microscopy session.
         imaging_plane = prairieview_utils.start_microscopy_session(
             team,
@@ -85,17 +135,18 @@ def run_imaging_experiment(metadata_args):
             )
 
         # Now that the Bruker scope is ready and waiting, send the data to
-        # the Arduino through pySerialTransfer!
+        # the Arduino through pySerialTransfer
         serialtransfer_utils.transfer_data(arduino_metadata, experiment_arrays)
 
         # Now that the packets have been sent, the Arduino will start soon.
         # We now start the camera for recording the experiment!
         dropped_frames = video_utils.capture_recording(
-            num_frames,
-            current_plane,
-            imaging_plane,
-            team,
-            subject_id)
+                            num_frames,
+                            current_plane,
+                            str(imaging_plane),
+                            team,
+                            subject_id
+                            )
 
         config_utils.write_experiment_config(
             config_template,
@@ -103,14 +154,18 @@ def run_imaging_experiment(metadata_args):
             dropped_frames,
             team,
             subject_id,
-            imaging_plane,
-            current_plane)
+            str(imaging_plane),
+            current_plane
+            )
 
-        prairieview_utils.end_microscopy_session()
+        prairieview_utils.end_tseries()
 
         if current_plane == requested_planes:
 
             print("Experiment Completed for", subject_id)
+
+            # Disconnect from Prairie View and end the experiment
+            prairieview_utils.pv_disconnect()
             exp_running = False
 
         else:
@@ -122,7 +177,10 @@ def run_imaging_experiment(metadata_args):
             experimenter,
             team,
             subject_id,
-            imaging_plane
+            str(imaging_plane),
+            subject_metadata,
+            project_metadata,
+            surgery_metadata
             )
 
         print("Exiting...")
