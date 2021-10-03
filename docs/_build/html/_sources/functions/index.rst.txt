@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Bruker Control's documentation!
-==========================================
+Bruker Control's Functions and Classes
+======================================
 
 .. toctree::
    :maxdepth: 2
@@ -44,7 +44,7 @@ config_utils.py
 ===============
 
 Module contains functions for reading, writing, and passing configuration
-information to different modules or files.
+information to different modules or files including NWB files.
 
 .. currentmodule:: config_utils
 
@@ -56,7 +56,8 @@ prairieview_utils.py
 ====================
 
 Module contains functions for interacting with Prairie View's API to set data
-directories, filenames, and gathering imaging plane information.
+directories, filenames, and gathering imaging plane information. Also sets
+microscope laser values according to user presets and initiates image acquisition.
 
 .. currentmodule:: prairieview_utils
 

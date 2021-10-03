@@ -248,10 +248,13 @@ def set_laser_lambda(indicator_lambda: float):
 
     sleep(3)
 
-def set_laser_gain():
-    """
-    Sets PMT values for the laser before recording
-    """
+# TODO: Set PMT values potentially, need to test without this first to see if
+# it is necessary
+    pass
+# def set_laser_gain():
+#     """
+#     Sets PMT values for the laser before recording
+#     """
 
 
 # -----------------------------------------------------------------------------
@@ -260,7 +263,7 @@ def set_laser_gain():
 
 
 def tseries(project: str, subject_id: str, current_plane: int,
-            imaging_plane: float, surgery_metadata = None):
+            imaging_plane: float, surgery_metadata=None):
     """
     Starts Prairie View 2-P T-Series Experiment
 
