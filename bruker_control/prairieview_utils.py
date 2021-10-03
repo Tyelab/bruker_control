@@ -9,7 +9,7 @@
 # Import Prairie View Application
 # NOTE Prairie View Interface Installation:  Do NOT use pip install, use conda.
 # conda install pywin32
-import win32com.client as client
+# import win32com.client as client
 
 # Import datetime for folder naming
 from datetime import datetime
