@@ -162,7 +162,7 @@ If there's anything broken, anything you'd like to help develop, or anything you
 
 Good luck with your work!
 
-Check out the developer documentation online [here](https://bruker-control.readthedocs.io/en/main/)!
+Check out the developer documentation online [here](https://bruker-control.readthedocs.io/en/latest/)!
 
 ## Authors
 
