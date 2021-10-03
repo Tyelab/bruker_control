@@ -22,7 +22,7 @@ copyright = '2021, Jeremy Delahanty'
 author = 'Jeremy Delahanty'
 
 # The full version, including alpha/beta/rc tags
-release = '1.0.0'
+release = '1.6.0'
 
 
 # -- General configuration ---------------------------------------------------
@@ -38,8 +38,6 @@ extensions = [
 
 autoclass_content = "both"
 atuodoc_member_order = "bysource"
-
-autodoc_mock_imports = ['cv2']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

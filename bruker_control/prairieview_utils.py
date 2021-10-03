@@ -21,7 +21,7 @@ from time import sleep
 import warnings
 
 # Save the Praire View application as pl
-pl = client.Dispatch("PrairieLink64.Application")
+# pl = client.Dispatch("PrairieLink64.Application")
 
 # Define microscopy basebath for where raw files are written to.  This is onto
 # the E: drive on machine BRUKER.  Set it as a string to be joined later.
@@ -47,7 +47,7 @@ def pv_connect():
     API.  This function takes no arguments and returns nothing.
     """
 
-    pl.Connect()
+    # pl.Connect()
     print("Connected to Prairie View")
 
 
@@ -59,7 +59,7 @@ def pv_disconnect():
     API.  This function takes no arguments and returns nothing.
     """
 
-    pl.Disconnect()
+    # pl.Disconnect()
     print("Disconnected from Prairie View")
 
 
@@ -80,7 +80,7 @@ def set_resonant_galvo():
     """
 
     # Change Acquisition Mode to Resonant Galvo
-    pl.SendScriptCommands("-SetAcquisitionMode 'Resonant Galvo'")
+    # pl.SendScriptCommands("-SetAcquisitionMode 'Resonant Galvo'")
 
     # Wait 1 second for Prairie View to switch modes
     sleep(1)
@@ -97,7 +97,7 @@ def set_galvo_galvo():
     """
 
     # Change Acqusition Mode to Galvo Galvo
-    pl.SendScriptCommands("-SetAcquisitionMode 'Galvo'")
+    # pl.SendScriptCommands("-SetAcquisitionMode 'Galvo'")
 
     # Wait 1 second for Prairie View to switch modes
     sleep(1)
@@ -121,7 +121,7 @@ def end_tseries():
 
     # Tell user abort command is being sent, send the command, and finally
     # tell user that the command has been executed.
-    pl.SendScriptCommands("-Abort")
+    # pl.SendScriptCommands("-Abort")
     print("T-Series Complete")
 
 
@@ -141,7 +141,7 @@ def get_imaging_plane() -> float:
         imaging_plane
     """
 
-    imaging_plane = pl.GetMotorPosition("Z")
+    # imaging_plane = pl.GetMotorPosition("Z")
 
     return imaging_plane
 
@@ -180,7 +180,7 @@ def set_tseries_filename(team: str, subject_id: str, current_plane: int,
     imaging_dir = basepath + team + "/microscopy/"
 
     # Set Prairie View path for saving files
-    pl.SendScriptCommands("-SetSavePath {}".format(imaging_dir))
+    # pl.SendScriptCommands("-SetSavePath {}".format(imaging_dir))
 
     # Set session name by joining variables with underscores
     session_name = "_".join(
@@ -205,7 +205,7 @@ def set_tseries_filename(team: str, subject_id: str, current_plane: int,
     imaging_filename = "_".join([session_name, "2p"])
     imaging_filename = session_name
 
-    pl.SendScriptCommands("-SetFileName Tseries {}".format(imaging_filename))
+    # pl.SendScriptCommands("-SetFileName Tseries {}".format(imaging_filename))
 
     # Not usable until PV 5.6 release
     # Set behavior session basepath
@@ -244,7 +244,7 @@ def set_laser_lambda(indicator_lambda: float):
         print("Optimal wavelength beyond laser's capabilities! Setting to max.")
         indicator_lambda = 1040
 
-    pl.SendScriptCommands("-SetMultiphotonWavelength '{}' 1".format(indicator_lambda))
+    # pl.SendScriptCommands("-SetMultiphotonWavelength '{}' 1".format(indicator_lambda))
 
     sleep(3)
 
@@ -294,7 +294,7 @@ def tseries(project: str, subject_id: str, current_plane: int,
     print("Starting T-Series: Waiting for Input Trigger")
 
     # Send T-Series command
-    pl.SendScriptCommands("-TSeries")
+    # pl.SendScriptCommands("-TSeries")
 
 
 def prepare_tseries(project: str, subject_id: str, current_plane: int,
@@ -421,21 +421,21 @@ def set_zseries_parameters(imaging_plane, zstack_delta, zstack_step):
     # End position is lower than the current imaging plane
     z_end_position = imaging_plane - zstack_delta
 
-    pl.SendScriptCommands("-SetMotorPosition 'Z' '{}'".format(z_start_position))
+    # pl.SendScriptCommands("-SetMotorPosition 'Z' '{}'".format(z_start_position))
 
     sleep(0.25)
 
-    pl.SendScriptCommands("-SetZSeriesStepSize '{}'".format(zstack_step))
+    # pl.SendScriptCommands("-SetZSeriesStepSize '{}'".format(zstack_step))
 
     sleep(0.25)
 
-    pl.SendScriptCommands("-SetZSeriesStart 'allSettings'")
+    # pl.SendScriptCommands("-SetZSeriesStart 'allSettings'")
 
-    pl.SendScriptCommands("-SetMotorPosition 'Z' '{}'".format(z_end_position))
+    # pl.SendScriptCommands("-SetMotorPosition 'Z' '{}'".format(z_end_position))
 
     sleep(0.25)
 
-    pl.SendScriptCommands("-SetZSeriesStop 'allSettings")
+    # pl.SendScriptCommands("-SetZSeriesStop 'allSettings")
 
 
 def set_zseries_filename(team: str, subject_id: str,
@@ -472,7 +472,7 @@ def set_zseries_filename(team: str, subject_id: str,
     imaging_dir = basepath + team + "/zstacks/"
 
     # Set Prairie View path for saving files
-    pl.SendScriptCommands("-SetSavePath {}".format(imaging_dir))
+    # pl.SendScriptCommands("-SetSavePath {}".format(imaging_dir))
 
     # Set session name by joining variables with underscores
     session_name = "_".join([session_date, subject_id, imaging_plane,
@@ -485,9 +485,9 @@ def set_zseries_filename(team: str, subject_id: str,
 
     # Use this file iteration parameter for tracking which stack has been
     # collected for the indicator
-    pl.SendScriptCommands("-SetFileIteration Zseries {}".format(stack))
+    # pl.SendScriptCommands("-SetFileIteration Zseries {}".format(stack))
 
-    pl.SendScriptCommands("-SetFileName Zseries {}".format(imaging_filename))
+    # pl.SendScriptCommands("-SetFileName Zseries {}".format(imaging_filename))
 
 
 def get_imaging_indicators(surgery_metadata: dict) -> dict:
@@ -573,7 +573,7 @@ def zstack(zstack_metadata: dict, team: str, subject_id: str,
                 zstack_step
             )
 
-            pl.SendScriptCommands("-ZSeries")
+            # pl.SendScriptCommands("-ZSeries")
 
     # Put Z-axis back to imaging plane
-    pl.SendScriptCommands("-SetMotorPosition 'Z' {}".format(imaging_plane))
+    # pl.SendScriptCommands("-SetMotorPosition 'Z' {}".format(imaging_plane))

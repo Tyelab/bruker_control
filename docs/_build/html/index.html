@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" />
 
     <meta name="generator" content="sphinx-4.0.2, furo 2021.08.11.beta42"/>
-        <title>Bruker Control 1.0.0 documentation</title>
+        <title>Bruker Control 1.6.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=197f00461d56902ea7ca048ec6e6ba026f62c97b" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=93475b62d1c3bc01323a0eefdc14a62d77b12690" />
@@ -121,7 +121,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="#"><div class="brand">Bruker Control 1.0.0 documentation</div></a>
+      <a href="#"><div class="brand">Bruker Control 1.6.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -144,7 +144,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="#">
   
   
-  <span class="sidebar-brand-text">Bruker Control 1.0.0 documentation</span>
+  <span class="sidebar-brand-text">Bruker Control 1.6.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -190,7 +190,8 @@ tested using one camera so far.</p>
 <span class="target" id="module-video_utils"></span><dl class="py exception">
 <dt class="sig sig-object py" id="video_utils.CameraNotFound">
 <em class="property"><span class="pre">exception</span> </em><span class="sig-prename descclassname"><span class="pre">video_utils.</span></span><span class="sig-name descname"><span class="pre">CameraNotFound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#video_utils.CameraNotFound" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Exception class for if Python cannot find a connected GENTL camera.</p>
+</dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="video_utils.calculate_frames">
 <span class="sig-prename descclassname"><span class="pre">video_utils.</span></span><span class="sig-name descname"><span class="pre">calculate_frames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_len_s</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#video_utils.calculate_frames" title="Permalink to this definition">¶</a></dt>
@@ -734,6 +735,67 @@ configuration .json file.</p>
 </dl>
 </dd></dl>
 <dl class="py function">
+<dt class="sig sig-object py" id="config_utils.get_project_metadata">
+<span class="sig-prename descclassname"><span class="pre">config_utils.</span></span><span class="sig-name descname"><span class="pre">get_project_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">team</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#config_utils.get_project_metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Grabs and parses project metadata yml file for NWB file generation.</p>
+<p>Each project has its own metadata associated with it that NWB uses in its
+standard.  This function grabs the proper file and builds a dictionary that
+is used when populating metadata later.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>team</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Team value from metadata_args[“team”]</p></li>
+<li><p><strong>subject_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Subject ID from metadata_args[“subject”]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>project_metadata</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="config_utils.get_subject_metadata">
+<span class="sig-prename descclassname"><span class="pre">config_utils.</span></span><span class="sig-name descname"><span class="pre">get_subject_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">team</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#config_utils.get_subject_metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses imaging subject’s .yml metadata file for NWB fields</p>
+<p>Locates and then uses ruamel.yaml to parse the metadata fields with safe
+loading. Gathers yaml data and places it into a dictionary for use later
+in the NWB file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>team</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Team value from metadata_args[“team”]</p></li>
+<li><p><strong>subject_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Subject ID from metadata_args[“subject”]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>subject_metadata</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="config_utils.get_surgery_metadata">
+<span class="sig-prename descclassname"><span class="pre">config_utils.</span></span><span class="sig-name descname"><span class="pre">get_surgery_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject_metadata</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#config_utils.get_surgery_metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Grabs surgery information from subject’s metadata file.</p>
+<p>Implant information and virus information for stimulation and recording
+is contained within the subject’s metadata file.  This information is used
+for filenaming purposes particularly in the Z-Stack files as well as the
+NWB files’ metadata sections.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>subject_metadata</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Metadata obtained from get_subject_metadata()</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>surgery_metadata</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
 <dt class="sig sig-object py" id="config_utils.get_template">
 <span class="sig-prename descclassname"><span class="pre">config_utils.</span></span><span class="sig-name descname"><span class="pre">get_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">team</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#config_utils.get_template" title="Permalink to this definition">¶</a></dt>
 <dd><p>Grab team’s template configuration file for experiment runtime.</p>
@@ -749,6 +811,29 @@ a session.</p>
 </dd>
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>template_config</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="config_utils.get_zstack_metadata">
+<span class="sig-prename descclassname"><span class="pre">config_utils.</span></span><span class="sig-name descname"><span class="pre">get_zstack_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#config_utils.get_zstack_metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Grabs metadata relevant for generating Z-stacks</p>
+<p>Parses template configuration supplied by the user and grabs only the
+metadata that is relevant for Prairie View executing a Z-stack.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config_template</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Configuration template value dictionary gathered from team’s
+configuration .json file.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>zstack_metadata</dt><dd><p>Dictionary of relevant Prairie View Z-Stack for experiment</p>
+</dd>
+</dl>
+</p>
 </dd>
 </dl>
 </dd></dl>
@@ -799,24 +884,89 @@ order.</p></li>
 <p>Module contains functions for interacting with Prairie View’s API to set data
 directories, filenames, and gathering imaging plane information.</p>
 <span class="target" id="module-prairieview_utils"></span><dl class="py function">
-<dt class="sig sig-object py" id="prairieview_utils.abort_recording">
-<span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">abort_recording</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.abort_recording" title="Permalink to this definition">¶</a></dt>
-<dd><p>Aborts T-Series Microscopy recording</p>
+<dt class="sig sig-object py" id="prairieview_utils.end_tseries">
+<span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">end_tseries</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.end_tseries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ends T-Series Microscopy recording</p>
 <p>Once the number of frames specified is collected, a signal to abort the
-microscopy session is sent to Prairie View.  Once aborted, Python will
-disconnect from Prairie View.  This function takes no arguments and returns
-nothing.</p>
+microscopy session is sent to Prairie View.  This function takes no
+arguments and returns nothing.</p>
 </dd></dl>
 <dl class="py function">
-<dt class="sig sig-object py" id="prairieview_utils.end_microscopy_session">
-<span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">end_microscopy_session</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.end_microscopy_session" title="Permalink to this definition">¶</a></dt>
-<dd><p>Aborts the microscopy session and disconnects from Prairie View.</p>
-<p>Used when the data for the given experiment has been collected and written
-to disk.  Invokes the abort command and disconnects from Prarie View with
-their API.  This function takes no arguments and returns nothing.</p>
+<dt class="sig sig-object py" id="prairieview_utils.get_imaging_indicators">
+<span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">get_imaging_indicators</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">surgery_metadata</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.get_imaging_indicators" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets imaging indicators from surgery metadata.</p>
+<p>Only a subset of metadata from the surgery information is requried for
+changing laser values and filenames. This builds a dictionary of those
+indicators and relevant values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>surgery_metdata</strong> – Surgical information for a given subject including virus data
+describing excitation and emission wavelengths.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>indicator_metadata</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="prairieview_utils.get_imaging_plane">
+<span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">get_imaging_plane</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.get_imaging_plane" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets current position of Z-axis motor from Prairie View</p>
+<p>Gathers what plane is being imaged for the microscopy session for use in
+file naming and Z-Stack movement.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></p>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>imaging_plane</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="prairieview_utils.prepare_tseries">
+<span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">prepare_tseries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_plane</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imaging_plane</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surgery_metadata</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.prepare_tseries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Readies the Bruker 2-Photon microscope for a T-Series experiment</p>
+<p>Sets directories and filenames for recording. Ensures that Resonant Galvo
+mode is selected. and initializes Bruker T-Series for imaging and Voltage
+Recording for behavior data. This function returns nothing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>project</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Name of project for recording</p></li>
+<li><p><strong>subject_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Name of the experimental subject</p></li>
+<li><p><strong>current_plane</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Current plane being imaged as in 1st, 2nd, 3rd, etc</p></li>
+<li><p><strong>imaging_plane</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Current Z-Motor position for given recording plane</p></li>
+<li><p><strong>surgery_metadata</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Surgical information for a given subject including virus data
+describing excitation and emission wavelengths.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="prairieview_utils.prepare_zseries">
+<span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">prepare_zseries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">team</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_plane</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imaging_plane</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indicator_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stack</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zstack_delta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zstack_step</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.prepare_zseries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Readies the Bruker 2-Photon microscope for a Z-Series</p>
+<p>Sets directories and filenames for Z-stack recording as well as defines
+the distance a z-stack should be taken as well as the step distance for the
+Piezo motor. Transitions Galvo mode to Galvo from Resonant Galvo.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>project</strong> – Name of project for recording</p></li>
+<li><p><strong>subject_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Name of the experimental subject</p></li>
+<li><p><strong>team</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The team performing the experiment</p></li>
+<li><p><strong>current_plane</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Current plane being imaged as in 1st, 2nd, 3rd, etc</p></li>
+<li><p><strong>imaging_plane</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Current Z-Motor position for given recording plane</p></li>
+<li><p><strong>indicator_name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Name of the fluorophore being imaged during the Z-series</p></li>
+<li><p><strong>stack</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The current stack number from the total number of stacks requested</p></li>
+<li><p><strong>zstack_delta</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Delta both above and below current imaging plane to collect per
+stack</p></li>
+<li><p><strong>zstack_step</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Step size to go between individual planes</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -835,60 +985,143 @@ API.  This function takes no arguments and returns nothing.</p>
 API.  This function takes no arguments and returns nothing.</p>
 </dd></dl>
 <dl class="py function">
-<dt class="sig sig-object py" id="prairieview_utils.set_filename">
-<span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">set_filename</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">team</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_plane</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.set_filename" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sets Microscopy and Behavior recording filenames and directories.</p>
-<p>Gathers what plane is being imaged for the session generates appropriately
-named imaging and behavior directories and filenames for data coming off
-the microscope.</p>
+<dt class="sig sig-object py" id="prairieview_utils.set_galvo_galvo">
+<span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">set_galvo_galvo</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.set_galvo_galvo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets Acquisition Mode to Galvo Galvo.</p>
+<p>Z-Series recordings are performed in Galvo Galvo mode. This ensures that
+the mode is switched before the recording starts.  Sleeps the program for
+1 second to make sure Prairie View has enough tim to switch.  This function
+takes no arguments and returns nothing</p>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="prairieview_utils.set_laser_gain">
+<span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">set_laser_gain</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.set_laser_gain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets PMT values for the laser before recording</p>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="prairieview_utils.set_laser_lambda">
+<span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">set_laser_lambda</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indicator_lambda</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.set_laser_lambda" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets laser lambda to appropriate wavelength for indicator.</p>
+<p>Each indicator has its own optimal excitation wavelength equal to two times
+the value found in the surgical metadata for the subject.  This update is
+performed in this function before setting the laser wavelength for the
+series of Z-stacks that are being collected.  Sleeps the program for 3
+seconds to ensure switch occurs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>indicator_lambda</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Excitation wavelength for the indicator being imaged</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="prairieview_utils.set_resonant_galvo">
+<span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">set_resonant_galvo</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.set_resonant_galvo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets acquisition mode to Resonant Galvo.</p>
+<p>Not having resonant galvo mode engaged during T-Series recordings gathers
+insufficient data and does not trigger the facial recording camera
+correctly.  This ensures that it is enabled before the recording starts.
+Sleeps the program for 1 second to make sure Prairie View has enough time
+to switch.  This function takes no arguments and returns nothing.</p>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="prairieview_utils.set_tseries_filename">
+<span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">set_tseries_filename</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">team</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_plane</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imaging_plane</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.set_tseries_filename" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets T-Series and Behavior recording filenames and directories.</p>
+<p>Generates appropriately named imaging and behavior directories and
+filenames for data coming off the microscope.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>team</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The team performing the experiment</p></li>
 <li><p><strong>subject_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The subject being recorded</p></li>
 <li><p><strong>current_plane</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The plane being imaged as in 1st, 2nd, 3rd, etc</p></li>
+<li><p><strong>imaging_plane</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Current Z-Motor position for given recording plane</p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>imaging_plane</p>
 </dd>
 </dl>
 </dd></dl>
 <dl class="py function">
-<dt class="sig sig-object py" id="prairieview_utils.start_microscopy_session">
-<span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">start_microscopy_session</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_plane</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.start_microscopy_session" title="Permalink to this definition">¶</a></dt>
-<dd><p>Readies the Bruker 2-Photon microscope for an experiment</p>
-<p>Sets directories, filenames, and initializes Bruker T-Series for imaging
-and Voltage Recording for behavior data. Returns the current imaging_plane
-as found in Prairie View.</p>
+<dt class="sig sig-object py" id="prairieview_utils.set_tseries_parameters">
+<span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">set_tseries_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">surgery_metadata</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.set_tseries_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Changes laser lambda to correct wavelength for t-series.</p>
+<p>The laser may or may not be set to use the appropriate wavelength for
+imaging.  This ensures that the laser is set to the correct wavelength
+for the functional indicator specified in the surgical metadata.</p>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="prairieview_utils.set_zseries_filename">
+<span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">set_zseries_filename</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">team</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_plane</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imaging_plane</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indicator_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stack</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.set_zseries_filename" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets Z-Series filename and directory.</p>
+<p>Generates appropriately named Z-Series filenames for data coming off the
+microscope.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>team</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The team performing the experiment</p></li>
+<li><p><strong>subject_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The subject being recorded</p></li>
+<li><p><strong>current_plane</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Current plane being imaged as in 1st, 2nd, 3rd, etc</p></li>
+<li><p><strong>imaging_plane</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Current Z-Motor position for given recording plane</p></li>
+<li><p><strong>indicator_name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Name of the fluorophore being imaged during the Z-series</p></li>
+<li><p><strong>stack</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The stack being imaged as in 1st, 2nd, 3rd, etc</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="prairieview_utils.set_zseries_parameters">
+<span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">set_zseries_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">imaging_plane</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zstack_delta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zstack_step</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.set_zseries_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set Z-Series depth and step sizes.</p>
+<p>Sets Prairie View’s Z-Series parameters for the depth of the stack as well
+as the step size between imaging planes</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>imaging_plane</strong> – Current Z-Motor position for given recording plane</p></li>
+<li><p><strong>zstack_delta</strong> – Z-Stack distance to move above and below imaging_plane</p></li>
+<li><p><strong>zstack_step</strong> – Step size to go between individual planes</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="prairieview_utils.tseries">
+<span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">tseries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_plane</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imaging_plane</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surgery_metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.tseries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Starts Prairie View 2-P T-Series Experiment</p>
+<p>Function unites t-series preparation function with starting the recording
+with an input trigger. Starting with an input trigger is done within
+the Prairie View GUI.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>project</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Name of project for recording</p></li>
 <li><p><strong>subject_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Name of the experimental subject</p></li>
 <li><p><strong>current_plane</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Current plane being imaged as in 1st, 2nd, 3rd, etc</p></li>
+<li><p><strong>imaging_plane</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Current Z-Motor position for given recording plane</p></li>
+<li><p><strong>surgery_metadata</strong> – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>imaging_plane</p>
 </dd>
 </dl>
 </dd></dl>
 <dl class="py function">
-<dt class="sig sig-object py" id="prairieview_utils.start_tseries">
-<span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">start_tseries</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.start_tseries" title="Permalink to this definition">¶</a></dt>
-<dd><p>Starts Prairie View T-Series 2P Recording</p>
-<p>Connects to Prairie View and starts the T-Series which will wait for an
-input trigger.  Waiting for an input trigger is done within Prairie View’s
-GUI.  It also ensures that the microscope’s setting is put to Resonant
-Galvo in case the user forgot.  This argument takes no arguments and
-returns nothing.</p>
+<dt class="sig sig-object py" id="prairieview_utils.zstack">
+<span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">zstack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">zstack_metadata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">team</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_plane</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imaging_plane</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surgery_metadata</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.zstack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Starts Prairie View Z-Series 2P Recording</p>
+<p>Starts Z-stack recording at the start of a given session for a subject and
+moves through configuration specific planes with configuration specific
+step sizes.  Writes out the raw stack to team’s microscopy folder.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>zstack_metadata</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Information about depth for Z-Stack and step distance</p></li>
+<li><p><strong>team</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The team performing the experiment</p></li>
+<li><p><strong>subject_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Name of the experimental subject</p></li>
+<li><p><strong>current_plane</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Current plane being imaged as in 1st, 2nd, 3rd, etc</p></li>
+<li><p><strong>imaging_plane</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Current Z-Motor position for given recording plane</p></li>
+<li><p><strong>surgery_metdata</strong> – Surgical information for a given subject including virus data
+describing excitation and emission wavelengths.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 </section>
 <section id="serialtransfer-utils-py">
@@ -1026,7 +1259,7 @@ experiment will start!</p>
 Borders file for a given subject to their correct data directory.</p>
 <span class="target" id="module-nwb_utils"></span><dl class="py function">
 <dt class="sig sig-object py" id="nwb_utils.append_imaging_info">
-<span class="sig-prename descclassname"><span class="pre">nwb_utils.</span></span><span class="sig-name descname"><span class="pre">append_imaging_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nwbfile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project_metadata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bruker_metadata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imaging_plane</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nwb_utils.append_imaging_info" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">nwb_utils.</span></span><span class="sig-name descname"><span class="pre">append_imaging_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nwbfile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project_metadata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bruker_metadata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imaging_plane</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surgery_metadata</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nwb_utils.append_imaging_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Appends relevant 2P imaging metadata to a base NWB file.</p>
 <p>Creates NWB devices for laser and microscope, optical channel for imaged
 and populates them with appropriate metadata.</p>
@@ -1037,6 +1270,8 @@ and populates them with appropriate metadata.</p>
 <li><p><strong>project_metadata</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Metadata for given project from project’s yml file</p></li>
 <li><p><strong>bruker_metadata</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Metadata for microscopy session from Prairie View .env file</p></li>
 <li><p><strong>imaging_plane</strong> – Plane 2P images were acquired at, the Z-axis value</p></li>
+<li><p><strong>surgery_metadata</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Surgical information about the subject being imaged including the
+types of indicators used and positions of those injections/implants.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
@@ -1075,7 +1310,7 @@ subject metadata dictionary.</p>
 </dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="nwb_utils.build_nwb_file">
-<span class="sig-prename descclassname"><span class="pre">nwb_utils.</span></span><span class="sig-name descname"><span class="pre">build_nwb_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experimenter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">team</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imaging_plane</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nwb_utils.build_nwb_file" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">nwb_utils.</span></span><span class="sig-name descname"><span class="pre">build_nwb_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experimenter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">team</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imaging_plane</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject_metadata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project_metadata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surgery_metadata</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nwb_utils.build_nwb_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Builds base NWB file with relevant metadata for session.</p>
 <p>Generates an NWB file and writes it to the project’s directory according
 to animal’s place along the study (ie baseline).  Unites different
@@ -1087,6 +1322,8 @@ functions together when buliding the NWB file.</p>
 <li><p><strong>team</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Team value from metadata_args[“team”]</p></li>
 <li><p><strong>subject_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Subject ID from metadata_args[“subject”]</p></li>
 <li><p><strong>imaging_plane</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Plane 2P images were acquired at, the Z-axis value</p></li>
+<li><p><strong>surgery_metadata</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Surgical information about the subject being imaged including the
+types of indicators used and positions of those injections/implants.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1181,10 +1418,10 @@ the information into NWB metadata.</p>
 <li><p><strong>imaging_plane</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Plane 2P images were acquired at, the Z-axis value</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>bruker_metadata</p>
 </dd>
 </dl>
@@ -1228,25 +1465,6 @@ the information into NWB metadata.</p>
 </dl>
 </dd></dl>
 <dl class="py function">
-<dt class="sig sig-object py" id="nwb_utils.get_project_metadata">
-<span class="sig-prename descclassname"><span class="pre">nwb_utils.</span></span><span class="sig-name descname"><span class="pre">get_project_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">team</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nwb_utils.get_project_metadata" title="Permalink to this definition">¶</a></dt>
-<dd><p>Grabs and parses project metadata yml file for NWB file generation.</p>
-<p>Each project has its own metadata associated with it that NWB uses in its
-standard.  This function grabs the proper file and builds a dictionary that
-is used when populating metadata later.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>team</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Team value from metadata_args[“team”]</p></li>
-<li><p><strong>subject_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Subject ID from metadata_args[“subject”]</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>project_metadata</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py function">
 <dt class="sig sig-object py" id="nwb_utils.get_pv_states">
 <span class="sig-prename descclassname"><span class="pre">nwb_utils.</span></span><span class="sig-name descname"><span class="pre">get_pv_states</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pv_idx_keys</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pv_noidx_keys</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_root</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nwb_utils.get_pv_states" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse Bruker .env file for NWB standard metadata.</p>
@@ -1265,28 +1483,6 @@ standard.  Parses file for both indexed and non-indexed values.</p>
 </dd>
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>bruker_metadata</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py function">
-<dt class="sig sig-object py" id="nwb_utils.get_subject_metadata">
-<span class="sig-prename descclassname"><span class="pre">nwb_utils.</span></span><span class="sig-name descname"><span class="pre">get_subject_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">team</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nwb_utils.get_subject_metadata" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parses imaging subject’s .yml metadata file for NWB fields</p>
-<p>Locates and then uses ruamel.yaml to parse the metadata fields with safe
-loading. Gathers yaml data and places it into a dictionary for use later
-in the NWB file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>team</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Team value from metadata_args[“team”]</p></li>
-<li><p><strong>subject_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Subject ID from metadata_args[“subject”]</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>subject_metadata</p>
 </dd>
 </dl>
 </dd></dl>
