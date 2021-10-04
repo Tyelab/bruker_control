@@ -1,5 +1,5 @@
-{"metadata": {
- "totalNumberOfTrials": 20,
+{"beh_metadata": {
+ "totalNumberOfTrials": 10,
  "startingReward": 3,
  "maxSequentialReward": null,
  "maxSequentialPunish": 3,
@@ -10,21 +10,27 @@
  "USConsumptionTime_Sucrose": 100,
  "vacuum" : true,
  "ITIJitter": true,
- "baseITI": 25,
- "minITI": 20,
- "maxITI": 30,
+ "baseITI": 5,
+ "minITI": 5,
+ "maxITI": 5,
  "toneJitter": false,
- "baseTone": 5,
+ "baseTone": 1,
  "minTone": null,
  "maxTone": null,
  "catchTrials": true,
  "numCatchReward": 0,
- "numCatchPunish": 3,
+ "numCatchPunish": 0,
  "catchOffset" : 0.25,
- "percentPunish": 0.25
- },
+ "percentPunish": 0.25,
  "trialArray": {},
  "ITIArray": {},
  "toneArray": {},
  "dropped_frames": {}
+ },
+ "zstack_metadata": {
+   "zstack": true,
+   "stack_number": 2,
+   "zdelta": 10.0,
+   "zstep": 1.0
+ }
 }
