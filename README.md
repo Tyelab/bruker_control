@@ -1,3 +1,5 @@
+[![Documentation Status](https://readthedocs.org/projects/bruker-control/badge/?version=latest)](https://bruker-control.readthedocs.io/en/latest/?badge=latest)
+
 # headfix_control
 
 Repository for Arduino code controlled by MATLAB and/or Python used to control behavior experiments in the Headfix room and 2P Room.
