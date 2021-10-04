@@ -296,9 +296,14 @@ def capture_recording(num_frames: int, current_plane: int, imaging_plane: str,
     video_dir = basepath + team + "/video/"
 
     # Set session name by joining variables with underscores
-    session_name = "_".join([session_date, subject_id,
-                             "plane{}".format(current_plane),
-                             imaging_plane])
+    session_name = "_".join(
+        [
+            session_date,
+            subject_id,
+            "plane{}".format(current_plane),
+            imaging_plane
+        ]
+        )
 
     # Assign video name as the config_filename for readability
     video_name = session_name + ".avi"
@@ -313,8 +318,13 @@ def capture_recording(num_frames: int, current_plane: int, imaging_plane: str,
     h, camera, width, height = init_camera_recording()
 
     # Create VideoWriter object: file, codec, framerate, dims, color value
-    out = cv2.VideoWriter(video_fullpath, fourcc, 30, (width, height),
-                          isColor=False)
+    out = cv2.VideoWriter(
+        video_fullpath,
+        fourcc,
+        30,
+        (width, height),
+        isColor=False
+        )
 
     dropped_frames = []
 
