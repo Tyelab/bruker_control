@@ -4,10 +4,6 @@
 # used in the NWB support for bruker_control.
 # Jeremy Delahanty August 2021
 
-# You can have any subject ID you would like.  An example is provided for
-# team specialk's naming convention which is the project name, experimental
-# condition, and three digit number. This is an alias for the animal's ID as
-# defined by its eartag. The ID here means: Learned Helplessness Control 001
 subject_id: "LHC001"
 # Date of birth is a string of the day subject was born in YYYYMMDD format
 date_of_birth: "20210516"
@@ -20,6 +16,138 @@ sex: "F"
 # Species name is its latin description per pyNWB docs
 species: "Mus Musculus"
 strain: "C57BL/6J"
+
+# Subject IDs MUST be the codes written on Eartags.  They are encoded as
+# strings due to there being letters in transgenic mice.
+subject_id: "4876"
+# You can have any subject alias you would like.  An example is provided for
+# team specialk's naming convention which is the project name, experimental
+# condition, and three digit number. This is an alias for the animal's ID. 
+# The alias here means: Learned Helplessness Control 001
+subject_alias: "LHC000"
+# If there is an eartag, which ear is it on?
+ear_tag:
+  l_ear: null
+  r_ear: true
+# If there are any ear notches, which ears and how many were done?
+ear_notch:
+  l_ear: null
+  r_ear: null
+# Cage IDs MUST be the barcode for the cage
+cage_id: 0003182
+# Cage Alias is whatever the experimenter likes to refer the cage as
+cage_alias: "LH Cage 1"
+# Date of birth in YYYMMDD format
+dob: "20210420"
+# Descriptions
+description: "Learned Helplessness, Control Mouse 000"
+genotype: "wt"
+sex: "M"
+species: "Mus Musculus"
+strain: "C57BL/6J"
+# Surgeries are organized by date
+surgery:
+  "20210916":
+    surgeon: "Jeremy Delahanty"
+    start_time: "10:00"
+    end_time: "11:00"
+    stereotax: "Delta"
+    anesthetic: "Isoflurane"
+    skull_position:
+      bregma: 100.0
+      lambda: 100.0
+      level_left: 120.0
+      level_right: 120.0
+    headplate:
+      num_screws: 1
+      skull_hashing: True
+    grin_implant:
+      target: "mPFC"
+      hemisphere: "hemisphere"
+      type: "Proview"
+      # In mm, width by height
+      dims: [1, 4]
+      supplier: "Inscopix"
+      ap: 100.0
+      ml: 100.0
+      dv: 100.0
+      angle: null
+      notes: "None"
+    brain_injections:
+      gcamp:
+        target: "mPFC"
+        hemisphere: "R"
+        virus: "AAV8"
+        promoter: "promoter"
+        opsin: null
+        fluorophore: "jGCaMP7f"
+        fluorophore_excitation_lambda: 496.0
+        fluorophore_emission_lambda: 513.0
+        supplier: "The Salk Institute for Biological Studies"
+        description: "Calcium Sensitive Green Fluorescent Indicator"
+        lot: null
+        ap: 100.0
+        ml: 100.0
+        dv: 100.0
+        angle: null
+        # Volume in nL
+        volume: 200
+        # Rate in nL/min
+        rate: 100.0
+        # Bevel Direction
+        bevel: "forward"
+      chr:
+        target: "VTA"
+        hemisphere: "hemisphere"
+        virus: "AAV8"
+        promoter: "hSyn"
+        cre: "FLEX"
+        flp: null
+        opsin: "ChrimsonR"
+        opsin_excitation_lambda: 100.0
+        fluorophore: "tdTomato"
+        fluorophore_excitation_lambda: 550.0
+        fluorophore_emission_lambda: 550.0
+        supplier: "Supplier"
+        description: "description"
+        lot: null
+        ap: 100.0
+        ml: 100.0
+        dv: 100.0
+        angle: null
+        # Volume in nL
+        volume: 100.0
+        # Rate in nL/min
+        rate: 100.0
+        # Bevel Direction
+        bevel: "forward"
+    analgesics:
+      buprinex:
+        route: "IP"
+        location: "abdomen"
+        # Dosages are in mg/kg
+        dose: 1.0
+        # Volumes here in mL
+        volume: 2.0
+      lidocaine:
+        route: "SQ"
+        location: "scalp"
+        dose: null
+        volume: 0.5
+    antiseptics:
+      loxicam:
+        route: "IP"
+        location: "abdomen"
+        # Dosages are in mg/kg
+        dose: 5.0
+        volume: 0.5
+    fluids:
+      ringers:
+        route: "IP"
+        location: "abdomen"
+        percent: 20.0
+        volume: 1.0
+
 # Weights are stored on a date by date basis in kg per pyNWB Docs
 # Animal's weight must be obtained and appended here before running
 # bruker_control if you want to use the NWB functionality. pyNWB requests
@@ -28,3 +156,12 @@ strain: "C57BL/6J"
 # in the case of stress intensive projects.
 weights:
   "20210830": 0.02
+  "20210902": 0.02
+  "20210903": 0.02
+  "20210927": 0.02
+  "20211002": 0.02
+
+status:
+  alive: true
+  time_of_death: null
+  death_notes: null
