@@ -8,4 +8,4 @@ numpy==1.20.2
 tqdm
 pynwb
 opencv-python
-pywin32=228=py37hbaba5e8_1
+pywin32==228=py37hbaba5e8_1
