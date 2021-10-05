@@ -105,7 +105,7 @@ def run_imaging_experiment(metadata_args):
 
         # Start preview of animal's face.  Zero microscope over lens here.
         video_utils.capture_preview()
-    
+
         imaging_plane = prairieview_utils.get_imaging_plane()
 
         if zstack_metadata["zstack"]:
@@ -126,13 +126,6 @@ def run_imaging_experiment(metadata_args):
             imaging_plane,
             surgery_metadata
        )
-    
-        # Once the preview is escaped, start the microscopy session.
-        imaging_plane = prairieview_utils.start_microscopy_session(
-            team,
-            subject_id,
-            current_plane
-            )
 
         # Now that the Bruker scope is ready and waiting, send the data to
         # the Arduino through pySerialTransfer
