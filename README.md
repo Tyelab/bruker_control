@@ -2,7 +2,7 @@
 
 # headfix_control
 
-Repository for Arduino code controlled by MATLAB and/or Python used to control behavior experiments in the Headfix room and 2P Room.
+Repository for MATLAB/Python code running behavior experiments in the Headfix and 2P rooms.
 
 Currently, the code is functional for the Bruker 2P microscope. Training code is not currently present on the repo. MATLAB's scanbox is not present on the repo.
 
