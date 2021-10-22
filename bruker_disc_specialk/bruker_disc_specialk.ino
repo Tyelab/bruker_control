@@ -42,6 +42,7 @@ struct __attribute__((__packed__)) metadata_struct {
   uint8_t USDeliveryTime_Sucrose;           // amount of time to open sucrose solenoid
   uint8_t USDeliveryTime_Air;               // amount of time to open air solenoid
   uint16_t USConsumptionTime_Sucrose;       // amount of time to wait for sucrose consumption
+  uint8_t totalLEDTrials;                   // total number of LED Stimulaiton trials
 } metadata;
 
 //// EXPERIMENT ARRAYS ////
@@ -53,6 +54,8 @@ int32_t trialArray[MAX_NUM_TRIALS];
 int32_t ITIArray[MAX_NUM_TRIALS];
 // The amount of time a tone is played is transmitted from Python to the Arudino
 int32_t toneArray[MAX_NUM_TRIALS];
+// The timepoints for stimulating the subject via LED are transmitted from Python to Arduino
+int32_t stimArray[MAX_NUM_TRIALS];
 
 //// PYTHON TRANSMISSION STATUS ////
 // Additional control is required for running the experiment correctly.
@@ -66,6 +69,7 @@ int transmissionStatus = 0;
 // trial variables are encoded as 0 and 1
 // 0 is negative stimulus [air], 1 is  positive stimulus [sucrose]
 // 2 is negative catch [air catch], 3 is positive catch [sucrose catch]
+// 4 is negative LED stim, 5 is positive LED stim, 6 is stim only
 // Initialize the trial type as an integer
 int trialType;
 // Initialize the current trial number as -1 before experiment begins
@@ -74,12 +78,13 @@ int trialType;
 int currentTrial = -1;
 
 //// FLAG ASSIGNMENT ////
-// Flags can be categorized by purpose:
+// Flags are categorized by purpose:
 // Serial Transfer Flags
 boolean acquireMetaData = true;
 boolean acquireTrials = false;
 boolean acquireITI = false;
 boolean acquireTone = false;
+boolean acquireLED = false;
 boolean rx = true;
 boolean pythonGoSignal = false;
 boolean arduinoGoSignal = false;
@@ -88,15 +93,16 @@ boolean cameraDelay = false;
 boolean brukerTrigger = false;
 boolean newTrial = false;
 boolean ITI = false;
-boolean giveStim = false;
+boolean giveStim = false;             // Stim here means airpuff or sucrose, not LED stim
 boolean giveCatch = false;
+boolean giveLED = false;              // Flag for when to send an LED trigger to Prairie View
 boolean newUSDelivery = false;
 boolean newUSDeliveryCatch = false;
 boolean solenoidOn = false;
 boolean vacOn = false;
 boolean consume = false;
 boolean cleanIt = false;
-boolean noise = false; // can't use tone as it's protected in Arduino
+boolean noise = false;                // Can't use tone as it's protected in Arduino
 boolean toneDAQ = false;
 
 //// TIMING VARIABLES ////
@@ -104,6 +110,7 @@ boolean toneDAQ = false;
 long ms; // milliseconds
 // Each experimental condition has a time parameter
 long ITIend;
+long LEDStim;
 long rewardDelayMS;
 long sucroseDelayMS;
 long USDeliveryMS_Sucrose;
@@ -141,6 +148,7 @@ const int vacPin = 24;                        // solenoid for vacuum control
 const int solPin_liquid = 26;                 // solenoid for liquid control: sucrose, water, EtOH
 const int speakerPin = 12;                    // speaker control pin
 const int bruker2PTriggerPin = 11;            // trigger to start Bruker 2P Recording on Prairie View
+const int brukerLEDTriggerPin = 10;           // trigger to initiate an LED Pulse on Prairie View
 
 //// PIN ASSIGNMENT: RESET /////
 const int resetPin = 0;                       // Pin driven LOW for resetting the Arduino through software.
@@ -249,6 +257,33 @@ int tone_rx() {
         transmissionStatus++;
         transmissionStatus++;
       }
+      acquireLED = true;
+    }
+  }
+}
+
+/**
+ * Receives, parses, and sends back array of Stim Durations to be performed
+ * for a given experiment. Increments by transmission status by 1 if
+ * totalNumberOfTrials is greater than 60, by 2 if less than 60.
+ */
+int led_rx() {
+  if (acquireLED && transmissionStatus >= 7 && transmissionStatus < 9) {
+    acquireLED = false;
+    if (myTransfer.available())
+    {
+      myTransfer.rxObj(stimArray);
+      Serial.println("Received LED Stim Array");
+
+      myTransfer.sendDatum(stimArray);
+      Serial.println("Sent LED Stim Array");
+      if (metadata.totalNumberOfTrials > 60) {
+        transmissionStatus++;
+      }
+      else {
+        transmissionStatus++;
+        transmissionStatus++;
+      }
       pythonGoSignal = true;
     }
   }
@@ -269,6 +304,7 @@ void rx_function() {
     trials_rx();
     iti_rx();
     tone_rx();
+    led_rx();
   }
 }
 
@@ -279,7 +315,7 @@ void rx_function() {
    Genie Nano so it can start up.
 */
 int pythonGo_rx() {
-  if (pythonGoSignal && transmissionStatus == 7) {
+  if (pythonGoSignal && transmissionStatus == 9) {
     if (myTransfer.available())
     {
       myTransfer.rxObj(pythonGo);
@@ -346,6 +382,7 @@ void reset_board() {
   acquireTrials = false;
   acquireITI = false;
   acquireTone = false;
+  acquireLED = false;
   rx = true;
   pythonGoSignal = false;
   arduinoGoSignal = false;
@@ -355,6 +392,8 @@ void reset_board() {
   ITI = false;
   giveStim = false;
   giveCatch = false;
+  giveLED = false;
+  giveOnlyLED = false;
   newUSDelivery = false;
   newUSDeliveryCatch = false;
   solenoidOn = false;
@@ -399,18 +438,22 @@ void lickDetect() {
 void startITI(long ms) {
   if (newTrial) {                                 // start new ITI
     Serial.print("Starting New Trial: ");
-    Serial.println(currentTrial + 1);
+    Serial.println(currentTrial + 1);             // add 1 to current trial so user sees non zero-indexed value
     trialType = trialArray[currentTrial];         // gather trial type
     newTrial = false;
     ITI = true;
     int thisITI = ITIArray[currentTrial];         // get ITI for this trial
     ITIend = ms + thisITI;
   }
+  
   else if (ITI && (ms >= ITIend)) {             // ITI is over, start playing the tone
     ITI = false;
     noise = true;
   }
 }
+
+// LED Stimulation Functions
+
 
 // Tone Functions
 /**
@@ -423,7 +466,6 @@ void startITI(long ms) {
 */
 void tonePlayer(long ms) {
   if (noise) {
-    Serial.println("Playing Tone");
     int thisNoiseDuration = toneArray[currentTrial];
     noise = false;
     toneDAQ = true;
@@ -431,24 +473,45 @@ void tonePlayer(long ms) {
     digitalWriteFast(speakerDeliveryPin, HIGH);
     switch (trialType) {
       case 0:
+        Serial.println("Playing Tone");
         Serial.println("Air");
         tone(speakerPin, metadata.punishTone, thisNoiseDuration);
         giveStim = true;
         break;
       case 1:
+        Serial.println("Playing Tone");
         Serial.println("Sucrose");
         tone(speakerPin, metadata.rewardTone, thisNoiseDuration);
         giveStim = true;
         break;
       case 2:
+        Serial.println("Playing Tone");
         Serial.println("Air Catch");
         tone(speakerPin, metadata.punishTone, thisNoiseDuration);
         giveCatch = true;
         break;
       case 3:
+        Serial.println("Playing Tone");
         Serial.println("Sucrose Catch");
         tone(speakerPin, metadata.rewardTone, thisNoiseDuration);
         giveCatch = true;
+        break;
+      case 4:
+        Serial.println("Playing Tone");
+        Serial.println("Air LED");
+        tone(speakerPin, metadata.punishTone, thisNoiseDuration);
+        giveStim = true;
+        break;
+      case 5:
+        Serial.println("Playing Tone");
+        Serial.println("Sucrose LED");
+        tone(speakerPin, metadata.rewardTone, thisNoiseDuration);
+        giveStim = true;
+        break;
+      case 6:
+        Serial.println("No Tone");
+        Serial.println("LED Stimulation Only");
+        onlyLED = true;
         break;
     }
   }
@@ -487,7 +550,16 @@ void presentStimulus(long ms) {
         newUSDelivery = true;
         break;
       }
-  }
+    case 5:
+      if (giveStim && (ms >= toneListeningMS - metadata.USDeliveryTime_Air)) {
+        newUSDelivery = true;
+        break;
+      }
+    case 6:
+      if (giveStim && (ms >= toneListeningMS - metadata.USDeliveryTim_Sucrose)) {
+        newUSDelivery = true;
+        break;
+      }
 }
 
 /**
@@ -595,6 +667,20 @@ void offSolenoid(long ms) {
         newTrial = true;
         currentTrial++;
         break;
+      case 4:
+        Serial.println("Air Solenoid Off (LED)");
+        solenoidOn = false;
+        digitalWriteFast(solPin_air, LOW);
+        newTrial = true;
+        currentTrial++;
+        break;
+      case 5:
+        Serial.println("Sucrose Solenoid Off (LED)");
+        solenoidOn = false;
+        digitalWriteFast(solPin_liquid, LOW);
+        newTrial = true;
+        currentTrial ==;
+        break;
     }
   }
 }
@@ -633,6 +719,7 @@ void vacuum(long ms) {
   }
 }
 
+
 void setup() {
   // Define Bitrate for SerialTransfer. Using 115200 is faster/more efficient means of comms.
   Serial.begin(115200);
@@ -653,6 +740,7 @@ void setup() {
   pinMode(speakerDeliveryPin, OUTPUT);
   pinMode(lickDetectPin, OUTPUT);
   pinMode(bruker2PTriggerPin, OUTPUT);
+  pinMode(brukerLEDTriggerPin, OUTPUT);
   pinMode(resetPin, OUTPUT);
 
   // -- INITIALIZE TOUCH SENSOR -- //

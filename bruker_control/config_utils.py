@@ -23,25 +23,20 @@ from ruamel.yaml import YAML
 # Template configuration directories are within project directories.  The snlkt
 # server housing these directories is mounted to the X: volume on the machine
 # BRUKER.
-# TODO: This obviously should be the same thing
-base_template_config_dir = Path("X:/")
-server_basepath = "X:/"
+server_basepath = Path("X:/")
 
 # Experimental configuration directories are in the Raw Data volume on the
 # machine BRUKER which is mounted to E:. This is where configs will be written
 config_basepath = "E:/teams/"
-
-# Configuration files generated for a team's session are placed in their team's
-# directory on drive E:
 
 ###############################################################################
 # Exceptions
 ###############################################################################
 
 
-class ConfigDirEmpty(Exception):
+class ProjectNWBConfigMissing(Exception):
     """
-    Exception for when the team's template configuration folder is empty.
+    Exception for when the team's project configuration is missing.
     """
     def __init__(self, *args):
         if args:
@@ -51,74 +46,190 @@ class ConfigDirEmpty(Exception):
 
     def __str__(self):
         if self.message:
-            return "ConfigDirEmpty: " + "{0}".format(self.message)
+            return "ProjectNWBConfigMissing: " + "{0}".format(self.message)
         else:
-            return "Config dir empty! Check your 2p_template_configs folder."
+            return "Project NWB Configuration Missing! Check your 2p_template_configs/project folder."
+
+class ProjectNWBConfigMultiple(Exception):
+    """
+    Exception for when the team's project configuration directory contains multiple NWB config files.
+    """
+    def __init__(self, *args):
+        if args:
+            self.message = args[0]
+        else:
+            self.message = None
+    
+    def __str__(self):
+        if self.message:
+            return "ProjectNWBConfigMultiple: " + "{0}".format(self.message)
+        else:
+            return "Project has multiple NWB Configuration files! Check your 2p_template_configs/project folder."
+
+class ProjectTemplateMissing(Exception):
+    """
+    Exception for when the team's behavioral template is missing.
+    """
+    def __init__(self, *args):
+        if args:
+            self.message = args[0]
+        else:
+            self.message = None
+    
+    def __str__(self):
+        if self.message:
+            return "ProjectTemplateMissing: " + "{0}".format(self.message)
+        else:
+            return "Project Template is missing! Check your 2p_template_configs/project folder."
+
+class ProjectTemplateMultiple(Exception):
+    """
+    Exception for when a team's project configuration directory contains multiple templates.
+    """
+    def __init__(self, *args):
+        if args:
+            self.message = args[0]
+        else:
+            self.message = None
+    
+    def __str__(self):
+        if self.message:
+            return "ProjectTemplateMultiple: " + "{0}".format(self.message)
+        else:
+            return "Project has multiple template files! Check your 2p_template_configs/project folder."
+
+class SubjectMultiple(Exception):
+    """
+    Exception for when a team's project's subject_metadata folder contains multiple copies of a subject's file.
+    """
+    def __init__(self, *args):
+        if args:
+            self.message = args[0]
+        else:
+            self.message = None
+    
+    def __str__(self):
+        if self.message:
+            return "SubjectMultiple: " + "{0}".format(self.message)
+        else:
+            return "Multiple copies of the subject's metadata file! Check your project/animal_metadata folder"
+
+class SubjectMissing(Exception):
+    """
+    Exception for when a team's project's subject_metadata folder does not contain a subject's file.
+    """
+    def __init__(self, *args):
+        if args:
+            self.message = args[0]
+        else:
+            self.message = None
+    
+    def __str__(self):
+        if self.message:
+            return "SubjectMissing: " + "{0}".format(self.message)
+        else:
+            return "The subject's metadata file is missing! Check your project/animal_metadata folder"
+
+###############################################################################
+# Metadata Classes: In development
+###############################################################################
+
+class ConfigTemplate:
+    """
+    Class containing configuration values from project's .JSON file.
+    """
+
+class StimMetadata(ConfigTemplate):
+    """
+    Metadata class describing information related to stimulation parameters
+    """
+
+class SubjectMetadata(ConfigTemplate):
+    """
+    Metadata class describing information related to the subject being imaged
+    """
+
+class SurgeryMetadata(ConfigTemplate):
+    """
+    Metadata class describing information related to subject's surgeries
+    """
+class ZStackMetadata(ConfigTemplate):
+    """
+    Metadata class describing information related to the Z-stack functionality
+    """
 
 ###############################################################################
 # Functions
 ###############################################################################
 
 
-def get_template(team: str) -> dict:
+def get_template(team: str, project: str) -> dict:
     """
     Grab team's template configuration file for experiment runtime.
 
-    Uses the metadata_args value "team" found in bruker_control to select the
-    specific 2-Photon configuration file that will run the experiment for
-    a session.
+    Uses the metadata_args values "team" and "project" found in bruker_control to select the
+    specific 2-Photon configuration file that will run the experiment for a session.
 
     Args:
         team:
             Team from metadata_args["team"]
+        project:
+            Project from metadata_args["project"]
 
     Returns:
         template_config
     """
 
-    # Append base directory with selected team
-    template_dir = base_template_config_dir / team / "2p_template_configs"
+    # Append base directory with selected team and project
+    template_dir = server_basepath / team / "2p_template_configs" / project
 
-    # Until consistent conventions for studies are established, automatically
-    # populating different files for a given team's studies is not practical.
-    # Therefore, teams must be restricted to a single configuration file.
+    # Glob the configuration directory for the .json file and convert it to a list
+    template_config_path = list(template_dir.glob("*.json"))
+    
+    # If the length of the list for the template file is great than 1,
+    # something is wrong. Raise an exception.
+    if len(template_config_path) > 1:
+        raise ProjectTemplateMultiple()
 
-    # Glob the configuration directory for the .json file, convert it to a list
-    # and grab the file itself
-    try:
-        template_file_path = list(template_dir.glob("*.json"))[0]
-        # Grab template configuration values with read_config
-        config_template = read_config(template_file_path)
+    # Otherwise, try to load the one present file. If it's not there,
+    # an index error occurs and an exception is raised.
+    else:
+        try:
+            template_config = template_config_path[0]
+            config_template = read_config(template_config)
 
-    except IndexError:
-        raise ConfigDirEmpty()
+
+        except IndexError:
+            raise ProjectTemplateMissing()
 
     return config_template
 
 
-def read_config(config_file_path: Path) -> dict:
+def read_config(template_config_path: Path) -> dict:
     """
-    Utility function for reading config files
+    Utility function for reading template config files
 
     General purpose function for reading .json files containing configuration
-    values for an experiment
+    values for an experiment.
 
     Args:
-        config_file_path:
-            Pathlib path to the configuration file.
+        template_config_path:
+            Pathlib path to the template configuration file.
 
     Returns:
         Dictionary of contents inside the configuration .json file
     """
 
-    with open(config_file_path, 'r') as inFile:
+    with open(template_config_path, 'r') as inFile:
 
         contents = inFile.read()
 
         # Use json.loads to gather metadata and save them in an
         # ordered dictionary
-        config_values = json.loads(contents,
-                                   object_pairs_hook=OrderedDict)
+        config_values = json.loads(
+            contents,
+            object_pairs_hook=OrderedDict
+        )
 
     return config_values
 
@@ -215,7 +326,7 @@ def get_arduino_metadata(config_template: dict) -> dict:
     # Define the variables required for Arduino function
     arduino_metadata_keys = ["totalNumberOfTrials", "punishTone", "rewardTone",
                              "USDeliveryTime_Sucrose", "USDeliveryTime_Air",
-                             "USConsumptionTime_Sucrose"]
+                             "USConsumptionTime_Sucrose", "stim"]
 
     # Generate Dictionary of relevant Arduino metadata
     arduino_metadata = {key: value for (key, value) in
@@ -247,7 +358,7 @@ def get_zstack_metadata(config_template: dict) -> dict:
     return zstack_metadata
 
 
-def get_subject_metadata(team: str, subject_id: str) -> dict:
+def get_subject_metadata(team: str, project: str, subject_id: str) -> dict:
     """
     Parses imaging subject's .yml metadata file for NWB fields
 
@@ -258,6 +369,8 @@ def get_subject_metadata(team: str, subject_id: str) -> dict:
     Args:
         team:
             Team value from metadata_args["team"]
+        project:
+            Project value from metadata_args["project"]
         subject_id:
             Subject ID from metadata_args["subject"]
 
@@ -269,14 +382,23 @@ def get_subject_metadata(team: str, subject_id: str) -> dict:
     yaml = YAML(typ='safe')
 
     # Construct the base path for the subject's YAML file
-    base_yaml_path = Path(server_basepath + team + "/animal_metadata/")
+    base_subject_path = server_basepath / team / "subject_metadata" / project
 
-    animal_glob = [subject for subject in
-                   base_yaml_path.glob(f"{subject_id}.yml")]
+    # Generate a glob object for finding the yaml file and turn it into a list.
+    subject_metadata = list(base_subject_path.glob(f"{subject_id}.yml"))
 
-    # TODO: Raise warning here if there's more than one animal presented in
-    # this glob
-    subject_metadata = yaml.load(animal_glob[0])
+    # Check if there's multiple metadata files present for a subject.
+    if len(subject_metadata) > 1:
+        raise SubjectMultiple()
+
+    # Otherwise, try to load the one present file. If it's not there,
+    # an index error occurs and an exception is raised.
+    else:
+        try:
+            subject_metadata = yaml.load(subject_metadata[0])
+        
+        except IndexError:
+            raise SubjectMissing()
 
     return subject_metadata
 
@@ -300,12 +422,15 @@ def get_surgery_metadata(subject_metadata: dict) -> dict:
 
     surgery_metadata = subject_metadata["surgery"]
 
+    # For now, only the first surgery present in the metadata file
+    # is usable and it is assumed that the relevant procedures were
+    # conducted for this surgery (GRIN implant, gCaMP injection, etc)
     surgery_metadata = surgery_metadata[next(iter(surgery_metadata))]
 
     return surgery_metadata
 
 
-def get_project_metadata(team: str, subject_id: str):
+def get_project_metadata(team: str, project: str):
     """
     Grabs and parses project metadata yml file for NWB file generation.
 
@@ -316,8 +441,8 @@ def get_project_metadata(team: str, subject_id: str):
     Args:
         team:
             Team value from metadata_args["team"]
-        subject_id:
-            Subject ID from metadata_args["subject"]
+        project:
+            Project value from metadata_args["project"]
 
     Returns:
         project_metadata
@@ -327,16 +452,23 @@ def get_project_metadata(team: str, subject_id: str):
     yaml = YAML(typ='safe')
 
     # Construct the base path for the project's YAML file
-    base_yaml_path = server_basepath + team + "/2p_template_configs/"
+    project_yaml_path = server_basepath / team  / "2p_template_configs" / project
 
-    # Until teams and studies/projects are implemented across all directories,
-    # this if/else will have to do
-    if "LH" in subject_id:
-        project_yaml_path = Path(base_yaml_path + "nwb_lh_base.yml")
+    # Generate a glob object for finding the yaml file and turn it into a list.
+    project_yaml = list(project_yaml_path.glob("*.yml"))
+
+    # Check if there's multiple yaml NWB configuration files present.  If
+    # there is more than one, something is wrong. Raise that exception.
+    if len(project_yaml) > 1:
+        raise ProjectNWBConfigMultiple()
+    
+    # Otherwise, try to load the one present file. If it's not there,
+    # an index error occurs and an exception is raised.
     else:
-        project_yaml_path = base_yaml_path + "nwb_cs_base.yml"
+        try:
+            project_metadata = yaml.load(project_yaml[0])
 
-    # Load the project metadata into a dictionary
-    project_metadata = yaml.load(project_yaml_path)
+        except IndexError:
+            raise ProjectNWBConfigMissing()
 
     return project_metadata
