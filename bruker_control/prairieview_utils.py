@@ -514,6 +514,7 @@ def set_zseries_filename(team: str, subject_id: str,
     # collected for the indicator
     pl.SendScriptCommands("-SetFileIteration Zseries {}".format(stack))
 
+    # Set the filename for the Z-stack
     pl.SendScriptCommands("-SetFileName Zseries {}".format(imaging_filename))
 
 
