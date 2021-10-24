@@ -326,7 +326,7 @@ def get_arduino_metadata(config_template: dict) -> dict:
     # Define the variables required for Arduino function
     arduino_metadata_keys = ["totalNumberOfTrials", "punishTone", "rewardTone",
                              "USDeliveryTime_Sucrose", "USDeliveryTime_Air",
-                             "USConsumptionTime_Sucrose", "stim"]
+                             "USConsumptionTime_Sucrose", "stimDeliveryTime_Total"]
 
     # Generate Dictionary of relevant Arduino metadata
     arduino_metadata = {key: value for (key, value) in

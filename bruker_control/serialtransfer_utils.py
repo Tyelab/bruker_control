@@ -118,6 +118,8 @@ def array_error_check(transmitted_array: list, received_array: list):
     # If the transmitted array and received array are equal
     if transmitted_array == received_array:
 
+        print(received_array)
+
         pass
 
     # TODO: Raise an exception here that quits the program
@@ -235,6 +237,7 @@ def transfer_metadata(arduino_metadata: str, link: txfer.SerialTransfer):
         metaData_size = link.tx_obj(arduino_metadata['USDeliveryTime_Sucrose'],    metaData_size, val_type_override='B')
         metaData_size = link.tx_obj(arduino_metadata['USDeliveryTime_Air'],        metaData_size, val_type_override='B')
         metaData_size = link.tx_obj(arduino_metadata['USConsumptionTime_Sucrose'], metaData_size, val_type_override='H')
+        metaData_size = link.tx_obj(arduino_metadata['stimDeliveryTime_Total'],    metaData_size, val_type_override='H')
 
         # Send the metadata to the Arduino.  The metadata is transferred first
         # and therefore receives the packet_id of 0.
