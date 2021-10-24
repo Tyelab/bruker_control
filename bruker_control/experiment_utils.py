@@ -105,31 +105,31 @@ def run_imaging_experiment(metadata_args):
         num_frames = video_utils.calculate_frames(session_len_s)
 
         # Connect to Prairie View
-        # prairieview_utils.pv_connect()
+        prairieview_utils.pv_connect()
 
         # Start preview of animal's face.  Zero microscope over lens here.
         # video_utils.capture_preview()
 
         imaging_plane = prairieview_utils.get_imaging_plane()
 
-    #     if zstack_metadata["zstack"]:
-    #         prairieview_utils.zstack(
-    #             zstack_metadata,
-    #             team,
-    #             subject_id,
-    #             current_plane,
-    #             imaging_plane,
-    #             surgery_metadata
-    #         )
+        if zstack_metadata["zstack"]:
+            prairieview_utils.zstack(
+                zstack_metadata,
+                team,
+                subject_id,
+                current_plane,
+                imaging_plane,
+                surgery_metadata
+            )
 
-    #     # Once the Z-Stack is collected (if requested), start the T-Series
-    #     prairieview_utils.tseries(
-    #         team,
-    #         subject_id,
-    #         current_plane,
-    #         imaging_plane,
-    #         surgery_metadata
-    #    )
+        # Once the Z-Stack is collected (if requested), start the T-Series
+        prairieview_utils.tseries(
+            team,
+            subject_id,
+            current_plane,
+            imaging_plane,
+            surgery_metadata
+       )
 
         # Now that the Bruker scope is ready and waiting, send the data to
         # the Arduino through pySerialTransfer

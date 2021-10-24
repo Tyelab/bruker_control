@@ -17,8 +17,8 @@ from datetime import datetime
 # Import sleep to let Prairie View change between Galov and Resonant Galvo
 from time import sleep
 
-# Import warnings for letting user know if laser can't reach optimal value
-import warnings
+# Import tqdm for progress bar
+from tqdm import tqdm
 
 # Save the Praire View application as pl
 pl = client.Dispatch("PrairieLink64.Application")
@@ -238,7 +238,7 @@ def set_laser_lambda(indicator_lambda: float):
     indicator_lambda = 2 * indicator_lambda
 
     # If the optimal lambda for the indicator is greater than the Mai Tai
-    # Deep See's max output capabilities (1040nm) raise a warning and set
+    # Deep See's max output capabilities (1040nm) printa  warning and set
     # the laser to that maximum value.
     if indicator_lambda > 1040:
         print("Optimal wavelength beyond laser's capabilities! Setting to max.")
@@ -246,6 +246,7 @@ def set_laser_lambda(indicator_lambda: float):
 
     pl.SendScriptCommands("-SetMultiphotonWavelength '{}' 1".format(indicator_lambda))
 
+    # Give Prairie View some time to actually adjust the wavelength before starting.
     sleep(3)
 
 # TODO: Set PMT values potentially, need to test without this first to see if
@@ -329,6 +330,30 @@ def prepare_tseries(project: str, subject_id: str, current_plane: int,
     if project == "specialk":
         set_tseries_parameters(surgery_metadata)
 
+        indicator_metadata = get_imaging_indicators(surgery_metadata)
+
+        indicator_keys = [key for key in indicator_metadata.keys()]
+
+        # TODO: When doing the next refactor where things will be in
+        # classes, each indicator will be a member of the indicator
+        # class and will be imaged only if it's a functional indicator
+        # where there's a fluorophore attached. For now, if someone
+        # was to try and image a single indicator where they had multiple
+        # injections, both channels would be active.
+        # If there's two functional indicators that are being imaged,
+        # use both red and green channels
+        if len(indicator_keys) >= 2:
+
+            pl.SendScriptCommands("-SetChannel '1' 'On'")
+            pl.SendScriptCommands("-SetChannel '2' 'On'")
+
+        # Otherwise, use just the Green channel
+        else:
+
+            pl.SendScriptCommands("-SetChannel '1' 'Off'")
+            pl.SendScriptCommands("-SetChannel '2' On'")
+
+
 
 def set_tseries_parameters(surgery_metadata):
     """
@@ -353,8 +378,9 @@ def set_tseries_parameters(surgery_metadata):
 # Z-Series Functions
 # -----------------------------------------------------------------------------
 
-
-def prepare_zseries(team: str, subject_id: str, current_plane: int,
+# TODO: Need to rename this function to something different, other steps
+# not included here also prepare the z-stack
+def configure_zseries(team: str, subject_id: str, current_plane: int,
                     imaging_plane: float, indicator_name: str, stack: int,
                     zstack_delta: float, zstack_step: float):
     """
@@ -557,13 +583,19 @@ def zstack(zstack_metadata: dict, team: str, subject_id: str,
 
         indicator_name = indicator_metadata[indicator]["fluorophore"]
 
+        print("Conducting Z-Series for indicator:", indicator_name)
+
         indicator_lambda = indicator_metadata[indicator]["fluorophore_excitation_lambda"]
+
+        indicator_emission = indicator_metadata[indicator]["fluorophore_emission_lambda"]
 
         set_laser_lambda(indicator_lambda)
 
-        for stack in range(1, total_stacks + 1):
+        set_one_channel_zseries(indicator_emission)
 
-            prepare_zseries(
+        for stack in tqdm(range(1, total_stacks + 1), desc="Z-Stack Progress", ascii=True):
+
+            configure_zseries(
                 team,
                 subject_id,
                 current_plane,
@@ -578,3 +610,27 @@ def zstack(zstack_metadata: dict, team: str, subject_id: str,
 
     # Put Z-axis back to imaging plane
     pl.SendScriptCommands("-SetMotorPosition 'Z' {}".format(imaging_plane))
+
+def set_one_channel_zseries(indicator_emission: float):
+    """
+    Sets proper recording channel to use (1: Red 2: Green) in the z-stack.
+
+    Different indicators have different channels that should be recorded from
+    depending on the emission wavelengths of the indicators being imaged.
+
+    Args:
+        indicator_emission:
+            Wavelength fluorescent indicator emits when cell is active and
+            being stimulated by light
+    """
+
+    # If the indicator's emission wavelength is above green wavelengths,
+    # use only the red channel.
+    if indicator_emission >= 570.0:
+        pl.SendScriptCommands("-SetChannel '1' 'On'")
+        pl.SendScriptCommands("-SetChannel '2' Off'")
+    
+    # Otherwise, use the green channel
+    else:
+        pl.SendScriptCommands("-SetChannel '1' 'Off'")
+        pl.SendScriptCommands("-SetChannel '2' 'On'")

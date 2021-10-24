@@ -144,6 +144,11 @@ class StimMetadata(ConfigTemplate):
     Metadata class describing information related to stimulation parameters
     """
 
+class IndicatorMetadata(ConfigTemplate):
+    """
+    Metadata class describing imaging indicators' properties.
+    """
+
 class SubjectMetadata(ConfigTemplate):
     """
     Metadata class describing information related to the subject being imaged
