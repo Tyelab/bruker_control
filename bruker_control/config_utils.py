@@ -130,6 +130,22 @@ class SubjectMissing(Exception):
         else:
             return "The subject's metadata file is missing! Check your project/animal_metadata folder"
 
+class SubjectMissingWeight(Exception):
+    """
+    Exception for when a subject does not have a weight measured for the imaging session
+    """
+    def __init__(self, *args):
+        if args:
+            self.message = args[0]
+        else:
+            self.message = None
+    
+    def __str__(self):
+        if self.message:
+            return "SubjectMissingWeight: " + "{0}".format(self.message)
+        else:
+            return "The subject has no weight recorded for today! Enter this data or collect it to continue."
+
 ###############################################################################
 # Metadata Classes: In development
 ###############################################################################
@@ -407,6 +423,16 @@ def get_subject_metadata(team: str, project: str, subject_id: str) -> dict:
         
         except IndexError:
             raise SubjectMissing()
+
+    # Lastly, check to see if the subject has a weight that has been
+    # collected on the day of the experiment
+    session_date = datetime.today().strftime("%Y%m%d")
+
+    try:
+        weight = subject_metadata["weights"][session_date]
+    
+    except KeyError:
+        raise SubjectMissingWeight()
 
     return subject_metadata
 
