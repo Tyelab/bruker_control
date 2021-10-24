@@ -249,8 +249,8 @@ def write_experiment_config(config_template: dict, experiment_arrays: list,
             configuration .json file.
         experiment_arrays:
             List of arrays used for experimental runtime. [0] is trialArray,
-            [1] is ITIArray, [2] is toneArray. These will always be in this
-            order.
+            [1] is ITIArray, [2] is toneArray, [3] is LEDArray. These must
+            always be in this order.
         dropped_frames:
             List of dropped frames from the camera during the experiment
         team:
@@ -295,13 +295,16 @@ def write_experiment_config(config_template: dict, experiment_arrays: list,
     # always the toneArray.
     config_template["beh_metadata"]["toneArray"] = experiment_arrays[2]
 
+    # Assign LEDArray key the LEDArray data. The 3rd index of the list is
+    # always the LEDArray.
+    config_template["beh_metadata"]["LEDArray"] = experiment_arrays[3]
+
     # Assign dropped_frames key the dropped_frames data.
     config_template["beh_metadata"]["dropped_frames"] = dropped_frames
 
-    # # Write the new configuration file
+    # Write the completed configuration file
     with open(config_fullpath, 'w') as outFile:
 
-        # Add ITIArray into config file
         json.dump(config_template, outFile)
 
 

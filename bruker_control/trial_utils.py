@@ -814,7 +814,7 @@ def generate_arrays(config_template: dict) -> list:
     Generates all necessary arrays for Bruker experimental runtime without stimluation.
 
     Creates arrays as specified by user's configuration file.  Builds the
-    trialArray, ITIArray, and toneArray according to user defined rules.
+    trialArray, ITIArray, toneArray, and LEDArray according to user defined rules.
 
     Args:
         config_template:
@@ -842,12 +842,12 @@ def generate_arrays(config_template: dict) -> list:
     # converted to a list during generation.
     toneArray = gen_toneArray(config_template)
 
-    # Generate stimArray using template configuration values, trialArray, and
+    # Generate LEDArray using template configuration values, trialArray, and
     # ITI array.
-    stimArray = gen_stimArray(config_template, trialArray, ITIArray)
+    LEDArray = gen_LEDArray(config_template, trialArray, ITIArray)
 
     # Put arrays together in a list
-    experiment_arrays = [trialArray, ITIArray, toneArray, stimArray]
+    experiment_arrays = [trialArray, ITIArray, toneArray, LEDArray]
 
     # Return list of arrays to be transferred via pySerialTransfer
     return experiment_arrays
@@ -1189,12 +1189,12 @@ def check_session_stim_only(tmp_array: np.ndarray, max_seq_stim_only=2) -> bool:
     return stim_only_check
 
 
-def gen_stimArray(config_template: dict, trialArray: np.ndarray, ITIArray: np.ndarray) -> list:
+def gen_LEDArray(config_template: dict, trialArray: np.ndarray, ITIArray: np.ndarray) -> list:
     """
     Generates LED stimulation timepoints if necessary.
 
     Stimulation arrays have been incorporated into the Arduino scripts by default to avoid
-    having several scripts per team to maintain. Therefore, for now at least, stimArray is
+    having several scripts per team to maintain. Therefore, for now at least, LEDArray is
     is a required part of array generation. This may change in the future where stimulation and
     no-stimulation experiments have their own Arduino scripts that are used.
 
@@ -1208,13 +1208,13 @@ def gen_stimArray(config_template: dict, trialArray: np.ndarray, ITIArray: np.nd
             Array of ITIs for the experiment
     
     Returns:
-        stimArray
+        LEDArray
     """
 
-    # If the experiment isn't using stimulation, then all the values for the stimArray will be
+    # If the experiment isn't using stimulation, then all the values for the LEDArray will be
     # zeroes.
     if not config_template["beh_metadata"]["stim"]:
-        stimArray = np.zeros(len(trialArray))
+        LEDArray = np.zeros(len(trialArray))
     
     # If the experiment is using stimulation, then calculate the times to send stimulation TTL
     # triggers to Prairie View
@@ -1255,11 +1255,11 @@ def gen_stimArray(config_template: dict, trialArray: np.ndarray, ITIArray: np.nd
         iti_stim_dict = {stim_idxs[i]: iti_stim_values[i] for i in range(len(stim_idxs))}
 
         # Create stimulation array of only relevant stimulation positions
-        stimArray = [iti_stim_dict[value] for value in iti_stim_dict]
+        LEDArray = [iti_stim_dict[value] for value in iti_stim_dict]
 
         # Calculate when to send the LED stimulation trigger to Prairie View.
-        # Above we simply copied the ITI values into stimArray, now we subtract
+        # Above we simply copied the ITI values into LEDArray, now we subtract
         # by when we need to provide the LED stimulus before hand.
-        stimArray = np.subtract(stimArray, precs_delay).tolist()
+        LEDArray = np.subtract(LEDArray, precs_delay).tolist()
 
-    return stimArray
+    return LEDArray

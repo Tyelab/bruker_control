@@ -36,7 +36,8 @@ def transfer_data(arduino_metadata: str, experiment_arrays: list):
             runtime. Formatted as a json string.
         experiment_arrays:
             List of arrays generated for a given microscopy session's behavior.
-            0th index is trialArray, 1st is ITIArray, 2nd is toneArray.
+            0th index is trialArray, 1st is ITIArray, 2nd is toneArray, and 3rd
+            is the LEDArray.
 
     """
 
@@ -44,6 +45,7 @@ def transfer_data(arduino_metadata: str, experiment_arrays: list):
         # Initialize COM Port for Serial Transfer
         link = txfer.SerialTransfer('COM12', 115200, debug=True)
 
+        # Start communicating with the Arduino
         link.open()
 
         transfer_metadata(arduino_metadata, link)
@@ -81,7 +83,8 @@ def transfer_experiment_arrays(experiment_arrays: list,
     Args:
         experiment_arrays:
             List of arrays generated for a given microscopy session's behavior.
-            0th index is trialArray, 1st is ITIArray, 2nd is toneArray.
+            0th index is trialArray, 1st is ITIArray, 2nd is toneArray, 3rd is
+            the LEDArray.
         link:
             pySerialTransfer transmission object
     """
