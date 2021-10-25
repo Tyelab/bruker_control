@@ -105,39 +105,35 @@ def run_imaging_experiment(metadata_args):
         num_frames = video_utils.calculate_frames(session_len_s)
 
         # Connect to Prairie View
-        prairieview_utils.pv_connect()
+        # prairieview_utils.pv_connect()
 
         # Start preview of animal's face.  Zero microscope over lens here.
         # video_utils.capture_preview()
 
         imaging_plane = prairieview_utils.get_imaging_plane()
 
-        if zstack_metadata["zstack"]:
-            prairieview_utils.zstack(
-                zstack_metadata,
-                team,
-                subject_id,
-                current_plane,
-                imaging_plane,
-                surgery_metadata
-            )
+    #     if zstack_metadata["zstack"]:
+    #         prairieview_utils.zstack(
+    #             zstack_metadata,
+    #             team,
+    #             subject_id,
+    #             current_plane,
+    #             imaging_plane,
+    #             surgery_metadata
+    #         )
 
-        # Once the Z-Stack is collected (if requested), start the T-Series
-        prairieview_utils.tseries(
-            team,
-            subject_id,
-            current_plane,
-            imaging_plane,
-            surgery_metadata
-       )
+    #     # Once the Z-Stack is collected (if requested), start the T-Series
+    #     prairieview_utils.tseries(
+    #         team,
+    #         subject_id,
+    #         current_plane,
+    #         imaging_plane,
+    #         surgery_metadata
+    #    )
 
         # Now that the Bruker scope is ready and waiting, send the data to
         # the Arduino through pySerialTransfer
-        serialtransfer_utils.transfer_data(arduino_metadata, experiment_arrays)
-
-        break
-
-    sys.exit(1)
+        # serialtransfer_utils.transfer_data(arduino_metadata, experiment_arrays)
 
     #     # Now that the packets have been sent, the Arduino will start soon.
     #     # We now start the camera for recording the experiment!
@@ -161,31 +157,32 @@ def run_imaging_experiment(metadata_args):
 
     #     prairieview_utils.end_tseries()
 
-    #     if current_plane == requested_planes:
+        if current_plane == requested_planes:
 
-    #         print("Experiment Completed for", subject_id)
+            print("Experiment Completed for", subject_id)
 
-    #         # Disconnect from Prairie View and end the experiment
-    #         prairieview_utils.pv_disconnect()
-    #         exp_running = False
+            # Disconnect from Prairie View and end the experiment
+            # prairieview_utils.pv_disconnect()
+            exp_running = False
 
-    #     else:
-    #         current_plane += 1
+        else:
+            current_plane += 1
 
-    # if team == "specialk":
+    if team == "specialk":
 
-    #     nwb_utils.build_nwb_file(
-    #         experimenter,
-    #         team,
-    #         subject_id,
-    #         str(imaging_plane),
-    #         subject_metadata,
-    #         project_metadata,
-    #         surgery_metadata
-    #         )
+        nwb_utils.build_nwb_file(
+            experimenter,
+            team,
+            project,
+            subject_id,
+            str(imaging_plane),
+            subject_metadata,
+            project_metadata,
+            surgery_metadata
+            )
 
-    #     print("Exiting...")
-    #     sys.exit()
+        print("Exiting...")
+        sys.exit()
 
     # else:
     #     print("Exiting...")
