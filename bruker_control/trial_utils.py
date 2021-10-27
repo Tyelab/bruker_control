@@ -79,7 +79,7 @@ def gen_trialArray_nostim(config_template: dict) -> np.ndarray:
     catch_check = True
 
     # While the punish and catch checks are not BOTH False (or zero)
-    while sum(punish_check, catch_check, reward_check) != 0:
+    while sum([punish_check, catch_check, reward_check]) != 0:
 
         # Create temporary array that's a fresh copy of starting array
         tmp_array = fresh_array.copy()
@@ -1214,7 +1214,7 @@ def gen_LEDArray(config_template: dict, trialArray: np.ndarray, ITIArray: np.nda
     # If the experiment isn't using stimulation, then all the values for the LEDArray will be
     # zeroes.
     if not config_template["beh_metadata"]["stim"]:
-        LEDArray = np.zeros(len(trialArray))
+        LEDArray = [0]
     
     # If the experiment is using stimulation, then calculate the times to send stimulation TTL
     # triggers to Prairie View

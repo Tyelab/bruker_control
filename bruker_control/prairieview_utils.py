@@ -20,6 +20,9 @@ from time import sleep
 # Import tqdm for progress bar
 from tqdm import tqdm
 
+# Import pathlib for creating z-stack directory
+from pathlib import Path
+
 # Save the Praire View application as pl
 pl = client.Dispatch("PrairieLink64.Application")
 
@@ -82,8 +85,8 @@ def set_resonant_galvo():
     # Change Acquisition Mode to Resonant Galvo
     pl.SendScriptCommands("-SetAcquisitionMode 'Resonant Galvo'")
 
-    # Wait 1 second for Prairie View to switch modes
-    sleep(1)
+    # Wait 3 seconds for Prairie View to switch modes
+    sleep(3)
 
 
 def set_galvo_galvo():
@@ -99,8 +102,8 @@ def set_galvo_galvo():
     # Change Acqusition Mode to Galvo Galvo
     pl.SendScriptCommands("-SetAcquisitionMode 'Galvo'")
 
-    # Wait 1 second for Prairie View to switch modes
-    sleep(1)
+    # Wait 3 seconds for Prairie View to switch modes
+    sleep(3)
 
 # -----------------------------------------------------------------------------
 # Abort T-Series Function
@@ -247,7 +250,8 @@ def set_laser_lambda(indicator_lambda: float):
     pl.SendScriptCommands("-SetMultiphotonWavelength '{}' 1".format(indicator_lambda))
 
     # Give Prairie View some time to actually adjust the wavelength before starting.
-    sleep(3)
+    for i in tqdm(range(500), desc="Setting Laser Wavelength", ascii=True):
+        sleep(0.01)
 
 # TODO: Set PMT values potentially, need to test without this first to see if
 # it is necessary
@@ -306,8 +310,9 @@ def prepare_tseries(project: str, subject_id: str, current_plane: int,
     Readies the Bruker 2-Photon microscope for a T-Series experiment
 
     Sets directories and filenames for recording. Ensures that Resonant Galvo
-    mode is selected. and initializes Bruker T-Series for imaging and Voltage
-    Recording for behavior data. This function returns nothing.
+    mode is selected. Sets Prairie View to only use the gcamp indicator channel
+    (Channel 2). Initializes Bruker T-Series for imaging, Voltage Recording for
+    behavior data, and Mark Points Series as a work around for stimulation trials.
 
     Args:
         project:
@@ -327,31 +332,21 @@ def prepare_tseries(project: str, subject_id: str, current_plane: int,
 
     set_resonant_galvo()
 
+    # For specialk, there could be an instance where the red channel is
+    # acquiring data for the Z-stack collected before this point.
+    # To make sure that only the relevant channel is used (the green one),
+    # turn Channel 1 off and make sure that Channel 2 is on.
     if project == "specialk":
         set_tseries_parameters(surgery_metadata)
 
-        indicator_metadata = get_imaging_indicators(surgery_metadata)
 
-        indicator_keys = [key for key in indicator_metadata.keys()]
+        # TODO: Make this channel setting its own function in next refactor
+        pl.SendScriptCommands("-SetChannel '1' 'Off'")
+        pl.SendScriptCommands("-SetChannel '2' On'")
 
-        # TODO: When doing the next refactor where things will be in
-        # classes, each indicator will be a member of the indicator
-        # class and will be imaged only if it's a functional indicator
-        # where there's a fluorophore attached. For now, if someone
-        # was to try and image a single indicator where they had multiple
-        # injections, both channels would be active.
-        # If there's two functional indicators that are being imaged,
-        # use both red and green channels
-        if len(indicator_keys) >= 2:
-
-            pl.SendScriptCommands("-SetChannel '1' 'On'")
-            pl.SendScriptCommands("-SetChannel '2' 'On'")
-
-        # Otherwise, use just the Green channel
-        else:
-
-            pl.SendScriptCommands("-SetChannel '1' 'Off'")
-            pl.SendScriptCommands("-SetChannel '2' On'")
+        # TODO: Make this part of a configuration and make tseries_stim
+        # vs tseries_nostim. Must be done with next refactor...
+        # pl.SendScriptCommands("-MarkPoints 'specialk' 'cms_stimulations'")
 
 
 
@@ -378,8 +373,6 @@ def set_tseries_parameters(surgery_metadata):
 # Z-Series Functions
 # -----------------------------------------------------------------------------
 
-# TODO: Need to rename this function to something different, other steps
-# not included here also prepare the z-stack
 def configure_zseries(team: str, subject_id: str, current_plane: int,
                     imaging_plane: float, indicator_name: str, stack: int,
                     zstack_delta: float, zstack_step: float):
@@ -450,17 +443,17 @@ def set_zseries_parameters(imaging_plane, zstack_delta, zstack_step):
 
     pl.SendScriptCommands("-SetMotorPosition 'Z' '{}'".format(z_start_position))
 
-    sleep(0.25)
+    sleep(1)
 
     pl.SendScriptCommands("-SetZSeriesStepSize '{}'".format(zstack_step))
 
-    sleep(0.25)
+    sleep(1)
 
     pl.SendScriptCommands("-SetZSeriesStart 'allSettings'")
 
     pl.SendScriptCommands("-SetMotorPosition 'Z' '{}'".format(z_end_position))
 
-    sleep(0.25)
+    sleep(1)
 
     pl.SendScriptCommands("-SetZSeriesStop 'allSettings")
 
@@ -594,7 +587,9 @@ def zstack(zstack_metadata: dict, team: str, subject_id: str,
 
         set_one_channel_zseries(indicator_emission)
 
-        for stack in tqdm(range(1, total_stacks + 1), desc="Z-Stack Progress", ascii=True):
+        current_stack = 0
+
+        for stack in tqdm(range(current_stack, total_stacks), desc="Z-Stack Progress", ascii=True):
 
             configure_zseries(
                 team,
@@ -608,6 +603,8 @@ def zstack(zstack_metadata: dict, team: str, subject_id: str,
             )
 
             pl.SendScriptCommands("-ZSeries")
+
+            current_stack += 1
 
     # Put Z-axis back to imaging plane
     pl.SendScriptCommands("-SetMotorPosition 'Z' {}".format(imaging_plane))

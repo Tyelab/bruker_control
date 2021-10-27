@@ -61,6 +61,13 @@ def run_imaging_experiment(metadata_args):
     # Get Z-Stack metadata; requried for both Specialk and Deryn
     zstack_metadata = config_utils.get_zstack_metadata(config_template)
 
+    session_path = config_utils.build_server_directory(
+        team,
+        project,
+        subject_id,
+        config_template
+    )
+
     # Only team specialk has the necessary infrastructure for running
     # z-stacks.  Any user that wants to run a z-stack for their data must
     # comply with Specialk-style metadata which is intended to be required
@@ -83,7 +90,7 @@ def run_imaging_experiment(metadata_args):
 
     print("Metadata collected!")
 
-    # # Create experiment running flag
+    # Create experiment running flag
     exp_running = True
 
     # Initialize number of completed imaging planes at value of 1, to be
@@ -105,68 +112,70 @@ def run_imaging_experiment(metadata_args):
         num_frames = video_utils.calculate_frames(session_len_s)
 
         # Connect to Prairie View
-        # prairieview_utils.pv_connect()
+        prairieview_utils.pv_connect()
 
         # Start preview of animal's face.  Zero microscope over lens here.
-        # video_utils.capture_preview()
+        video_utils.capture_preview()
 
         imaging_plane = prairieview_utils.get_imaging_plane()
 
-    #     if zstack_metadata["zstack"]:
-    #         prairieview_utils.zstack(
-    #             zstack_metadata,
-    #             team,
-    #             subject_id,
-    #             current_plane,
-    #             imaging_plane,
-    #             surgery_metadata
-    #         )
+        if zstack_metadata["zstack"]:
+            prairieview_utils.zstack(
+                zstack_metadata,
+                team,
+                subject_id,
+                current_plane,
+                imaging_plane,
+                surgery_metadata
+            )
 
-    #     # Once the Z-Stack is collected (if requested), start the T-Series
-    #     prairieview_utils.tseries(
-    #         team,
-    #         subject_id,
-    #         current_plane,
-    #         imaging_plane,
-    #         surgery_metadata
-    #    )
+        # Once the Z-Stack is collected (if requested), start the T-Series
+        prairieview_utils.tseries(
+            team,
+            subject_id,
+            current_plane,
+            imaging_plane,
+            surgery_metadata
+       )
 
         # Now that the Bruker scope is ready and waiting, send the data to
         # the Arduino through pySerialTransfer
-        # serialtransfer_utils.transfer_data(arduino_metadata, experiment_arrays)
+        serialtransfer_utils.transfer_data(arduino_metadata, experiment_arrays)
 
-    #     # Now that the packets have been sent, the Arduino will start soon.
-    #     # We now start the camera for recording the experiment!
-    #     dropped_frames = video_utils.capture_recording(
-    #                         num_frames,
-    #                         current_plane,
-    #                         str(imaging_plane),
-    #                         team,
-    #                         subject_id
-    #                         )
+        # Now that the packets have been sent, the Arduino will start soon.
+        # We now start the camera for recording the experiment!
+        dropped_frames = video_utils.capture_recording(
+                            num_frames,
+                            current_plane,
+                            str(imaging_plane),
+                            team,
+                            subject_id
+                            )
 
-    #     config_utils.write_experiment_config(
-    #         config_template,
-    #         experiment_arrays,
-    #         dropped_frames,
-    #         team,
-    #         subject_id,
-    #         str(imaging_plane),
-    #         current_plane
-    #         )
+        prairieview_utils.end_tseries()
 
-    #     prairieview_utils.end_tseries()
+        config_utils.write_experiment_config(
+        config_template,
+        experiment_arrays,
+        dropped_frames,
+        team,
+        subject_id,
+        str(imaging_plane),
+        current_plane
+        )
 
         if current_plane == requested_planes:
 
             print("Experiment Completed for", subject_id)
 
             # Disconnect from Prairie View and end the experiment
-            # prairieview_utils.pv_disconnect()
+            prairieview_utils.pv_disconnect()
             exp_running = False
 
         else:
             current_plane += 1
+
+        break
 
     if team == "specialk":
 
@@ -178,13 +187,14 @@ def run_imaging_experiment(metadata_args):
             str(imaging_plane),
             subject_metadata,
             project_metadata,
-            surgery_metadata
+            surgery_metadata,
+            session_path
             )
 
         print("Exiting...")
         sys.exit()
 
-    # else:
-    #     print("Exiting...")
-    #     sys.exit()
+    else:
+        print("Exiting...")
+        sys.exit()
 

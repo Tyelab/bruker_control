@@ -121,8 +121,6 @@ def array_error_check(transmitted_array: list, received_array: list):
     # If the transmitted array and received array are equal
     if transmitted_array == received_array:
 
-        print(received_array)
-
         pass
 
     # TODO: Raise an exception here that quits the program

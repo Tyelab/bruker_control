@@ -86,7 +86,7 @@ int thisITI;
 //// Tones ////
 int thisToneDuration;
 
-//// LED Start Times ////
+//// LED Variables ////
 int thisLED;
 
 
@@ -163,7 +163,7 @@ const int vacPin = 24;                        // solenoid for vacuum control
 const int solPin_liquid = 26;                 // solenoid for liquid control: sucrose, water, EtOH
 const int speakerPin = 12;                    // speaker control pin
 const int bruker2PTriggerPin = 11;            // trigger to start Bruker 2P Recording on Prairie View
-const int brukerLEDTriggerPin = 10;           // trigger to initiate an LED Pulse on Prairie View
+const int brukerLEDTriggerPin = 39;           // trigger to initiate an LED Pulse on Prairie View
 
 //// PIN ASSIGNMENT: RESET /////
 const int resetPin = 0;                       // Pin driven LOW for resetting the Arduino through software.
@@ -379,7 +379,6 @@ void camera_delay() {
 void bruker_trigger() {
   if (brukerTrigger) {
     arduinoGoSignal = false;
-    Serial.println("Sending Bruker Trigger");
     digitalWriteFast(bruker2PTriggerPin, HIGH);
     Serial.println("Bruker Trigger Sent!");
     digitalWriteFast(bruker2PTriggerPin, LOW);
@@ -451,6 +450,8 @@ void lickDetect() {
    specified by trial's index in the ITIray. Gathers the trial
    type selected and defines it for the next session. Also determines
    when an LED stimulation trigger should be sent if appropriate.
+   Finally prints out to the Serial Monitor what the trial type is
+   for the user.
 
    @param ms Current time in milliseconds (ms)
 */
@@ -463,15 +464,43 @@ void startITI(long ms) {
     if (trialType > 3) {
       LEDStart, LEDEnd = typeLED(trialType, ms);
     }
+    else {
+      typeTrial(trialType);
+    }
     ITI = true;
-    thisITI = ITIArray[currentTrial];         // get ITI for this trial
+    thisITI = ITIArray[currentTrial];             // get ITI for this trial
     ITIend = ms + thisITI;
   }
-  else if (ITI && (ms >= ITIend)) {             // ITI is over, start playing the tone
+  else if (ITI && (ms >= ITIend)) {               // ITI is over, start playing the tone
     ITI = false;
     noise = true;
   }
 }
+
+// Trial Type Function
+/**
+ * Determines which type of trial is coming IFF it's not an LED trial.
+ * The output is used to print the trial type to the user right after
+ * the trial number is printed out for the user.
+ * 
+ * @param trialType Type of trial coming into the user.
+ */
+ void typeTrial (int trialType) {
+  switch (trialType) {
+    case 0:
+      Serial.println("Airpuff");
+      break;
+    case 1:
+      Serial.println("Sucrose");
+      break;
+    case 2:
+      Serial.println("Airpuff Catch");
+      break;
+    case 3:
+      Serial.println("Sucrose Catch");
+      break;
+  }
+ }
 
 // LED Stimulation Functions
 /**
@@ -513,12 +542,14 @@ int typeLED (int trialType, long ms) {
  */
 long setLEDStart(long ms) {
   giveLED = true;
+  // Reset LED Values for new calculation to be correct
+  // Gives negative values for LEDEnd without this...
+  LEDStart = 0;
+  LEDEnd = 0;
   thisLED = LEDArray[currentLED];
-  Serial.println("Current LED Trial");
-  Serial.println(currentLED);
   LEDStart = ms + thisLED;
   LEDEnd = LEDStart + metadata.stimDeliveryTime_Total;
-
+  
   return LEDStart, LEDEnd;
 }
 
@@ -530,9 +561,19 @@ long setLEDStart(long ms) {
 void brukerTriggerLED (long ms) {
   if (giveLED && (ms >= LEDStart)) {
     giveLED = false;
+    LEDOn = true;
     digitalWriteFast(brukerLEDTriggerPin, HIGH);
-    digitalWriteFast(brukerLEDTriggerPin, LOW);
     Serial.println("LED Trigger Sent!");
+  }
+}
+
+/**
+ * Sends brukerLEDTriggerPin LOW after 
+ */
+void offLED (long ms) {
+  if (LEDOn && (ms >= LEDEnd)) {
+    LEDOn = false;
+    digitalWriteFast(brukerLEDTriggerPin, LOW);
   }
 }
 
@@ -551,29 +592,34 @@ void tonePlayer(long ms) {
     thisToneDuration = toneArray[currentTrial];
     toneDAQ = true;
     toneListeningMS = ms + thisToneDuration;
-    digitalWriteFast(speakerDeliveryPin, HIGH);
     switch (trialType) {
       case 0:
+        digitalWriteFast(speakerDeliveryPin, HIGH);
         tone(speakerPin, metadata.punishTone, thisToneDuration);
         giveStim = true;
         break;
       case 1:
+        digitalWriteFast(speakerDeliveryPin, HIGH);
         tone(speakerPin, metadata.rewardTone, thisToneDuration);
         giveStim = true;
         break;
       case 2:
+        digitalWriteFast(speakerDeliveryPin, HIGH);
         tone(speakerPin, metadata.punishTone, thisToneDuration);
         giveCatch = true;
         break;
       case 3:
+        digitalWriteFast(speakerDeliveryPin, HIGH);
         tone(speakerPin, metadata.rewardTone, thisToneDuration);
         giveCatch = true;
         break;
       case 4:
+        digitalWriteFast(speakerDeliveryPin, HIGH);
         tone(speakerPin, metadata.punishTone, thisToneDuration);
         giveStim = true;
         break;
       case 5:
+        digitalWriteFast(speakerDeliveryPin, HIGH);
         tone(speakerPin, metadata.rewardTone, thisToneDuration);
         giveStim = true;
         break;
@@ -627,11 +673,6 @@ void presentStimulus(long ms) {
         newUSDelivery = true;
         break;
       }
-   case 6:
-    if (giveStim && (ms >= toneListeningMS - metadata.USDeliveryTime_Sucrose)) {      // Ensures that there's some kind of trial occuring during LED Only
-      newUSDelivery = true;
-      break;
-    }
   }
 }
 
@@ -770,9 +811,11 @@ void offSolenoid(long ms) {
         break;
       case 6:
         Serial.println("End of LED Only Trial");
+        solenoidOn = false;
         newTrial = true;
         currentTrial++;
         currentLED++;
+        break;
     }
   }
 }
@@ -855,6 +898,7 @@ void loop() {
     tonePlayer(ms);
     onTone(ms);
     brukerTriggerLED(ms);
+    offLED(ms);
     presentStimulus(ms);
     presentCatch(ms);
     USDelivery(ms);

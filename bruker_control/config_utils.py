@@ -276,7 +276,7 @@ def write_experiment_config(config_template: dict, experiment_arrays: list,
             List of dropped frames from the camera during the experiment
         team:
             Team from metadata_args["team"]
-        subject_id
+        subject_id:
             Subject ID from metadata_args["subject_id"]
         imaging_plane:
             Plane 2P images were acquired at, the Z-axis value
@@ -506,3 +506,66 @@ def get_project_metadata(team: str, project: str):
             raise ProjectNWBConfigMissing()
 
     return project_metadata
+
+
+def build_server_directory(team:str, project: str, subject_id: str, config_template: dict):
+    """
+    Builds directories for copying files to server at the end of the day.
+
+    Directories are not automatically built for different subjects on different days
+    because dates and times might change. Therefore, they're built during runtime.
+    The directory for a given animal in the 2P folder for a given project will already
+    exist, so this function creates a structure as follows:
+
+    nadata.snl.salk.edu/raw/team/project/2p/subject
+    |
+    |   +--- YYYYmmdd
+    |   |
+    |   |   +--- zstacks (if requested)
+    
+    The rest of the files will be written to this position. With the
+    copy_to_server.sh script at the end of the day. These files include:
+        - nwb_file.nwb
+        - Raw Microscopy Directory
+            |
+            raw_bruker_microscopy_format.RAW
+            raw_bruker_behavior_format.RAW
+            raw_file_list.txt
+            raw_env_file.env
+            raw_file_xml.xml
+        - video_of_subject.avi
+        - config_file.json
+
+    Args:
+        team:
+            Team value from metadata_args["team"]
+        project:
+            Project value form metadata_args["project"]
+        subject_id:
+            Subject ID value from metadata_args["project"]
+        config_template:
+            Configuration template gathered for the project by get_template()
+    
+    Returns:
+        session_path:
+            Path that files should be written to after experiment is finished.
+    """
+    # Gather the date of the day's session
+    session_date = datetime.today().strftime("%Y%m%d")
+
+    # Create list of elements that compose the session path
+    session_elements = ["raw", team, project, "2p", subject_id, session_date]
+
+    # Build the session's name and convert to a Pathlib object
+    session_path = server_basepath / Path("/".join(session_elements))
+
+    # Build the session path to the server
+    session_path.mkdir(parents=True, exist_ok=True)
+
+    # If a z-stack is scheduled to run, build that directory to the full path
+    if config_template["zstack_metadata"]["zstack"]:
+        (session_path / "zstacks").mkdir(parents=True, exist_ok=True)
+    
+    return session_path
+
+    
