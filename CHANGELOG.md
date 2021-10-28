@@ -6,6 +6,147 @@ A changelog for commits and changes before this version will not be added.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## bruker_control.py v.1.8.0 *Stimulate Your Mind* 🔦 🎆 🧠 - 2021-10-27
+Welcome to v1.8.0! There's plenty to be thankful for as we move towards November, and
+one of those things is optogenetics and big bright LEDs! This update adds a hefty amount,
+so eat slowly and try not to stuff yourself like a turkey 🦃 just yet.
+
+There's some enhancements made to the trial structure generation to handle stimulations as well as
+more expressive metadata for behavioral experiments that encode how stimulations are to
+be performed for the session. There's also some additional exception handling classes for
+if/when something is entered incorrectly thought they're not comprehensive. The documentation 
+also has a couple changes.
+
+:heart: Jeremy Delahanty
+
+### Added
+
+**_Python_**
+
+New command line parameter: Project
+**Required**
+- --project, -p:
+
+If you're one of the teams that has more than one project going, this argument requires a
+two letter code that references the project's name.
+
+*Stimulation Configuration* - behavior_projectcode_config.json
+- stim: true/false Do you want stimulations to happen during the trial?
+- stimFrequency: Metadata about pulse rate in Hz
+- stimPulseTime: Metadata about how long an individual pulse occurs in ms
+- stimLabmda: Frequency of stimluation LED being used in the experiment
+- stimDeliveryTime_PreCS: Amount of time before a given trial the stimulation should occur
+- stimDeliveryTime_Total: How long the stimulation should occur
+- stimStartPosition: 0-indexed position of which trials should be LED stimulation trials
+- numStimReward: Number of LED trials where the subject should be given a reward
+- numStimPunish: Number of LED trials where the subject should be given a punishment
+- numStimAlone: Number of LED trials where the subject will receive only LED stimulation
+- LEDArray: Array of timepoints where the LED stimulation should be triggered by the Arduino
+
+*`trial_utils.py`: Stimulation Trial Rules*
+A few new functions have been added for handling LED stimulation trial structure generation.
+
+- `gen_trialArray_nostim()`: Builds trial structure according to configuraiton rules without LED
+stimulation trials
+- `gen_trialArray_stim()`: Builds trial structure according to configuration rules with LED
+stimulation trials.
+- `gen_LEDArray()`: Generates timestamp array for when LED trials should be triggered.
+- `flip_stim_trials()`: Flips non-stimulation trials into LED trials within the range of
+requested LED trials. Checks to ensure that no more than user configured number of punish
+trials are given in a row.
+- `flip_stim_only()`: Flips stimulation trials to LED only trials.
+- `check_session_stim_only()`: Performs check that no more than 2 LED Only trials are given
+in a row.
+
+*`config_utils.py`: New exception classes and enhanced configuration*
+Configuration exception classes that are more helpful for when something is missing/malformed
+have been made. There's also new handling for the configuration stimulation fields.
+**Classes**
+
+- `ProjectNWBConfigMissing(Exception)`
+- `ProjectNWBConfigMultiple(Exception)`
+- `ProjectTemplateMissing(Exception)`
+- `ProjectTemplateMultiple(Exception)`
+- `SubjectMultiple(Exception)`
+- `SubjectMissing(Exception)`
+- `SubjectMissingWeight(Exception)`
+
+**Functions**
+
+- `build_server_directory()`: Builds directory to `snlkt/data/raw/` for the appropriate
+project and subject for that day's imaging. This is where NWBFiles will be written
+and where the day's imaging data will be written to.
+
+*`nwb_utils.py`: Determine Sessions for CMS Project and XML Exception Handling*
+Due to the use of stimulations and voltage outputs in the new paradigm, the
+`xml.etree.ElementTree` parser crashes when reading the `.env` file when it
+encounters invalid characters that are produced in v1.0 XML but are not supported
+until v1.1. Microsoft's .NET implementation does not yet correct for this, but 
+per Michael Fox (Senior Software Engineer at Bruker who has been helping me enormously)
+Microsoft has let this (minor) problem persist for decades. The use of `lxml` has been
+added to the program should the `xml.etree` module fail as it has an option to escape
+badly formed XML with the `recover=True` option.
+
+*`prairieview_utils.py`: Setting Channels and Lasers*
+New functions are present for telling Prairie View to use different channels when
+appropriate for what functional indicator is being imaged at the time of the
+experiment.
+
+- `set_one_channel_zseries`: Sets appropirate channel for imaging a specific
+indicator. Uses either Red (Ch1) or Green (Ch2).
+
+
+**_Arduino_**
+
+The Arduino sketch for team specialk has been updated to handle the new transferring
+of LED array, LED Trial types, LED Timings, and LED Triggers. Doc strings have been added
+for all these new functions in the source.
+
+- `typeLED()`: Used for determining what kind of LED trial is occuring and prints it to
+Serial monitor for the user.
+- `setLEDStart()`: Used for calculating when to send an LED trigger
+- `brukerTriggerLED()`: Sends signal to Bruker DAQ if an LED is scheduled to occur.
+
+**_Shell Scripting_**
+
+A new script called `bruker_transfer_utility.sh` has been written for automatic transferring
+of files to the server. It is currently only usable by team Specialk because it is the only
+team that has the directory structure built and ready to use on the file server. It's use is
+simple and is outlined in the updated `README` at the end of the document. It uses the tool
+`rsync` to conduct the file transfer to the SNL server.
+
+**_Prairie View_**
+
+A new "Mark Points Series" has been incorporated for team specialk as has a new "Voltage
+Output" experiment that is synced with "Mark Points" when a Stimulation Experiment is
+being conducted.
+
+### Changed
+
+**_Python_**
+
+There are some minor changes associated with how things operate in Python.
+
+*`serialtransfer_utils.py`*
+- Introduced new metadata variable for transmission that encodes the stimulation array.
+
+*`prairieview_utils.py`*
+- Added a progress bar and increased amount of time for laser changes to 5 seconds in `set_laser_lambda`
+- Added a progress bar for z-stacks in `z-stack` so the terminal doesn't look like it's hanging during
+operation.
+
+**_Arudino_**
+
+The Serial Monitor is a little less busy now. Far fewer things are printed to the terminal in favor
+of a cleaner appearance for just trial type, trial number, and when the stimuli is delivered to the subject.
+This has only been done for Specialk because I'm unsure if other teams would want/request this.
+
+**_Prairie View_**
+
+The team specialk Voltage Recording has been changed to include the LED590 stimulations if the session
+calls for it.
+
+
 ## bruker_control.py v.1.6.0 *Big Mac* - 2021-10-02
 
 This is v1.6.0!  It might be spooky season, but have no fear! This update isn't so scary.
