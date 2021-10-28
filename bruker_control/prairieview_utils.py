@@ -17,8 +17,11 @@ from datetime import datetime
 # Import sleep to let Prairie View change between Galov and Resonant Galvo
 from time import sleep
 
-# Import warnings for letting user know if laser can't reach optimal value
-import warnings
+# Import tqdm for progress bar
+from tqdm import tqdm
+
+# Import pathlib for creating z-stack directory
+from pathlib import Path
 
 # Save the Praire View application as pl
 pl = client.Dispatch("PrairieLink64.Application")
@@ -82,8 +85,8 @@ def set_resonant_galvo():
     # Change Acquisition Mode to Resonant Galvo
     pl.SendScriptCommands("-SetAcquisitionMode 'Resonant Galvo'")
 
-    # Wait 1 second for Prairie View to switch modes
-    sleep(1)
+    # Wait 3 seconds for Prairie View to switch modes
+    sleep(3)
 
 
 def set_galvo_galvo():
@@ -99,8 +102,8 @@ def set_galvo_galvo():
     # Change Acqusition Mode to Galvo Galvo
     pl.SendScriptCommands("-SetAcquisitionMode 'Galvo'")
 
-    # Wait 1 second for Prairie View to switch modes
-    sleep(1)
+    # Wait 3 seconds for Prairie View to switch modes
+    sleep(3)
 
 # -----------------------------------------------------------------------------
 # Abort T-Series Function
@@ -238,7 +241,7 @@ def set_laser_lambda(indicator_lambda: float):
     indicator_lambda = 2 * indicator_lambda
 
     # If the optimal lambda for the indicator is greater than the Mai Tai
-    # Deep See's max output capabilities (1040nm) raise a warning and set
+    # Deep See's max output capabilities (1040nm) printa  warning and set
     # the laser to that maximum value.
     if indicator_lambda > 1040:
         print("Optimal wavelength beyond laser's capabilities! Setting to max.")
@@ -246,7 +249,9 @@ def set_laser_lambda(indicator_lambda: float):
 
     pl.SendScriptCommands("-SetMultiphotonWavelength '{}' 1".format(indicator_lambda))
 
-    sleep(3)
+    # Give Prairie View some time to actually adjust the wavelength before starting.
+    for i in tqdm(range(500), desc="Setting Laser Wavelength", ascii=True):
+        sleep(0.01)
 
 # TODO: Set PMT values potentially, need to test without this first to see if
 # it is necessary
@@ -305,8 +310,9 @@ def prepare_tseries(project: str, subject_id: str, current_plane: int,
     Readies the Bruker 2-Photon microscope for a T-Series experiment
 
     Sets directories and filenames for recording. Ensures that Resonant Galvo
-    mode is selected. and initializes Bruker T-Series for imaging and Voltage
-    Recording for behavior data. This function returns nothing.
+    mode is selected. Sets Prairie View to only use the gcamp indicator channel
+    (Channel 2). Initializes Bruker T-Series for imaging, Voltage Recording for
+    behavior data, and Mark Points Series as a work around for stimulation trials.
 
     Args:
         project:
@@ -326,8 +332,22 @@ def prepare_tseries(project: str, subject_id: str, current_plane: int,
 
     set_resonant_galvo()
 
+    # For specialk, there could be an instance where the red channel is
+    # acquiring data for the Z-stack collected before this point.
+    # To make sure that only the relevant channel is used (the green one),
+    # turn Channel 1 off and make sure that Channel 2 is on.
     if project == "specialk":
         set_tseries_parameters(surgery_metadata)
+
+
+        # TODO: Make this channel setting its own function in next refactor
+        pl.SendScriptCommands("-SetChannel '1' 'Off'")
+        pl.SendScriptCommands("-SetChannel '2' On'")
+
+        # TODO: Make this part of a configuration and make tseries_stim
+        # vs tseries_nostim. Must be done with next refactor...
+        # pl.SendScriptCommands("-MarkPoints 'specialk' 'cms_stimulations'")
+
 
 
 def set_tseries_parameters(surgery_metadata):
@@ -353,8 +373,7 @@ def set_tseries_parameters(surgery_metadata):
 # Z-Series Functions
 # -----------------------------------------------------------------------------
 
-
-def prepare_zseries(team: str, subject_id: str, current_plane: int,
+def configure_zseries(team: str, subject_id: str, current_plane: int,
                     imaging_plane: float, indicator_name: str, stack: int,
                     zstack_delta: float, zstack_step: float):
     """
@@ -424,17 +443,17 @@ def set_zseries_parameters(imaging_plane, zstack_delta, zstack_step):
 
     pl.SendScriptCommands("-SetMotorPosition 'Z' '{}'".format(z_start_position))
 
-    sleep(0.25)
+    sleep(1)
 
     pl.SendScriptCommands("-SetZSeriesStepSize '{}'".format(zstack_step))
 
-    sleep(0.25)
+    sleep(1)
 
     pl.SendScriptCommands("-SetZSeriesStart 'allSettings'")
 
     pl.SendScriptCommands("-SetMotorPosition 'Z' '{}'".format(z_end_position))
 
-    sleep(0.25)
+    sleep(1)
 
     pl.SendScriptCommands("-SetZSeriesStop 'allSettings")
 
@@ -488,6 +507,7 @@ def set_zseries_filename(team: str, subject_id: str,
     # collected for the indicator
     pl.SendScriptCommands("-SetFileIteration Zseries {}".format(stack))
 
+    # Set the filename for the Z-stack
     pl.SendScriptCommands("-SetFileName Zseries {}".format(imaging_filename))
 
 
@@ -557,13 +577,21 @@ def zstack(zstack_metadata: dict, team: str, subject_id: str,
 
         indicator_name = indicator_metadata[indicator]["fluorophore"]
 
+        print("Conducting Z-Series for indicator:", indicator_name)
+
         indicator_lambda = indicator_metadata[indicator]["fluorophore_excitation_lambda"]
+
+        indicator_emission = indicator_metadata[indicator]["fluorophore_emission_lambda"]
 
         set_laser_lambda(indicator_lambda)
 
-        for stack in range(1, total_stacks + 1):
+        set_one_channel_zseries(indicator_emission)
 
-            prepare_zseries(
+        current_stack = 0
+
+        for stack in tqdm(range(current_stack, total_stacks), desc="Z-Stack Progress", ascii=True):
+
+            configure_zseries(
                 team,
                 subject_id,
                 current_plane,
@@ -576,5 +604,31 @@ def zstack(zstack_metadata: dict, team: str, subject_id: str,
 
             pl.SendScriptCommands("-ZSeries")
 
+            current_stack += 1
+
     # Put Z-axis back to imaging plane
     pl.SendScriptCommands("-SetMotorPosition 'Z' {}".format(imaging_plane))
+
+def set_one_channel_zseries(indicator_emission: float):
+    """
+    Sets proper recording channel to use (1: Red 2: Green) in the z-stack.
+
+    Different indicators have different channels that should be recorded from
+    depending on the emission wavelengths of the indicators being imaged.
+
+    Args:
+        indicator_emission:
+            Wavelength fluorescent indicator emits when cell is active and
+            being stimulated by light
+    """
+
+    # If the indicator's emission wavelength is above green wavelengths,
+    # use only the red channel.
+    if indicator_emission >= 570.0:
+        pl.SendScriptCommands("-SetChannel '1' 'On'")
+        pl.SendScriptCommands("-SetChannel '2' Off'")
+    
+    # Otherwise, use the green channel
+    else:
+        pl.SendScriptCommands("-SetChannel '1' 'Off'")
+        pl.SendScriptCommands("-SetChannel '2' 'On'")

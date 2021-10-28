@@ -6,7 +6,7 @@
 # https://github.com/PowerBroker2/pySerialTransfer
 # Genie Nano manufactured by Teledyne DALSA
 
-__version__ = "1.6.0"
+__version__ = "1.8.0"
 
 ###############################################################################
 # Import Packages
@@ -50,55 +50,80 @@ team_choices = [team.name for team in teams_path.glob("*") if team.name
 if __name__ == "__main__":
 
     # Create argument parser for metadata configuration
-    metadata_parser = argparse.ArgumentParser(description='Set Metadata',
-                                              epilog="Good luck on your work!",
-                                              prog='Bruker Experiment Control')
+    metadata_parser = argparse.ArgumentParser(
+        description='Set Metadata',
+        epilog="Good luck on your work!",
+        prog='Bruker Experiment Control'
+    )
 
     # Add team name argument
-    metadata_parser.add_argument('-t', '--team',
-                                 type=str,
-                                 action='store',
-                                 dest='team',
-                                 help='Team Name (required)',
-                                 choices=team_choices,
-                                 required=True)
+    metadata_parser.add_argument(
+        '-t', '--team',
+        type=str,
+        action='store',
+        dest='team',
+        help='Team Name (required)',
+        choices=team_choices,
+        required=True
+    )
 
     # Add number of imaging planes argument
-    metadata_parser.add_argument('-i', '--imaging_planes',
-                                 type=int,
-                                 action='store',
-                                 dest='imaging_planes',
-                                 help='Number of Imaging Planes (required)',
-                                 required=True)
+    metadata_parser.add_argument(
+        '-i', '--imaging_planes',
+        type=int,
+        action='store',
+        dest='imaging_planes',
+        help='Number of Imaging Planes (required)',
+        required=True
+    )
 
-    # Add mouse id argument
-    metadata_parser.add_argument('-s', '--subject_id',
-                                 type=str,
-                                 action='store',
-                                 dest='subject_id',
-                                 help='Subject ID (required)',
-                                 required=True)
+    # Add subject ID argument
+    metadata_parser.add_argument(
+        '-s', '--subject_id',
+        type=str,
+        action='store',
+        dest='subject_id',
+        help='Subject ID (required)',
+        required=True
+    )
+
+    # Add project flag
+    metadata_parser.add_argument(
+        '-p', '--project',
+        type=str,
+        action='store',
+        dest='project',
+        help="Two letter code for project (required)",
+        required=True
+    )
+
 
     # Add experimenter id argument
-    metadata_parser.add_argument('-e', '--experimenter',
-                                 type=str,
-                                 action='store',
-                                 dest='experimenter',
-                                 help='Experimenter Full Name (optional)',
-                                 default=None,
-                                 required=False)
+    metadata_parser.add_argument(
+        '-e', '--experimenter',
+        type=str,
+        action='store',
+        dest='experimenter',
+        help='Experimenter Full Name (optional)',
+        default=None,
+        required=False
+        )
 
     # Add demo flag
-    metadata_parser.add_argument('-d', '--demo',
-                                 action='store_true',
-                                 dest='demo',
-                                 help='Use Demonstration Values (bool flag)',
-                                 required=False)
+    metadata_parser.add_argument(
+        '-d', '--demo',
+        action='store_true',
+        dest='demo',
+        help='Use Demonstration Values (bool flag)',
+        required=False
+        )
 
     # Add program version argument
-    metadata_parser.add_argument('--version',
-                                 action='version',
-                                 version='%(prog)s v. ' + __version__)
+    metadata_parser.add_argument(
+        '--version',
+        action='version',
+        version='%(prog)s v. ' + __version__
+        )
 
     # Parse the arguments given by the user
     metadata_args = vars(metadata_parser.parse_args())

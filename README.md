@@ -6,7 +6,7 @@ Repository for MATLAB/Python code running behavior experiments in the Headfix an
 
 Currently, the code is functional for the Bruker 2P microscope. Training code is not currently present on the repo. MATLAB's scanbox is not present on the repo.
 
-## bruker_control.py v1.6.0: Now with Z-Stacks bigger than a Big Mac! 🍔
+## bruker_control.py v1.8.0: Stimulate your Mind 🔦🎆🧠 
 A (very) basic rundown of the experimental runtime is included below.
 
 ![User Execution Graph](https://github.com/Tyelab/headfix_control/blob/main/docs/bruker_user_executiongraph.png)
