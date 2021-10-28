@@ -6,7 +6,7 @@
 # https://github.com/PowerBroker2/pySerialTransfer
 # Genie Nano manufactured by Teledyne DALSA
 
-__version__ = "1.8.0"
+__version__ = "1.8.0 Stimulate Your Mind"
 
 ###############################################################################
 # Import Packages
@@ -96,7 +96,6 @@ if __name__ == "__main__":
         help="Two letter code for project (required)",
         required=True
     )
-
 
     # Add experimenter id argument
     metadata_parser.add_argument(

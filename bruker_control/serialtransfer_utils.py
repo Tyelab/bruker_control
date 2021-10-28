@@ -268,6 +268,9 @@ def transfer_metadata(arduino_metadata: str, link: txfer.SerialTransfer):
         rxmetaData['USDeliveryTime_Air'] = link.rx_obj(obj_type='B', start_pos=rxmetaData_size)
         rxmetaData_size += txfer.ARRAY_FORMAT_LENGTHS['B']
         rxmetaData['USConsumptionTime_Sucrose'] = link.rx_obj(obj_type='H', start_pos=rxmetaData_size)
+        rxmetaData_size += txfer.ARRAY_FORMAT_LENGTHS['H']
+        rxmetaData['stimDeliveryTime_Total'] = link.rx_obj(obj_type='H', start_pos=rxmetaData_size)
+
 
     except KeyboardInterrupt:
         try:

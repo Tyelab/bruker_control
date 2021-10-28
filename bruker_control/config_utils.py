@@ -150,34 +150,34 @@ class SubjectMissingWeight(Exception):
 # Metadata Classes: In development
 ###############################################################################
 
-class ConfigTemplate:
-    """
-    Class containing configuration values from project's .JSON file.
-    """
+# class ConfigTemplate:
+#     """
+#     Class containing configuration values from project's .JSON file.
+#     """
 
-class StimMetadata(ConfigTemplate):
-    """
-    Metadata class describing information related to stimulation parameters
-    """
+# class StimMetadata(ConfigTemplate):
+#     """
+#     Metadata class describing information related to stimulation parameters
+#     """
 
-class IndicatorMetadata(ConfigTemplate):
-    """
-    Metadata class describing imaging indicators' properties.
-    """
+# class IndicatorMetadata(ConfigTemplate):
+#     """
+#     Metadata class describing imaging indicators' properties.
+#     """
 
-class SubjectMetadata(ConfigTemplate):
-    """
-    Metadata class describing information related to the subject being imaged
-    """
+# class SubjectMetadata(ConfigTemplate):
+#     """
+#     Metadata class describing information related to the subject being imaged
+#     """
 
-class SurgeryMetadata(ConfigTemplate):
-    """
-    Metadata class describing information related to subject's surgeries
-    """
-class ZStackMetadata(ConfigTemplate):
-    """
-    Metadata class describing information related to the Z-stack functionality
-    """
+# class SurgeryMetadata(ConfigTemplate):
+#     """
+#     Metadata class describing information related to subject's surgeries
+#     """
+# class ZStackMetadata(ConfigTemplate):
+#     """
+#     Metadata class describing information related to the Z-stack functionality
+#     """
 
 ###############################################################################
 # Functions

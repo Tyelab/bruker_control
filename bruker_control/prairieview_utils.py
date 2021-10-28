@@ -587,9 +587,7 @@ def zstack(zstack_metadata: dict, team: str, subject_id: str,
 
         set_one_channel_zseries(indicator_emission)
 
-        current_stack = 0
-
-        for stack in tqdm(range(current_stack, total_stacks), desc="Z-Stack Progress", ascii=True):
+        for stack in range(0, total_stacks + 1):
 
             configure_zseries(
                 team,
@@ -604,7 +602,10 @@ def zstack(zstack_metadata: dict, team: str, subject_id: str,
 
             pl.SendScriptCommands("-ZSeries")
 
-            current_stack += 1
+            # Make progress bar for z-stack duration
+            for second in tqdm(range(0, zstack_delta*2), desc="Z-Stack Progress", ascii=True):
+                sleep(1)
+
 
     # Put Z-axis back to imaging plane
     pl.SendScriptCommands("-SetMotorPosition 'Z' {}".format(imaging_plane))
