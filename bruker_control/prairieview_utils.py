@@ -250,7 +250,7 @@ def set_laser_lambda(indicator_lambda: float):
     pl.SendScriptCommands("-SetMultiphotonWavelength '{}' 1".format(indicator_lambda))
 
     # Give Prairie View some time to actually adjust the wavelength before starting.
-    for i in tqdm(range(500), desc="Setting Laser Wavelength", ascii=True):
+    for i in tqdm(range(800), desc="Setting Laser Wavelength", ascii=True):
         sleep(0.01)
 
 # TODO: Set PMT values potentially, need to test without this first to see if
@@ -587,7 +587,7 @@ def zstack(zstack_metadata: dict, team: str, subject_id: str,
 
         set_one_channel_zseries(indicator_emission)
 
-        for stack in range(0, total_stacks + 1):
+        for stack in range(0, total_stacks):
 
             configure_zseries(
                 team,
@@ -603,8 +603,11 @@ def zstack(zstack_metadata: dict, team: str, subject_id: str,
             pl.SendScriptCommands("-ZSeries")
 
             # Make progress bar for z-stack duration
-            for second in tqdm(range(0, zstack_delta*2), desc="Z-Stack Progress", ascii=True):
-                sleep(1)
+            for second in tqdm(range(0, int(zstack_delta)*2), desc="Z-Stack Progress", ascii=True):
+
+                # After some additional testing it appears that this value sleeps an
+                # appropriate amount.
+                sleep(1.33)
 
 
     # Put Z-axis back to imaging plane
@@ -628,7 +631,7 @@ def set_one_channel_zseries(indicator_emission: float):
     if indicator_emission >= 570.0:
         pl.SendScriptCommands("-SetChannel '1' 'On'")
         pl.SendScriptCommands("-SetChannel '2' Off'")
-    
+
     # Otherwise, use the green channel
     else:
         pl.SendScriptCommands("-SetChannel '1' 'Off'")
