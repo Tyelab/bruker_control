@@ -6,7 +6,7 @@ A changelog for commits and changes before this version will not be added.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## bruker_control.py v1.8.2 Hotfix
+## bruker_control.py v1.8.2 Hotfix - 2021-10-27
 Small fix to versioning numbers, longer timing for `set_laser_lambda` as it was too short
 when going between laser wavelengths. Changed where Z-stack `tqdm` progress bar occurs
 and made timing more representative of actual progress.
