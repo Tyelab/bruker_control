@@ -19,7 +19,7 @@ from typing import Tuple
 
 
 ###############################################################################
-# Functions
+# Functions: No stimulation
 ###############################################################################
 
 
@@ -28,13 +28,13 @@ from typing import Tuple
 # -----------------------------------------------------------------------------
 
 
-def gen_trialArray(config_template: dict) -> np.ndarray:
+def gen_trialArray_nostim(config_template: dict) -> np.ndarray:
     """
-    Creates pseudorandom trial structure for binary discrimination task.
+    Creates pseudorandom trial structure for binary discrimination task without stimulation.
 
     Generates array of stimuli and catch trials from configuration file the
-    user provides.  1s and 0s encode stimuli where 1 is reward and 0 is
-    punishment. 2s and 3s encode catch trials where 2 is aversive catch and
+    user provides.  1 and 0 encode stimuli where 1 is reward and 0 is
+    punishment. 2 and 3 encode catch trials where 2 is aversive catch and
     3 is reward catch.
 
     Args:
@@ -79,7 +79,7 @@ def gen_trialArray(config_template: dict) -> np.ndarray:
     catch_check = True
 
     # While the punish and catch checks are not BOTH False (or zero)
-    while punish_check + catch_check + reward_check != 0:
+    while sum([punish_check, catch_check, reward_check]) != 0:
 
         # Create temporary array that's a fresh copy of starting array
         tmp_array = fresh_array.copy()
@@ -198,7 +198,6 @@ def flip_catch(trialArray: np.ndarray, config_template: dict,
 
     # For each index in the chosen punish_catch_list, change the trial's value
     # to 2.
-    # TODO: This should be made a function or perhaps a method on array
     for index in punish_catch_list:
         trialArray[index] = 2
 
@@ -208,7 +207,6 @@ def flip_catch(trialArray: np.ndarray, config_template: dict,
 
     # For each index in the chosen punish_catch_list, change the trial's value
     # to 3.
-    # TODO: This should be made a function or perhaps a method on array
     for index in reward_catch_list:
         trialArray[index] = 3
 
@@ -274,14 +272,14 @@ def punish_catch_sample(punish_trials: list, num_catch_punish: int) -> list:
     # number of punish catch trials specified and finally convert it to a list.
     punish_catch_list = rng.choice(
         punish_trials,
-        size=num_catch_punish
+        size=num_catch_punish,
+        replace=False
         ).tolist()
 
     return punish_catch_list
 
 
-def check_session_punishments(trialArray: np.ndarray,
-                              max_seq_punish: int) -> bool:
+def check_session_punishments(trialArray: np.ndarray, max_seq_punish: int) -> bool:
     """
     Check if too many punish trials happen sequentially
 
@@ -309,9 +307,10 @@ def check_session_punishments(trialArray: np.ndarray,
     # Loop over the trialArray
     for trial in trialArray:
 
-        # If the trial is a reward trial (1), set number of punishments in a
-        # row to zero
-        if trial == 1:
+        # TODO: Is this really the best I can do? There's gotta be a cleaner way...
+        # If the trial is anything other than a punish trial, stimulation or not,
+        # set number of punishments in a row to zero
+        if trial == 1 or 3 or 4 or 6:
             punishments = 0
 
         # If the number of punishments in a row reaches max number of allowed
@@ -396,10 +395,10 @@ def flip_punishments(tmp_array: np.ndarray, potential_flips: np.ndarray,
             Integer of number of punishment trials to flip for session
 
     Returns:
-        tmp_array
+        tmp_array:
             Modified array containing flipped values, to be saved as trialArray
 
-        punish_check
+        punish_check:
             Boolean status of whether the array meets experimenter defined
             criteria. False if successful, True if failed.
     """
@@ -513,9 +512,9 @@ def gen_static_ITIArray(config_template: dict) -> list:
 
 def gen_jitter_toneArray(config_template: dict) -> list:
     """
-    Generate jittered ITIArray for given experiment from user specified bounds.
+    Generate jittered toneArray for given experiment from user specified bounds.
 
-    Generates array of ITIs from configuration the user provides.  Uses a
+    Generates array of tones from configuration the user provides.  Uses a
     random uniform distribution bounded by the lower and upper ITIs as defined
     in the configuration file.
 
@@ -624,7 +623,7 @@ def gen_toneArray(config_template: dict) -> list:
     Generate toneArray for experimental runtime from configuration.
 
     Generates toneArray from user's configuration file.  Generates either
-    static or jittered ITIs depending on user's selection.
+    static or jittered tones depending on user's selection.
 
     Args:
         config_template:
@@ -638,7 +637,7 @@ def gen_toneArray(config_template: dict) -> list:
     # Gather tone_jitter status from configuraiton
     tone_jitter = config_template["beh_metadata"]["toneJitter"]
 
-    # If the tone_jitter status is true, create a static tone array
+    # If the tone_jitter status is true, create a jittered tone array
     if tone_jitter:
         toneArray = gen_jitter_toneArray(config_template)
 
@@ -673,36 +672,45 @@ def calculate_session_length(experiment_arrays: list,
         Session length in seconds.
     """
 
+    # NOTE: 10/22/21, Jeremy Delahanty
+    # Users currently have stimuli delivery (air/liquid) occur DURING
+    # the tone playing, not afterwards as the commented out blocks would
+    # require. A large refactor will take place in the future that
+    # will generate a class for stimulations that happen during a tone
+    # and a class for stimulations that happens afterwards. For now,
+    # these other values will remain commented out pending this refactor
+    # or if someone really needs to do it after stimulation.
+
     # Get vacuum status for the experiment
-    vacuum = config_template["beh_metadata"]["vacuum"]
+    # vacuum = config_template["beh_metadata"]["vacuum"]
 
     # Get amount of milliseconds reward is delivered for
-    reward_delivery_ms = config_template["beh_metadata"]["USDeliveryTime_Sucrose"]
+    # reward_delivery_ms = config_template["beh_metadata"]["USDeliveryTime_Sucrose"]
 
     # Get amount of milliseconds rewards are present for
-    reward_prsnt_ms = config_template["beh_metadata"]["USConsumptionTime_Sucrose"]
+    # reward_prsnt_ms = config_template["beh_metadata"]["USConsumptionTime_Sucrose"]
 
     # Get amount of milliseconds punishments are present for
-    punish_delivery_ms = config_template["beh_metadata"]["USDeliveryTime_Air"]
+    # punish_delivery_ms = config_template["beh_metadata"]["USDeliveryTime_Air"]
 
     # Make session_length_s variable and add to it as values are calculated
     session_len_s = 0
 
     # trialArray is always in index 0 in the experimental array_list
-    trialArray = experiment_arrays[0]
+    # trialArray = experiment_arrays[0]
 
     # Calculate reward_seconds and add to session length
-    reward_seconds = calculate_reward_seconds(
-        reward_delivery_ms,
-        reward_prsnt_ms,
-        trialArray,
-        vacuum
-        )
-    session_len_s += reward_seconds
+    # reward_seconds = calculate_reward_seconds(
+    #     reward_delivery_ms,
+    #     reward_prsnt_ms,
+    #     trialArray,
+    #     vacuum
+    #     )
+    # session_len_s += reward_seconds
 
-    # Calculate punish seconds
-    punish_seconds = calculate_punish_seconds(punish_delivery_ms, trialArray)
-    session_len_s += punish_seconds
+    # # Calculate punish seconds
+    # punish_seconds = calculate_punish_seconds(punish_delivery_ms, trialArray)
+    # session_len_s += punish_seconds
 
     # Calculate total number of seconds ITI's occur.  The 1st element in the
     # experimental_array_list is always the ITIArray.  Add to session length.
@@ -803,10 +811,10 @@ def calculate_punish_seconds(punish_delivery_ms: int, trialArray: list) -> int:
 
 def generate_arrays(config_template: dict) -> list:
     """
-    Generates all necessary arrays for Bruker experimental runtime.
+    Generates all necessary arrays for Bruker experimental runtime without stimluation.
 
     Creates arrays as specified by user's configuration file.  Builds the
-    trialArray, ITIArray, and noiseArray according to user defined rules.
+    trialArray, ITIArray, toneArray, and LEDArray according to user defined rules.
 
     Args:
         config_template:
@@ -819,19 +827,439 @@ def generate_arrays(config_template: dict) -> list:
     """
 
     # Generate trialArray using template configuration values and convert it to
-    # to a list pySerialTransfer.
-    trialArray = gen_trialArray(config_template).tolist()
+    # to a list pySerialTransfer. If the experiment requires stimulation, use
+    # gen_trialArray_stim. Otherwise, use gen_trialArray_nostim.
+    if config_template["beh_metadata"]["stim"]:
+        trialArray = gen_trialArray_stim(config_template).tolist()
+    else:
+        trialArray = gen_trialArray_nostim(config_template).tolist()
 
     # Generate ITIArray using template configuration values.  This is already
-    # converted to a list during generation if necessary.
+    # converted to a list during generation.
     ITIArray = gen_ITIArray(config_template)
 
     # Generate toneArray using template configuration values.  This is already
-    # converted to a list during generation if necessary.
+    # converted to a list during generation.
     toneArray = gen_toneArray(config_template)
 
+    # Generate LEDArray using template configuration values, trialArray, and
+    # ITI array.
+    LEDArray = gen_LEDArray(config_template, trialArray, ITIArray)
+
     # Put arrays together in a list
-    experiment_arrays = [trialArray, ITIArray, toneArray]
+    experiment_arrays = [trialArray, ITIArray, toneArray, LEDArray]
 
     # Return list of arrays to be transferred via pySerialTransfer
     return experiment_arrays
+
+
+###############################################################################
+# Functions: Stimulation
+###############################################################################
+
+
+# -----------------------------------------------------------------------------
+# Trial Array Generation
+# -----------------------------------------------------------------------------
+
+def gen_trialArray_stim(config_template: dict) -> np.ndarray:
+    """
+    Creates pseudorandom trial structure for binary discrimination task with LED stimulation.
+
+    Generates array of stimuli and catch trials from configuration file the
+    user provides.  1 and 0 encode stimuli where 1 is reward and 0 is
+    punishment. 2 and 3 encode catch trials where 2 is aversive catch and
+    3 is reward catch. 4, 5, and 6 encode LED stimulation where 4 is aversive
+    stim, 5 is reward stim, and 6 is stim alone.
+
+    Args:
+        config_template:
+            Configuration template value dictionary gathered from team's
+            configuration .json file.
+
+    Returns:
+        trialArray
+            Trial array with user specified trial structure using LED stimulation.
+    """
+
+    # Create trial array that's all reward trials, to be flipped randomly
+    fresh_array = np.ones(
+        config_template["beh_metadata"]["totalNumberOfTrials"],
+        dtype=int
+    )
+
+    # TODO: Again, all of this should just be part of a stimulation class
+    # or something, but I haven't done that refactor yet...
+    # Get maximum number of punishment trials that can occur in a row
+    max_seq_punish = config_template["beh_metadata"]["maxSequentialPunish"]
+
+    # Get maximum number of reward trials that can occur in a row
+    max_seq_reward = config_template["beh_metadata"]["maxSequentialReward"]
+
+    # Get number of positive stimulation trials
+    num_stim_reward = config_template["beh_metadata"]["numStimReward"]
+
+    # Get number of aversive stimulation trials
+    num_stim_punish = config_template["beh_metadata"]["numStimPunish"]
+
+    # Get number of stimulation alone trials
+    num_stim_alone = config_template["beh_metadata"]["numStimAlone"]
+
+    # Get position where stimulation trials will start
+    stim_start_position = config_template["beh_metadata"]["stimStartPosition"]
+
+    # Calculate total number of stimulation trials
+    total_stim_trials = sum([num_stim_reward, num_stim_punish, num_stim_alone])
+
+    # Build the array containing stimulation trials
+    stimulated_array = flip_stim_trials(
+        fresh_array,
+        total_stim_trials,
+        num_stim_punish,
+        num_stim_alone,
+        stim_start_position,
+        max_seq_punish
+    )
+
+    # Calculate the number of punishment trials to deliver outside stimulation epochs
+    # which is the total number of punish trials minus the ones already allocated
+    num_punish_nostim = round(
+        (config_template["beh_metadata"]["percentPunish"] * len(fresh_array)) -
+        num_stim_punish
+        )
+
+    # Define which trials can be flipped before the stimulation epoch
+    potential_pre_stim_flips = np.arange(
+        config_template["beh_metadata"]["startingReward"],
+        stim_start_position
+    )
+
+    # Define which trials can be flipped after the stimulation epoch
+    potential_post_stim_flips = np.arange(
+        stim_start_position + total_stim_trials,
+        len(stimulated_array)
+    )
+
+    # Combine pre/post stimulation positions into one array
+    potential_nostim_flips = np.concatenate(
+        (potential_pre_stim_flips, potential_post_stim_flips),
+        axis=None
+    )
+
+    # Create punish, reward, and catch trial statuses for checking after
+    # flipping trial types in the next step
+    punish_check = True
+    reward_check = True
+    catch_check = True
+
+    # At some point, this should be made into a function of it's own probably
+    # While the punish, catch, and reward cheks are not all false (or zero)
+    while sum([punish_check, catch_check, reward_check]) != 0:
+
+        # Create temporary array that's a copy of stimulated array
+        tmp_array = stimulated_array.copy()
+
+        # Perform the flips for punish trials upon the tmp_array using
+        # list of potential nos stimulation flips and the number of punish
+        # trials remaining
+
+        trialArray, punish_check = flip_punishments(
+            tmp_array,
+            potential_nostim_flips,
+            num_punish_nostim,
+            max_seq_punish
+            )
+
+        # If the number of punish trials is less than half, getting a valid
+        # trial set is unlikely if the number of rewards in a row is
+        # restricted.  Therefore, sest the reward_check to False.
+        if config_template["beh_metadata"]["percentPunish"] < 0.50:
+            reward_check = False
+
+        # Otherwise use check_session_rewards to ensure trial structure is
+        # compliant with study's rules.
+        else:
+            reward_check = check_session_rewards(
+                trialArray,
+                max_seq_reward
+                )
+
+        # Use generated trialArray and config_template values to perform
+        # catch trial flips
+        trialArray, catch_check = flip_catch(
+            trialArray,
+            config_template,
+            catch_check
+            )
+
+    return trialArray
+
+
+def flip_stim_trials(fresh_array: np.ndarray, total_stim_trials: int, num_stim_punish: int,
+                     num_stim_alone: int, stim_start_position: int, max_seq_punish: int) -> np.ndarray:
+    """
+    Flips fresh array of all reward trials into stimulation trials for both reward and punish trials.
+
+    Stimulation trials are defined by the user as part of the configuration template file.
+    The fresh array containing all reward trials has a subset of trials flipped to stimulation
+    trial types (4, 5, or 6) that starts at the specified position in the trial structure.
+    It first flips the subset of trials to reward, punish, and stimulation alone trials and then
+    performs multiple shuffles of the subset. A check for sequential punish trials is conducted
+    next and, if it fails, it will reshuffle until it succeeds. Returns a trialArray that has
+    stimulation trials.
+
+    Args:
+        fresh_array:
+            Array composed entirely of reward trials to be flipped pseudo-randomly
+        total_stim_trials:
+            Total number of photo-stimulation trials (reward, punish, and stim only)
+        num_stim_punish:
+            User specified number of photo-stimulation trials with airpuff
+        num_stim_alone:
+            User specified number of trials with only photo-stimulation
+        stim_start_position:
+            User specified position for where photo-stimulation block starts
+        max_seq_punish:
+            Maximum number of punishment trials permitted in a row
+    
+    Returns:
+        stimulated_array:
+            Intermediate Trial Array that contains stimulation trials per user's rules
+
+    """
+
+    # Specify the stimulation indexes that will be used that may be flipped
+    # to punish trials
+    potential_stim_flips = np.arange(
+        stim_start_position,
+        stim_start_position + total_stim_trials
+    )
+
+    # Create a punishment check flag to ensure no more than the specified
+    # maximum number of sequential punish trials will occur.
+    punish_check = True
+
+    while punish_check:
+
+        stimulated_array, punish_check = flip_punishments(
+            fresh_array,
+            potential_stim_flips,
+            num_stim_punish,
+            max_seq_punish
+        )
+    
+    # TODO: This block of getting dict keys will one day be solved
+    # through the use of classes and, at some point, a function that
+    # generally performs this list(itemgetter()) procedure to output
+    # necessary values. Today, 10/22/21, is not that day.
+    # A remaining set of potential flips must be determined for the
+    # stimulation only trials. First evaluate which indexes were
+    # flipped by flip_punishments
+    punish_stims = [index for index in stimulated_array if index == 0]
+    
+    # Convert potential_stim_flips to list for use with set function
+    stim_idxs = potential_stim_flips.tolist()
+
+    # Use itemgetter to gather the union between stim_idxs and stimulated_array
+    punish_stim_values = list(itemgetter(*stim_idxs)(stimulated_array))
+
+    # Create a dictionary of stim indexes and values to iterate over
+    punish_stim_dict = {stim_idxs[i]: punish_stim_values[i] for i in range(len(stim_idxs))}
+
+    # Get punish stimluation indexes, or where the value is 0
+    punish_stims = [key for key in punish_stim_dict if punish_stim_dict[key] == 0]
+
+    # Use the set function to get only unique indexes that are remaining
+    # from the potential_flips
+    remaining_stim_flips = list(set(stim_idxs) - set(punish_stims))
+
+    # flip_punishments flips trials to 0, or punishment trials. LED Stimulation
+    # trials for punishments are encoded by 4. Therefore, change the
+    # punish trials in the stimulation block to 4. At this point in the
+    # generation of stimuli, the only punishments in the trial set are 
+    # in the stimulation indexes.
+    for trial_type in range(len(stimulated_array)):
+        if stimulated_array[trial_type] == 0:
+            stimulated_array[trial_type] = 4
+
+    # Create stimulation only check flag to ensure that no more than
+    # 2 stim trials occur in a row. For now, this is a hardcoded value.
+    # TODO: Expand configuration to include this value
+    stim_only_check = True
+
+    while stim_only_check:
+
+        tmp_array = stimulated_array.copy()
+
+        stimulated_array, stim_only_check = flip_stim_only(
+            tmp_array,
+            remaining_stim_flips,
+            num_stim_alone
+        )
+
+    # Lastly, turn the appropriate remaining reward trials into
+    # LED Stimulation reward trials
+    for trial_type in range(stim_start_position, stim_start_position + total_stim_trials):
+        if stimulated_array[trial_type] == 1:
+            stimulated_array[trial_type] = 5
+    
+    return stimulated_array
+    
+        
+def flip_stim_only(tmp_array: np.ndarray, remaining_flips: np.ndarray, num_stim_alone: int) -> Tuple[np.ndarray, bool]:
+    """
+    Flips user specified number of trials to stimulation only trials.
+
+    Args:
+        tmp_array:
+            trialArray consisting of trials that have had flips performed for punishment stimulation.
+        remaining_flips:
+            Array of indexes that can be switched to stimulation only trials
+        num_stim_alone:
+            Number of trials where only LED stimulation occurs
+    
+    Returns:
+        trialArray:
+            Trial array containing newly flipped stimulation only trials
+        stim_only_check:
+            Boolean check for if the shuffle was successful
+    """
+
+    # Initialize new random number generator with default_rng()
+    rng = default_rng()
+
+    # Perform random sample with rng.choice from punish_trials list for the
+    # number of punish catch trials specified and finally convert it to a list.
+    stim_only_flips = rng.choice(remaining_flips, size=num_stim_alone, replace=False)
+
+    # For each index in the chosen stim_only_flips, change the trial's value
+    # to 6.
+    for index in stim_only_flips:
+        tmp_array[index] = 6
+
+    # Check flip positions for stim_only trials to make sure no more than 2
+    # occur in a row.
+    stim_only_status = check_session_stim_only(tmp_array, 2)
+
+    # Return the tmp_array to be saved as trialArray and the punish_status
+    return tmp_array, stim_only_status
+
+
+def check_session_stim_only(tmp_array: np.ndarray, max_seq_stim_only=2) -> bool: 
+    """
+    Checks if there are more than 2 stimulation only trials that occur in a row.
+
+    Args:
+        tmp_array:
+            Trial array containing newly flipped stimulation only trials.
+        max_seq_stim_only:
+            Maximim number of stimulation only trials allowed to occur in order.
+    
+    Returns:
+        stim_only_status:
+            Boolean value encoding if the check passed or failed.
+    """
+
+     # Start stim_only count at zero
+    stim_only = 0
+
+    # Set stim_only_check check to False.  If successful, a False status is returned
+    # which allows system to move forward.
+    stim_only_check = False
+
+    # Loop over the trialArray
+    for trial in tmp_array:
+
+        # If the trial is a reward trial or a stimulation punishment trial, set number of
+        # stim_only in a row to zero
+        if trial == 1 or 4:
+            stim_only = 0
+
+        # If the number of stim_only in a row reaches max number of allowed, set stim_only_check
+        # as True and break the loop.
+        elif stim_only == max_seq_stim_only:
+            stim_only_check = True
+            break
+
+        # If the trial is a stim_only trial and the max number of sequential stim_only trials
+        # hasn't occured yet, increment stim_only by 1
+        else:
+            stim_only += 1
+
+    return stim_only_check
+
+
+def gen_LEDArray(config_template: dict, trialArray: np.ndarray, ITIArray: np.ndarray) -> list:
+    """
+    Generates LED stimulation timepoints if necessary.
+
+    Stimulation arrays have been incorporated into the Arduino scripts by default to avoid
+    having several scripts per team to maintain. Therefore, for now at least, LEDArray is
+    is a required part of array generation. This may change in the future where stimulation and
+    no-stimulation experiments have their own Arduino scripts that are used.
+
+    Args:
+        config_template:
+            Configuration template value dictionary gathered from team's
+            configuration .json file
+        trialArray:
+            Completed trial array containing trial types
+        ITIArray:
+            Array of ITIs for the experiment
+    
+    Returns:
+        LEDArray
+    """
+
+    # If the experiment isn't using stimulation, then all the values for the LEDArray will be
+    # zeroes.
+    if not config_template["beh_metadata"]["stim"]:
+        LEDArray = [0]
+    
+    # If the experiment is using stimulation, then calculate the times to send stimulation TTL
+    # triggers to Prairie View
+    else:
+
+        # Gather when the stimulation should start pre-CS
+        precs_delay = config_template["beh_metadata"]["stimDeliveryTime_PreCS"]
+
+        # Get number of positive stimulation trials
+        num_stim_reward = config_template["beh_metadata"]["numStimReward"]
+
+        # Get number of aversive stimulation trials
+        num_stim_punish = config_template["beh_metadata"]["numStimPunish"]
+
+        # Get number of stimulation alone trials
+        num_stim_alone = config_template["beh_metadata"]["numStimAlone"]
+
+        # Calculate total number of stimulation trials
+        total_stim_trials = sum([num_stim_reward, num_stim_punish, num_stim_alone])
+
+        # Get position where stimulation trials will start
+        stim_start_position = config_template["beh_metadata"]["stimStartPosition"]
+
+        # TODO: Stim start and stim end position will be member of StimMetadata class
+        # Create array of stimulation indexes for timing calculation as a list
+        stim_positions = np.arange(
+            stim_start_position,
+            stim_start_position + total_stim_trials
+        )
+
+        # Convert stim_positions np.ndarray to list
+        stim_idxs = stim_positions.tolist()
+
+        # Use itemgetter to gather the union between stim_idxs and stimulated_array
+        iti_stim_values = list(itemgetter(*stim_idxs)(ITIArray))
+
+        # Create a dictionary of stim indexes and values to iterate over
+        iti_stim_dict = {stim_idxs[i]: iti_stim_values[i] for i in range(len(stim_idxs))}
+
+        # Create stimulation array of only relevant stimulation positions
+        LEDArray = [iti_stim_dict[value] for value in iti_stim_dict]
+
+        # Calculate when to send the LED stimulation trigger to Prairie View.
+        # Above we simply copied the ITI values into LEDArray, now we subtract
+        # by when we need to provide the LED stimulus before hand.
+        LEDArray = np.subtract(LEDArray, precs_delay).tolist()
+
+    return LEDArray

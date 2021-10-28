@@ -41,11 +41,54 @@ def run_imaging_experiment(metadata_args):
     # Gather team information
     team = metadata_args["team"]
 
+    # Gather project information
+    project = metadata_args["project"]
+
     # Gather experimenter information
     experimenter = metadata_args["experimenter"]
 
     # Gather number of planes to image
     requested_planes = metadata_args["imaging_planes"]
+
+    print("Gathering metadata...")
+    # TODO: Unite all these functions into one call and build a
+    # metadata Class that contains each of these things in it.  This will
+    # require a significant refactor to transition everything into using
+    # class objects throughout the system.
+    # Get configuration template with config_utils.get_template
+    config_template = config_utils.get_template(team, project)
+
+    # Get Z-Stack metadata; requried for both Specialk and Deryn
+    zstack_metadata = config_utils.get_zstack_metadata(config_template)
+
+    session_path = config_utils.build_server_directory(
+        team,
+        project,
+        subject_id,
+        config_template
+    )
+
+    # Only team specialk has the necessary infrastructure for running
+    # z-stacks.  Any user that wants to run a z-stack for their data must
+    # comply with Specialk-style metadata which is intended to be required
+    # for using bruker_control moving forward.
+    if team == "specialk":
+        # Get project metadata
+        project_metadata = config_utils.get_project_metadata(team, project)
+
+        # Get subject metadata
+        subject_metadata = config_utils.get_subject_metadata(team, project, subject_id)
+
+        # Get surgery metadata
+        surgery_metadata = config_utils.get_surgery_metadata(subject_metadata)
+
+    else:
+        surgery_metadata = None
+
+    # Get metadata that the Arduino requires
+    arduino_metadata = config_utils.get_arduino_metadata(config_template)
+
+    print("Metadata collected!")
 
     # Create experiment running flag
     exp_running = True
@@ -55,38 +98,6 @@ def run_imaging_experiment(metadata_args):
     current_plane = 1
 
     while exp_running is True:
-
-        print("Gathering metadata...")
-        # TODO: Unite all these functions into one call and build a
-        # metadata Class that contains each of these things in it.  This will
-        # require a significant refactor to transition everything into using
-        # class objects throughout the system.
-        # Get configuration template with config_utils.get_template
-        config_template = config_utils.get_template(team)
-
-        # Get Z-Stack metadata; requried for both Specialk and Deryn
-        zstack_metadata = config_utils.get_zstack_metadata(config_template)
-
-        # Only team specialk has the necessary infrastructure for running
-        # z-stacks.  Any user that wants to run a z-stack for their data must
-        # comply with Specialk-style metadata which is intended to be required
-        # for using bruker_control moving forward.
-        if team == "specialk":
-            # Get project metadata
-            project_metadata = config_utils.get_project_metadata(team, subject_id)
-
-            # Get subject metadata
-            subject_metadata = config_utils.get_subject_metadata(team, subject_id)
-
-            # Get surgery metadata
-            surgery_metadata = config_utils.get_surgery_metadata(subject_metadata)
-        else:
-            surgery_metadata = None
-
-        # Get metadata that the Arduino requires
-        arduino_metadata = config_utils.get_arduino_metadata(config_template)
-
-        print("Metadata collected!")
 
         # Create experiment runtime arrays
         experiment_arrays = trial_utils.generate_arrays(config_template)
@@ -141,17 +152,17 @@ def run_imaging_experiment(metadata_args):
                             subject_id
                             )
 
-        config_utils.write_experiment_config(
-            config_template,
-            experiment_arrays,
-            dropped_frames,
-            team,
-            subject_id,
-            str(imaging_plane),
-            current_plane
-            )
-
         prairieview_utils.end_tseries()
+
+        config_utils.write_experiment_config(
+        config_template,
+        experiment_arrays,
+        dropped_frames,
+        team,
+        subject_id,
+        str(imaging_plane),
+        current_plane
+        )
 
         if current_plane == requested_planes:
 
@@ -164,16 +175,20 @@ def run_imaging_experiment(metadata_args):
         else:
             current_plane += 1
 
+        break
+
     if team == "specialk":
 
         nwb_utils.build_nwb_file(
             experimenter,
             team,
+            project,
             subject_id,
             str(imaging_plane),
             subject_metadata,
             project_metadata,
-            surgery_metadata
+            surgery_metadata,
+            session_path
             )
 
         print("Exiting...")
@@ -182,3 +197,4 @@ def run_imaging_experiment(metadata_args):
     else:
         print("Exiting...")
         sys.exit()
+

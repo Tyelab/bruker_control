@@ -11,26 +11,35 @@
 
 # Import datetime for file grepping and date manipulation
 from datetime import datetime
+
 # Import dateutil.tz for timezone functions
 from dateutil.tz import tzlocal
+
 # Import datetime parser for getting Bruker's timestamps into correct format
 from dateutil import parser as dt_parser
+
 # Import uuid module for generating unique IDs for given recording
 import uuid
+
 # Import pathlib for path manipulation and creation
 from pathlib import Path
+
 # Import xml.etree for parsing data from Bruker .env files
 import xml.etree.ElementTree as ET
+
+# Import lxml.etree to parse badly formed Bruker .env files
+import lxml.etree
+
 # Import YAML for gathering metadata about project
 from ruamel.yaml import YAML
+
 # Import Tuple typing for typehints in documentation
-from typing import Tuple
+from typing import Tuple, Union
 
 # Import necessary pyNWB modules for writing out base NWB file to disk
 from pynwb import NWBFile, TimeSeries, NWBHDF5IO
 from pynwb.file import Subject
-from pynwb.image import ImageSeries
-from pynwb.ophys import OpticalChannel
+from pynwb.ophys import OpticalChannel, ImagingPlane, TwoPhotonSeries
 
 # NWB Metadata Requirements: Prairie View Keys
 # Environment keys at Root node of .env file
@@ -43,7 +52,7 @@ pv_state_idx_keys = {"laserWavelength": 0, "laserPower": 0, "pmtGain": 0}
 # Project template configuration directories are within project directories.
 # The snlkt server housing these directories is mounted to the X: volume on the
 # machine BRUKER.
-server_basepath = "X:/"
+server_basepath = "X:/raw/"
 
 # Bruker environment files are written to folders within the selected teams'
 # directories in the Raw Data volume E: on the machine BRUKER. This is where
@@ -51,9 +60,9 @@ server_basepath = "X:/"
 env_basepath = "E:/teams/"
 
 
-def build_nwb_file(experimenter: str, team: str, subject_id: str,
-                   imaging_plane: str, subject_metadata: dict,
-                   project_metadata: dict, surgery_metadata: dict):
+def build_nwb_file(experimenter: str, team: str, project: str, 
+                   subject_id: str, imaging_plane: str, subject_metadata: dict,
+                   project_metadata: dict, surgery_metadata: dict, session_path: Path):
     """
     Builds base NWB file with relevant metadata for session.
 
@@ -66,27 +75,40 @@ def build_nwb_file(experimenter: str, team: str, subject_id: str,
             Experimenter value from the metadata_args["experimenter"]
         team:
             Team value from metadata_args["team"]
+        project:
+            Project value from metadata_args["project"]
         subject_id:
             Subject ID from metadata_args["subject"]
         imaging_plane:
             Plane 2P images were acquired at, the Z-axis value
+        subject_metadata:
+            Metadata about imaged subject for the session.
+        project_metadata:
+            Metadata from given project's .yml file
         surgery_metadata:
             Surgical information about the subject being imaged including the
             types of indicators used and positions of those injections/implants.
+        session_path:
+            Path to write NWB file to and use to determine which session was run
     """
 
     # Get the formatted session_id and newly created session path
-    session_id, session_fullpath = gen_session_id(team, subject_id)
+    session_id = gen_session_id(session_path, project)
 
     # Parse Bruker's metadata for NWB file
     bruker_metadata = get_bruker_metadata(team, imaging_plane)
 
     # Build the base NWB file
-    nwbfile = gen_base_nwbfile(experimenter, session_id, bruker_metadata,
-                               project_metadata)
+    nwbfile = gen_base_nwbfile(
+        experimenter,
+        session_id,
+        bruker_metadata,
+        project_metadata
+        )
 
     # Add imaging information to the NWB file
-    nwbfile = append_imaging_info(nwbfile,
+    nwbfile = append_imaging_info(
+        nwbfile,
         project_metadata,
         bruker_metadata,
         imaging_plane,
@@ -101,10 +123,10 @@ def build_nwb_file(experimenter: str, team: str, subject_id: str,
     print(nwbfile)
 
     # Write the NWB files to disk
-    write_nwb_file(nwbfile, session_fullpath, subject_id, session_id)
+    write_nwb_file(nwbfile, session_path, subject_id, session_id)
 
 
-def write_nwb_file(nwbfile: NWBFile, session_fullpath: Path, subject_id: str,
+def write_nwb_file(nwbfile: NWBFile, session_path: Path, subject_id: str,
                    session_id: str):
     """
     Writes base NWB file to disk
@@ -125,15 +147,11 @@ def write_nwb_file(nwbfile: NWBFile, session_fullpath: Path, subject_id: str,
             context of the study.
     """
 
-    # Get today's date for file formatting and convert to formatted string
-    today = datetime.today()
-    today = today.strftime("%Y%m%d")
-
     # Create filename for the NWB file
-    nwb_filename = "_".join([today, subject_id, session_id, "2P"])
+    nwb_filename = "_".join([subject_id, session_id, "2P"])
 
     # Append the NWB filename just created to the session path
-    nwb_path = session_fullpath / (nwb_filename + ".nwb")
+    nwb_path = session_path / (nwb_filename + ".nwb")
 
     # Create NWBHDF5IO object and give it the nwb_path, write the file to disk,
     # and close the IO writer.
@@ -163,8 +181,7 @@ def get_bruker_metadata(team: str, imaging_plane: str) -> dict:
     base_env_path = env_basepath + team + "/microscopy/"
 
     # Get today's date for file formatting and convert to formatted string
-    today = datetime.today()
-    today = today.strftime("%Y%m%d")
+    today = (datetime.today()).strftime("%Y%m%d")
 
     # Build .env file glob pattern
     env_glob_pattern = f"{today}*{imaging_plane}*/*raw*.env"
@@ -182,22 +199,45 @@ def get_bruker_metadata(team: str, imaging_plane: str) -> dict:
 
     # Parse the Bruker metadata .env, which is formatted as XML, and get the
     # "root" of the XML tree
-    metadata_root = ET.parse(bruker_env_path).getroot()
+    try:
 
-    # Get Prairie View states out of the XML with get_pv_states
-    bruker_metadata = get_pv_states(pv_state_idx_keys, pv_state_noidx_keys,
-                                    metadata_root)
+        metadata_root = ET.parse(bruker_env_path).getroot()
+        
+        # Get Prairie View states out of the XML with get_pv_states
+        bruker_metadata = get_pv_states(
+            pv_state_idx_keys,
+            pv_state_noidx_keys,
+            metadata_root
+            )
+
+    # Due to some idiosyncracies in Prairie View's output of the .env file as
+    # version 1.0 but the Microsoft .NET implementation which builds the file
+    # includes characters that aren't supported until 1.1, the standard XML
+    # library fails to interpret some of the characters. Software like MATLAB
+    # is still reliant upon v1.1 and I'm guessing that Python's native parser
+    # is also. If there's a ParseError, raised when there's invalid characters
+    # in XML, use the lxml Parser which can escape badly formed text with the
+    # recover=True option.
+    except ET.ParseError:
+        
+        metadata_parser = lxml.etree.XMLParser(recover=True)
+        metadata_root = lxml.etree.parse(str(bruker_env_path), metadata_parser).getroot()
+        bruker_metadata = get_pv_states(
+            pv_state_idx_keys,
+            pv_state_noidx_keys,
+            metadata_root
+        )
 
     return bruker_metadata
 
-
 def get_pv_states(pv_idx_keys: dict, pv_noidx_keys: list,
-                  metadata_root: ET) -> dict:
+                  metadata_root: Union[ET.ElementTree, lxml.etree._ElementTree]) -> dict:
     """
     Parse Bruker .env file for NWB standard metadata.
 
     Gets values from Bruker .env file based on selected keys relevant for NWB
-    standard.  Parses file for both indexed and non-indexed values.
+    standard.  Parses file for both indexed and non-indexed values using relevant
+    parser in the case of bad XML from Prairie View.  
 
     Args:
         pv_idx_keys:
@@ -205,7 +245,8 @@ def get_pv_states(pv_idx_keys: dict, pv_noidx_keys: list,
         pv_noidx_keys:
             Keys that are directly accessible in PVStateValues
         metadata_root:
-            Parsed XML root from .env tree
+            Parsed XML root from .env tree with xml.etree.ElementTree or via lxml
+            in the case of badly formed XML from Prairie View
 
     Returns:
         bruker_metadata
@@ -342,7 +383,7 @@ def append_imaging_info(nwbfile: NWBFile, project_metadata: dict,
     """
     Appends relevant 2P imaging metadata to a base NWB file.
 
-    Creates NWB devices for laser and microscope, optical channel for imaged
+    Creates NWB devices, optical channel/imaging planes for neurons
     and populates them with appropriate metadata.
 
     Args:
@@ -359,7 +400,7 @@ def append_imaging_info(nwbfile: NWBFile, project_metadata: dict,
             types of indicators used and positions of those injections/implants.
 
     Returns:
-        NWBFile
+        NWBFile:
             NWB File with base imaging information appended.
     """
 
@@ -392,11 +433,12 @@ def append_imaging_info(nwbfile: NWBFile, project_metadata: dict,
         name=surgery_metadata["brain_injections"]["gcamp"]["fluorophore"],
         description=surgery_metadata["brain_injections"]["gcamp"]["description"],
         emission_lambda = surgery_metadata["brain_injections"]["gcamp"]["fluorophore_emission_lambda"]
+
     )
 
     # Build imaging plane
     img_plane = nwbfile.create_imaging_plane(
-        name=nwbfile.session_id + ": " + imaging_plane,
+        name=nwbfile.session_id + ": " + imaging_plane + " " + surgery_metadata["brain_injections"]["gcamp"]["fluorophore"],
         optical_channel=optical_channel,
         imaging_rate=float(bruker_metadata["framerate"]),
         description="2P Discrimination Task Imaging at " + imaging_plane,
@@ -404,7 +446,7 @@ def append_imaging_info(nwbfile: NWBFile, project_metadata: dict,
         excitation_lambda=float(bruker_metadata["laserWavelength"]),
         indicator=surgery_metadata["brain_injections"]["gcamp"]["fluorophore"],
         location=surgery_metadata["brain_injections"]["gcamp"]["target"],
-        grid_spacing=[0.01, 0.01], # is this resolution of each pixel space? <- yes!
+        grid_spacing=[0.01, 0.01], # resolution of each pixel space
         grid_spacing_unit="meters",
         origin_coords=[
             surgery_metadata["brain_injections"]["gcamp"]["ap"],
@@ -417,57 +459,49 @@ def append_imaging_info(nwbfile: NWBFile, project_metadata: dict,
     return nwbfile
 
 
-def gen_session_id(team: str, subject_id: str) -> Tuple[str, Path]:
+def gen_session_id(session_path: Path, project: str) -> Tuple[str, Path]:
     """
     Generates session ID for NWB files.
 
     NWB IDs for recordings contain information describing basic information
     about the recording (ie baseline, pre-treatment, post-treatment).  This
-    function creates the ID for the mouse and builds new directories to write
-    NWB files to.
+    function creates the ID for the session.
 
     Args:
-        team:
-            Team value from metadata_args["team"]
-        subject_id:
-            Subject ID from metadata_args["subject"]
+        session_path:
+            Path to write session NWB file to and determine which recording
+            the subject completed.
+        project:
+            Project value from metadata_args["subject"]
 
     Returns:
         session_id
-        session_fullpath
 
     """
 
-    # Create list of elements that compose the session path
-    session_elements = [server_basepath, team, "learned_helplessness",
-                        subject_id, "2p"]
-
-    # Build the session's name for converting into a path object
-    session_basename = "/".join(session_elements)
-
-    # Convert basename into a path object with pathlib.Path
-    session_basepath = Path(session_basename)
-
     # Gather list of sessions completed for animal by globbing directory
-    sessions = [session.name for session in session_basepath.glob("*")]
+    sessions = [session.name for session in session_path.glob("*") if session.is_dir() == False]
 
-    # Use determine_session() for finding which session was just completed as
-    # well as the full path for the writing the NWB file to server
-    session, session_fullpath = determine_session(sessions, session_basepath)
+    # If the length of sessions list is 0, that means this is the first session
+    # for the subject.  Therefore, this is the baseline session.
+    if len(sessions) == 0:
+        session = "baseline"
+
+    else:
+        # Use determine_session() for determining which session was completed
+        session = determine_session(sessions, project)
 
     # Convert the session ID to all uppercase for consistent string formatting
     session_id = session.upper()
 
-    return session_id, session_fullpath
+    return session_id
 
 
-# TODO: Expand this to include CMS mice; long term, this needs to be
-# far more generalized, probably a part of the project configuration file
-# and the directories to look for/build should be constructed as classes that
-# this function operates upon. Will be part of the refactor of configs into
+# TODO: long term, this needs to be far more generalized, probably a part of the
+# project configuration file and the directories to look for/build should be constructed
+# as classes that this function operates upon. Will be part of the refactor of configs into
 # class objects
-def determine_session(sessions: list, session_basepath: Path) -> Tuple[str,
-                                                                       Path]:
+def determine_session(sessions: list, project: str) -> Tuple[str, Path]:
     """
     Determines which imaging session the recording belongs to.
 
@@ -481,47 +515,41 @@ def determine_session(sessions: list, session_basepath: Path) -> Tuple[str,
     Args:
         sessions:
             List of globbed Path objects for subjects 2P recordings
-        session_basepath:
-            Base directory for location of subject's 2P recording
+        project:
+            Project value from metadata_args["project"]
 
     Returns:
         session
-        session_fullpath
     """
+        
+    if project == "lh":
 
-    # If the length of sessions list is 0, that means this is the first session
-    # for the subject.  Therefore, this is the baseline session.
-    if len(sessions) == 0:
+        # If the length of sessions list is 1, that means this is the second
+        # session for the subject.  Therefore, this is the post learned
+        # helplessness session.
+        if len(sessions) == 1:
+            session = "postlh"
 
-        # Append the appropriate session label to the path and build the
-        # directory.
-        session_fullpath = session_basepath / "baseline"
-        session_fullpath.mkdir(parents=True)
-        session = "baseline"
+        # If the length of sessions list is 2, that means this is the third
+        # session for the subject.  Therefore, this is the post ketamine
+        # administration session.
+        elif len(sessions) == 2:
+            session = "postketamine"
 
-    # If the length of sessions list is 1, that means this is the second
-    # session for the subject.  Therefore, this is the post learned
-    # helplessness session.
-    elif len(sessions) == 1:
+    elif project == "cs":
 
-        # Append the appropriate session label to the path and build the
-        # directory.
-        session_fullpath = session_basepath / "post_lh"
-        session_fullpath.mkdir(parents=True)
-        session = "post_lh"
+        # For the CMS study, sessions are organized by the week of
+        # stress that has been applied, where Week1 means a full
+        # week of CMS has been completed. Do this for the total
+        # number of weeks in the CMS paradigm + 1 (the baseline session)
+        if len(sessions) <= 7:
+            session = "".join(["postweek", str(len(sessions)), "CMS"])
+        
+        else:
+            session = "postketamine"
 
-    # If the length of sessions list is 2, that means this is the third
-    # session for the subject.  Therefore, this is the post ketamine
-    # administration session.
-    elif len(sessions) == 2:
 
-        # Append the appropriate session label to the path and build the
-        # directory.
-        session_fullpath = session_basepath / "post_ketamine"
-        session_fullpath.mkdir(parents=True)
-        session = "post_ketamine"
-
-    return session, session_fullpath
+    return session
 
 
 def append_subject_info(nwbfile: NWBFile, subject_metadata: dict) -> NWBFile:
