@@ -25,7 +25,7 @@ Once you've uploaded your team's Arduino sketch, the Arduino system is ready and
 #### _Prairie View_
 Prairie View will open several windows when it starts.
 1. Primary window
-Contains many of the different functions Bruker's software can perform. In the `T-Series` tab, there's a box on the bottom left corner that states `Start with input trigger`. Make sure that this is selected. Once that is done, make sure that you select the `Never` option under the `Preferences/Convert Images` tab.
+Contains many of the different functions Bruker's software can perform. In the `T-Series` tab, there's a box on the bottom left corner that states `Start with input trigger`. Make sure that this is selected. Once that is done, make sure that you select the `Never` option under the `Preferences/Convert Images` tab. If you'll be performing the newly enabled stimulation experiments, select the `Mark Points Series` appropriate for your team's experiment. This will have been configured before your imaging sessions and should be ready by the time you would like to begin.
 
 2. Voltage Recording window
 The voltage recording window will have multiple experiments saved for different teams' relevant DAQ channels. Select your team's appropriate experiment.
@@ -60,7 +60,7 @@ If you choose to build NWB files at runtime for your animal's microscopy session
 
 ### The Future
 There's numerous updates in the works on both the hardware and software side. I include a timeline for how long I think it could take
-to implement these things, but it should not be considered a promise that it won't take longer or that it can happen faster. The numbered
+to implement these things, but it should not be considered a promise that it won't take longer or that it cant' happen faster. The numbered
 lists below do not indicate any particuar priority/order. As each of these things are worked on, new `Issues` will be created and updated
 as development proceedes.
 
@@ -74,7 +74,6 @@ be merged into `main` after it's been reviewed by **`Team 2P`** and thoroughly t
 After some discussion with [Ryan Ly](https://github.com/rly), a data engineer with NWB, he suggested including as much metadata about our experiments
 as possible including the following (in no particular order):
 - Experimental Configuration Parameters (from config files)
-- PMT Values set during the acquisition
 - Explicit surgical information
 - Program versions (Prairie View, Arduino Sketches, and Python)
 - Microscope objective type
