@@ -6,7 +6,7 @@
 # https://github.com/PowerBroker2/pySerialTransfer
 # Genie Nano manufactured by Teledyne DALSA
 
-__version__ = "1.8.0 Stimulate Your Mind"
+__version__ = "1.8.2 Stimulate Your Mind"
 
 ###############################################################################
 # Import Packages
