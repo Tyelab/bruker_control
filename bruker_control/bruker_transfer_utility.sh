@@ -85,15 +85,4 @@ echo ""
 echo "Transfers complete!"
 echo ""
 
-cat << "EOF"
-  ---------------------------------------
-/ Made with <3 by Jeremy Delahanty, Alex \
-\ Knaack                                 /
-  ---------------------------------------
-        \
-         \   ^__^ 
-          \  (oo)\_______
-             (__)\       )\/\
-                 ||----w |
-                 ||     ||
-EOF
+echo "Cows are coming... Reply so I know you're prepared" | Mail -s "Moo" acoley@salk.edu

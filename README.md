@@ -6,10 +6,11 @@ Repository for MATLAB/Python code running behavior experiments in the Headfix an
 
 Currently, the code is functional for the Bruker 2P microscope. Training code is not currently present on the repo. MATLAB's scanbox is not present on the repo.
 
-## bruker_control.py v1.8.0: Stimulate your Mind 🔦🎆🧠 
+
+## bruker_control.py v1.8.2: Stimulate your Mind 🔦🎆🧠 
 A (very) basic rundown of the experimental runtime is included below.
 
-![User Execution Graph](https://github.com/Tyelab/headfix_control/blob/main/docs/bruker_user_executiongraph.png)
+![User Execution Graph](https://github.com/Tyelab/headfix_control/blob/main/docs/bruker_user_execution_graph.svg)
 
 ### User Guide
 
@@ -25,22 +26,25 @@ Once you've uploaded your team's Arduino sketch, the Arduino system is ready and
 #### _Prairie View_
 Prairie View will open several windows when it starts.
 1. Primary window
-Contains many of the different functions Bruker's software can perform. In the `T-Series` tab, there's a box on the bottom left corner that states `Start with input trigger`. Make sure that this is selected. Once that is done, make sure that you select the `Never` option under the `Preferences/Convert Images` tab. If you'll be performing the newly enabled stimulation experiments, select the `Mark Points Series` appropriate for your team's experiment. This will have been configured before your imaging sessions and should be ready by the time you would like to begin.
+Contains many of the different functions Bruker's software can perform. In the `T-Series` tab, there's a box on the bottom left corner that states `Start with input trigger`. Make sure that this is selected. Once that is done, make sure that you select the `Never` option under the `Preferences/Convert Images` tab.
 
 2. Voltage Recording window
 The voltage recording window will have multiple experiments saved for different teams' relevant DAQ channels. Select your team's appropriate experiment.
 
+3. If you'll be performing the newly enabled stimulation experiments, select the `Mark Points Series` appropriate for your team's experiment. This will have been configured before your imaging sessions and should be ready by the time you would like to begin.
+
 At this point, Prairie View is ready to start imaging!
 
 #### _Python_
-Use the `Anaconda Command Prompt` to start a Python Terminal and then type the following commands in order:
+Use the `Anaconda Command Prompt` to start a Python Terminal and then type the following commands:
 1. conda activate bruker_control
-2. python Documents\gitrepos\headfix_control\bruker_control\bruker_control.py -t TEAMNAME -i #IMAGINGPLANES -s SUBJECTID -e "YOUR NAME"
+2. python Documents\gitrepos\headfix_control\bruker_control\bruker_control.py -t TEAMNAME -p PROJECTCODE -i #IMAGINGPLANES -s SUBJECTID -e "YOUR NAME"
 
 - Activating the conda environment `bruker_control` gives Python access to all the packages it needs to run the experiment.
 
 The different arguments on this command line mean...
 - -t The team name that your project belongs to (ie "specialk")
+- -p The project code for your project. This should be a 2 letter code until further notice.
 - -i The number of imaging planes that you plan to image for your subject
 - -s The subject ID for the animal being imaged
 - -e Your first and last name. You __MUST__ put this argument in quotes. This one is only used if you'd like to build an NWB file once the imaging session is over.
