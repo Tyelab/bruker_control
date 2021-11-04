@@ -85,4 +85,4 @@ echo ""
 echo "Transfers complete!"
 echo ""
 
-echo "Cows are coming... Reply so I know you're prepared" | Mail -s "Moo" acoley@salk.edu
+echo "File transfer to server complete!" | Mail -s "bruker_transfer_utility" acoley@salk.edu
