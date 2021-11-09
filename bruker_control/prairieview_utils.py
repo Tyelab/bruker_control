@@ -443,6 +443,9 @@ def set_zseries_parameters(imaging_plane, zstack_delta, zstack_step):
 
     pl.SendScriptCommands("-SetMotorPosition 'Z' '{}'".format(z_start_position))
 
+    # Sleeping the program is required after moving the z-axis to different locations
+    # If this isn't done, the scope/Prairie Link doesn't successfully go between the
+    # start/stop locations for a given z-stack.
     sleep(1)
 
     pl.SendScriptCommands("-SetZSeriesStepSize '{}'".format(zstack_step))
