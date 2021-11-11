@@ -28,10 +28,12 @@ pl = client.Dispatch("PrairieLink64.Application")
 
 # Define microscopy basebath for where raw files are written to.  This is onto
 # the E: drive on machine BRUKER.  Set it as a string to be joined later.
-basepath = "E:/teams/"
+# Do NOT use Pathlib for this because Prairie Link does not know how to interpret
+# pathlib objects
+DATA_PATH = "E:/"
 
 # Define Valid 2P Indicators for setting Z-series sessions correctly
-imaging_variables = ["fluorophore", "fluorophore_excitation_lambda"]
+IMAGING_VARIABLES = ["fluorophore", "fluorophore_excitation_lambda"]
 
 ###############################################################################
 # Functions
@@ -154,7 +156,7 @@ def get_imaging_plane() -> float:
 # -----------------------------------------------------------------------------
 
 
-def set_tseries_filename(team: str, subject_id: str, current_plane: int,
+def set_tseries_filename(project: str, subject_id: str, current_plane: int,
                          imaging_plane: float):
     """
     Sets T-Series and Behavior recording filenames and directories.
@@ -163,8 +165,8 @@ def set_tseries_filename(team: str, subject_id: str, current_plane: int,
     filenames for data coming off the microscope.
 
     Args:
-        team:
-            The team performing the experiment
+        project:
+            The team and project conducting the experiment (ie teamname_projectname)
         subject_id:
             The subject being recorded
         current_plane:
@@ -180,23 +182,17 @@ def set_tseries_filename(team: str, subject_id: str, current_plane: int,
     session_date = datetime.today().strftime("%Y%m%d")
 
     # Set microscopy session's path
-    imaging_dir = basepath + team + "/microscopy/"
+    imaging_dir = DATA_PATH + project + "/microscopy/"
 
     # Set Prairie View path for saving files
     pl.SendScriptCommands("-SetSavePath {}".format(imaging_dir))
 
     # Set session name by joining variables with underscores
     session_name = "_".join(
-            [
-                session_date,
-                subject_id,
-                "plane{}".format(current_plane),
-                imaging_plane,
-                "raw"
-            ]
+            [session_date, subject_id, "plane{}".format(current_plane), imaging_plane, "raw"]
         )
 
-    # # Set behavior filename
+    # Set behavior filename
     behavior_filename = "_".join([session_name, "behavior"])
 
     pl.SendScriptCommands("-SetState directory {} VoltageRecording"
@@ -209,13 +205,6 @@ def set_tseries_filename(team: str, subject_id: str, current_plane: int,
     imaging_filename = session_name
 
     pl.SendScriptCommands("-SetFileName Tseries {}".format(imaging_filename))
-
-    # Not usable until PV 5.6 release
-    # Set behavior session basepath
-    # behavior_dir = basepath + team + "/behavior/"
-
-    # pl.SendScriptCommands("-SetState directory {} VoltageRecording"
-    #                       .format(behavior_dir))
 
 
 # -----------------------------------------------------------------------------
@@ -253,6 +242,7 @@ def set_laser_lambda(indicator_lambda: float):
     for i in tqdm(range(800), desc="Setting Laser Wavelength", ascii=True):
         sleep(0.01)
 
+
 # TODO: Set PMT values potentially, need to test without this first to see if
 # it is necessary
 # def set_laser_gain():
@@ -277,7 +267,7 @@ def tseries(project: str, subject_id: str, current_plane: int,
 
     Args:
         project:
-            Name of project for recording
+            The team and project conducting the experiment (ie teamname_projectname)
         subject_id:
             Name of the experimental subject
         current_plane:
@@ -316,7 +306,7 @@ def prepare_tseries(project: str, subject_id: str, current_plane: int,
 
     Args:
         project:
-            Name of project for recording
+            The team and project conducting the experiment (ie teamname_projectname)
         subject_id:
             Name of the experimental subject
         current_plane:
@@ -330,19 +320,21 @@ def prepare_tseries(project: str, subject_id: str, current_plane: int,
 
     set_tseries_filename(project, subject_id, current_plane, imaging_plane)
 
-    set_resonant_galvo()
+    # set_resonant_galvo()
+
+    input("Ensure Channel 2 is ONLY CHANNEL selected and that Resonant Galvo is selected then hit Enter")
 
     # For specialk, there could be an instance where the red channel is
     # acquiring data for the Z-stack collected before this point.
     # To make sure that only the relevant channel is used (the green one),
     # turn Channel 1 off and make sure that Channel 2 is on.
-    if project == "specialk":
-        set_tseries_parameters(surgery_metadata)
+    # if project == "specialk":
+    #     set_tseries_parameters(surgery_metadata)
 
 
-        # TODO: Make this channel setting its own function in next refactor
-        pl.SendScriptCommands("-SetChannel '1' 'Off'")
-        pl.SendScriptCommands("-SetChannel '2' On'")
+    #     # TODO: Make this channel setting its own function in next refactor
+    #     pl.SendScriptCommands("-SetChannel '1' 'Off'")
+    #     pl.SendScriptCommands("-SetChannel '2' On'")
 
         # TODO: Make this part of a configuration and make tseries_stim
         # vs tseries_nostim. Must be done with next refactor...
@@ -373,7 +365,7 @@ def set_tseries_parameters(surgery_metadata):
 # Z-Series Functions
 # -----------------------------------------------------------------------------
 
-def configure_zseries(team: str, subject_id: str, current_plane: int,
+def configure_zseries(project: str, subject_id: str, current_plane: int,
                     imaging_plane: float, indicator_name: str, stack: int,
                     zstack_delta: float, zstack_step: float):
     """
@@ -385,11 +377,9 @@ def configure_zseries(team: str, subject_id: str, current_plane: int,
 
     Args:
         project:
-            Name of project for recording
+            The team and project conducting the experiment (ie teamname_projectname)
         subject_id:
             Name of the experimental subject
-        team:
-            The team performing the experiment
         current_plane:
             Current plane being imaged as in 1st, 2nd, 3rd, etc
         imaging_plane:
@@ -407,7 +397,7 @@ def configure_zseries(team: str, subject_id: str, current_plane: int,
 
     # Set the Z-Series to write out specific file names
     set_zseries_filename(
-        team,
+        project,
         subject_id,
         current_plane,
         imaging_plane,
@@ -461,7 +451,7 @@ def set_zseries_parameters(imaging_plane, zstack_delta, zstack_step):
     pl.SendScriptCommands("-SetZSeriesStop 'allSettings")
 
 
-def set_zseries_filename(team: str, subject_id: str,
+def set_zseries_filename(project: str, subject_id: str,
                          current_plane: int, imaging_plane: float,
                          indicator_name: str, stack: int):
     """
@@ -471,8 +461,8 @@ def set_zseries_filename(team: str, subject_id: str,
     microscope.
 
     Args:
-        team:
-            The team performing the experiment
+        project:
+            The team and project conducting the experiment (ie teamname_projectname)
         subject_id:
             The subject being recorded
         current_plane:
@@ -492,15 +482,15 @@ def set_zseries_filename(team: str, subject_id: str,
     session_date = datetime.today().strftime("%Y%m%d")
 
     # Set microscopy session's path
-    imaging_dir = basepath + team + "/zstacks/"
+    imaging_dir = DATA_PATH + project + "/zstacks/"
 
     # Set Prairie View path for saving files
     pl.SendScriptCommands("-SetSavePath {}".format(imaging_dir))
 
     # Set session name by joining variables with underscores
-    session_name = "_".join([session_date, subject_id, imaging_plane,
-                             "plane{}".format(current_plane), indicator_name,
-                             "raw"])
+    session_name = "_".join(
+        [session_date, subject_id, imaging_plane, "plane{}".format(current_plane), indicator_name, "raw"]
+        )
 
     # Set imaging filename by adding zseries and to session_name
     imaging_filename = "_".join([session_name, "zseries"])
@@ -541,7 +531,7 @@ def get_imaging_indicators(surgery_metadata: dict) -> dict:
     return indicator_metadata
 
 
-def zstack(zstack_metadata: dict, team: str, subject_id: str,
+def zstack(zstack_metadata: dict, project: str, subject_id: str,
            current_plane: int, imaging_plane: float, surgery_metadata: dict):
     """
     Starts Prairie View Z-Series 2P Recording
@@ -553,8 +543,8 @@ def zstack(zstack_metadata: dict, team: str, subject_id: str,
     Args:
         zstack_metadata:
             Information about depth for Z-Stack and step distance
-        team:
-            The team performing the experiment
+        project:
+            The team and project conducting the experiment (ie teamname_projectname)
         subject_id:
             Name of the experimental subject
         current_plane:
@@ -574,7 +564,8 @@ def zstack(zstack_metadata: dict, team: str, subject_id: str,
 
     zstack_step = zstack_metadata["zstep"]
 
-    set_galvo_galvo()
+    input("Select Galvo Mode and then hit enter")
+    # set_galvo_galvo()
 
     for indicator in indicator_metadata.keys():
 
@@ -588,12 +579,14 @@ def zstack(zstack_metadata: dict, team: str, subject_id: str,
 
         set_laser_lambda(indicator_lambda)
 
-        set_one_channel_zseries(indicator_emission)
+        # set_one_channel_zseries(indicator_emission)
+
+        input("Select correct channel for indicator...")
 
         for stack in range(0, total_stacks):
 
             configure_zseries(
-                team,
+                project,
                 subject_id,
                 current_plane,
                 imaging_plane,
@@ -633,9 +626,9 @@ def set_one_channel_zseries(indicator_emission: float):
     # use only the red channel.
     if indicator_emission >= 570.0:
         pl.SendScriptCommands("-SetChannel '1' 'On'")
-        pl.SendScriptCommands("-SetChannel '2' Off'")
+        pl.SendScriptCommands("-SetChannel '2' 'Off'")
 
     # Otherwise, use the green channel
     else:
         pl.SendScriptCommands("-SetChannel '1' 'Off'")
-        pl.SendScriptCommands("-SetChannel '2' 'On'")
+        pl.SendScriptCommands("-SetChannel '2' 'Off'")
