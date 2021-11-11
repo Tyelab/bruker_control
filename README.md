@@ -1,11 +1,8 @@
 [![Documentation Status](https://readthedocs.org/projects/bruker-control/badge/?version=latest)](https://bruker-control.readthedocs.io/en/latest/?badge=latest)
 
-# headfix_control
+# bruker_control
 
-Repository for MATLAB/Python code running behavior experiments in the Headfix and 2P rooms.
-
-Currently, the code is functional for the Bruker 2P microscope. Training code is not currently present on the repo. MATLAB's scanbox is not present on the repo.
-
+Repository for Python and Arduino code running behavior experiments for the Tye Lab at the Bruker Ultima Multi-photon Microscope.
 
 ## bruker_control.py v1.8.2: Stimulate your Mind 🔦🎆🧠 
 A (very) basic rundown of the experimental runtime is included below.
