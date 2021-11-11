@@ -168,7 +168,8 @@ Check out the developer documentation online [here](https://bruker-control.readt
 
 ## Authors
 
-Jeremy Delahanty\
+[Jeremy Delahanty](https://github.com/jmdelahanty)\
+Maintainer\
 Research Assistant I\
 Tye Lab, Salk Institute for Biological Studies
 
