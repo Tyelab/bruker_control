@@ -59,7 +59,7 @@ The next window is the primary window for Prairie View.
 
 2. Preferences: Never Convert Images
 
-.. image:: ../images/preferences_screenshot.png
+.. image:: ../images/preferences_screenshot.PNG
     :alt: Preferences window
     :align: center
 
@@ -79,7 +79,7 @@ Select the Voltage Recording window from the `Electrophysiology Tab` to see the 
 
 The voltage recording window will have multiple experiments saved for different teams' relevant DAQ channels. Select your team's appropriate experiment.
 
-.. image:: ../images/voltage_recording_settings.png
+.. image:: ../images/voltage_recording_settings.PNG
     :alt: Voltage Recording Experiment Settings
     :align: center
 
