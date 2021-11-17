@@ -332,7 +332,7 @@ def capture_recording(num_frames: int, current_plane: int, imaging_plane: str,
                 frame_number += 1
 
         # TODO Raise warning for frame drops? What is this error...
-        except:
+        except Exception:
             dropped_frames.append(frame_number)
             frame_number += 1
             pass
