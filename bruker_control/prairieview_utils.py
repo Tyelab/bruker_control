@@ -320,21 +320,19 @@ def prepare_tseries(project: str, subject_id: str, current_plane: int,
 
     set_tseries_filename(project, subject_id, current_plane, imaging_plane)
 
-    # set_resonant_galvo()
-
-    input("Ensure Channel 2 is ONLY CHANNEL selected and that Resonant Galvo is selected then hit Enter")
+    set_resonant_galvo()
 
     # For specialk, there could be an instance where the red channel is
     # acquiring data for the Z-stack collected before this point.
     # To make sure that only the relevant channel is used (the green one),
     # turn Channel 1 off and make sure that Channel 2 is on.
-    # if project == "specialk":
-    #     set_tseries_parameters(surgery_metadata)
+    if project == "specialk":
+        set_tseries_parameters(surgery_metadata)
 
 
-    #     # TODO: Make this channel setting its own function in next refactor
-    #     pl.SendScriptCommands("-SetChannel '1' 'Off'")
-    #     pl.SendScriptCommands("-SetChannel '2' On'")
+        # TODO: Make this channel setting its own function in next refactor
+        pl.SendScriptCommands("-SetChannel '1' 'Off'")
+        pl.SendScriptCommands("-SetChannel '2' 'On'")
 
         # TODO: Make this part of a configuration and make tseries_stim
         # vs tseries_nostim. Must be done with next refactor...
@@ -564,8 +562,7 @@ def zstack(zstack_metadata: dict, project: str, subject_id: str,
 
     zstack_step = zstack_metadata["zstep"]
 
-    input("Select Galvo Mode and then hit enter")
-    # set_galvo_galvo()
+    set_galvo_galvo()
 
     for indicator in indicator_metadata.keys():
 
@@ -579,9 +576,7 @@ def zstack(zstack_metadata: dict, project: str, subject_id: str,
 
         set_laser_lambda(indicator_lambda)
 
-        # set_one_channel_zseries(indicator_emission)
-
-        input("Select correct channel for indicator...")
+        set_one_channel_zseries(indicator_emission)
 
         for stack in range(0, total_stacks):
 
@@ -631,4 +626,4 @@ def set_one_channel_zseries(indicator_emission: float):
     # Otherwise, use the green channel
     else:
         pl.SendScriptCommands("-SetChannel '1' 'Off'")
-        pl.SendScriptCommands("-SetChannel '2' 'Off'")
+        pl.SendScriptCommands("-SetChannel '2' 'On'")
