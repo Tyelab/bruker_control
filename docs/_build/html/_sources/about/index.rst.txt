@@ -13,4 +13,6 @@ a Mozilla Public License 2.0.
 
 Check out the source code at the lab's `GitHub <https://github.com/Tyelab/headfix_control>`_.
 
-Maintained by `Jeremy Delahanty <https://github.com/jmdelahanty>`_, Research Technician I
+| Maintained by `Jeremy Delahanty <https://github.com/jmdelahanty>`_ 
+| Research Assistant I, Tye Laboratory
+| Salk Institute for Biological Studies

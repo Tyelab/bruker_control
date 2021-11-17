@@ -1,0 +1,387 @@
+<!doctype html>
+<html class="no-js">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Bruker Control’s Functions and Classes" href="../functions/index.html" /><link rel="prev" title="About Bruker Control" href="../about/index.html" />
+
+    <meta name="generator" content="sphinx-4.0.2, furo 2021.08.11.beta42"/>
+        <title>bruker_control.py v1.8.6: Stimulate your Mind 🔦🎆🧠 - Bruker Control 1.8.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=197f00461d56902ea7ca048ec6e6ba026f62c97b" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=93475b62d1c3bc01323a0eefdc14a62d77b12690" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  body[data-theme="dark"] {
+    --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+  }
+  @media (prefers-color-scheme: dark) {
+    body:not([data-theme="light"]) {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+  }
+</style>
+    <link media="(prefers-color-scheme: dark)" rel="stylesheet" href="../_static/pygments_dark.css"></head>
+  <body>
+    
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="none" d="M0 0h24v24H0z" />
+      <line x1="4" y1="6" x2="20" y2="6" />
+      <line x1="10" y1="12" x2="20" y2="12" />
+      <line x1="6" y1="18" x2="20" y2="18" />
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">Bruker Control 1.8.6 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  
+  <span class="sidebar-brand-text">Bruker Control 1.8.6 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../about/index.html">About Bruker Control</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">bruker_control.py v1.8.6: Stimulate your Mind 🔦🎆🧠</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../functions/index.html">Bruker Control’s Functions and Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../functions/index.html#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+</div>
+</div>
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <article role="main">
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <section id="bruker-control-py-v1-8-6-stimulate-your-mind">
+<h1>bruker_control.py v1.8.6: Stimulate your Mind 🔦🎆🧠<a class="headerlink" href="#bruker-control-py-v1-8-6-stimulate-your-mind" title="Permalink to this headline">¶</a></h1>
+<p>A (very) basic rundown of the experimental runtime is included below.</p>
+<img alt="User steps for using bruker_control.py" src="../_images/bruker_user_execution_graph.svg"/><section id="user-guide">
+<h2>User Guide<a class="headerlink" href="#user-guide" title="Permalink to this headline">¶</a></h2>
+<p>There are three different softwares used for running experiments with the lab’s Bruker Ultima Investigator: <em>Python</em>, <em>Arduino Sketches</em>, and Bruker’s <em>Prairie View</em>.</p>
+<section id="arduino">
+<h3><em>Arduino</em><a class="headerlink" href="#arduino" title="Permalink to this headline">¶</a></h3>
+<p>First, use <code class="docutils literal notranslate"><span class="pre">bruker_cleanup.ino</span></code> to backfill the sucrose line.</p>
+<ol class="arabic simple">
+<li><p>Comment out all the lines in the <cite>loop</cite> portion of the file with <cite>//</cite> characters at the start of the line <strong>except</strong> for the <cite>digitalWrite(solPin_liquid, HIGH)</cite> line.</p></li>
+</ol>
+<blockquote>
+<div><ul class="simple">
+<li><p>Assist the sucrose solution through the line with the syringe plunger until it is flowing continuously through the sucrose delivery needle in the faraday cage. It takes approximately 5mL of solution to backfill the line.</p></li>
+</ul>
+</div></blockquote>
+<ol class="arabic simple" start="2">
+<li><p>Uncomment the rest of the lines in the <cite>loop</cite> to test the vacuum. If the droplet is sucked up properly, you can move forward!</p></li>
+</ol>
+<blockquote>
+<div><ul class="simple">
+<li><p>If it fails, first try drying the sucrose delivery needle and, if that fails, grease the interface between the two needles. Ensure that you don’t get any grease where the sucrose droplet forms.</p></li>
+</ul>
+</div></blockquote>
+<ol class="arabic simple" start="3">
+<li><p>Upload your team’s Arduino sketch! You only need to upload this sketch once: at the start of the day!</p></li>
+</ol>
+<p>Now the Arduino system is ready and waiting for the experiment’s trials!
+The board will reset on its own once the imaging session is complete.</p>
+</section>
+<section id="prairie-view">
+<h3><em>Prairie View</em><a class="headerlink" href="#prairie-view" title="Permalink to this headline">¶</a></h3>
+<p>Prairie View will open several windows when it starts. The first looks like this:</p>
+<img alt="Prairie View starting window" class="align-center" src="../_images/pv_starting_window.png"/>
+<p>The next window is the primary window for Prairie View.</p>
+<ol class="arabic simple">
+<li><p>Primary Window: T-Series</p></li>
+</ol>
+<img alt="T-Series tab" class="align-center" src="../_images/t_series_start.png"/>
+<ul class="simple">
+<li><p>In the <cite>T-Series</cite> tab, there’s a box on the bottom left corner that states <cite>Start with input trigger</cite>. Make sure that this is selected.</p></li>
+<li><p>Make sure that there’s a large number of images scheduled to be collected (&gt;50k). This ensures that Prairie View will collect images for the full duration of the experiment.
+* When the correct number of images are collected, <cite>bruker_control</cite> will send an <cite>Abort</cite> command to stop the experiment.</p></li>
+<li><p>Ensure that the <cite>T-Series</cite> is using the correct voltage recording experiment for your data before you start.</p></li>
+<li><p>If you are performing whole-field LED stimulations, ensure that the <cite>Mark Points Series</cite> is the correct one for team’s experiment.
+* These will have been configured ahead of time.</p></li>
+</ul>
+<ol class="arabic simple" start="2">
+<li><p>Preferences: Never Convert Images</p></li>
+</ol>
+<img alt="Preferences window" class="align-center" src="../_images/preferences_screenshot.png"/>
+<ul class="simple">
+<li><p>Make sure that the <cite>Never</cite> option under the <cite>Preferences/Convert Images</cite> tab is selected.
+* This ensures that Prairie View will <em>not</em> convert the raw data into tiffs after the recording is complete.</p></li>
+</ul>
+<p>This process can take some time and Prairie View hangs until it is done. It can take 15-20 minutes to perform the conversion so you will not be able to start the next
+subject until the ripping process is complete.</p>
+<ol class="arabic simple" start="3">
+<li><p>Voltage Recording Window</p></li>
+</ol>
+<p>Select the Voltage Recording window from the <cite>Electrophysiology Tab</cite> to see the different experiments available on the system:</p>
+<img alt="Voltage Recording tab in electrophysiology" class="align-center" src="../_images/voltage_recording_start.png"/>
+<p>The voltage recording window will have multiple experiments saved for different teams’ relevant DAQ channels. Select your team’s appropriate experiment.</p>
+<img alt="Voltage Recording Experiment Settings" class="align-center" src="../_images/voltage_recording_settings.png"/>
+<p>At this point, Prairie View is ready to start imaging! You start the experiment in Python.</p>
+</section>
+<section id="python">
+<h3><em>Python</em><a class="headerlink" href="#python" title="Permalink to this headline">¶</a></h3>
+<p>Use the <cite>Anaconda Command Prompt</cite> to start a Python Terminal and then type the following commands:</p>
+<ol class="arabic simple">
+<li><p>conda activate bruker_control</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">Documents\gitrepos\bruker_control\bruker_control.py</span> <span class="pre">-p</span> <span class="pre">TEAMNAME_PROJECT</span> <span class="pre">-i</span> <span class="pre">#IMAGINGPLANES</span> <span class="pre">-s</span> <span class="pre">SUBJECTID</span></code></p></li>
+</ol>
+<ul class="simple">
+<li><p>Activating the conda environment <cite>bruker_control</cite> gives Python access to all the packages it needs to run the experiment.</p></li>
+</ul>
+<p>The different arguments on this command line mean…</p>
+<ul class="simple">
+<li><p>-p The teamname and project that is using the system (ie specialk_cs)</p></li>
+<li><p>-i The number of imaging planes that you plan to image for your subject</p></li>
+<li><p>-s The subject ID for the animal being imaged</p></li>
+</ul>
+<p>When you hit enter with this command line, things will get started right away! The next steps below describe the procedure.</p>
+</section>
+<section id="the-experiment">
+<h3><em>The Experiment</em><a class="headerlink" href="#the-experiment" title="Permalink to this headline">¶</a></h3>
+<p>There’s not too much you need to do at this point! The steps are as follows:</p>
+<ol class="arabic simple">
+<li><p>A preview video will appear on the screen that shows the subject’s face.</p></li>
+</ol>
+<blockquote>
+<div><ul class="simple">
+<li><p>You may have already lined up the sucrose delivery needle and airpuff needles to their correct positions, but if you haven’t now is when you should do that.</p></li>
+</ul>
+</div></blockquote>
+<ol class="arabic simple" start="2">
+<li><p>At this point you should also ensure that the microscope’s objective is lined up over the lens and lowered to the plane you wish to image.</p></li>
+<li><p>When you’re certain you’re ready to go and that the Farraday cage is completely closed, you can hit the <cite>Esc</cite> key. This will start the experiment!</p></li>
+<li><p>Watch the magic happen!</p></li>
+</ol>
+<p>At this point, <cite>bruker_control</cite> takes care of the rest! It will automatically generate trial structures that comply with your rules, transmit them to the Arduino,
+and tell Prairie View to start the recording session of the animal’s face and brain activity. It will write out the experiment’s information into the <code class="docutils literal notranslate"><span class="pre">E:</span></code> drive
+appropriate for your team’s raw data automatically so its ready for transferring to the server later.</p>
+</section>
+<section id="transferring-files-to-snlktdata">
+<h3><em>Transferring Files to snlktdata</em><a class="headerlink" href="#transferring-files-to-snlktdata" title="Permalink to this headline">¶</a></h3>
+<p>If your team has directories set for use on <code class="docutils literal notranslate"><span class="pre">/snlktdata/_DATA/</span></code>, there’s a <code class="docutils literal notranslate"><span class="pre">.sh</span></code> (shell script) that can automatically move your files to the server for you using a Linux
+command called <code class="docutils literal notranslate"><span class="pre">rsync</span></code> through <code class="docutils literal notranslate"><span class="pre">MobaXTerm</span></code>. It is simply called <code class="docutils literal notranslate"><span class="pre">bruker_transfer_utility.sh</span></code>. Using it is simple after you open <code class="docutils literal notranslate"><span class="pre">MobaXTerm</span></code> and open a local terminal.</p>
+<p>Once in the terminal, type the following:
+<code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">../Tyelab/MyDocuments/gitrepos/bruker_control/bruker_control/bruker_transfer_utility.sh</span> <span class="pre">TEAMNAME_PROJECT</span></code></p>
+<p>The commands in this line mean…</p>
+<ul class="simple">
+<li><p>source: This tells the Linux to run the file that is given to the command.</p></li>
+<li><p>../Tyelab/MyDocuments/…: This is where the transfer utility is located in the git repository</p></li>
+<li><p>TEAMNAME_PROJECT: This is the same as the -p argument in <code class="docutils literal notranslate"><span class="pre">bruker_control</span></code>, the teamname and project (ie specialk_cs)</p></li>
+</ul>
+<p>Once the transfer of the files is complete, you will receive an email message with the subject line “bruker_transfer_utility” that states the transfer is complete!</p>
+</section>
+</section>
+</section>
+
+      </article>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="../functions/index.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Bruker Control’s Functions and Classes</div>
+              </div>
+              <svg><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="../about/index.html">
+              <svg><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">About Bruker Control</div>
+                
+              </div>
+            </a>
+        </div>
+
+        <div class="related-information">
+              Copyright &#169; 2021, Jeremy Delahanty
+            |
+            Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
+              and
+              <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+              <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
+            |
+            <a class="muted-link" href="../_sources/instructions/index.rst.txt"
+               rel="nofollow">
+              Show Source
+            </a>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            Contents
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">bruker_control.py v1.8.6: Stimulate your Mind 🔦🎆🧠</a><ul>
+<li><a class="reference internal" href="#user-guide">User Guide</a><ul>
+<li><a class="reference internal" href="#arduino"><em>Arduino</em></a></li>
+<li><a class="reference internal" href="#prairie-view"><em>Prairie View</em></a></li>
+<li><a class="reference internal" href="#python"><em>Python</em></a></li>
+<li><a class="reference internal" href="#the-experiment"><em>The Experiment</em></a></li>
+<li><a class="reference internal" href="#transferring-files-to-snlktdata"><em>Transferring Files to snlktdata</em></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/scripts/main.js"></script>
+    </body>
+</html>

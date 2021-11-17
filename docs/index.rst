@@ -8,4 +8,5 @@ preferably, open an issue `here <https://github.com/Tyelab/headfix_control/issue
   :maxdepth: 2
 
   about/index
+  instructions/index
   functions/index

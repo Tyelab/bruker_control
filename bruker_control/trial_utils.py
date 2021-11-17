@@ -1119,10 +1119,10 @@ def flip_stim_only(tmp_array: np.ndarray, remaining_flips: np.ndarray, num_stim_
             Number of trials where only LED stimulation occurs
     
     Returns:
-        trialArray:
-            Trial array containing newly flipped stimulation only trials
-        stim_only_check:
-            Boolean check for if the shuffle was successful
+        trialArray
+
+        stim_only_check
+
     """
 
     # Initialize new random number generator with default_rng()
