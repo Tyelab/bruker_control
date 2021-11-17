@@ -4,7 +4,7 @@
 
 Repository for Python and Arduino code running behavior experiments for the Tye Lab at the Bruker Ultima Multi-photon Microscope.
 
-## bruker_control.py v1.8.2: Stimulate your Mind 🔦🎆🧠 
+## bruker_control.py v1.8.6: Stimulate your Mind 🔦🎆🧠 
 A (very) basic rundown of the experimental runtime is included below.
 
 ![User Execution Graph](https://github.com/Tyelab/headfix_control/blob/main/docs/images/bruker_user_execution_graph.svg)
