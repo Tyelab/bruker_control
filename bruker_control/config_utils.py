@@ -23,48 +23,15 @@ from ruamel.yaml import YAML
 # Template configuration directories are within project directories.  The snlkt
 # server housing these directories is mounted to the X: volume on the machine
 # BRUKER.
-server_basepath = Path("X:/")
+SERVER_BASEPATH = Path("X:/_DATA")
 
 # Experimental configuration directories are in the Raw Data volume on the
 # machine BRUKER which is mounted to E:. This is where configs will be written
-config_basepath = "E:/teams/"
+DATA_PATH = "E:/"
 
 ###############################################################################
 # Exceptions
 ###############################################################################
-
-
-class ProjectNWBConfigMissing(Exception):
-    """
-    Exception for when the team's project configuration is missing.
-    """
-    def __init__(self, *args):
-        if args:
-            self.message = args[0]
-        else:
-            self.message = None
-
-    def __str__(self):
-        if self.message:
-            return "ProjectNWBConfigMissing: " + "{0}".format(self.message)
-        else:
-            return "Project NWB Configuration Missing! Check your 2p_template_configs/project folder."
-
-class ProjectNWBConfigMultiple(Exception):
-    """
-    Exception for when the team's project configuration directory contains multiple NWB config files.
-    """
-    def __init__(self, *args):
-        if args:
-            self.message = args[0]
-        else:
-            self.message = None
-    
-    def __str__(self):
-        if self.message:
-            return "ProjectNWBConfigMultiple: " + "{0}".format(self.message)
-        else:
-            return "Project has multiple NWB Configuration files! Check your 2p_template_configs/project folder."
 
 class ProjectTemplateMissing(Exception):
     """
@@ -80,7 +47,7 @@ class ProjectTemplateMissing(Exception):
         if self.message:
             return "ProjectTemplateMissing: " + "{0}".format(self.message)
         else:
-            return "Project Template is missing! Check your 2p_template_configs/project folder."
+            return "Project Template is missing! Check your _DATA/project/2p/config folder."
 
 class ProjectTemplateMultiple(Exception):
     """
@@ -98,25 +65,9 @@ class ProjectTemplateMultiple(Exception):
         else:
             return "Project has multiple template files! Check your 2p_template_configs/project folder."
 
-class SubjectMultiple(Exception):
+class SubjectError(Exception):
     """
-    Exception for when a team's project's subject_metadata folder contains multiple copies of a subject's file.
-    """
-    def __init__(self, *args):
-        if args:
-            self.message = args[0]
-        else:
-            self.message = None
-    
-    def __str__(self):
-        if self.message:
-            return "SubjectMultiple: " + "{0}".format(self.message)
-        else:
-            return "Multiple copies of the subject's metadata file! Check your project/animal_metadata folder"
-
-class SubjectMissing(Exception):
-    """
-    Exception for when a team's project's subject_metadata folder does not contain a subject's file.
+    Exception for when there's an error when parsing information for a subject.
     """
     def __init__(self, *args):
         if args:
@@ -126,25 +77,9 @@ class SubjectMissing(Exception):
     
     def __str__(self):
         if self.message:
-            return "SubjectMissing: " + "{0}".format(self.message)
+            return "SubjectError: " + "{0}".format(self.message)
         else:
-            return "The subject's metadata file is missing! Check your project/animal_metadata folder"
-
-class SubjectMissingWeight(Exception):
-    """
-    Exception for when a subject does not have a weight measured for the imaging session
-    """
-    def __init__(self, *args):
-        if args:
-            self.message = args[0]
-        else:
-            self.message = None
-    
-    def __str__(self):
-        if self.message:
-            return "SubjectMissingWeight: " + "{0}".format(self.message)
-        else:
-            return "The subject has no weight recorded for today! Enter this data or collect it to continue."
+            return "SUBJECT ERROR"
 
 ###############################################################################
 # Metadata Classes: In development
@@ -184,7 +119,7 @@ class SubjectMissingWeight(Exception):
 ###############################################################################
 
 
-def get_template(team: str, project: str) -> dict:
+def get_template(project: str) -> dict:
     """
     Grab team's template configuration file for experiment runtime.
 
@@ -192,17 +127,15 @@ def get_template(team: str, project: str) -> dict:
     specific 2-Photon configuration file that will run the experiment for a session.
 
     Args:
-        team:
-            Team from metadata_args["team"]
         project:
-            Project from metadata_args["project"]
+            The team and project conducting the experiment (ie teamname_projectname)
 
     Returns:
         template_config
     """
 
     # Append base directory with selected team and project
-    template_dir = server_basepath / team / "2p_template_configs" / project
+    template_dir = SERVER_BASEPATH / project / "2p" / "config"
 
     # Glob the configuration directory for the .json file and convert it to a list
     template_config_path = list(template_dir.glob("*.json"))
@@ -256,7 +189,7 @@ def read_config(template_config_path: Path) -> dict:
 
 
 def write_experiment_config(config_template: dict, experiment_arrays: list,
-                            dropped_frames: list, team: str, subject_id: str,
+                            dropped_frames: list, project: str, subject_id: str,
                             imaging_plane: str, current_plane: int):
     """
     Writes experiental configuration file to Raw Data drive.
@@ -274,8 +207,8 @@ def write_experiment_config(config_template: dict, experiment_arrays: list,
             always be in this order.
         dropped_frames:
             List of dropped frames from the camera during the experiment
-        team:
-            Team from metadata_args["team"]
+        project:
+            The team and project conducting the experiment (ie teamname_projectname)
         subject_id:
             Subject ID from metadata_args["subject_id"]
         imaging_plane:
@@ -293,7 +226,7 @@ def write_experiment_config(config_template: dict, experiment_arrays: list,
                              imaging_plane])
 
     # Generate Experiment Configuration Directory Path
-    config_dir = config_basepath + team + "/config/"
+    config_dir = DATA_PATH + project + "/config/"
 
     # Generate the filename
     config_filename = "_".join([session_name, "config"])
@@ -382,7 +315,7 @@ def get_zstack_metadata(config_template: dict) -> dict:
     return zstack_metadata
 
 
-def get_subject_metadata(team: str, project: str, subject_id: str) -> dict:
+def get_subject_metadata(project: str, subject_id: str) -> dict:
     """
     Parses imaging subject's .yml metadata file for NWB fields
 
@@ -391,10 +324,8 @@ def get_subject_metadata(team: str, project: str, subject_id: str) -> dict:
     in the NWB file.
 
     Args:
-        team:
-            Team value from metadata_args["team"]
         project:
-            Project value from metadata_args["project"]
+            The team and project conducting the experiment (ie teamname_projectname)
         subject_id:
             Subject ID from metadata_args["subject"]
 
@@ -406,14 +337,14 @@ def get_subject_metadata(team: str, project: str, subject_id: str) -> dict:
     yaml = YAML(typ='safe')
 
     # Construct the base path for the subject's YAML file
-    base_subject_path = server_basepath / team / "subject_metadata" / project
+    subject_path = SERVER_BASEPATH / project / "subjects" / subject_id
 
     # Generate a glob object for finding the yaml file and turn it into a list.
-    subject_metadata = list(base_subject_path.glob(f"{subject_id}.yml"))
+    subject_metadata = list(subject_path.glob(f"{subject_id}.yml"))
 
     # Check if there's multiple metadata files present for a subject.
     if len(subject_metadata) > 1:
-        raise SubjectMultiple()
+        raise SubjectError("Multiple subject files found! Check _DATA/project/subjects/subject_id")
 
     # Otherwise, try to load the one present file. If it's not there,
     # an index error occurs and an exception is raised.
@@ -422,17 +353,7 @@ def get_subject_metadata(team: str, project: str, subject_id: str) -> dict:
             subject_metadata = yaml.load(subject_metadata[0])
         
         except IndexError:
-            raise SubjectMissing()
-
-    # Lastly, check to see if the subject has a weight that has been
-    # collected on the day of the experiment
-    session_date = datetime.today().strftime("%Y%m%d")
-
-    try:
-        weight = subject_metadata["weights"][session_date]
-    
-    except KeyError:
-        raise SubjectMissingWeight()
+            raise SubjectError("No subject metadata found! Check _DATA/project/subjects/subject_id")
 
     return subject_metadata
 
@@ -464,51 +385,7 @@ def get_surgery_metadata(subject_metadata: dict) -> dict:
     return surgery_metadata
 
 
-def get_project_metadata(team: str, project: str):
-    """
-    Grabs and parses project metadata yml file for NWB file generation.
-
-    Each project has its own metadata associated with it that NWB uses in its
-    standard.  This function grabs the proper file and builds a dictionary that
-    is used when populating metadata later.
-
-    Args:
-        team:
-            Team value from metadata_args["team"]
-        project:
-            Project value from metadata_args["project"]
-
-    Returns:
-        project_metadata
-    """
-
-    # Define YAML object parser with safe loading
-    yaml = YAML(typ='safe')
-
-    # Construct the base path for the project's YAML file
-    project_yaml_path = server_basepath / team  / "2p_template_configs" / project
-
-    # Generate a glob object for finding the yaml file and turn it into a list.
-    project_yaml = list(project_yaml_path.glob("*.yml"))
-
-    # Check if there's multiple yaml NWB configuration files present.  If
-    # there is more than one, something is wrong. Raise that exception.
-    if len(project_yaml) > 1:
-        raise ProjectNWBConfigMultiple()
-    
-    # Otherwise, try to load the one present file. If it's not there,
-    # an index error occurs and an exception is raised.
-    else:
-        try:
-            project_metadata = yaml.load(project_yaml[0])
-
-        except IndexError:
-            raise ProjectNWBConfigMissing()
-
-    return project_metadata
-
-
-def build_server_directory(team:str, project: str, subject_id: str, config_template: dict):
+def build_server_directory(project: str, subject_id: str, config_template: dict):
     """
     Builds directories for copying files to server at the end of the day.
 
@@ -537,10 +414,8 @@ def build_server_directory(team:str, project: str, subject_id: str, config_templ
         - config_file.json
 
     Args:
-        team:
-            Team value from metadata_args["team"]
         project:
-            Project value form metadata_args["project"]
+            The team and project conducting the experiment (ie teamname_projectname)
         subject_id:
             Subject ID value from metadata_args["project"]
         config_template:
@@ -554,10 +429,10 @@ def build_server_directory(team:str, project: str, subject_id: str, config_templ
     session_date = datetime.today().strftime("%Y%m%d")
 
     # Create list of elements that compose the session path
-    session_elements = ["raw", team, project, "2p", subject_id, session_date]
+    session_elements = ["2p", "raw", subject_id, session_date]
 
     # Build the session's name and convert to a Pathlib object
-    session_path = server_basepath / Path("/".join(session_elements))
+    session_path = SERVER_BASEPATH / project / Path("/".join(session_elements))
 
     # Build the session path to the server
     session_path.mkdir(parents=True, exist_ok=True)
@@ -569,3 +444,51 @@ def build_server_directory(team:str, project: str, subject_id: str, config_templ
     return session_path
 
     
+def weight_check(project: str, subject_id: str):
+    '''
+    Checks subject's weight file for current measurement.
+
+    Some teams want to ensure that their recordings have a weight gathered that
+    day. In practice, it can be something that users could forget to do accidentally
+    and then be left without that data when they need it. If the project's configuration
+    requires users to gather a weight for that day, this function will search for the
+    subject's weight file and check if a measurement has been taken.
+
+    Args:
+        project:
+            The team and project conducting the experiment (ie teamname_projectname)
+        subject_id:
+            Subject ID value from metadata_args["project"]
+    '''
+
+    yaml = YAML(typ='safe')
+
+    weight_dir = SERVER_BASEPATH / project / "subjects" / subject_id
+
+    subject_weight_file = list(weight_dir.glob(f"{subject_id}_weights.yml"))
+
+    # Check to see if the subject has a weight that has been
+    # collected on the day of the experiment
+    session_date = datetime.today().strftime("%Y%m%d")
+
+    # Check if there's multiple metadata files present for a subject.
+    if len(subject_weight_file) > 1:
+        raise SubjectError("Multiple weight files found! Check _DATA/project/subjects/subject_id")
+
+    # Otherwise, try to load the one present file. If it's not there,
+    # an index error occurs and an exception is raised.
+    else:
+        try:
+            subject_weights = yaml.load(subject_weight_file[0])
+        
+        except IndexError:
+            raise SubjectError("No subject weight file found! Check _DATA/project/subjects/subject_id")
+        
+        # Once it's confirmed there aren't multiple weight files, check that subject has weight
+        # recorded for that day. If there's no weight measured, then a KeyError occurs and an
+        # exception is raised.
+        try:
+            weight = subject_weights[session_date]
+
+        except KeyError:
+            raise SubjectError("Subject has no weight recorded! Measure subject's weight before continuing.")

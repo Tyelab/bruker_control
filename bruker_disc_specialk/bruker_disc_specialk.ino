@@ -4,7 +4,7 @@
    Purpose: Present stimuli to headfixed subject and send signals to DAQ for Tye Lab Team specialk
 
    @author Deryn LeDuke, Kyle Fischer PhD, Dexter Tsin, Jeremy Delahanty
-   @ Maintainer Jeremy Delahanty
+   @Maintainer Jeremy Delahanty
    @version 1.8.0 10/27/21
 
    Adapted from DISC_V7.ino by Kyle Fischer and Mauri van der Huevel Oct. 2019
@@ -16,7 +16,7 @@
      2. Receive metadata, trial type array, ITI array, tone duration array, and LED Stim timings array
      3. Confirm Python has finished sending data
      4. Delay program for 5 seconds to allow Teledyne Genie Nano to start up
-     5. Send trigger to the Bruker DAQ to start the microscopy session
+     5. Send trigger to the Bruker DAQ to start the microscopy sessio
      6. Run through the trials specified in totalNumberOfTrials
      7. Reset the Arduino
 

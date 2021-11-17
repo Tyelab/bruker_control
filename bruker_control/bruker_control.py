@@ -1,26 +1,16 @@
 # Bruker 2-Photon Experiment Control
-# Jeremy Delahanty May 2021, Deryn LeDuke July 2021
+# Jeremy Delahanty May 2021
 # Harvesters written by Kazunari Kudo
 # https://github.com/genicam/harvesters
 # pySerialTransfer written by PowerBroker2
 # https://github.com/PowerBroker2/pySerialTransfer
 # Genie Nano manufactured by Teledyne DALSA
 
-__version__ = "1.8.2 Stimulate Your Mind"
+__version__ = "1.8.6 Stimulate Your Mind"
 
-###############################################################################
-# Import Packages
-###############################################################################
-
-# -----------------------------------------------------------------------------
-# Custom Modules: Bruker Control
-# -----------------------------------------------------------------------------
 # Import experiment utils to run different experiments
 import experiment_utils
 
-# -----------------------------------------------------------------------------
-# Python Libraries
-# -----------------------------------------------------------------------------
 # Import argparse for runtime control
 import argparse
 
@@ -32,15 +22,11 @@ from pathlib import Path
 # import sys
 
 # Static Directory for teams found in SNLKT Server
-teams_path = Path("X:/")
+RAW_PATH = Path("X:/_DATA")
 
-# Make list of authorized teams that can use the Bruker Scope for imaging
-authorized_teams = ["specialk", "Deryn"]
-
-# Generate valid team choices for argparser variable "team" by checking the
-# directories on the server
-team_choices = [team.name for team in teams_path.glob("*") if team.name
-                in authorized_teams]
+# Generate valid team choices for argparser variable project by checking the server for
+# valid project names
+PROJECT_CHOICES = [project.name for project in RAW_PATH.glob("*") if project.is_dir()]
 
 ###############################################################################
 # Main Function
@@ -54,17 +40,6 @@ if __name__ == "__main__":
         description='Set Metadata',
         epilog="Good luck on your work!",
         prog='Bruker Experiment Control'
-    )
-
-    # Add team name argument
-    metadata_parser.add_argument(
-        '-t', '--team',
-        type=str,
-        action='store',
-        dest='team',
-        help='Team Name (required)',
-        choices=team_choices,
-        required=True
     )
 
     # Add number of imaging planes argument
@@ -93,20 +68,10 @@ if __name__ == "__main__":
         type=str,
         action='store',
         dest='project',
-        help="Two letter code for project (required)",
+        choices=PROJECT_CHOICES,
+        help="Team & Project Name i.e. specialk_cs (required)",
         required=True
     )
-
-    # Add experimenter id argument
-    metadata_parser.add_argument(
-        '-e', '--experimenter',
-        type=str,
-        action='store',
-        dest='experimenter',
-        help='Experimenter Full Name (optional)',
-        default=None,
-        required=False
-        )
 
     # Add demo flag
     metadata_parser.add_argument(
