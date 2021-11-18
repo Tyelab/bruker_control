@@ -1,7 +1,7 @@
 # Changelog
 Any changes made by **`Team 2P`** that make it into the `main` branch are logged here.
 
-A changelog for commits and changes before this version will not be added.
+A changelog for commits and changes before this version will not be added
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
