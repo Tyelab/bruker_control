@@ -59,7 +59,7 @@ The next window is the primary window for Prairie View.
 
 2. Preferences: Never Convert Images
 
-.. image:: ../images/preferences_screenshot.PNG
+.. image:: ../images/preferences_screenshot.png
     :alt: Preferences window
     :align: center
 
