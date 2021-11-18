@@ -140,6 +140,22 @@ If no weight is recorded, an exception is raised under `SubjectError`.
 
 If false, `config_utils` will pass this check.
 
+**_Main Repository Organization_**
+
+There were several nested `bruker_control` statements required when executing
+`bruker_control` in the command line. It looked like this:
+
+`python Documents\gitrepos\bruker_control\bruker_control\bruker_control.py ...`
+
+This looks confusing and can be confusing to type. Therefore, the files containing
+the actual `Python` script are now inside a directory called `main`. Now, invoking
+`bruker_control` looks like this:
+
+`python Documents\gitrepos\bruker_control\main\bruker_control.py ...`
+
+Not a perfect solution, but somewhat better than it was. An easy to use
+shortcut or link is under development.
+
 ### Removed
 
 **_NWB File Generation: nwb_utils.py_**
