@@ -7,7 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## bruker_control.py v1.8.6 - 2021-11-18
-Several larger changes have been done in this version predominantly for filenaming and the NWB capabalities.
+Several larger changes have been done in this version predominantly for filenaming and the NWB capabilities.
 They are described below. All modifications for this version have been done on the `Python` side of things.
 
 ### Changed
