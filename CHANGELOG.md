@@ -6,6 +6,151 @@ A changelog for commits and changes before this version will not be added.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## bruker_control.py v1.8.6 - 2021-11-18
+Several larger changes have been done in this version predominantly for filenaming and the NWB capabalities.
+They are described below. All modifications for this version have been done on the `Python` side of things.
+
+### Changed
+
+**_Directory Structures: Local_**
+
+Discussions referenced in Issue #57 were resolved to alter the directory structures that are used for
+reading/writing data to the local disk Raw Data.
+
+Previously, the directory tree for writing raw data was:
+```Raw Data
+└── teams
+    └── specialk <-- team
+        └── cs <-- project
+            ├── config
+            ├── microscopy
+            ├── video
+            └── zstacks
+```
+
+Directories for writing raw data are now organized like this:
+```Raw Data
+└── specialk_cs <-- team_project
+    ├── config
+    ├── microscopy
+    ├── video
+    └── zstacks
+```
+
+The code in `bruker_control.py` has been updated to reflect the new directory structures.
+
+**_Directory Structures: Server_**
+
+The directories on the server have also been updated. This changes how configuration files
+are read and where the transfer utility shell script sends data at the end of the day.
+
+Previously, the directory for finding configurations and subject information looked like this:
+```
+snlktdata
+└── specialk
+    ├── 2p_template_configs
+    └── subject_metadata
+        └── cs
+```
+
+The directory for raw data looked like this:
+```
+snlktdata
+└── raw
+    └── specialk
+        └── cs
+            ├── config
+            ├── microscropy
+            ├── video
+            └── zstacks
+
+```
+
+Now, directories for configurations and raw data are structured like this:
+
+```
+_DATA/
+└── specialk_cs
+    ├── 2p
+    │   ├── config
+    │   ├── processed
+    │   └── raw
+    │       └── SUBJECT_ID
+    │           └── DATE
+    │               ├── config.json
+    │               ├── microscopy
+    │               ├── video.avi
+    │               └── zstacks
+    └── subjects
+```
+
+The code in `bruker_control.py` as well as the `bruker_transfer_utility.sh` script
+has been updated to reflect these directory changes.
+
+**_Weight Files_**
+
+Subject weights are no longer stored inside of the `subjectid.yml` as before. It was
+determined that metadata files should be as static as possible. Therefore, a new file
+inside the `subjects` directory in the `_DATA` directory described above called
+`subjectid_weights.yml` has been created.
+
+**_Exceptions_**
+
+Previous exception classes were needlessly specific. They have been generalized to
+the category of exception to expect. For example, `SubjectMultiple` and `SubjectMissing`
+have been turned into `SubjectError` where the argument to the exception is now the message
+delivered to the user. The same has been done for configuration file exceptions.
+
+**_Command Line Arguments_**
+
+The new structuring of the directories for data collection and transfer required changes
+of the command line arguments. Further, because `bruker_control` no longer generates
+NWB Files at runtime, the `experimenter` argument has been removed. 
+
+The parameters are now:
+- -p TEAM_PROJECT (ie specialk_cs)
+- -i IMAGING_PLANES
+- -s SUBJECT_ID
+
+When typing out the command, it used to look like:
+
+`bruker_control.py -t specialk -p cs -i 1 -s CSC000 -e "Experimenter Name"`
+
+Now, it looks like this:
+
+`bruker_control.py -p specialk_cs -i 1 -s CSC000`
+
+This is simpler to type, more concise, and much more specific to collecting data
+from the Bruker microscope as NWB generation is no longer part of the system.
+
+**_Configuration File and config_utils.py_**
+
+A new field for checking weights has been added to the configuration file for behavior in a given project.
+
+It was determined that mandatory weighing of subjects before the experiment starts is
+one, not explicitly necessary for every project and, two, would render the system more
+difficult to use if/when a scale is broken or unavailable. However, because some projects
+require the subject be weighed for each day and it could be something they forget, the
+boolean `weight_check` field has been created.
+
+If true, `config_utils` will search for the subject's weight file described above and
+check if there's a weight that's been recorded for the current day in `YYYMMDD` format.
+
+If no weight is recorded, an exception is raised under `SubjectError`.
+
+If false, `config_utils` will pass this check.
+
+### Removed
+
+**_NWB File Generation: nwb_utils.py_**
+
+`nwb_utils.py` has been removed from the repository. It was determined in Issue #57
+that `bruker_control` should be exclusively focused upon the collection of data off
+the scope. Therefore, NWB File generation has been removed from the repository.
+
+The utility module `nwb_utils.py` can now be found in the `bruker_pipeline` repo
+which has yet to have been made public.
+
 ## bruker_control.py v1.8.2 Hotfix - 2021-10-27
 Small fix to versioning numbers, longer timing for `set_laser_lambda` as it was too short
 when going between laser wavelengths. Changed where Z-stack `tqdm` progress bar occurs
