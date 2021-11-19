@@ -392,26 +392,7 @@ def build_server_directory(project: str, subject_id: str, config_template: dict)
     Directories are not automatically built for different subjects on different days
     because dates and times might change. Therefore, they're built during runtime.
     The directory for a given animal in the 2P folder for a given project will already
-    exist, so this function creates a structure as follows:
-
-    nadata.snl.salk.edu/raw/team/project/2p/subject
-    |
-    |   +--- YYYYmmdd
-    |   |
-    |   |   +--- zstacks (if requested)
-    
-    The rest of the files will be written to this position. With the
-    copy_to_server.sh script at the end of the day. These files include:
-        - nwb_file.nwb
-        - Raw Microscopy Directory
-            |
-            raw_bruker_microscopy_format.RAW
-            raw_bruker_behavior_format.RAW
-            raw_file_list.txt
-            raw_env_file.env
-            raw_file_xml.xml
-        - video_of_subject.avi
-        - config_file.json
+    exist, so this function creates the appropriate structure.
 
     Args:
         project:

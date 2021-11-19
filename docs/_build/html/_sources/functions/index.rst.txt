@@ -1,17 +1,14 @@
-.. Bruker Control documentation master file, created by
-   sphinx-quickstart on Thu Aug 12 12:03:00 2021.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
+======================================
 Bruker Control's Functions and Classes
 ======================================
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+#######
+Modules
+#######
 
+**************
 video_utils.py
-==============
+**************
 
 Module contains functions for configuring GenICam compliant cameras as well as
 grabbing, displaying, and writing video frames the cameras acquire. It has
@@ -23,9 +20,9 @@ tested using one camera so far.
 .. automodule:: video_utils
   :members:
 
-
+**************
 trial_utils.py
-==============
+**************
 
 Module contains functions for interpreting configuration file parameters and
 using them for generating pseudorandom trial arrays following user defined
@@ -39,9 +36,9 @@ defined bounds.
 .. automodule:: trial_utils
   :members:
 
-
+***************
 config_utils.py
-===============
+***************
 
 Module contains functions for reading, writing, and passing configuration
 information to different modules or files including NWB files.
@@ -51,9 +48,9 @@ information to different modules or files including NWB files.
 .. automodule:: config_utils
   :members:
 
-
+********************
 prairieview_utils.py
-====================
+********************
 
 Module contains functions for interacting with Prairie View's API to set data
 directories, filenames, and gathering imaging plane information. Also sets
@@ -64,9 +61,9 @@ microscope laser values according to user presets and initiates image acquisitio
 .. automodule:: prairieview_utils
   :members:
 
-
+***********************
 serialtransfer_utils.py
-=======================
+***********************
 
 Module contains functions for sending, receiving, and checking trial information
 to the Arduino delivering stimuli via pySerialTransfer.
@@ -76,18 +73,7 @@ to the Arduino delivering stimuli via pySerialTransfer.
 .. automodule:: serialtransfer_utils
   :members:
 
-
-nwb_utils.py
-============
-
-Module contains functions for generating and writing a base Neurodata Without
-Borders file for a given subject to their correct data directory.
-
-.. currentmodule:: nwbutils
-
-.. automodule:: nwb_utils
-  :members:
-
+==================
 Indices and tables
 ==================
 
