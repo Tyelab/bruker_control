@@ -34,8 +34,8 @@ for file in video/*
     do
         if [[ -f $file ]]; then
             echo "Copying: " $file
-            date=$datereg
-            subject=$subjectreg
+            date=$(echo $file | cut -d '/' -f 2 | cut -d '_' -f 1 )
+            subject=$(echo $file | cut -d '/' -f 2 | cut -d '_' -f 2 )
             rsync -P --remove-source-files $file /drives/x/_DATA/$1/2p/raw/$subject/$date
         else
             echo "No video files found!"
@@ -80,3 +80,4 @@ echo ""
 
 echo "File transfer to server complete!" | Mail -s "bruker_transfer_utility" acoley@salk.edu
 echo "File transfer to server complete!" | Mail -s "bruker_transfer_utility" jdelahanty@salk.edu
+echo "I have a joke about Markov models but it's hidden somewhere..." | Mail -s "Where'd it go?" kbatra@salk.edu
