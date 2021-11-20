@@ -326,7 +326,7 @@ def prepare_tseries(project: str, subject_id: str, current_plane: int,
     # acquiring data for the Z-stack collected before this point.
     # To make sure that only the relevant channel is used (the green one),
     # turn Channel 1 off and make sure that Channel 2 is on.
-    if project == "specialk":
+    if "specialk" in project:
         set_tseries_parameters(surgery_metadata)
 
 
