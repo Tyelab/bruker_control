@@ -2,10 +2,6 @@
 Bruker Control's Functions and Classes
 ======================================
 
-#######
-Modules
-#######
-
 **************
 video_utils.py
 **************
