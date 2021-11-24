@@ -1,6 +1,6 @@
-=====================================================
-bruker_control.py v1.8.6: Stimulate your Mind 🔦🎆🧠
-=====================================================
+=================================================================
+ User Guide bruker_control.py v1.8.6: Stimulate your Mind 🔦🎆🧠
+=================================================================
 
 A (very) basic rundown of the experimental runtime is included below.
 
@@ -59,7 +59,7 @@ The next window is the primary window for Prairie View.
 
 2. Preferences: Never Convert Images
 
-.. image:: ../images/preferences_screenshot.PNG
+.. image:: ../images/preferences_screenshot.png
     :alt: Preferences window
     :align: center
 
@@ -79,7 +79,7 @@ Select the Voltage Recording window from the `Electrophysiology Tab` to see the 
 
 The voltage recording window will have multiple experiments saved for different teams' relevant DAQ channels. Select your team's appropriate experiment.
 
-.. image:: ../images/voltage_recording_settings.PNG
+.. image:: ../images/voltage_recording_settings.png
     :alt: Voltage Recording Experiment Settings
     :align: center
 

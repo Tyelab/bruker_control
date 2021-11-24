@@ -12,7 +12,7 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../bruker_control'))
+sys.path.insert(0, os.path.abspath('../main'))
 
 
 # -- Project information -----------------------------------------------------

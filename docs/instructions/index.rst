@@ -1,6 +1,6 @@
-=====================================================
-bruker_control.py v1.8.6: Stimulate your Mind 🔦🎆🧠
-=====================================================
+=================================================================
+ User Guide bruker_control.py v1.8.6: Stimulate your Mind 🔦🎆🧠
+=================================================================
 
 A (very) basic rundown of the experimental runtime is included below.
 
