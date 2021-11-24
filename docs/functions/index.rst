@@ -15,9 +15,7 @@ grabbing, displaying, and writing video frames the cameras acquire. It has
 been written with flexibility of number of cameras in mind, but has only been
 tested using one camera so far.
 
-.. currentmodule:: ../main/video_utils
-
-.. automodule:: video_utils
+.. automodule:: ../../main/video_utils
   :members:
 
 **************
