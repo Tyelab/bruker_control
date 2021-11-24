@@ -7,3 +7,4 @@ pyserialtransfer==2.1.2
 numpy==1.20.2
 tqdm==4.62.1
 opencv-python
+ruamel.yaml
