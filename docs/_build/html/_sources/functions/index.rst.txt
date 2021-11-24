@@ -43,7 +43,7 @@ config_utils.py
 Module contains functions for reading, writing, and passing configuration
 information to different modules or files including NWB files.
 
-.. currentmodule:: ../main/config_utils
+.. currentmodule:: ../../main/config_utils
 
 .. automodule:: config_utils
   :members:
@@ -56,7 +56,7 @@ Module contains functions for interacting with Prairie View's API to set data
 directories, filenames, and gathering imaging plane information. Also sets
 microscope laser values according to user presets and initiates image acquisition.
 
-.. currentmodule:: ../main/prairieview_utils
+.. currentmodule:: ../../main/prairieview_utils
 
 .. automodule:: prairieview_utils
   :members:
@@ -68,7 +68,7 @@ serialtransfer_utils.py
 Module contains functions for sending, receiving, and checking trial information
 to the Arduino delivering stimuli via pySerialTransfer.
 
-.. currentmodule:: ../main/serialtransfer_utils
+.. currentmodule:: ../../main/serialtransfer_utils
 
 .. automodule:: serialtransfer_utils
   :members:
