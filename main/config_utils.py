@@ -471,5 +471,8 @@ def weight_check(project: str, subject_id: str):
         try:
             weight = subject_weights[session_date]
 
+        # Stating that the exception is raised from 'None' essentially tells Python to ignore
+        # previous context of any other exceptions. This behavior makes the error messages in
+        # the terminal a little cleaner than before.
         except KeyError:
-            raise SubjectError("Subject has no weight recorded! Measure subject's weight before continuing.")
+            raise SubjectError("Subject has no weight recorded! Measure subject's weight before continuing.") from None
