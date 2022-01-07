@@ -33,37 +33,21 @@ DATA_PATH = "E:/"
 # Exceptions
 ###############################################################################
 
-class ProjectTemplateMissing(Exception):
+class TemplateError(Exception):
     """
-    Exception for when the team's behavioral template is missing.
+    Exception for when there's an error when parsing templates.
     """
     def __init__(self, *args):
         if args:
             self.message = args[0]
         else:
             self.message = None
-    
-    def __str__(self):
-        if self.message:
-            return "ProjectTemplateMissing: " + "{0}".format(self.message)
-        else:
-            return "Project Template is missing! Check your _DATA/project/2p/config folder."
 
-class ProjectTemplateMultiple(Exception):
-    """
-    Exception for when a team's project configuration directory contains multiple templates.
-    """
-    def __init__(self, *args):
-        if args:
-            self.message = args[0]
-        else:
-            self.message = None
-    
     def __str__(self):
         if self.message:
-            return "ProjectTemplateMultiple: " + "{0}".format(self.message)
+            return "TemplateError: " + "{0}".format(self.message)
         else:
-            return "Project has multiple template files! Check your 2p_template_configs/project folder."
+            return "TEMPLATE ERROR"
 
 class SubjectError(Exception):
     """
@@ -143,7 +127,9 @@ def get_template(project: str) -> dict:
     # If the length of the list for the template file is great than 1,
     # something is wrong. Raise an exception.
     if len(template_config_path) > 1:
-        raise ProjectTemplateMultiple()
+        raise TemplateError(
+            "Project has multiple template files! Check your 2p_template_configs/project folder."
+            )
 
     # Otherwise, try to load the one present file. If it's not there,
     # an index error occurs and an exception is raised.
@@ -154,7 +140,9 @@ def get_template(project: str) -> dict:
 
 
         except IndexError:
-            raise ProjectTemplateMissing()
+            raise TemplateError(
+                "Project Template is missing! Check your _DATA/project/2p/config folder."
+                )
 
     return config_template
 
