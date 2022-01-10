@@ -85,7 +85,7 @@ def set_resonant_galvo():
     """
 
     # Change Acquisition Mode to Resonant Galvo
-    pl.SendScriptCommands("-SetAcquisitionMode 'Resonant Galvo'")
+    pl.SendScriptCommands("-SetAcquisitionMode ResonantGalvo")
 
     # Wait 3 seconds for Prairie View to switch modes
     sleep(3)
@@ -102,7 +102,7 @@ def set_galvo_galvo():
     """
 
     # Change Acqusition Mode to Galvo Galvo
-    pl.SendScriptCommands("-SetAcquisitionMode 'Galvo'")
+    pl.SendScriptCommands("-SetAcquisitionMode Galvo")
 
     # Wait 3 seconds for Prairie View to switch modes
     sleep(3)
