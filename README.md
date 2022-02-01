@@ -52,6 +52,10 @@ These issues include:
 
 2. _Containerizing RAW data converstion to HDF5 files onto SNL Cluster_
 
+**_The first steps of this have been completed! We can now spawn many converters across docker enabled machines. Enabling an automated conversion to H5
+is the next step. Automatically initiating this conversion process using CRON is under development. Developments can be found in the `bruker_pipeline`
+repository in this organization._**
+
 Kay has expressed the need for file conversion and processing to be done on the SNL cluster instead of locally on the machine.
 The [Deisseroth Lab](https://github.com/deisseroth-lab/two-photon) has a version of Prairie View's utilities that are containerized into
 a [Docker Image](https://www.docker.com/). Jorge recently gave me access to the SNL machines with Docker installed as well as permissions to
@@ -61,18 +65,17 @@ this could be established as a service which will poll approved 2P teams' direct
 start converting them on the very fast SNL hardware into NWB files immediately.
 
 The steps for this happening are as follows:
-- Build the container with Docker Compose using the Deisseroth's Lab's codebase by integrating their work with ours
+- Build the container with Docker Compose using the Deisseroth's Lab's codebase by integrating their work with ours **DONE!**
 - Thoroughly test conversion: Not certain that we can immediately access TIFF file before it's written to disk. It may be necessary to write an
-individual file to disk or batch of files to disk before appending them to the NWB HDF5 file which would slow things down some...
-- Place the 2P recording into the NWB file in accordance with their requirements into the correct directories
-- Reproduce our Docker image onto every machine with Docker installed
+individual file to disk or batch of files to disk before appending them to the NWB HDF5 file which would slow things down some... **NOT NECESSARY**
+- Place the 2P recording into the NWB file in accordance with their requirements into the correct directories **WILL NOT BE DONE**
+- Reproduce our Docker image onto every machine with Docker installed **NOT NECESSARY**
 - Develop a script that checks if the Docker enabled machines are available
 - Write script that initiates such a search
 - Develop automatic polling of directories for new files **(Lowest priority)**
 
 _**Timeline**_
-For containerization, testing, and reproducing the image on multiple machines: 3-4 weeks. For initiating the search and checking if machines
-are busy/waiting if they are: 1-2 weeks.
+Initiating the search and checking if machines are busy/waiting if they are: 1-2 weeks.
 
 3. _GUI Development_
 
