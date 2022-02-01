@@ -27,6 +27,8 @@ SERVER_BASEPATH = Path("X:/_DATA")
 
 # Experimental configuration directories are in the Raw Data volume on the
 # machine BRUKER which is mounted to E:. This is where configs will be written
+# TODO: Convert DATA_PATH to Path object w/pathlib, unsure why I didn't do this
+# in the first place
 DATA_PATH = "E:/"
 
 ###############################################################################
@@ -147,22 +149,22 @@ def get_template(project: str) -> dict:
     return config_template
 
 
-def read_config(template_config_path: Path) -> dict:
+def read_config(config_path: Path) -> dict:
     """
-    Utility function for reading template config files
+    Utility function for reading config files
 
     General purpose function for reading .json files containing configuration
     values for an experiment.
 
     Args:
-        template_config_path:
+        config_path:
             Pathlib path to the template configuration file.
 
     Returns:
         Dictionary of contents inside the configuration .json file
     """
 
-    with open(template_config_path, 'r') as inFile:
+    with open(config_path, 'r') as inFile:
 
         contents = inFile.read()
 
@@ -464,3 +466,87 @@ def weight_check(project: str, subject_id: str):
         # the terminal a little cleaner than before.
         except KeyError:
             raise SubjectError("Subject has no weight recorded! Measure subject's weight before continuing.") from None
+
+
+def write_yoked_config(subject_type, current_plane, project, experiment_arrays):
+
+    yoked_config = {}
+
+    # Gather session date using datetime
+    session_date = datetime.today().strftime("%Y%m%d")
+
+    # Generate the yoked dataset name
+    yoked_name = "_".join([session_date, subject_type,
+                        "plane{}".format(current_plane)])
+
+    # Generate Experiment Configuration Directory Path
+    yoked_dir = DATA_PATH + project + "/yoked/"
+
+    # Generate the filename
+    yoked_filename = "_".join([yoked_name, "yoked"])
+
+    # Append .json for the file
+    yoked_filename += ".json"
+
+    # Complete the fullpath for the config file to be written
+    yoked_fullpath = yoked_dir + yoked_filename
+
+    # Assign trialArray key to trialArray data.  The 0th index of the list is
+    # always the the trialArray
+    yoked_config["beh_metadata"]["trialArray"] = experiment_arrays[0]
+
+    # Assign ITIArray key to ITIArray data.  The 1st index of the list is
+    # always the ITIArray
+    yoked_config["beh_metadata"]["ITIArray"] = experiment_arrays[1]
+
+    # Assign toneArray key the toneArray data.  The 2nd index of the list is
+    # always the toneArray.
+    yoked_config["beh_metadata"]["toneArray"] = experiment_arrays[2]
+
+    # Assign LEDArray key the LEDArray data. The 3rd index of the list is
+    # always the LEDArray.
+    yoked_config["beh_metadata"]["LEDArray"] = experiment_arrays[3]
+
+    # Write the completed configuration file
+    with open(yoked_fullpath, 'w') as outFile:
+
+        json.dump(yoked_config, outFile)
+
+
+def check_yoked_config(subject_type, current_plane, project):
+
+    # Gather session date using datetime
+    session_date = datetime.today().strftime("%Y%m%d")
+
+    # Generate the yoked dataset name
+    yoked_name = "_".join([session_date, subject_type,
+                        "plane{}".format(current_plane)])
+
+    # Generate Experiment Configuration Directory Path
+    yoked_dir = Path(DATA_PATH + project + "/yoked/")
+
+    # Generate the filename
+    yoked_filename = "_".join([yoked_name, "yoked"])
+
+    # Append .json for the file
+    yoked_filename += ".json"
+
+
+    yoked_files = list(yoked_dir.glob(yoked_filename))
+
+    # TODO: Explicit checks should be made here to ensure the correct file
+    # has been found.
+    # If a yoked file is not present, pass None as the experiment arrays
+    # so the next step knows to generate them and write them to disk
+    if len(yoked_files) != 1:
+
+        experiment_arrays = None
+    
+    # If a file is found, load the values into the experiment arrays
+    else:
+
+        yoked_file = yoked_files[0]
+
+        experiment_arrays = read_config(yoked_file)
+    
+    return experiment_arrays

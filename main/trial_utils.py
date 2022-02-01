@@ -811,7 +811,7 @@ def calculate_punish_seconds(punish_delivery_ms: int, trialArray: list) -> int:
 
 def generate_arrays(config_template: dict) -> list:
     """
-    Generates all necessary arrays for Bruker experimental runtime without stimluation.
+    Generates all necessary arrays for Bruker experimental runtime.
 
     Creates arrays as specified by user's configuration file.  Builds the
     trialArray, ITIArray, toneArray, and LEDArray according to user defined rules.

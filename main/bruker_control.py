@@ -73,6 +73,21 @@ if __name__ == "__main__":
         required=True
     )
 
+    # Add Experimental Condition flag
+    # Until there is consistent adoption of subject metadata files,
+    # users wishing to use the "yoked" trial settings will have to add
+    # this argument to their command line.
+    metadata_parser.add_argument(
+        '-t', '--type',
+        type=str,
+        action='store',
+        dest='condition',
+        choices=["e", "c"],
+        help="Type of Subject: Experimental vs Control (optional)",
+        default=None,
+        required=False
+    )
+
     # Add demo flag
     metadata_parser.add_argument(
         '-d', '--demo',

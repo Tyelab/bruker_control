@@ -2,6 +2,7 @@
 # Jeremy Delahanty May 2021
 
 # Import config_utils functions for manipulating config files
+from distutils.command.config import config
 import config_utils
 
 # Import video_utils functions for using Harvesters for camera
@@ -33,6 +34,9 @@ def run_imaging_experiment(metadata_args):
 
     # Gather number of planes to image
     requested_planes = metadata_args["imaging_planes"]
+
+    # Get value of subject's experimental/control type
+    subject_type = metadata_args["type"]
 
     print("Gathering metadata...")
     # TODO: Unite all these functions into one call and build a
@@ -87,8 +91,32 @@ def run_imaging_experiment(metadata_args):
 
     while exp_running is True:
 
-        # Create experiment runtime arrays
-        experiment_arrays = trial_utils.generate_arrays(config_template)
+        # TODO: Make this into one united function contained within config_utils
+        # If the user specified using yoked trial sets
+        if config_template["beh_metadata"]["yoked"]:
+
+            # Check to see if there is currently a yoked trial set available
+            experiment_arrays = config_utils.check_yoked_config(subject_type, current_plane, project)
+
+            # If experiment arrays is None, that means there are no yoked trials available for this
+            # plane for this experimental condition. Generate the trial arrays and then write them
+            # to disk
+            if experiment_arrays == None:
+                
+                experiment_arrays = trial_utils.generate_arrays(config_template)
+
+                config_utils.write_yoked_config(subject_type, current_plane, project)
+            
+            # If there were arrays available, they have been loaded into the experiment_arrays variable
+            # We can pass this condition and move forward with the experiment.
+            else:
+                
+                pass
+        
+        # If the user does not choose to use yoked trials, generate a new trial set
+        else:
+            # Create experiment runtime arrays
+            experiment_arrays = trial_utils.generate_arrays(config_template)
 
         # Calculate session length in seconds
         session_len_s = trial_utils.calculate_session_length(

@@ -81,6 +81,7 @@ boolean acquireMetaData = true;
 boolean acquireTrials = false;
 boolean acquireITI = false;
 boolean acquireTone = false;
+boolean acquireLED = false;
 boolean rx = true;
 boolean pythonGoSignal = false;
 boolean arduinoGoSignal = false;
@@ -245,6 +246,34 @@ int tone_rx() {
         transmissionStatus++;
         transmissionStatus++;
       }
+      acquireLED = true;
+    }
+  }
+}
+
+/**
+ * Receives, parses, and sends back array of Stim Durations to be performed
+ * for a given experiment. Increments transmission status by 1 if
+ * totalNumberOfTrials is greater than 60, by 2 if less than 60.
+ */
+int led_rx() {
+  if (acquireLED && transmissionStatus >= 7 && transmissionStatus < 9) {
+    acquireTone = false;
+    if (myTransfer.available())
+    {
+      myTransfer.rxObj(LEDArray);
+      Serial.println("Received LED Stim Array");
+
+      myTransfer.sendDatum(LEDArray);
+      Serial.println("Sent LED Stim Array");
+      if (metadata.totalNumberOfTrials > 60) {
+        transmissionStatus++;
+      }
+      else {
+        transmissionStatus++;
+        transmissionStatus++;
+      }
+      acquireLED = false;
       pythonGoSignal = true;
     }
   }
@@ -258,6 +287,7 @@ int tone_rx() {
     2. Trial type transmission
     3. ITI duration transmission
     4. Tone duration transmission
+    5. LED Stimulation time transmission
 */
 void rx_function() {
   if (rx) {
@@ -265,6 +295,7 @@ void rx_function() {
     trials_rx();
     iti_rx();
     tone_rx();
+    led_rx();
   }
 }
 
@@ -341,6 +372,7 @@ void reset_board() {
   acquireTrials = false;
   acquireITI = false;
   acquireTone = false;
+  acquireLED = false;
   rx = true;
   pythonGoSignal = false;
   arduinoGoSignal = false;
