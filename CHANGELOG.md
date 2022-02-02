@@ -6,6 +6,113 @@ A changelog for commits and changes before this version will not be added.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## bruker_control.py v1.9.0 - 2022-02-02 *Get Yoked*
+A few new changes are here in this version of the repository primarily on the `Python side`, but also
+some small changes have been made to an `Arduino` file to enable new functionality. There's also a new
+way of performing different types of trials: Yoked trials! `bruker_control` got stronger in this update
+and can do some new exercise for you. Read on to find out! 🏋️
+
+:heart: Jeremy Delahanty
+
+### Changed
+
+**_Python_**
+
+*`check_session_punishments()` and `check_session_rewards()`*:
+The method used for checking if too many punishment/reward trials were created in a `trialArray` was not
+functioning properly. Previously successive `or` statements were used. Now, a check is performed for if
+a `trial` is in a list of relevant trial types. Further, a trial set passes the checks if the number of
+trials equals the max number of sequential trials of that type. The set fails now only if it exceeds that
+number.
+
+*Video Utils Change*
+The location and size of the presented video of the subject's face is now different. The video has been
+downscaled by 50% and is placed in the bottom right corner of the screen so it is out of the way of
+the Prarie View's windows. Note that the output video file is still the same.
+
+
+**_Arduino_**
+
+The `deryn_fd_disc.ino` file now has the ability to receive/parse LED trials which accompany all trial sets
+given by `bruker_control`. It does not yet have the trial definitions for catch trials and LED stimulations
+because they have not been requested.
+
+### Added
+
+**_Configuration File_**
+
+The configuration file has a new parameter inside of `beh_metadata`: yoked. If true, `bruker_control`
+will know to perform checks/load yoked trial sets for the given experimental subject type.
+
+**_Directory Structures: Local_**
+
+Due to users not all using the specialk style subject metadata files, a more generic method of creating
+yoked trial sets was written. At runtime, `bruker_control` will check for an already existing trialset that
+is located in the following folder:
+
+```Raw Data
+└── deryn_fd
+    ├── config
+    ├── microscopy
+    ├── video
+    ├── yoked <-- here
+    └── zstacks
+```
+
+Files that are written here for a given day with a given plane will have the following format:
+`YYYYMMDD_SUBJECTGROUP_PLANE#_yoked.json`
+
+The subject groups will be experimental (exp) or control (con). These will be gathered at the command line.
+
+For example:
+`20220202_exp_plane1_yoked.json` and `20220202_con_plane1_yoked.json`.
+
+There will be a new configuration file generated for each day, each group, and each plane that will be reused
+for the animals in the group.
+
+The format of the file is similar to how trial sets are stored in a given configuration file written at
+the end of a particular recording. Meaning the data is stored as follows:
+
+```
+{beh_metadata:
+    trialArray{[1,1,1,0,1,0,0...},
+    ITIArray{[...]},
+    toneArray{[...]},
+    LEDArray{[...]}
+}
+```
+
+This was done so accessing yoked files' arrays would be the exact same as accessing a configuraiton file
+that is written at the end of a given animal's session, thereby (hopefully) reducing downstream processing
+changes.
+
+**_Command Line Arguments_**
+
+To accomodate yoked trial sessions, a new command line argument has been added: -g/--group
+
+This encodes which group the subject belongs to: experimental or control. To make it easier to type
+for users, the abbreviations `exp` and `con` are used. These choices are enforced by the argument
+parser in case someone accidentally writes the command incorrectly.
+
+Now, the command line arguments look like this:
+
+- -p TEAM_PROJECT (ie specialk_cs)
+- -i IMAGING_PLANES
+- -s SUBJECT_ID
+- -g EXPERIMENT_GROUP
+
+The experimental group is optional and defaults to `None` if it is not given.
+
+**_Python_**
+
+*Yoked Configuration Checks*
+- check_yoked_config(): Searches for already existing yoked trialset for a given day, experimental group, and plane number.
+- write_yoked_config(): If a trial set was *not* found by `check_yoked_config()`, one is generated in the usual manner with `trial_utils`. Once created, it is written to the local file system in the `yoked` file. 
+
+`bruker_control` will now check for the presence of already existing yoked trial sets by using some new
+functions:
+- 
+
 ## bruker_control.py v1.8.6 - 2021-11-18
 Several larger changes have been done in this version predominantly for filenaming and the NWB capabilities.
 They are described below. All modifications for this version have been done on the `Python` side of things.
