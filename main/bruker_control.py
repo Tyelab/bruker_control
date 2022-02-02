@@ -6,7 +6,7 @@
 # https://github.com/PowerBroker2/pySerialTransfer
 # Genie Nano manufactured by Teledyne DALSA
 
-__version__ = "1.8.62 Stimulate Your Mind"
+__version__ = "1.9.0 Get Yoked"
 
 # Import experiment utils to run different experiments
 import experiment_utils
@@ -78,12 +78,12 @@ if __name__ == "__main__":
     # users wishing to use the "yoked" trial settings will have to add
     # this argument to their command line.
     metadata_parser.add_argument(
-        '-t', '--type',
+        '-g', '--group',
         type=str,
         action='store',
-        dest='condition',
-        choices=["e", "c"],
-        help="Type of Subject: Experimental vs Control (optional)",
+        dest='group',
+        choices=["exp", "con"],
+        help="Subject Group: Experimental vs Control (optional)",
         default=None,
         required=False
     )

@@ -468,9 +468,29 @@ def weight_check(project: str, subject_id: str):
             raise SubjectError("Subject has no weight recorded! Measure subject's weight before continuing.") from None
 
 
-def write_yoked_config(subject_type, current_plane, project, experiment_arrays):
+def write_yoked_config(subject_type: str, current_plane: int, project: str, experiment_arrays: list):
+    """
+    Write out yoked configurations for unique plane/subject combinations.
 
-    yoked_config = {}
+    Yoked trial sets indicate that an entire experimental group will receive the same
+    pseudorandom trials. This generates sessions that are far easier to compare between
+    mice and also larger N for each dataset for statistical analysis of neural activity
+    later. These are written to the local filesystem first and will be copied to the server
+    at the end of the day.
+
+    Args:
+        subject_type:
+            Type of group the subject is a part of, either "experimental" or "control".
+        current_plane:
+            Which plane number is being currently imaged (i.e. 1, 2, 3)
+        project:
+            The team and project conducting the experiment (ie teamname_projectname)
+        experiment_arrays:
+            List of experimental arrays to be sent via pySerialTransfer
+
+    """
+
+    yoked_config = {"beh_metadata": {"trialArray": []}}
 
     # Gather session date using datetime
     session_date = datetime.today().strftime("%Y%m%d")
@@ -490,6 +510,15 @@ def write_yoked_config(subject_type, current_plane, project, experiment_arrays):
 
     # Complete the fullpath for the config file to be written
     yoked_fullpath = yoked_dir + yoked_filename
+
+    # The yoked configuration file will follow the same structure as the
+    # configuration file that's output. Although it may seem unnecessary,
+    # I decided that consistency between the output .json file for the
+    # individual session and the version for the yoked trial sets
+    # would make it so it's easy to load either one without having to
+    # specify different loading parameters for these different filetypes.
+    # Until everyone adopts specialk style metadata format, this duplication
+    # of datasets will have to continue.
 
     # Assign trialArray key to trialArray data.  The 0th index of the list is
     # always the the trialArray
@@ -513,7 +542,28 @@ def write_yoked_config(subject_type, current_plane, project, experiment_arrays):
         json.dump(yoked_config, outFile)
 
 
-def check_yoked_config(subject_type, current_plane, project):
+def check_yoked_config(subject_type: str, current_plane: int, project: str) -> list:
+    """
+    Checks to see if a yoked trialset already exists for a session.
+
+    If a user wants yoked trial sessions, a check is performed to see if a trial set
+    for the given experimental group and given plane has been generated yet. If no
+    file is available, a None object is returned and trialsets are generated with
+    trial_utils as normal. If a file is available, those experimental arrays are
+    loaded and saved as the expeirment_arrays.
+
+    Args:
+        subject_type:
+            Type of group the subject is a part of, either "experimental" or "control".
+        current_plane:
+            Which plane number is being currently imaged (i.e. 1, 2, 3)
+        project:
+            The team and project conducting the experiment (ie teamname_projectname)
+    
+    Returns:
+        experiment_arrays
+
+    """
 
     # Gather session date using datetime
     session_date = datetime.today().strftime("%Y%m%d")
@@ -545,8 +595,13 @@ def check_yoked_config(subject_type, current_plane, project):
     # If a file is found, load the values into the experiment arrays
     else:
 
+        experiment_arrays = []
+
         yoked_file = yoked_files[0]
 
-        experiment_arrays = read_config(yoked_file)
-    
+        yoked_config = read_config(yoked_file)
+
+        for key in yoked_config["beh_metadata"].keys():
+            experiment_arrays.append(yoked_config["beh_metadata"][key])
+
     return experiment_arrays

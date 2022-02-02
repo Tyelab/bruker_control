@@ -4,7 +4,7 @@ Name: bruker_disc_deryn
 Purpose: Present stimuli to headfixed subject and send signals to DAQ for Tye Lab Team specialk
 
 @author Deryn LeDuke, Kyle Fischer PhD, Dexter Tsin, Jeremy Delahanty
-@version 1.0.1 9/10/21
+@version 1.8.0 2/1/22
 
 Adapted from DISC_V7.ino by Kyle Fischer and Mauri van der Huevel Oct. 2019
 digitalWriteFast.h written by Watterott Electronic https://github.com/watterott/Arduino-Libs/tree/master/digitalWriteFast
@@ -42,6 +42,7 @@ struct __attribute__((__packed__)) metadata_struct {
   uint8_t USDeliveryTime_Sucrose;           // amount of time to open sucrose solenoid
   uint8_t USDeliveryTime_Air;               // amount of time to open air solenoid
   uint16_t USConsumptionTime_Sucrose;       // amount of time to wait for sucrose consumption
+  uint16_t stimDeliveryTime_Total;          // amount of time LED is scheduled to run
 } metadata;
 
 //// EXPERIMENT ARRAYS ////
@@ -53,6 +54,8 @@ int32_t trialArray[MAX_NUM_TRIALS];
 int32_t ITIArray[MAX_NUM_TRIALS];
 // The amount of time a tone is transmitted from Python to the Arudino
 int32_t toneArray[MAX_NUM_TRIALS];
+// The timepoints for stimulating the subject via LED are transmitted from Python to Arduino
+int32_t LEDArray[MAX_NUM_TRIALS];
 
 //// PYTHON TRANSMISSION STATUS ////
 // Additional control is required for running the experiment correctly.
@@ -266,12 +269,14 @@ int led_rx() {
 
       myTransfer.sendDatum(LEDArray);
       Serial.println("Sent LED Stim Array");
+      Serial.println(transmissionStatus);
       if (metadata.totalNumberOfTrials > 60) {
         transmissionStatus++;
       }
       else {
         transmissionStatus++;
         transmissionStatus++;
+        Serial.println(transmissionStatus);
       }
       acquireLED = false;
       pythonGoSignal = true;
@@ -306,7 +311,7 @@ void rx_function() {
    Genie Nano so it can start up.
 */
 int pythonGo_rx() {
-  if (pythonGoSignal && transmissionStatus == 7) {
+  if (pythonGoSignal && transmissionStatus == 9) {
     if (myTransfer.available())
     {
       myTransfer.rxObj(pythonGo);
