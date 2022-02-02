@@ -359,7 +359,7 @@ def capture_recording(num_frames: int, current_plane: int, imaging_plane: str,
                 resized = cv2.resize(content, imshow_dims, interpolation = cv2.INTER_AREA)
 
                 out.write(content)
-                cv2.imshow("Live", resized)
+                cv2.imshow("Live!", resized)
                 cv2.waitKey(1)
 
                 frame_number += 1
