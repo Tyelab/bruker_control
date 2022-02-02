@@ -18,11 +18,11 @@ sys.path.insert(0, os.path.abspath('../main'))
 # -- Project information -----------------------------------------------------
 
 project = 'Bruker Control'
-copyright = '2021, Jeremy Delahanty'
+copyright = '2022, The Salk Institute for Biological Studies'
 author = 'Jeremy Delahanty'
 
 # The full version, including alpha/beta/rc tags
-release = '1.8.6'
+release = '1.9.0'
 
 
 # -- General configuration ---------------------------------------------------

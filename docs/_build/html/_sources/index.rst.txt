@@ -5,7 +5,7 @@ If you have any issues, contact maintainer Jeremy Delahanty at jdelahanty@salk.e
 preferably, open an issue `here <https://github.com/Tyelab/headfix_control/issues>`_.
 
 .. toctree::
-  :maxdepth: 2
+  :maxdepth: 1
 
   about/index
   instructions/index

@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Bruker Control’s Functions and Classes" href="../functions/index.html" /><link rel="prev" title="About Bruker Control" href="../about/index.html" />
 
     <meta name="generator" content="sphinx-4.0.2, furo 2021.08.11.beta42"/>
-        <title>User Guide bruker_control.py v1.8.6: Stimulate your Mind 🔦🎆🧠 - Bruker Control 1.8.6 documentation</title>
+        <title>v1.9.0 User Guide: Get Yoked! 🏋️ 🏋️‍♀️ - Bruker Control 1.9.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=197f00461d56902ea7ca048ec6e6ba026f62c97b" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=93475b62d1c3bc01323a0eefdc14a62d77b12690" />
@@ -121,7 +121,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Bruker Control 1.8.6 documentation</div></a>
+      <a href="../index.html"><div class="brand">Bruker Control 1.9.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -144,7 +144,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Bruker Control 1.8.6 documentation</span>
+  <span class="sidebar-brand-text">Bruker Control 1.9.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -154,7 +154,7 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../about/index.html">About Bruker Control</a></li>
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">User Guide bruker_control.py v1.8.6: Stimulate your Mind 🔦🎆🧠</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">v1.9.0 User Guide: Get Yoked! 🏋️ 🏋️‍♀️</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../functions/index.html">Bruker Control’s Functions and Classes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../functions/index.html#indices-and-tables">Indices and tables</a></li>
 </ul>
@@ -182,8 +182,8 @@
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
-        <section id="user-guide-bruker-control-py-v1-8-6-stimulate-your-mind">
-<h1>User Guide bruker_control.py v1.8.6: Stimulate your Mind 🔦🎆🧠<a class="headerlink" href="#user-guide-bruker-control-py-v1-8-6-stimulate-your-mind" title="Permalink to this headline">¶</a></h1>
+        <section id="v1-9-0-user-guide-get-yoked">
+<h1>v1.9.0 User Guide: Get Yoked! 🏋️ 🏋️‍♀️<a class="headerlink" href="#v1-9-0-user-guide-get-yoked" title="Permalink to this headline">¶</a></h1>
 <p>A (very) basic rundown of the experimental runtime is included below.</p>
 <img alt="User steps for using bruker_control.py" src="../_images/bruker_user_execution_graph.svg"/><section id="user-guide">
 <h2>User Guide<a class="headerlink" href="#user-guide" title="Permalink to this headline">¶</a></h2>
@@ -217,6 +217,11 @@ The board will reset on its own once the imaging session is complete.</p>
 <h3><em>Prairie View</em><a class="headerlink" href="#prairie-view" title="Permalink to this headline">¶</a></h3>
 <p>Prairie View will open several windows when it starts. The first looks like this:</p>
 <img alt="Prairie View starting window" class="align-center" src="../_images/pv_starting_window.png"/>
+<p>In the currently running version (5.6.64.200), an error message appears
+related to servo motors that do not exist in the Ultima Investigator. The
+starting window shown above will end up looking like this:</p>
+<img alt="Servo Error message" class="align-center" src="../_images/prairieview_servo_error.png"/>
+<p>This has no influence upon the function of the system and can be ignored.</p>
 <p>The next window is the primary window for Prairie View.</p>
 <ol class="arabic simple">
 <li><p>Primary Window: T-Series</p></li>
@@ -251,10 +256,11 @@ subject until the ripping process is complete.</p>
 </section>
 <section id="python">
 <h3><em>Python</em><a class="headerlink" href="#python" title="Permalink to this headline">¶</a></h3>
+<img alt="Example Command Line Execution" class="align-center" src="../_images/introduction_1.gif"/>
 <p>Use the <cite>Anaconda Command Prompt</cite> to start a Python Terminal and then type the following commands:</p>
 <ol class="arabic simple">
 <li><p>conda activate bruker_control</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">Documents\gitrepos\bruker_control\bruker_control.py</span> <span class="pre">-p</span> <span class="pre">TEAMNAME_PROJECT</span> <span class="pre">-i</span> <span class="pre">#IMAGINGPLANES</span> <span class="pre">-s</span> <span class="pre">SUBJECTID</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">Documents\gitrepos\bruker_control\bruker_control.py</span> <span class="pre">-p</span> <span class="pre">TEAMNAME_PROJECT</span> <span class="pre">-i</span> <span class="pre">#IMAGINGPLANES</span> <span class="pre">-s</span> <span class="pre">SUBJECTID</span> <span class="pre">-g</span> <span class="pre">EXPERIMENTAL_GROUP</span></code></p></li>
 </ol>
 <ul class="simple">
 <li><p>Activating the conda environment <cite>bruker_control</cite> gives Python access to all the packages it needs to run the experiment.</p></li>
@@ -264,6 +270,7 @@ subject until the ripping process is complete.</p>
 <li><p>-p The teamname and project that is using the system (ie specialk_cs)</p></li>
 <li><p>-i The number of imaging planes that you plan to image for your subject</p></li>
 <li><p>-s The subject ID for the animal being imaged</p></li>
+<li><p>-g The experimental group that the animal belongs to</p></li>
 </ul>
 <p>When you hit enter with this command line, things will get started right away! The next steps below describe the procedure.</p>
 </section>
@@ -280,6 +287,7 @@ subject until the ripping process is complete.</p>
 </div></blockquote>
 <ol class="arabic simple" start="2">
 <li><p>At this point you should also ensure that the microscope’s objective is lined up over the lens and lowered to the plane you wish to image.</p></li>
+<li><p>Double check that the values of your PMTs and the laser are what you expect</p></li>
 <li><p>When you’re certain you’re ready to go and that the Farraday cage is completely closed, you can hit the <cite>Esc</cite> key. This will start the experiment!</p></li>
 <li><p>Watch the magic happen!</p></li>
 </ol>
@@ -331,7 +339,7 @@ command called <code class="docutils literal notranslate"><span class="pre">rsyn
         </div>
 
         <div class="related-information">
-              Copyright &#169; 2021, Jeremy Delahanty
+              Copyright &#169; 2022, The Salk Institute for Biological Studies
             |
             Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
               and
@@ -358,7 +366,7 @@ command called <code class="docutils literal notranslate"><span class="pre">rsyn
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">User Guide bruker_control.py v1.8.6: Stimulate your Mind 🔦🎆🧠</a><ul>
+<li><a class="reference internal" href="#">v1.9.0 User Guide: Get Yoked! 🏋️ 🏋️‍♀️</a><ul>
 <li><a class="reference internal" href="#user-guide">User Guide</a><ul>
 <li><a class="reference internal" href="#arduino"><em>Arduino</em></a></li>
 <li><a class="reference internal" href="#prairie-view"><em>Prairie View</em></a></li>

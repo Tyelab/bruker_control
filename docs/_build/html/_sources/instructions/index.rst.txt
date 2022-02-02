@@ -1,5 +1,5 @@
 =================================================================
- User Guide bruker_control.py v1.8.6: Stimulate your Mind 🔦🎆🧠
+ v1.9.0 User Guide: Get Yoked! 🏋️ 🏋️‍♀️ 
 =================================================================
 
 A (very) basic rundown of the experimental runtime is included below.
@@ -41,6 +41,17 @@ Prairie View will open several windows when it starts. The first looks like this
 .. image:: ../images/pv_starting_window.png
     :alt: Prairie View starting window
     :align: center
+
+
+In the currently running version (5.6.64.200), an error message appears
+related to servo motors that do not exist in the Ultima Investigator. The
+starting window shown above will end up looking like this:
+
+.. image:: ../images/prairieview_servo_error.png
+    :alt: Servo Error message
+    :align: center
+
+This has no influence upon the function of the system and can be ignored.
 
 The next window is the primary window for Prairie View.
 
@@ -89,11 +100,15 @@ At this point, Prairie View is ready to start imaging! You start the experiment 
 *Python*
 ********
 
+.. image:: ../images/introduction_1.gif
+    :alt: Example Command Line Execution
+    :align: center
+
 Use the `Anaconda Command Prompt` to start a Python Terminal and then type the following commands:
 
 1. conda activate bruker_control
 
-2. ``python Documents\gitrepos\bruker_control\bruker_control.py -p TEAMNAME_PROJECT -i #IMAGINGPLANES -s SUBJECTID``
+2. ``python Documents\gitrepos\bruker_control\bruker_control.py -p TEAMNAME_PROJECT -i #IMAGINGPLANES -s SUBJECTID -g EXPERIMENTAL_GROUP``
 
 * Activating the conda environment `bruker_control` gives Python access to all the packages it needs to run the experiment.
 
@@ -102,6 +117,7 @@ The different arguments on this command line mean...
 * -p The teamname and project that is using the system (ie specialk_cs) 
 * -i The number of imaging planes that you plan to image for your subject
 * -s The subject ID for the animal being imaged
+* -g The experimental group that the animal belongs to
   
 When you hit enter with this command line, things will get started right away! The next steps below describe the procedure.
 
@@ -116,8 +132,9 @@ There's not too much you need to do at this point! The steps are as follows:
   * You may have already lined up the sucrose delivery needle and airpuff needles to their correct positions, but if you haven't now is when you should do that. 
 
 2. At this point you should also ensure that the microscope's objective is lined up over the lens and lowered to the plane you wish to image.
-3. When you're certain you're ready to go and that the Farraday cage is completely closed, you can hit the `Esc` key. This will start the experiment!
-4. Watch the magic happen!
+3. Double check that the values of your PMTs and the laser are what you expect
+4. When you're certain you're ready to go and that the Farraday cage is completely closed, you can hit the `Esc` key. This will start the experiment!
+5. Watch the magic happen!
 
 At this point, `bruker_control` takes care of the rest! It will automatically generate trial structures that comply with your rules, transmit them to the Arduino,
 and tell Prairie View to start the recording session of the animal's face and brain activity. It will write out the experiment's information into the ``E:`` drive

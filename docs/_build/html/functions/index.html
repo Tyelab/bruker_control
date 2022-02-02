@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="prev" title="User Guide bruker_control.py v1.8.6: Stimulate your Mind 🔦🎆🧠" href="../instructions/index.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="prev" title="v1.9.0 User Guide: Get Yoked! 🏋️ 🏋️‍♀️" href="../instructions/index.html" />
 
     <meta name="generator" content="sphinx-4.0.2, furo 2021.08.11.beta42"/>
-        <title>Bruker Control’s Functions and Classes - Bruker Control 1.8.6 documentation</title>
+        <title>Bruker Control’s Functions and Classes - Bruker Control 1.9.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=197f00461d56902ea7ca048ec6e6ba026f62c97b" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=93475b62d1c3bc01323a0eefdc14a62d77b12690" />
@@ -121,7 +121,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Bruker Control 1.8.6 documentation</div></a>
+      <a href="../index.html"><div class="brand">Bruker Control 1.9.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -144,7 +144,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Bruker Control 1.8.6 documentation</span>
+  <span class="sidebar-brand-text">Bruker Control 1.9.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -154,7 +154,7 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../about/index.html">About Bruker Control</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../instructions/index.html">User Guide bruker_control.py v1.8.6: Stimulate your Mind 🔦🎆🧠</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../instructions/index.html">v1.9.0 User Guide: Get Yoked! 🏋️ 🏋️‍♀️</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Bruker Control’s Functions and Classes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
 </ul>
@@ -760,7 +760,7 @@ configuration .json file.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="trial_utils.generate_arrays">
 <span class="sig-prename descclassname"><span class="pre">trial_utils.</span></span><span class="sig-name descname"><span class="pre">generate_arrays</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trial_utils.generate_arrays" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generates all necessary arrays for Bruker experimental runtime without stimluation.</p>
+<dd><p>Generates all necessary arrays for Bruker experimental runtime.</p>
 <p>Creates arrays as specified by user’s configuration file.  Builds the
 trialArray, ITIArray, toneArray, and LEDArray according to user defined rules.</p>
 <dl class="field-list simple">
@@ -830,19 +830,14 @@ trialArray.</p></li>
 <p>Module contains functions for reading, writing, and passing configuration
 information to different modules or files including NWB files.</p>
 <span class="target" id="module-config_utils"></span><dl class="py exception">
-<dt class="sig sig-object py" id="config_utils.ProjectTemplateMissing">
-<em class="property"><span class="pre">exception</span> </em><span class="sig-prename descclassname"><span class="pre">config_utils.</span></span><span class="sig-name descname"><span class="pre">ProjectTemplateMissing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#config_utils.ProjectTemplateMissing" title="Permalink to this definition">¶</a></dt>
-<dd><p>Exception for when the team’s behavioral template is missing.</p>
-</dd></dl>
-<dl class="py exception">
-<dt class="sig sig-object py" id="config_utils.ProjectTemplateMultiple">
-<em class="property"><span class="pre">exception</span> </em><span class="sig-prename descclassname"><span class="pre">config_utils.</span></span><span class="sig-name descname"><span class="pre">ProjectTemplateMultiple</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#config_utils.ProjectTemplateMultiple" title="Permalink to this definition">¶</a></dt>
-<dd><p>Exception for when a team’s project configuration directory contains multiple templates.</p>
-</dd></dl>
-<dl class="py exception">
 <dt class="sig sig-object py" id="config_utils.SubjectError">
 <em class="property"><span class="pre">exception</span> </em><span class="sig-prename descclassname"><span class="pre">config_utils.</span></span><span class="sig-name descname"><span class="pre">SubjectError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#config_utils.SubjectError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Exception for when there’s an error when parsing information for a subject.</p>
+</dd></dl>
+<dl class="py exception">
+<dt class="sig sig-object py" id="config_utils.TemplateError">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-prename descclassname"><span class="pre">config_utils.</span></span><span class="sig-name descname"><span class="pre">TemplateError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#config_utils.TemplateError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception for when there’s an error when parsing templates.</p>
 </dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="config_utils.build_server_directory">
@@ -865,6 +860,31 @@ exist, so this function creates the appropriate structure.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>session_path</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="config_utils.check_yoked_config">
+<span class="sig-prename descclassname"><span class="pre">config_utils.</span></span><span class="sig-name descname"><span class="pre">check_yoked_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_plane</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#config_utils.check_yoked_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks to see if a yoked trialset already exists for a session.</p>
+<p>If a user wants yoked trial sessions, a check is performed to see if a trial set
+for the given experimental group and given plane has been generated yet. If no
+file is available, a None object is returned and trialsets are generated with
+trial_utils as normal. If a file is available, those experimental arrays are
+loaded and saved as the expeirment_arrays.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>subject_type</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Type of group the subject is a part of, either “experimental” or “control”.</p></li>
+<li><p><strong>current_plane</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Which plane number is being currently imaged (i.e. 1, 2, 3)</p></li>
+<li><p><strong>project</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The team and project conducting the experiment (ie teamname_projectname)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>experiment_arrays</p>
 </dd>
 </dl>
 </dd></dl>
@@ -977,13 +997,13 @@ configuration .json file.</p>
 </dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="config_utils.read_config">
-<span class="sig-prename descclassname"><span class="pre">config_utils.</span></span><span class="sig-name descname"><span class="pre">read_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template_config_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#config_utils.read_config" title="Permalink to this definition">¶</a></dt>
-<dd><p>Utility function for reading template config files</p>
+<span class="sig-prename descclassname"><span class="pre">config_utils.</span></span><span class="sig-name descname"><span class="pre">read_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#config_utils.read_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Utility function for reading config files</p>
 <p>General purpose function for reading .json files containing configuration
 values for an experiment.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>template_config_path</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>) – Pathlib path to the template configuration file.</p>
+<dd class="field-odd"><p><strong>config_path</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>) – Pathlib path to the template configuration file.</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
@@ -1030,6 +1050,26 @@ always be in this order.</p></li>
 <li><p><strong>subject_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Subject ID from metadata_args[“subject_id”]</p></li>
 <li><p><strong>imaging_plane</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Plane 2P images were acquired at, the Z-axis value</p></li>
 <li><p><strong>current_plane</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Current plane being imaged as in 1st, 2nd, 3rd, etc</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="config_utils.write_yoked_config">
+<span class="sig-prename descclassname"><span class="pre">config_utils.</span></span><span class="sig-name descname"><span class="pre">write_yoked_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_plane</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment_arrays</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#config_utils.write_yoked_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write out yoked configurations for unique plane/subject combinations.</p>
+<p>Yoked trial sets indicate that an entire experimental group will receive the same
+pseudorandom trials. This generates sessions that are far easier to compare between
+mice and also larger N for each dataset for statistical analysis of neural activity
+later. These are written to the local filesystem first and will be copied to the server
+at the end of the day.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>subject_type</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Type of group the subject is a part of, either “experimental” or “control”.</p></li>
+<li><p><strong>current_plane</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Which plane number is being currently imaged (i.e. 1, 2, 3)</p></li>
+<li><p><strong>project</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The team and project conducting the experiment (ie teamname_projectname)</p></li>
+<li><p><strong>experiment_arrays</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – List of experimental arrays to be sent via pySerialTransfer</p></li>
 </ul>
 </dd>
 </dl>
@@ -1442,14 +1482,14 @@ experiment will start!</p>
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">User Guide bruker_control.py v1.8.6: Stimulate your Mind 🔦🎆🧠</div>
+                <div class="title">v1.9.0 User Guide: Get Yoked! 🏋️ 🏋️‍♀️</div>
                 
               </div>
             </a>
         </div>
 
         <div class="related-information">
-              Copyright &#169; 2021, Jeremy Delahanty
+              Copyright &#169; 2022, The Salk Institute for Biological Studies
             |
             Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
               and
