@@ -96,6 +96,7 @@ def gen_trialArray_nostim(config_template: dict) -> np.ndarray:
         # If the number of punish trials is less than half, getting a valid
         # trial set is unlikely if the number of rewards in a row is
         # restricted.  Therefore, sest the reward_check to False.
+
         if config_template["beh_metadata"]["percentPunish"] < 0.50:
             reward_check = False
 
@@ -107,13 +108,24 @@ def gen_trialArray_nostim(config_template: dict) -> np.ndarray:
                 max_seq_reward
                 )
 
-        # Use generated trialArray and config_template values to perform
-        # catch trial flips
-        trialArray, catch_check = flip_catch(
-            trialArray,
-            config_template,
-            catch_check
-            )
+        # Check if the user specified having catch trials for their experiment
+        if config_template["beh_metadata"]["catchTrials"]:
+
+            # Use generated trialArray and config_template values to perform
+            # catch trial flips only if they want catch trials
+            trialArray, catch_check = flip_catch(
+                trialArray,
+                config_template,
+                catch_check
+                )
+        
+        # If the user doesn't want catch trials, the catch_check passes, setting
+        # the value to False, and therefore passes the check.
+        else:
+
+            catch_check = False
+    
+    print(trialArray)
 
     return trialArray
 
@@ -300,6 +312,10 @@ def check_session_punishments(trialArray: np.ndarray, max_seq_punish: int) -> bo
     # Start punishment count at zero
     punishments = 0
 
+    # This list defines all trial types that are not punishment trials
+    # across all availble trial types in the system
+    non_punishment_trials = [1, 3, 5, 6]
+
     # Set punish check to False.  If successful, a False status is returned
     # which allows system to move forward.
     punish_check = False
@@ -307,20 +323,21 @@ def check_session_punishments(trialArray: np.ndarray, max_seq_punish: int) -> bo
     # Loop over the trialArray
     for trial in trialArray:
 
-        # TODO: Is this really the best I can do? There's gotta be a cleaner way...
-        # If the trial is anything other than a punish trial, stimulation or not,
-        # set number of punishments in a row to zero
-        if trial == 1 or 3 or 4 or 6:
-            punishments = 0
-
         # If the number of punishments in a row reaches max number of allowed
         # punishment trials from configuration, set punish_check as True and
         # break the loop.
-        elif punishments == max_seq_punish:
+        if punishments > max_seq_punish:
             punish_check = True
             break
+        
+        # TODO: Is this really the best I can do? There's gotta be a cleaner way...
+        # If the trial is anything other than a punish trial, stimulation or not,
+        # set number of punishments in a row to zero
+        elif trial in non_punishment_trials:
+            punishments = 0
 
-        # If the trial is a punish trial and 3 haven't happened in a row yet,
+        # If the trial is a punish trial and the number of
+        # specified punishment trials haven't happened in a row yet,
         # increment the number of punishments.
         else:
             punishments += 1
@@ -349,6 +366,10 @@ def check_session_rewards(trialArray: np.ndarray, max_seq_reward: int) -> bool:
     # Start reward count at 0
     rewards = 0
 
+    # This list defines all trial types that are not reward trials 
+    # across all available trial types in the system.
+    non_reward_trials = [0, 2, 4, 6]
+
     # Set reward_check to False.  If successful, a False status is returned
     # which allows system to move forward.
     reward_check = False
@@ -358,7 +379,7 @@ def check_session_rewards(trialArray: np.ndarray, max_seq_reward: int) -> bool:
 
         # If the trial is a punishment trial (0), set number of rewards in a
         # row to 0.
-        if trial == 0:
+        if trial in non_reward_trials:
             rewards = 0
 
         # If the number of rewards in a row reaches max number of allowed
@@ -377,8 +398,7 @@ def check_session_rewards(trialArray: np.ndarray, max_seq_reward: int) -> bool:
 
 
 def flip_punishments(tmp_array: np.ndarray, potential_flips: np.ndarray,
-                     num_punish: int, max_seq_punish: int) -> Tuple[np.ndarray,
-                                                                    bool]:
+                     num_punish: int, max_seq_punish: int) -> Tuple[np.ndarray, bool]:
     """
     Flips user specified number of trials to punishments over trialArray copy.
 
