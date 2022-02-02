@@ -26,11 +26,23 @@ from tqdm import tqdm
 from pathlib import Path
 
 # Static cti file location
+# CTI stands for "Common Transport Interface" and is a type of acquisition software library
+# that interacts with the Windows file system as a DLL, or dynamic link library. The CTI standard
+# is used by any GenTL compliant cameras, which the Genie Nano is one of.
 CTI_FILEPATH = "C:/Program Files/MATRIX VISION/mvIMPACT Acquire/bin/x64/mvGENTLProducer.cti"
 
 # Experiment videos are written to the Raw Data volume on the machine BRUKER
 # which is mounted to E:
 DATA_PATH = Path("E:/")
+
+# To reduce the size of the video that is presented during a recording, introduce a
+# common scaling factor that will reduce the image size shown.
+SCALING_FACTOR = 50
+
+# To place the live video feed out of the way, in the bottom right corner by default,
+# move the window created to these locations
+IMSHOW_X_POS = 1920
+IMSHOW_Y_POS = 450
 
 ###############################################################################
 # Exceptions
@@ -147,6 +159,9 @@ def capture_preview():
     h, camera, width, height = init_camera_preview()
     preview_status = True
     print("To stop preview, hit 'Esc' key")
+
+    cv2.namedWindow("Preview")
+    cv2.moveWindow("Preview", IMSHOW_X_POS, IMSHOW_Y_POS)
     while preview_status is True:
         try:
             with camera.fetch_buffer() as buffer:
@@ -155,7 +170,14 @@ def capture_preview():
                                                                     width)
 
                 # Provide preview for camera contents:
-                cv2.imshow("Preview", content)
+                imshow_width = int(width * SCALING_FACTOR / 100)
+                imshow_height = int(height * SCALING_FACTOR / 100)
+
+                imshow_dims = (imshow_width, imshow_height)
+  
+                # resize image
+                resized = cv2.resize(content, imshow_dims, interpolation = cv2.INTER_AREA)
+                cv2.imshow("Preview", resized)
                 c = cv2.waitKey(1) % 0x100
                 if c == 27:
                     preview_status = False
@@ -309,6 +331,9 @@ def capture_recording(num_frames: int, current_plane: int, imaging_plane: str,
 
     frame_number = 1
 
+    cv2.namedWindow("Live!")
+    cv2.moveWindow("Live!", IMSHOW_X_POS, IMSHOW_Y_POS)
+
     for frame in tqdm(range(num_frames), desc="Experiment Progress", ascii=True):
 
         # Introduce try/except block in case of dropped frames
@@ -325,8 +350,16 @@ def capture_recording(num_frames: int, current_plane: int, imaging_plane: str,
                     width
                     )
 
+                imshow_width = int(width * SCALING_FACTOR / 100)
+                imshow_height = int(height * SCALING_FACTOR / 100)
+
+                imshow_dims = (imshow_width, imshow_height)
+  
+                # resize image
+                resized = cv2.resize(content, imshow_dims, interpolation = cv2.INTER_AREA)
+
                 out.write(content)
-                cv2.imshow("Live", content)
+                cv2.imshow("Live", resized)
                 cv2.waitKey(1)
 
                 frame_number += 1
@@ -363,15 +396,14 @@ def shutdown_camera(camera: Harvester, harvester: Harvester):
             Haverster object
     """
 
-    # Stop the camera's acquisition
     print("Stopping Acquisition")
     camera.stop_acquisition()
 
-    # Destroy the camera object, release the resource
+    # Destroy the camera object, which releases the resource
     print("Camera Destroyed")
     camera.destroy()
 
-    # Reset Harvester object
+    # Reset Harvester object back to default settings
     print("Resetting Harvester")
     harvester.reset()
 
