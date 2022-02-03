@@ -109,8 +109,6 @@ The experimental group is optional and defaults to `None` if it is not given.
 - check_yoked_config(): Searches for already existing yoked trialset for a given day, experimental group, and plane number.
 - write_yoked_config(): If a trial set was *not* found by `check_yoked_config()`, one is generated in the usual manner with `trial_utils`. Once created, it is written to the local file system in the `yoked` file. 
 
-`bruker_control` will now check for the presence of already existing yoked trial sets by using some new
-functions:
 - 
 
 ## bruker_control.py v1.8.6 - 2021-11-18
