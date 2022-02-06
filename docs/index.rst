@@ -10,3 +10,4 @@ preferably, open an issue `here <https://github.com/Tyelab/headfix_control/issue
   about/index
   instructions/index
   functions/index
+  configurations/configs
