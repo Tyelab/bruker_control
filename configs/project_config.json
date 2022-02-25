@@ -23,7 +23,7 @@
     "catchOffset" : 0.25,
     "percentPunish": 0.25,
     "stim": true,
-    "shutter_only": false,
+    "shutterOnly": false,
     "stimFrequency": 20,
     "stimPulseTime": 5,
     "stimLambda": 590,

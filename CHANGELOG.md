@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 A few new changes are here in this version of the repository primarily on the `Python side`, but also
 some small changes have been made to an `Arduino` file to enable new functionality. There's also a new
 way of performing different types of trials: Yoked trials! `bruker_control` got stronger in this update
-and can do some new exercise for you. Read on to find out! 🏋️
+and can do some new exercises for you. Read on to find out! 🏋️
 
 :heart: Jeremy Delahanty
 

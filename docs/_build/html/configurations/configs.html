@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="v1.9.0 User Guide: Get Yoked! 🏋️ 🏋️‍♀️" href="../instructions/index.html" /><link rel="prev" title="About Bruker Control" href="../about/index.html" />
 
     <meta name="generator" content="sphinx-4.0.2, furo 2021.08.11.beta42"/>
-        <title>Bruker Control Configurations - Bruker Control 1.9.0 documentation</title>
+        <title>Configurations - Bruker Control 1.9.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=197f00461d56902ea7ca048ec6e6ba026f62c97b" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=93475b62d1c3bc01323a0eefdc14a62d77b12690" />
@@ -132,7 +132,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -152,8 +152,9 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <ul>
+  <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../about/index.html">About Bruker Control</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Configurations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../instructions/index.html">v1.9.0 User Guide: Get Yoked! 🏋️ 🏋️‍♀️</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../functions/index.html">Bruker Control’s Functions and Classes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../functions/index.html#indices-and-tables">Indices and tables</a></li>
@@ -177,15 +178,29 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
-        <section id="bruker-control-configurations">
-<h1>Bruker Control Configurations<a class="headerlink" href="#bruker-control-configurations" title="Permalink to this headline">¶</a></h1>
-<p>The use of <code class="docutils literal notranslate"><span class="pre">bruker_control</span></code> currently requires an experimental configuration
-file held inside a <code class="docutils literal notranslate"><span class="pre">JSON</span></code> format.</p>
+        <section id="configurations">
+<h1>Configurations<a class="headerlink" href="#configurations" title="Permalink to this headline">¶</a></h1>
+<p>The use of <code class="docutils literal notranslate"><span class="pre">bruker_control</span></code> requires an experimental configuration file held inside a <code class="docutils literal notranslate"><span class="pre">JSON</span></code> format. These were created as a means of doing the
+following:</p>
+<ul class="simple">
+<li><p>Create files that act as documentation which precisely describe the exact parameters used for an experiment for every subject</p></li>
+<li><p>Have a reproducible experiment that can be executed using completed configuration files</p></li>
+<li><p>Have a standard set of parameters for performing experiments with the system that is flexible for several use cases and simpler to modify and add to</p></li>
+<li><p>Avoid generating copies of Arduino sketches at runtime as occured in the first iterations of running headfixed behavior experiments</p></li>
+<li><p>Have a file format that can be programmatically accessed when running analysis scripts or searching for particular experiments</p></li>
+<li><p>Have templates that can be easily called upon and updated programatically at runtime without requiring user input</p></li>
+</ul>
+<p>Many of these fields were present in the initial Arduino and MATLAB code, but the Arduino scripts had these values hard coded into the sketch itself.
+Having a configuration file allows for there to be just one sketch for each team/project as needed that can stand ready for a session without needing to reupload
+a new sketch in between running individual animals.</p>
+<section id="example-project-config-behavior">
+<h2>Example Project Config: Behavior<a class="headerlink" href="#example-project-config-behavior" title="Permalink to this headline">¶</a></h2>
+<p>Below is an example of what such a configuration looks like:</p>
 <div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">"beh_metadata"</span><span class="p">:</span> <span class="p">{</span>
     <span class="nt">"totalNumberOfTrials"</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span>
     <span class="nt">"startingReward"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
@@ -211,7 +226,7 @@ file held inside a <code class="docutils literal notranslate"><span class="pre">
     <span class="nt">"catchOffset"</span> <span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span>
     <span class="nt">"percentPunish"</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span>
     <span class="nt">"stim"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
-    <span class="nt">"shutter_only"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+    <span class="nt">"shutterOnly"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
     <span class="nt">"stimFrequency"</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
     <span class="nt">"stimPulseTime"</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
     <span class="nt">"stimLambda"</span><span class="p">:</span> <span class="mi">590</span><span class="p">,</span>
@@ -238,14 +253,252 @@ file held inside a <code class="docutils literal notranslate"><span class="pre">
 <span class="p">}</span>
 </pre></div>
 </div>
+<section id="config-values-key-behavior-metadata">
+<h3>Config Values Key: Behavior Metadata<a class="headerlink" href="#config-values-key-behavior-metadata" title="Permalink to this headline">¶</a></h3>
+<p>Many of the fields were written as to be self explanatory. Below you can find an explainer for each field:</p>
+<ul class="simple">
+<li><p><strong>totalNumberOfTrials</strong>: Total number of trials for an experiment</p></li>
+<li><p><strong>startingReward</strong>: Total number of sucrose trials to deliver in the beginnin</p></li>
+<li><p><strong>maxSequentialReward</strong>: Maximum number of reward trials to allow in a row</p></li>
+<li><p><strong>maxSequentialPunish</strong>: Maximum number of punishment trials to allow in a row</p></li>
+<li><p><strong>punishTone</strong>: Tone in Hertz (Hz) to play through a speaker for the subject</p></li>
+<li><p><strong>rewardTone</strong>: Tone in Hertz (Hz) to play through a speaker for the subject</p></li>
+<li><p><strong>USDeliveryTime_Sucrose</strong>: Time in milliseconds (ms) to open sucrose solenoid</p></li>
+<li><p><strong>USDeliveryTime_Air</strong>: Time in milliseconds (ms) to open the air solenoid</p></li>
+<li><p><strong>USConsumptionTime_Sucrose</strong>: Time in milliseconds (ms) to allow subject to consume sucrose droplet</p></li>
+<li><p><strong>vacuum</strong>: Whether or not a vacuum is enabled for use in the experiment. Either <code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>ITIJitter</strong>: Whether or not to have jitter in inter-trial-interval (ITI) timings</p></li>
+<li><p><strong>baseITI</strong>: Inter-trial-interval (ITI) to use if <em>no</em> <code class="docutils literal notranslate"><span class="pre">ITIJitter</span></code> is <code class="docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>minITI</strong>: Minimum inter-trial-interval (ITI) value in seconds. Defines lower bound for sampling ITI values</p></li>
+<li><p><strong>maxITI</strong>: Maximum inter-trial-interval (ITI) value in seconds. Defines upper bound for sampling ITI values</p></li>
+<li><p><strong>toneJitter</strong>: Whether or not to have jitter in the duration of tones that are played for the subject. Either <code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>baseTone</strong>: Time to play tone in seconds (s) for subject if <code class="docutils literal notranslate"><span class="pre">toneJitter</span></code> is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>minTone</strong>: Minimum time to play tone in seconds (s). Defines lower bound for sampling tone values</p></li>
+<li><p><strong>maxTone</strong>: Maximum time to play tone in seconds (s). Defines upper bound for sampling tone values</p></li>
+<li><p><strong>catchTrials</strong>: Whether or not to have catch trials occur during an experiment. Either <code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>numCatchReward</strong>: Number of reward catch trials to present to the subject</p></li>
+<li><p><strong>numCatchPunish</strong>: Number of punish catch trials to present to the subject</p></li>
+<li><p><strong>catchOffset</strong>: Where in the <code class="docutils literal notranslate"><span class="pre">trialArray</span></code> catch trials should be presented. This is defined as the proportion of remaining trials that should be eligible for delivering catch trials.</p></li>
+<li><p><strong>percentPunish</strong>: The proportion of trials that will be punishment trials.</p></li>
+<li><p><strong>stim</strong>: Whether or not to have stimulation trials occur during an experiment. Currently only valid for whole field LED stimulation.</p></li>
+<li><p><strong>shutterOnly</strong>: Whether or not the stimulation trials did not activate LED and only activated PMT shutters.</p></li>
+<li><p><strong>stimFrequency</strong>: Frequency of stimulation in Hertz (Hz) that the whole field LED will perform</p></li>
+<li><p><strong>stimLambda</strong>: Wavelength of stimulating LED in nanometers (nm). This is assumed to be constant for a given project and is for documentation purposes alone</p></li>
+<li><p><strong>stimDeliveryTime_PreCS</strong>: Time in milliseconds (ms) to start LED output <em>before</em> presentation of conditioned stimulus</p></li>
+<li><p><strong>stimDeliveryTime_Total</strong>: Total time in milliseconds (ms) that the LED ouptut will be delivered. This is assumed to be constant for a given project and is for documentation purposes alone.</p></li>
+<li><p><strong>stimStartPosition</strong>: <code class="docutils literal notranslate"><span class="pre">1-Indexed</span></code> position where LED stimulation should begin. <code class="docutils literal notranslate"><span class="pre">trial_utils.py</span></code> will decrement this by 1 so it is <code class="docutils literal notranslate"><span class="pre">0-indexed</span></code> for Python/Arduino iterations.</p></li>
+<li><p><strong>numStimReward</strong>: Number of trials to give LED stimulation with a reward</p></li>
+<li><p><strong>numStimPunish</strong>:  Number of trials to give LED stimulation with a punishment</p></li>
+<li><p><strong>numStimAlone</strong>: Number of trials to give LED stimulation alone</p></li>
+<li><p><strong>yoked</strong>: <em>(NEW)</em> Whether or not to generate/check for <code class="docutils literal notranslate"><span class="pre">yoked</span></code> trial settings</p></li>
+<li><p><strong>trialArray</strong>: Array of integers for trials that the Arduino will iterate through. Valid numbers are 0-6</p></li>
+<li><p><strong>ITIArray</strong>: Array of inter-trial-intervals (ITIs) that the Arduino will iterate through</p></li>
+<li><p><strong>toneArray</strong>: Array of tone durations to deliver to the subject</p></li>
+<li><p><strong>LEDArray</strong>: Array of times for delivering LED stimulation. Calculated by <code class="docutils literal notranslate"><span class="pre">trial_utils.py</span></code> by taking the ITI for the appropriate trial and subtracting the <code class="docutils literal notranslate"><span class="pre">stimDeliveryTime_PreCS</span></code> value</p></li>
+<li><p><strong>dropped_frames</strong>: List of video frames that are dropped when transferring data from the Genie Nano to the computer during an experiment. Packet loss is rare, but has occured previously.</p></li>
+</ul>
+</section>
+<section id="config-values-key-z-stack-metadata">
+<h3>Config Values Key: Z-Stack Metadata<a class="headerlink" href="#config-values-key-z-stack-metadata" title="Permalink to this headline">¶</a></h3>
+<p>If users want to have a z-stack performed for their imaging session before the experiment, they can use this metadata to define parameters used for imaging.</p>
+<ul class="simple">
+<li><p><strong>zstack</strong>: Whether or not to perform a z-stack for a given recording</p></li>
+<li><p><strong>stack_number</strong>: Number of z-stacks to perform</p></li>
+<li><p><strong>zdelta</strong>: Distance in micrometers (um) to move above and below the selected imaging plane for the z-stack.</p></li>
+<li><p><strong>zstep</strong>: Distance in micrometeres (um)  the scope will move between images.</p></li>
+</ul>
+</section>
+<section id="config-values-key-miscellaneous">
+<h3>Config Values Key: Miscellaneous<a class="headerlink" href="#config-values-key-miscellaneous" title="Permalink to this headline">¶</a></h3>
+<p>Some users need to make sure a weight has been recorded for the subject being imaged. To ensure that users remember to have weights recorded for their mice, there’s
+an option to perform a weight check. If the weight check fails, the experiment won’t go forward. It is likely that this will be removed in the near future.</p>
+</section>
+</section>
+<section id="example-subject-metadata">
+<h2>Example Subject Metadata<a class="headerlink" href="#example-subject-metadata" title="Permalink to this headline">¶</a></h2>
+<p>In an effort to make metadata about the subject programmatically available for use in generating Neurodata Without Borders compliant datasets as well as programmatically
+update laser power and wavelength for instances where z-stacks required multiple wavelengths for imaging different fluorophores. Below is an example of what the subject
+metdata looks like:</p>
+<div class="highlight-YAML notranslate"><div class="highlight"><pre><span></span><span class="c1"># Subject Metadata used for grabbing information </span>
+<span class="c1"># Jeremy Delahanty Februrary 2022</span>
+<span class="nt">subject_id</span><span class="p">:</span> <span class="s">"A000"</span>
+<span class="nt">subject_alias</span><span class="p">:</span> <span class="s">"best-mouse"</span>
+<span class="nt">ear_tag</span><span class="p">:</span>
+  <span class="nt">l_ear</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+  <span class="nt">r_ear</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="nt">ear_notch</span><span class="p">:</span>
+  <span class="nt">l_ear</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+  <span class="nt">r_ear</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="c1"># Cage IDs MUST be the barcode for the cage</span>
+<span class="nt">cage_id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0123456</span>
+<span class="c1"># Cage Alias is whatever the experimenter likes to refer the cage as</span>
+<span class="nt">cage_alias</span><span class="p">:</span> <span class="s">"cage-alias"</span>
+<span class="c1"># Date of birth in YYYMMDD format</span>
+<span class="nt">dob</span><span class="p">:</span> <span class="s">"20220205"</span>
+<span class="c1"># Descriptions</span>
+<span class="nt">description</span><span class="p">:</span> <span class="s">"Mouse</span><span class="nv"> </span><span class="s">Description"</span>
+<span class="nt">genotype</span><span class="p">:</span> <span class="s">"HET</span><span class="nv"> </span><span class="s">DAT</span><span class="nv"> </span><span class="s">Cre"</span>
+<span class="nt">sex</span><span class="p">:</span> <span class="s">"M"</span>
+<span class="nt">species</span><span class="p">:</span> <span class="s">"Mus</span><span class="nv"> </span><span class="s">Musculus"</span>
+<span class="nt">strain</span><span class="p">:</span> <span class="s">"C57BL/6J"</span>
+<span class="c1"># Surgeries are organized by date</span>
+<span class="nt">surgery</span><span class="p">:</span>
+  <span class="s">"20210924"</span><span class="p p-Indicator">:</span>
+    <span class="nt">surgeon</span><span class="p">:</span> <span class="s">"Jeremy</span><span class="nv"> </span><span class="s">Delahanty"</span>
+    <span class="nt">start_time</span><span class="p">:</span> <span class="s">"10:00"</span>
+    <span class="nt">end_time</span><span class="p">:</span> <span class="s">"11:00"</span>
+    <span class="nt">stereotax</span><span class="p">:</span> <span class="s">"Delta"</span>
+    <span class="nt">anesthetic</span><span class="p">:</span> <span class="s">"Isoflurane"</span>
+    <span class="nt">skull_position</span><span class="p">:</span>
+      <span class="nt">bregma</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">-0.02</span>
+      <span class="nt">lambda</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">-0.02</span>
+      <span class="nt">level_left</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">-0.01</span>
+      <span class="nt">level_right</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">-0.01</span>
+    <span class="nt">headplate</span><span class="p">:</span>
+      <span class="nt">num_screws</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+      <span class="nt">skull_hashing</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+    <span class="nt">grin_implant</span><span class="p">:</span>
+      <span class="nt">target</span><span class="p">:</span> <span class="s">"mPFC"</span>
+      <span class="nt">hemisphere</span><span class="p">:</span> <span class="s">"R"</span>
+      <span class="nt">type</span><span class="p">:</span> <span class="s">"Proview"</span>
+      <span class="nt">dims</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">1</span><span class="p p-Indicator">,</span> <span class="nv">4</span><span class="p p-Indicator">]</span>
+      <span class="nt">supplier</span><span class="p">:</span> <span class="s">"Inscopix"</span>
+      <span class="nt">ap</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.90</span>
+      <span class="nt">ml</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.45</span>
+      <span class="nt">dv</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">-2.18</span>
+      <span class="nt">angle</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
+      <span class="nt">notes</span><span class="p">:</span> <span class="s">"None"</span>
+    <span class="nt">brain_injections</span><span class="p">:</span>
+      <span class="nt">gcamp</span><span class="p">:</span>
+        <span class="nt">target</span><span class="p">:</span> <span class="s">"mPFC"</span>
+        <span class="nt">hemisphere</span><span class="p">:</span> <span class="s">"R"</span>
+        <span class="nt">virus</span><span class="p">:</span> <span class="s">"AAV8"</span>
+        <span class="nt">promoter</span><span class="p">:</span> <span class="s">"promoter"</span>
+        <span class="nt">opsin</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
+        <span class="nt">fluorophore</span><span class="p">:</span> <span class="s">"jGCaMP7f"</span>
+        <span class="nt">fluorophore_excitation_lambda</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">482.5</span>
+        <span class="nt">fluorophore_emission_lambda</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">513.0</span>
+        <span class="nt">supplier</span><span class="p">:</span> <span class="s">"The</span><span class="nv"> </span><span class="s">Salk</span><span class="nv"> </span><span class="s">Institute</span><span class="nv"> </span><span class="s">for</span><span class="nv"> </span><span class="s">Biological</span><span class="nv"> </span><span class="s">Studies"</span>
+        <span class="nt">description</span><span class="p">:</span> <span class="s">"Calcium</span><span class="nv"> </span><span class="s">Sensitive</span><span class="nv"> </span><span class="s">Green</span><span class="nv"> </span><span class="s">Fluorescent</span><span class="nv"> </span><span class="s">Indicator"</span>
+        <span class="nt">lot</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
+        <span class="nt">ap</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.90</span>
+        <span class="nt">ml</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.45</span>
+        <span class="nt">dv</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">-2.20</span>
+        <span class="nt">angle</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
+        <span class="c1"># Volume in nL</span>
+        <span class="nt">volume</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">300</span>
+        <span class="c1"># Rate in nL/min</span>
+        <span class="nt">rate</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">100.0</span>
+        <span class="c1"># Bevel Direction: Away from you is 0 degrees</span>
+        <span class="nt">bevel</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">90</span>
+      <span class="nt">chr</span><span class="p">:</span>
+        <span class="nt">target</span><span class="p">:</span> <span class="s">"VTA"</span>
+        <span class="nt">hemisphere</span><span class="p">:</span> <span class="s">"R"</span>
+        <span class="nt">virus</span><span class="p">:</span> <span class="s">"AAV8"</span>
+        <span class="nt">promoter</span><span class="p">:</span> <span class="s">"hSyn"</span>
+        <span class="nt">cre</span><span class="p">:</span> <span class="s">"FLEX"</span>
+        <span class="nt">flp</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
+        <span class="nt">opsin</span><span class="p">:</span> <span class="s">"chrimsonR"</span>
+        <span class="nt">opsin_excitation_lambda</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">100.0</span>
+        <span class="nt">fluorophore</span><span class="p">:</span> <span class="s">"tdTomato"</span>
+        <span class="nt">fluorophore_excitation_lambda</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">482.5</span>
+        <span class="nt">fluorophore_emission_lambda</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">581.0</span>
+        <span class="nt">supplier</span><span class="p">:</span> <span class="s">"Supplier"</span>
+        <span class="nt">description</span><span class="p">:</span> <span class="s">"description"</span>
+        <span class="nt">lot</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
+        <span class="nt">ap</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">-3.30</span>
+        <span class="nt">ml</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.35</span>
+        <span class="nt">dv</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">-4.05</span>
+        <span class="nt">angle</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
+        <span class="c1"># Volume in nL</span>
+        <span class="nt">volume</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">700.0</span>
+        <span class="c1"># Rate in nL/min</span>
+        <span class="nt">rate</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">100.0</span>
+        <span class="c1"># Bevel Direction</span>
+        <span class="nt">bevel</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">180</span>
+    <span class="nt">analgesics</span><span class="p">:</span>
+      <span class="nt">buprinex</span><span class="p">:</span>
+        <span class="nt">route</span><span class="p">:</span> <span class="s">"IP"</span>
+        <span class="nt">location</span><span class="p">:</span> <span class="s">"abdomen"</span>
+        <span class="c1"># Dosages are in mg/kg</span>
+        <span class="nt">dose</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.0</span>
+        <span class="c1"># Volumes here in mL</span>
+        <span class="nt">volume</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2.0</span>
+      <span class="nt">lidocaine</span><span class="p">:</span>
+        <span class="nt">route</span><span class="p">:</span> <span class="s">"SQ"</span>
+        <span class="nt">location</span><span class="p">:</span> <span class="s">"scalp"</span>
+        <span class="nt">dose</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
+        <span class="nt">volume</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.5</span>
+      <span class="nt">loxicam</span><span class="p">:</span>
+        <span class="nt">route</span><span class="p">:</span> <span class="s">"IP"</span>
+        <span class="nt">location</span><span class="p">:</span> <span class="s">"abdomen"</span>
+        <span class="c1"># Dosages are in mg/kg</span>
+        <span class="nt">dose</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5.0</span>
+        <span class="nt">volume</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.5</span>
+    <span class="nt">fluids</span><span class="p">:</span>
+      <span class="nt">ringers</span><span class="p">:</span>
+        <span class="nt">route</span><span class="p">:</span> <span class="s">"IP"</span>
+        <span class="nt">location</span><span class="p">:</span> <span class="s">"abdomen"</span>
+        <span class="nt">percent</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">20.0</span>
+        <span class="nt">volume</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.0</span>
+
+<span class="nt">status</span><span class="p">:</span>
+  <span class="nt">alive</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+  <span class="nt">time_of_death</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
+  <span class="nt">death_notes</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
+</pre></div>
+</div>
+<p>Not every project has this metadata available and no project is required to have it to use the system. Only some of these fields are used by <code class="docutils literal notranslate"><span class="pre">bruker_control</span></code> while
+a majority of them are used for NWB compliance. <code class="docutils literal notranslate"><span class="pre">bruker_control</span></code> does not currently implement NWB files at runtime as it did previously. The module <code class="docutils literal notranslate"><span class="pre">nwb_utils.py</span></code>
+may be reimplemented in the future.</p>
+<p>There is currently only 1 field that is used by <code class="docutils literal notranslate"><span class="pre">bruker_control</span></code>:</p>
+<ul class="simple">
+<li><p><strong>fluorophore_excition_lambda</strong>: Wavelength in nanometers (nm) that the injected indicator uses for imaging. Value is multiplied by 2 at runtime to change the laser wavelength</p></li>
+</ul>
+<p>The remaining fields are used for documentation of the subject and NWB compliance.</p>
+</section>
+<section id="example-subject-metadata-weights">
+<h2>Example Subject Metadata: Weights<a class="headerlink" href="#example-subject-metadata-weights" title="Permalink to this headline">¶</a></h2>
+<p>The NWB standard asks for weights to be recorded for a given recording. While they’re not required, users typically are weighing subjects before imaging sessions.
+In order to programatically add weights to the NWB File and access them later, a weights file was added to store subjects’ measurements. The files are very simple and consist
+of date/weight pairs. The date format is stored as <code class="docutils literal notranslate"><span class="pre">YYYYMMDD</span></code> as with all other dates stored in this system. Weights are stored in kilograms (kg) per the NWB standard’s
+documentation.</p>
+<div class="highlight-YAML notranslate"><div class="highlight"><pre><span></span><span class="s">"20211104"</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">0.0268</span>
+<span class="s">"20211111"</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">0.0260</span>
+<span class="s">"20211118"</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">0.0273</span>
+<span class="s">"20211125"</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">0.0250</span>
+<span class="s">"20211202"</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">0.0279</span>
+<span class="s">"20211209"</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">0.0247</span>
+<span class="s">"20211214"</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">0.0279</span>
+</pre></div>
+</div>
+</section>
 </section>
 
       </article>
       <footer>
         
         <div class="related-pages">
-          
-          
+          <a class="next-page" href="../instructions/index.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">v1.9.0 User Guide: Get Yoked! 🏋️ 🏋️‍♀️</div>
+              </div>
+              <svg><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="../about/index.html">
+              <svg><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">About Bruker Control</div>
+                
+              </div>
+            </a>
         </div>
 
         <div class="related-information">
@@ -264,8 +517,34 @@ file held inside a <code class="docutils literal notranslate"><span class="pre">
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            Contents
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Configurations</a><ul>
+<li><a class="reference internal" href="#example-project-config-behavior">Example Project Config: Behavior</a><ul>
+<li><a class="reference internal" href="#config-values-key-behavior-metadata">Config Values Key: Behavior Metadata</a></li>
+<li><a class="reference internal" href="#config-values-key-z-stack-metadata">Config Values Key: Z-Stack Metadata</a></li>
+<li><a class="reference internal" href="#config-values-key-miscellaneous">Config Values Key: Miscellaneous</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#example-subject-metadata">Example Subject Metadata</a></li>
+<li><a class="reference internal" href="#example-subject-metadata-weights">Example Subject Metadata: Weights</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>
