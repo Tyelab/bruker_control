@@ -7,7 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## bruker_control.py v1.9.2 - 2022-02-28
-Dr. [Talmo Pererira](https://github.com/talmo) informed me that we should be encoding our videos using
+Dr. [Talmo Pereria](https://github.com/talmo) informed me that we should be encoding our videos using
 the `H264` video codec instead of using `DIVX` encoding. It allows for nearly lossless compression and
 creates `.mp4` videos that are reliably seekable. This small update changes the video codec used and also
 grabs the microscope's framerate to use it for the video codec's writing to disk. This *should* fix a bug
