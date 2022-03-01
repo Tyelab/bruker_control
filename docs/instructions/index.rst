@@ -1,5 +1,5 @@
 =================================================================
- v1.9.0 User Guide: Get Yoked! 🏋️ 🏋️‍♀️ 
+ v1.9.2 User Guide: Get Yoked! 🏋️ 🏋️‍♀️ 
 =================================================================
 
 A (very) basic rundown of the experimental runtime is included below.
