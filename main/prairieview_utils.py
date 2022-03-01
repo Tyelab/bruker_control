@@ -23,6 +23,9 @@ from tqdm import tqdm
 # Import pathlib for creating z-stack directory
 from pathlib import Path
 
+# Import numpy for rounding framerates
+import numpy as np
+
 # Save the Praire View application as pl
 pl = client.Dispatch("PrairieLink64.Application")
 
@@ -627,3 +630,29 @@ def set_one_channel_zseries(indicator_emission: float):
     else:
         pl.SendScriptCommands("-SetChannel '1' 'Off'")
         pl.SendScriptCommands("-SetChannel '2' 'On'")
+
+
+def get_microscope_framerate() -> float:
+    """
+    Queries Prairie View for the microscope's framerate before a recording is started.
+
+    The scope appears to have slightly different framerates between starts of Prairie View
+    on the orders of 0.01FPS. To ensure that the video codec for the facial recording is
+    using the same timescale, getting the scope's state for framerate is necessary. This
+    will query Prairie View for the scope's current framerate setting, round the framerate
+    UP to the nearest hundreth, and return it so the video codec uses the correct FPS.
+
+    Returns:
+        microscope_framerate
+    """
+
+    # Ask Prairie Link to get the current framerate setting. The function returns a string,
+    # so convert it to a float
+    framerate = float(pl.GetState("framerate"))
+
+    # The framerate value is calculated with a precision of 12 decimals. Use just to the 
+    # hundredths value, or 2 decimal places
+    framerate = np.round(framerate, decimals=2)
+
+    return framerate
+

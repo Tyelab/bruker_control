@@ -6,6 +6,71 @@ A changelog for commits and changes before this version will not be added.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## bruker_control.py v1.9.2 - 2022-02-28
+Dr. [Talmo Pererira](https://github.com/talmo) informed me that we should be encoding our videos using
+the `H264` video codec instead of using `DIVX` encoding. It allows for nearly lossless compression and
+creates `.mp4` videos that are reliably seekable. This small update changes the video codec used and also
+grabs the microscope's framerate to use it for the video codec's writing to disk. This *should* fix a bug
+that graduate student Deryn LeDuke came across while aligning video frames to voltage recording data. Talmo
+also said that we should be performing a linear interpolation between data streams so they are all in a common
+time base, regardless of the framerates being the same (or very close to the same), but this is something that
+must be done post-hoc. Real-time alignment may be possible, but I have not found an easy way to do that yet.
+Also noted during testing is that a single camera uses approximately 320MB/s of available ethernet bandwidth.
+The local machine only appears to have 500MB worth of bandwidth total likely due to the type of ethernet card
+that's present. If the lab would like to add an additional machine vision camera, we would need to upgrade
+this machine's card to handle both datastreams. It was also discovered during testing that having remote
+connections to other machines (something that would not happen during a recording normally) yields a large
+increase in the number of dropped frames nearly totaling 6-7 minutes. Using as little of the network as
+possible should be a priority while the recordings are underway.
+
+Here's to hoping this fixes the bug and offers more reliable video-seeking/time-stamp effectiveness.
+
+:heart: Jeremy Delahanty
+
+### Changed
+
+**_Python_**
+
+*`video_utils.py`: `capture_recording()`*
+
+The `capture_recording()` function now takes a new argument called `framerate`. It is for exactly what
+it sounds like: specifying the framerate for the video codec. This value is gathered by `prairieview_utils`
+and submitted for the recording so it is using the same value as the microscope that is triggering the
+camera, the *true* framerate. It still remains to be seen if this solves the timing issue that Deryn
+discovered, but I feel confident that it will after consulting people/resources online. A true test will be
+performed the week of 2/28/21 on a small recording where voltage values can be aligned to the video stream.
+The codec used by the software is also different. To support nearly lossless compression of video data that is
+still reliably seekable, the `DIVX` video encoder has been replaced by the `H264` codec. In `opencv` with `FFMPEG`,
+the codec is accessed by using an open source `H264` library provided by Cisco called `OpenH264`. This required
+the addition of `.dll` binary to the `bruker_control` environment. See below for details. In order to use this
+codec with the appropriate container, the file format of the facial video recordings has also been changed to
+`.mp4` per Talmo's recommendation/documentation in `SLEAP`.
+
+### Added
+
+**_Video Codec: openh264-1.8.0-win64.dll_**
+
+This codec provided by Cisco can be downloaded in full [here](https://github.com/cisco/openh264). For this
+use case, all that is necessary is just one `.dll` file: `openh264-1.8.0-win64.dll`. This file can be found
+[here](https://github.com/cisco/openh264/releases). This repository relies upon v1.8.0. In order to use it
+with `opencv`, you have to include the binary in a specific location. At least in this software, it had to
+be placed in this location:
+
+- `C:\ProgramData\Anaconda3\envs\bruker_control\bin\openh264-1.8.0-win64.dll`
+
+If it is *not* in this binary location, `opencv` and `ffmpeg` will fail to find the library
+and the video will not be recorded to disk.
+
+**_Python_**
+
+*`prairieview_utils.py`: `get_microscope_framerate()`*
+
+The value of the microscope's framerate appears to change very slightly each time Prairie View is started on the order
+of about 0.01 FPS. This, in addition to the bug that Deryn discovered, make it vital that the framerate used by the encoder
+is the same as that used by the microscope. This function will grab the current `PVStateShard` value for `framerate`, convert
+that value from a string to a float, and round it up to the nearest 2 decimal places (hundreths). This value is returned and
+later fed into `capture_recording()` for use as the framerate the encoder will use.
+
 ## bruker_control.py v1.9.0 - 2022-02-02 *Get Yoked*
 A few new changes are here in this version of the repository primarily on the `Python side`, but also
 some small changes have been made to an `Arduino` file to enable new functionality. There's also a new
@@ -18,7 +83,8 @@ and can do some new exercises for you. Read on to find out! 🏋️
 
 **_Python_**
 
-*`check_session_punishments()` and `check_session_rewards()`*:
+*`check_session_punishments()` and `check_session_rewards()`*
+
 The method used for checking if too many punishment/reward trials were created in a `trialArray` was not
 functioning properly. Previously successive `or` statements were used. Now, a check is performed for if
 a `trial` is in a list of relevant trial types. Further, a trial set passes the checks if the number of
@@ -26,7 +92,7 @@ trials equals the max number of sequential trials of that type. The set fails no
 number.
 
 *Video Utils Change*
-The location and size of the presented video of the subject's face is now different. The video has been
+The location and size of the presented videos of the subject's face is now different. The video has been
 downscaled by 50% and is placed in the bottom right corner of the screen so it is out of the way of
 the Prarie View's windows. Note that the output video file is still the same.
 

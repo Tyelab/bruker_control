@@ -135,6 +135,9 @@ def run_imaging_experiment(metadata_args):
         # Calculate number of frames
         num_frames = video_utils.calculate_frames(session_len_s)
 
+        # Get microscope's framerate:
+        framerate = prairieview_utils.get_microscope_framerate()
+
         # Start preview of animal's face.  Zero microscope over lens here.
         video_utils.capture_preview()
 
@@ -166,6 +169,7 @@ def run_imaging_experiment(metadata_args):
         # Now that the packets have been sent, the Arduino will start soon.
         # We now start the camera for recording the experiment!
         dropped_frames = video_utils.capture_recording(
+                            framerate,
                             num_frames,
                             current_plane,
                             str(imaging_plane),
