@@ -118,13 +118,13 @@ def gen_trialArray_nostim(config_template: dict) -> np.ndarray:
                 config_template,
                 catch_check
                 )
-        
+
         # If the user doesn't want catch trials, the catch_check passes, setting
         # the value to False, and therefore passes the check.
         else:
 
             catch_check = False
-    
+
     print(trialArray)
 
     return trialArray
@@ -329,7 +329,7 @@ def check_session_punishments(trialArray: np.ndarray, max_seq_punish: int) -> bo
         if punishments > max_seq_punish:
             punish_check = True
             break
-        
+
         # TODO: Is this really the best I can do? There's gotta be a cleaner way...
         # If the trial is anything other than a punish trial, stimulation or not,
         # set number of punishments in a row to zero
@@ -366,7 +366,7 @@ def check_session_rewards(trialArray: np.ndarray, max_seq_reward: int) -> bool:
     # Start reward count at 0
     rewards = 0
 
-    # This list defines all trial types that are not reward trials 
+    # This list defines all trial types that are not reward trials
     # across all available trial types in the system.
     non_reward_trials = [0, 2, 4, 6]
 
@@ -551,15 +551,15 @@ def gen_jitter_toneArray(config_template: dict) -> list:
     tone_array = []
 
     # Get total number of trials
-    num_trials = config_template["metadata"]["totalNumberOfTrials"]
+    num_trials = config_template["beh_metadata"]["totalNumberOfTrials"]
 
     # Get minimum tone time value from configuration and multiply by 1000 to
     # convert to milliseconds
-    tone_lower = config_template["metadata"]["minTone"]*1000
+    tone_lower = config_template["beh_metadata"]["minTone"]*1000
 
     # Get maximum tone time value from configuration and multiply by 1000 to
     # convert to milliseconds
-    tone_upper = config_template["metadata"]["maxTone"]*1000
+    tone_upper = config_template["beh_metadata"]["maxTone"]*1000
 
     # Initialize random number generator with default_rng
     rng = default_rng()
@@ -1041,7 +1041,7 @@ def flip_stim_trials(fresh_array: np.ndarray, total_stim_trials: int, num_stim_p
             User specified position for where photo-stimulation block starts
         max_seq_punish:
             Maximum number of punishment trials permitted in a row
-    
+
     Returns:
         stimulated_array:
             Intermediate Trial Array that contains stimulation trials per user's rules
@@ -1067,7 +1067,7 @@ def flip_stim_trials(fresh_array: np.ndarray, total_stim_trials: int, num_stim_p
             num_stim_punish,
             max_seq_punish
         )
-    
+
     # TODO: This block of getting dict keys will one day be solved
     # through the use of classes and, at some point, a function that
     # generally performs this list(itemgetter()) procedure to output
@@ -1076,7 +1076,7 @@ def flip_stim_trials(fresh_array: np.ndarray, total_stim_trials: int, num_stim_p
     # stimulation only trials. First evaluate which indexes were
     # flipped by flip_punishments
     punish_stims = [index for index in stimulated_array if index == 0]
-    
+
     # Convert potential_stim_flips to list for use with set function
     stim_idxs = potential_stim_flips.tolist()
 
@@ -1096,7 +1096,7 @@ def flip_stim_trials(fresh_array: np.ndarray, total_stim_trials: int, num_stim_p
     # flip_punishments flips trials to 0, or punishment trials. LED Stimulation
     # trials for punishments are encoded by 4. Therefore, change the
     # punish trials in the stimulation block to 4. At this point in the
-    # generation of stimuli, the only punishments in the trial set are 
+    # generation of stimuli, the only punishments in the trial set are
     # in the stimulation indexes.
     for trial_type in range(len(stimulated_array)):
         if stimulated_array[trial_type] == 0:
@@ -1122,10 +1122,10 @@ def flip_stim_trials(fresh_array: np.ndarray, total_stim_trials: int, num_stim_p
     for trial_type in range(stim_start_position, stim_start_position + total_stim_trials):
         if stimulated_array[trial_type] == 1:
             stimulated_array[trial_type] = 5
-    
+
     return stimulated_array
-    
-        
+
+
 def flip_stim_only(tmp_array: np.ndarray, remaining_flips: np.ndarray, num_stim_alone: int) -> Tuple[np.ndarray, bool]:
     """
     Flips user specified number of trials to stimulation only trials.
@@ -1137,7 +1137,7 @@ def flip_stim_only(tmp_array: np.ndarray, remaining_flips: np.ndarray, num_stim_
             Array of indexes that can be switched to stimulation only trials
         num_stim_alone:
             Number of trials where only LED stimulation occurs
-    
+
     Returns:
         trialArray
 
@@ -1165,7 +1165,7 @@ def flip_stim_only(tmp_array: np.ndarray, remaining_flips: np.ndarray, num_stim_
     return tmp_array, stim_only_status
 
 
-def check_session_stim_only(tmp_array: np.ndarray, max_seq_stim_only=2) -> bool: 
+def check_session_stim_only(tmp_array: np.ndarray, max_seq_stim_only=2) -> bool:
     """
     Checks if there are more than 2 stimulation only trials that occur in a row.
 
@@ -1174,7 +1174,7 @@ def check_session_stim_only(tmp_array: np.ndarray, max_seq_stim_only=2) -> bool:
             Trial array containing newly flipped stimulation only trials.
         max_seq_stim_only:
             Maximim number of stimulation only trials allowed to occur in order.
-    
+
     Returns:
         stim_only_status:
             Boolean value encoding if the check passed or failed.
@@ -1226,7 +1226,7 @@ def gen_LEDArray(config_template: dict, trialArray: np.ndarray, ITIArray: np.nda
             Completed trial array containing trial types
         ITIArray:
             Array of ITIs for the experiment
-    
+
     Returns:
         LEDArray
     """
@@ -1235,7 +1235,7 @@ def gen_LEDArray(config_template: dict, trialArray: np.ndarray, ITIArray: np.nda
     # zeroes.
     if not config_template["beh_metadata"]["stim"]:
         LEDArray = [0]
-    
+
     # If the experiment is using stimulation, then calculate the times to send stimulation TTL
     # triggers to Prairie View
     else:

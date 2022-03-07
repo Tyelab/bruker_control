@@ -105,7 +105,7 @@ def run_imaging_experiment(metadata_args):
             # plane for this experimental condition. Generate the trial arrays and then write them
             # to disk
             if experiment_arrays == None:
-                
+
                 experiment_arrays = trial_utils.generate_arrays(config_template)
 
                 config_utils.write_yoked_config(
@@ -114,13 +114,13 @@ def run_imaging_experiment(metadata_args):
                     project,
                     experiment_arrays
                     )
-            
+
             # If there were arrays available, they have been loaded into the experiment_arrays variable
             # We can pass this condition and move forward with the experiment.
             else:
-                
+
                 pass
-        
+
         # If the user does not choose to use yoked trials, generate a new trial set
         else:
             # Create experiment runtime arrays
@@ -203,4 +203,3 @@ def run_imaging_experiment(metadata_args):
 
     print("Exiting...")
     sys.exit()
-
