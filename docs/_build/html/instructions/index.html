@@ -230,11 +230,9 @@ starting window shown above will end up looking like this:</p>
 <img alt="T-Series tab" class="align-center" src="../_images/t_series_start.png"/>
 <ul class="simple">
 <li><p>In the <cite>T-Series</cite> tab, there’s a box on the bottom left corner that states <cite>Start with input trigger</cite>. Make sure that this is selected.</p></li>
-<li><p>Make sure that there’s a large number of images scheduled to be collected (&gt;50k). This ensures that Prairie View will collect images for the full duration of the experiment.
-* When the correct number of images are collected, <cite>bruker_control</cite> will send an <cite>Abort</cite> command to stop the experiment.</p></li>
+<li><p>Make sure that there’s a large number of images scheduled to be collected (&gt;50k). This ensures that Prairie View will collect images for the full duration of the experiment. When the correct number of images are collected, <cite>bruker_control</cite> will send an <cite>Abort</cite> command to stop the experiment.</p></li>
 <li><p>Ensure that the <cite>T-Series</cite> is using the correct voltage recording experiment for your data before you start.</p></li>
-<li><p>If you are performing whole-field LED stimulations, ensure that the <cite>Mark Points Series</cite> is the correct one for team’s experiment.
-* These will have been configured ahead of time.</p></li>
+<li><p>If you are performing whole-field LED stimulations, ensure that the <cite>Mark Points Series</cite> is the correct one for team’s experiment. These will have been configured ahead of time.</p></li>
 </ul>
 <ol class="arabic simple" start="2">
 <li><p>Preferences: Never Convert Images</p></li>
@@ -261,18 +259,40 @@ subject until the ripping process is complete.</p>
 <p>Use the <cite>Anaconda Command Prompt</cite> to start a Python Terminal and then type the following commands:</p>
 <ol class="arabic simple">
 <li><p>conda activate bruker_control</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">Documents\gitrepos\bruker_control\bruker_control.py</span> <span class="pre">-p</span> <span class="pre">TEAMNAME_PROJECT</span> <span class="pre">-i</span> <span class="pre">#IMAGINGPLANES</span> <span class="pre">-s</span> <span class="pre">SUBJECTID</span> <span class="pre">-g</span> <span class="pre">EXPERIMENTAL_GROUP</span></code></p></li>
 </ol>
 <ul class="simple">
 <li><p>Activating the conda environment <cite>bruker_control</cite> gives Python access to all the packages it needs to run the experiment.</p></li>
 </ul>
+<ol class="arabic simple" start="2">
+<li><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">Documents\gitrepos\bruker_control\bruker_control.py</span> <span class="pre">-p</span> <span class="pre">TEAMNAME_PROJECT</span> <span class="pre">-i</span> <span class="pre">#IMAGINGPLANES</span> <span class="pre">-s</span> <span class="pre">SUBJECTID</span> <span class="pre">-g</span> <span class="pre">EXPERIMENTAL_GROUP</span></code></p></li>
+</ol>
 <p>The different arguments on this command line mean…</p>
 <ul class="simple">
-<li><p>-p The teamname and project that is using the system (ie specialk_cs)</p></li>
-<li><p>-i The number of imaging planes that you plan to image for your subject</p></li>
-<li><p>-s The subject ID for the animal being imaged</p></li>
-<li><p>-g The experimental group that the animal belongs to</p></li>
+<li><p>-p The teamname and project that is using the system (ie specialk_cs) <em>REQUIRED</em></p></li>
+<li><p>-i The number of imaging planes that you plan to image for your subject <em>REQUIRED</em></p></li>
+<li><p>-s The subject ID for the animal being imaged <em>REQUIRED</em></p></li>
+<li><p>-g The experimental group that the animal belongs to <em>OPTIONAL</em></p></li>
 </ul>
+</section>
+<section id="using-yoked-configurations">
+<h3>Using Yoked Configurations<a class="headerlink" href="#using-yoked-configurations" title="Permalink to this headline">¶</a></h3>
+<p>If you have your configuration file set to use yoked trials, you <em>must</em> use the <code class="docutils literal notranslate"><span class="pre">EXPERIMENTAL_GROUP</span></code> argument.
+This gives <code class="docutils literal notranslate"><span class="pre">bruker_control</span></code> the final piece of information needed for generating yoked trial-sets: which group the subject belongs to.
+Yoked configurations are uniquely generated for each group on each day for each plane. There are two valid options:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">exp</span></code> - Experimental group</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">con</span></code> - Control group</p></li>
+</ul>
+<p>The command for each subject will therefore look something like this for an experimental animal:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">Documents\gitrepos\bruker_control\bruker_control.py</span> <span class="pre">-p</span> <span class="pre">deryn_fd</span> <span class="pre">-i</span> <span class="pre">1</span> <span class="pre">-s</span> <span class="pre">DOL1</span> <span class="pre">-g</span> <span class="pre">exp</span></code></p></li>
+</ul>
+<p>And will look something like this for a control animal:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">Documents\gitrepos\bruker_control\bruker_control.py</span> <span class="pre">-p</span> <span class="pre">deryn_fd</span> <span class="pre">-i</span> <span class="pre">1</span> <span class="pre">-s</span> <span class="pre">DOL1</span> <span class="pre">-g</span> <span class="pre">con</span></code></p></li>
+</ul>
+<p>If you specified <code class="docutils literal notranslate"><span class="pre">yoked=true</span></code> in your configuration but <em>DONT</em> have the <code class="docutils literal notranslate"><span class="pre">EXPERIMENTAL_GROUP</span></code> argument, <code class="docutils literal notranslate"><span class="pre">bruker_control</span></code> will attempt to continue
+forward anyways and crash. Implementing a check and useful error message if the check fails is currently underway.</p>
 <p>When you hit enter with this command line, things will get started right away! The next steps below describe the procedure.</p>
 </section>
 <section id="the-experiment">
@@ -372,6 +392,7 @@ command called <code class="docutils literal notranslate"><span class="pre">rsyn
 <li><a class="reference internal" href="#arduino"><em>Arduino</em></a></li>
 <li><a class="reference internal" href="#prairie-view"><em>Prairie View</em></a></li>
 <li><a class="reference internal" href="#python"><em>Python</em></a></li>
+<li><a class="reference internal" href="#using-yoked-configurations">Using Yoked Configurations</a></li>
 <li><a class="reference internal" href="#the-experiment"><em>The Experiment</em></a></li>
 <li><a class="reference internal" href="#transferring-files-to-snlktdata"><em>Transferring Files to snlktdata</em></a></li>
 </ul>

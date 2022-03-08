@@ -62,11 +62,9 @@ The next window is the primary window for Prairie View.
     :align: center
 
 * In the `T-Series` tab, there's a box on the bottom left corner that states `Start with input trigger`. Make sure that this is selected.
-* Make sure that there's a large number of images scheduled to be collected (>50k). This ensures that Prairie View will collect images for the full duration of the experiment.
-  * When the correct number of images are collected, `bruker_control` will send an `Abort` command to stop the experiment.
+* Make sure that there's a large number of images scheduled to be collected (>50k). This ensures that Prairie View will collect images for the full duration of the experiment. When the correct number of images are collected, `bruker_control` will send an `Abort` command to stop the experiment.
 * Ensure that the `T-Series` is using the correct voltage recording experiment for your data before you start.
-* If you are performing whole-field LED stimulations, ensure that the `Mark Points Series` is the correct one for team's experiment.
-  * These will have been configured ahead of time.
+* If you are performing whole-field LED stimulations, ensure that the `Mark Points Series` is the correct one for team's experiment. These will have been configured ahead of time.
 
 2. Preferences: Never Convert Images
 
@@ -108,16 +106,38 @@ Use the `Anaconda Command Prompt` to start a Python Terminal and then type the f
 
 1. conda activate bruker_control
 
-2. ``python Documents\gitrepos\bruker_control\bruker_control.py -p TEAMNAME_PROJECT -i #IMAGINGPLANES -s SUBJECTID -g EXPERIMENTAL_GROUP``
-
 * Activating the conda environment `bruker_control` gives Python access to all the packages it needs to run the experiment.
+
+2. ``python Documents\gitrepos\bruker_control\bruker_control.py -p TEAMNAME_PROJECT -i #IMAGINGPLANES -s SUBJECTID -g EXPERIMENTAL_GROUP``
 
 The different arguments on this command line mean...
 
-* -p The teamname and project that is using the system (ie specialk_cs) 
-* -i The number of imaging planes that you plan to image for your subject
-* -s The subject ID for the animal being imaged
-* -g The experimental group that the animal belongs to
+* -p The teamname and project that is using the system (ie specialk_cs) *REQUIRED*
+* -i The number of imaging planes that you plan to image for your subject *REQUIRED*
+* -s The subject ID for the animal being imaged *REQUIRED*
+* -g The experimental group that the animal belongs to *OPTIONAL*
+
+**************************
+Using Yoked Configurations
+**************************
+
+If you have your configuration file set to use yoked trials, you *must* use the ``EXPERIMENTAL_GROUP`` argument.
+This gives ``bruker_control`` the final piece of information needed for generating yoked trial-sets: which group the subject belongs to.
+Yoked configurations are uniquely generated for each group on each day for each plane. There are two valid options:
+
+* ``exp`` - Experimental group
+* ``con`` - Control group
+
+The command for each subject will therefore look something like this for an experimental animal:
+
+* ``python Documents\gitrepos\bruker_control\bruker_control.py -p deryn_fd -i 1 -s DOL1 -g exp``
+
+And will look something like this for a control animal:
+
+* ``python Documents\gitrepos\bruker_control\bruker_control.py -p deryn_fd -i 1 -s DOL1 -g con``
+
+If you specified ``yoked=true`` in your configuration but *DONT* have the ``EXPERIMENTAL_GROUP`` argument, ``bruker_control`` will attempt to continue
+forward anyways and crash. Implementing a check and useful error message if the check fails is currently underway.
   
 When you hit enter with this command line, things will get started right away! The next steps below describe the procedure.
 

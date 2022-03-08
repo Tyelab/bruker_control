@@ -15,6 +15,8 @@ Many of these fields were present in the initial Arduino and MATLAB code, but th
 Having a configuration file allows for there to be just one sketch for each team/project as needed that can stand ready for a session without needing to reupload
 a new sketch in between running individual animals.
 
+.. _config-values:
+
 ********************************
 Example Project Config: Behavior
 ********************************
