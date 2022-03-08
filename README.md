@@ -113,7 +113,7 @@ This would likely take quite a long time to get into a production ready place...
 #### Hardware
 1. Optimize lighting conditions
 2. Optimize camera position
-3. Get filter for camera lens that blocks laser wavelengths
+3. Get filter for camera lens that blocks laser wavelengths - Purchased 3/8/22!
 4. Create a "sight" for airpuff alignment
 
 ## Contributing
