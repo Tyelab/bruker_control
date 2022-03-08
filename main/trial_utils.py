@@ -125,8 +125,6 @@ def gen_trialArray_nostim(config_template: dict) -> np.ndarray:
 
             catch_check = False
 
-    print(trialArray)
-
     return trialArray
 
 
