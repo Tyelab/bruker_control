@@ -26,6 +26,9 @@ from pathlib import Path
 # Import numpy for rounding framerates
 import numpy as np
 
+# Import Typing module for type hinting
+from typing import List
+
 # Save the Praire View application as pl
 pl = client.Dispatch("PrairieLink64.Application")
 
@@ -656,3 +659,13 @@ def get_microscope_framerate() -> float:
 
     return framerate
 
+
+def get_pmt_values() -> List[int]:
+
+    pmt_channel0 = int(pl.GetState("pmtGain 0"))
+
+    pmt_channel1 = int(pl.GetState("pmtGain 1"))
+
+    pmt_values = [pmt_channel0, pmt_channel1]
+
+    return pmt_values

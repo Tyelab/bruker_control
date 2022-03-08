@@ -20,6 +20,9 @@ from datetime import datetime
 # Import YAML for gathering metadata about project
 from ruamel.yaml import YAML
 
+# Import pydantic for creating configuration classes
+from pydantic import BaseModel, Field
+
 # Template configuration directories are within project directories.  The snlkt
 # server housing these directories is mounted to the X: volume on the machine
 # BRUKER.
@@ -71,10 +74,23 @@ class SubjectError(Exception):
 # Metadata Classes: In development
 ###############################################################################
 
-# class ConfigTemplate:
-#     """
-#     Class containing configuration values from project's .JSON file.
-#     """
+class ArduinoConfiguration(BaseModel):
+    """
+    Class containing configuration values from project's .JSON file.
+    """
+    total_num_trials: int = Field(..., alias="totalNumberOfTrials")
+    starting_reward: int = Field(..., alias="startingReward")
+    max_sequential_reward: int = Field(..., alias="maxSequentialReward")
+    max_sequential_punish: int = Field(..., alias="maxSequentialPunish")
+    punish_tone: int = Field(..., alias="punishTone")
+    reward_tone: int = Field(..., alias="rewardTone")
+    sucrose_delivery: int = Field(None, alias="USDeliveryTime_Sucrose")
+    airpuff_delivery: int = Field(None, alias="USDeliveryTime_Air")
+    
+
+
+
+
 
 # class StimMetadata(ConfigTemplate):
 #     """

@@ -6,7 +6,7 @@
 # https://github.com/PowerBroker2/pySerialTransfer
 # Genie Nano manufactured by Teledyne DALSA
 
-__version__ = "1.9.0 Get Yoked"
+__version__ = "1.9.2 Get Yoked"
 
 # Import experiment utils to run different experiments
 import experiment_utils
