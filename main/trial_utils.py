@@ -1,5 +1,12 @@
 # Bruker 2-Photon Trial Generation Utils
-# Jeremy Delahanty, Aaron Huffman May 2021
+# Jeremy Delahanty, Aaron Huffman, Deryn LeDuke May 2021
+# Much of the functionality in this module initially existed as part of Arduino
+# scripts implemented by Deryn LeDuke and Dr. Kyle Fischer. They were reimplemented
+# using Python to generate the arrays so the system would output precise values
+# to file both for documentation purposes as well as reproducibility purposes.
+# Other labs or users can literally run the same exact experiment using the
+# configuration file's contents with the Arduino scripts that are used in
+# production without any post-processing of datasets being necessary.
 
 ###############################################################################
 # Import Packages
