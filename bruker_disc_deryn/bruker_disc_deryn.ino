@@ -1,23 +1,23 @@
 /**
-Tye Lab Headfixed Discrimination Task: Bruker 2P Microscope
-Name: bruker_disc_deryn
-Purpose: Present stimuli to headfixed subject and send signals to DAQ for Tye Lab Team specialk
+  Tye Lab Headfixed Discrimination Task: Bruker 2P Microscope
+  Name: bruker_disc_deryn
+  Purpose: Present stimuli to headfixed subject and send signals to DAQ for Tye Lab Team specialk
 
-@author Deryn LeDuke, Kyle Fischer PhD, Dexter Tsin, Jeremy Delahanty
-@version 1.8.0 2/1/22
+  @author Deryn LeDuke, Kyle Fischer PhD, Dexter Tsin, Jeremy Delahanty
+  @version 1.8.0 2/1/22
 
-Adapted from DISC_V7.ino by Kyle Fischer and Mauri van der Huevel Oct. 2019
-digitalWriteFast.h written by Watterott Electronic https://github.com/watterott/Arduino-Libs/tree/master/digitalWriteFast
-SerialTransfer.h written by PowerBroker2 https://github.com/PowerBroker2/SerialTransfer
+  Adapted from DISC_V7.ino by Kyle Fischer and Mauri van der Huevel Oct. 2019
+  digitalWriteFast.h written by Watterott Electronic https://github.com/watterott/Arduino-Libs/tree/master/digitalWriteFast
+  SerialTransfer.h written by PowerBroker2 https://github.com/PowerBroker2/SerialTransfer
 
-The program operates using these steps:
-  1. Open communications to Python on Bruker PC
-  2. Receive metadata, trial type array, ITI array, and tone duration array
-  3. Confirm Python has finished sending data
-  4. Delay program for 5 seconds to allow Teledyne Genie Nano to start up
-  5. Send trigger to the Bruker DAQ to start the microscopy session
-  6. Run through the trials specified in totalNumberOfTrials
-  7. Reset the Arduino
+  The program operates using these steps:
+    1. Open communications to Python on Bruker PC
+    2. Receive metadata, trial type array, ITI array, and tone duration array
+    3. Confirm Python has finished sending data
+    4. Delay program for 5 seconds to allow Teledyne Genie Nano to start up
+    5. Send trigger to the Bruker DAQ to start the microscopy session
+    6. Run through the trials specified in totalNumberOfTrials
+    7. Reset the Arduino
 
 */
 
@@ -68,12 +68,26 @@ int transmissionStatus = 0;
 //// TRIAL TYPES ////
 // trial variables are encoded as 0 and 1
 // 0 is negative stimulus [air], 1 is  positive stimulus [sucrose]
+// 2 is negative catch [air catch], 3 is positive catch [sucrose catch]
+// 4 is negative LED stim, 5 is positive LED stim, 6 is stim only
 // Initialize the trial type as an integer
 int trialType;
 // Initialize the current trial number as -1 before experiment begins
 // Use -1 so 0 indexed trial is first trial in the set
 // Allows for the iteration of max(totalNumberOfTrials) to reset board
 int currentTrial = -1;
+// Initialize the current LED Stimulation number as 0 before
+// experiment begins.
+int currentLED = 0;
+
+//// ITIs ////
+int thisITI;
+
+//// Tones ////
+int thisToneDuration;
+
+//// LED Variables ////
+int thisLED;
 
 //// FLAG ASSIGNMENT ////
 // In this version, the vacuum has been removed from the setup.
@@ -93,10 +107,17 @@ boolean cameraDelay = false;
 boolean brukerTrigger = false;
 boolean newTrial = false;
 boolean ITI = false;
-boolean giveStim = false;
+boolean giveStim = false;         // Stim here means airpuff or sucrose, not LED stim
+boolean giveCatch = false;
+boolean giveLED = false;
+boolean LEDOn = false;
 boolean newUSDelivery = false;
+boolean newUSDeliveryCatch = false;
 boolean solenoidOn = false;
-boolean noise = false; // can't use tone as it's protected in Arduino
+boolean vacOn = false;
+boolean consume = false;
+boolean cleanIt = false;
+boolean noise = false;            // can't use tone as it's protected in Arduino
 boolean toneDAQ = false;
 
 //// TIMING VARIABLES ////
@@ -104,16 +125,21 @@ boolean toneDAQ = false;
 long ms; // milliseconds
 // Each experimental condition has a time parameter
 long ITIend;
+long LEDStart;
+long LEDEnd;
 long rewardDelayMS;
 long sucroseDelayMS;
 long USDeliveryMS_Sucrose;
 long sucroseConsumptionMS;
+long vacTime;
 long airDelayMS;
 long USDeliveryMS_Air;
 long USDeliveryMS;
 long noiseDeliveryMS;
 long toneListeningMS;
 long toneDAQMS;
+// Vacuum has a set amount of time to be active
+const int vacDelay = 500; // vacuum delay
 
 
 //// ADAFRUIT MPR121 ////
@@ -129,16 +155,15 @@ uint16_t lasttouched = 0;
 
 
 //// PIN ASSIGNMENT: Stimuli and Solenoids ////
-// In this version, the vacuum has been removed from the setup.
-// Therefore, vacuum related pins have been commented out.
-// input
 const int lickPin = 2;                        // input from MPR121
 //const int airPin = 3; // measure delay from solenoid to mouse
 // output
 const int solPin_air = 22;                    // solenoid for air puff control
+const int vacPin = 24;                        // solenoid for vacuum control
 const int solPin_liquid = 26;                 // solenoid for liquid control: sucrose, water, EtOH
 const int speakerPin = 12;                    // speaker control pin
 const int bruker2PTriggerPin = 11;            // trigger to start Bruker 2P Recording on Prairie View
+const int brukerLEDTriggerPin = 39;           // trigger to initiate an LED Pulse on Prairie View
 
 //// PIN ASSIGNMENT: NIDAQ ////
 // NIDAQ input
@@ -373,6 +398,7 @@ void bruker_trigger() {
 void reset_board() {
   transmissionStatus = 0;
   currentTrial = -1;
+  currentLED = 0;
   acquireMetaData = true;
   acquireTrials = false;
   acquireITI = false;
@@ -386,8 +412,15 @@ void reset_board() {
   newTrial = false;
   ITI = false;
   giveStim = false;
+  giveCatch = false;
+  giveLED = false;
+  LEDOn = false;
   newUSDelivery = false;
+  newUSDeliveryCatch = false;
   solenoidOn = false;
+  vacOn = false;
+  consume = false;
+  cleanIt = false;
   noise = false;
   toneDAQ = false;
   Serial.println("Resetting Arduino after 3 seconds...");
@@ -431,17 +464,122 @@ void startITI(long ms) {
     Serial.println(currentTrial + 1);
     trialType = trialArray[currentTrial];         // gather trial type
     newTrial = false;
+    if (trialType > 3) {
+      LEDStart, LEDEnd = typeLED(trialType, ms);
+    }
+    else {
+      typeTrial(trialType);
+    }
     ITI = true;
     int thisITI = ITIArray[currentTrial];         // get ITI for this trial
     ITIend = ms + thisITI;
     // turn off when done
-  } else if (ITI && (ms >= ITIend)) {             // ITI is over
+  } else if (ITI && (ms >= ITIend)) {             // ITI is over, start playing the tone
     digitalWriteFast(itiDeliveryPin, LOW);
     ITI = false;
     noise = true;
   }
 }
 
+// Trial Type Function
+/**
+ * Determines which type of trial is coming IFF it's not an LED trial.
+ * The output is used to print the trial type to the user right after
+ * the trial number is printed out for the user.
+ * 
+ * @param trialType Type of trial coming into the user.
+ */
+ void typeTrial (int trialType) {
+  switch (trialType) {
+    case 0:
+      Serial.println("Airpuff");
+      break;
+    case 1:
+      Serial.println("Sucrose");
+      break;
+    case 2:
+      Serial.println("Airpuff Catch");
+      break;
+    case 3:
+      Serial.println("Sucrose Catch");
+      break;
+  }
+ }
+
+// LED Stimulation Functions
+/**
+ * Determines which type of LED stimulation trial to provide after
+ * startITI() initiates an ITI and gathers the trial type. Then
+ * establishes when the LED stimulation should start by grabbing
+ * the appropriate timing from the LEDArray transmitted by Python
+ * 
+ * @param trialType Type of trial being conducted (0-6)
+ * @param ms Current time in milliseconds (ms)
+ */
+int typeLED (int trialType, long ms) {
+  switch (trialType) {
+    case 4:
+      Serial.println("Airpuff LED");
+      LEDStart, LEDEnd = setLEDStart(ms);
+      return LEDStart, LEDEnd;
+    case 5:
+      Serial.println("Sucrose LED");
+      LEDStart, LEDEnd = setLEDStart(ms);
+      return LEDStart, LEDEnd;
+    case 6:
+      Serial.println("LED Only");
+      LEDStart, LEDEnd = setLEDStart(ms);
+      return LEDStart, LEDEnd;
+  }
+}
+
+/**
+ * Determines when LED stimulation should occur for a given trial.
+ * Only called when an LED Trial is scheduled to occur. Takes the
+ * LED Stimulation trigger time from the LEDArray and calculates
+ * the ms that stimulation should occur. Uses that result to
+ * calculate the ms when the LED stimulation is ending.
+ * 
+ * @param ms Current time in milliseconds (ms)
+ * @return LEDStart Time in ms to wait before sending LED Trigger
+ * @return LEDEnd Time in ms that LED train will be on after triggering
+ */
+long setLEDStart(long ms) {
+  giveLED = true;
+  // Reset LED Values for new calculation to be correct
+  // Gives negative values for LEDEnd without this...
+  LEDStart = 0;
+  LEDEnd = 0;
+  thisLED = LEDArray[currentLED];
+  LEDStart = ms + thisLED;
+  LEDEnd = LEDStart + metadata.stimDeliveryTime_Total;
+  
+  return LEDStart, LEDEnd;
+}
+
+/**
+ * Sends TTL to Bruker's DAQ to start an LED pulse train.
+ * 
+ * @param ms Current time in milliseconds (ms)
+ */
+void brukerTriggerLED (long ms) {
+  if (giveLED && (ms >= LEDStart)) {
+    giveLED = false;
+    LEDOn = true;
+    digitalWriteFast(brukerLEDTriggerPin, HIGH);
+    Serial.println("LED Trigger Sent!");
+  }
+}
+
+/**
+ * Sends brukerLEDTriggerPin LOW after 
+ */
+void offLED (long ms) {
+  if (LEDOn && (ms >= LEDEnd)) {
+    LEDOn = false;
+    digitalWriteFast(brukerLEDTriggerPin, LOW);
+  }
+}
 
 // Tone Functions
 /**
@@ -460,15 +598,43 @@ void tonePlayer(long ms) {
     switch (trialType) {
       case 0:
         Serial.println("Air");
-        tone(speakerPin, metadata.punishTone, thisNoiseDuration);
         digitalWriteFast(speakerDeliveryPin_Airpuff, HIGH);
+        tone(speakerPin, metadata.punishTone, thisNoiseDuration);
         giveStim = true;
         break;
       case 1:
         Serial.println("Sucrose");
-        tone(speakerPin, metadata.rewardTone, thisNoiseDuration);
         digitalWriteFast(speakerDeliveryPin_Liquid, HIGH);
+        tone(speakerPin, metadata.rewardTone, thisNoiseDuration);
         giveStim = true;
+        break;
+      case 2:
+        Serial.println("Air catch");
+        digitalWriteFast(speakerDeliveryPin_Airpuff, HIGH);
+        tone(speakerPin, metadata.punishTone, thisNoiseDuration);
+        giveCatch = true;
+        break;
+      case 3:
+        Serial.println("Sucrose catch");
+        digitalWriteFast(speakerDeliveryPin_Liquid, HIGH);
+        tone(speakerPin, metadata.rewardTone, thisNoiseDuration);
+        giveCatch = true;
+        break;
+      case 4:
+        Serial.println("Air LED");
+        digitalWriteFast(speakerDeliveryPin_Airpuff, HIGH);
+        tone(speakerPin, metadata.punishTone, thisNoiseDuration);
+        giveStim = true;
+        break;
+      case 5:
+        Serial.println("Sucrose LED");
+        digitalWriteFast(speakerDeliveryPin_Liquid, HIGH);
+        tone(speakerPin, metadata.rewardTone, thisNoiseDuration);
+        giveStim = true;
+        break;
+      case 6:
+        Serial.println("LED Only");
+        giveCatch = true;
         break;
     }
   }
@@ -476,20 +642,21 @@ void tonePlayer(long ms) {
 
 /**
    Signals for the speaker to turn off and stop sending signal to DAQ that
-   the speaker is active.
+   the speaker is active. Since this version has two different speaker DAQ
+   outputs, we have to add a modulo operator to filter out which pin to set
+   low. If there's no remainder, it's an even trial which refers to punishment
+   trials. If there is, it's an odd trial which refers to reward trials.
 
    @param ms Current time in milliseconds (ms)
 */
 void onTone(long ms) {
   if (toneDAQ && (ms >= toneListeningMS)){
     toneDAQ = false;
-    switch (trialType) {
-      case 0:
-        digitalWriteFast(speakerDeliveryPin_Airpuff, LOW);
-        break;
-      case 1:
-        digitalWriteFast(speakerDeliveryPin_Liquid, LOW);
-        break;
+    if ((trialType % 2) == 0) {
+      digitalWriteFast(speakerDeliveryPin_Airpuff, LOW);
+    }
+    else if ((trialType % 2) == 1) {
+      digitalWriteFast(speakerDeliveryPin_Liquid, LOW);
     }
   }
 }
