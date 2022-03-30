@@ -786,8 +786,11 @@ void loop() {
     tonePlayer(ms);
     onTone(ms);
     presentStimulus(ms);
+    presentCatch(ms);
     USDelivery(ms);
     offSolenoid(ms);
+    consuming(ms);
+    vacuum(ms);
   }
   else if (currentTrial == metadata.totalNumberOfTrials) {
     reset_board();
