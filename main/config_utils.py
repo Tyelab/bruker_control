@@ -23,6 +23,9 @@ from ruamel.yaml import YAML
 # Import pydantic for creating configuration classes
 from pydantic import BaseModel, Field
 
+# Import typing for typehints on functions
+from typing import Any, Optional, List
+
 # Template configuration directories are within project directories.  The snlkt
 # server housing these directories is mounted to the X: volume on the machine
 # BRUKER.
@@ -71,62 +74,17 @@ class SubjectError(Exception):
             return "SUBJECT ERROR"
 
 ###############################################################################
-# Metadata Classes: In development
-###############################################################################
-
-class ArduinoConfiguration(BaseModel):
-    """
-    Class containing configuration values from project's .JSON file.
-    """
-    total_num_trials: int = Field(..., alias="totalNumberOfTrials")
-    starting_reward: int = Field(..., alias="startingReward")
-    max_sequential_reward: int = Field(..., alias="maxSequentialReward")
-    max_sequential_punish: int = Field(..., alias="maxSequentialPunish")
-    punish_tone: int = Field(..., alias="punishTone")
-    reward_tone: int = Field(..., alias="rewardTone")
-    sucrose_delivery: int = Field(None, alias="USDeliveryTime_Sucrose")
-    airpuff_delivery: int = Field(None, alias="USDeliveryTime_Air")
-    
-
-
-
-
-
-# class StimMetadata(ConfigTemplate):
-#     """
-#     Metadata class describing information related to stimulation parameters
-#     """
-
-# class IndicatorMetadata(ConfigTemplate):
-#     """
-#     Metadata class describing imaging indicators' properties.
-#     """
-
-# class SubjectMetadata(ConfigTemplate):
-#     """
-#     Metadata class describing information related to the subject being imaged
-#     """
-
-# class SurgeryMetadata(ConfigTemplate):
-#     """
-#     Metadata class describing information related to subject's surgeries
-#     """
-# class ZStackMetadata(ConfigTemplate):
-#     """
-#     Metadata class describing information related to the Z-stack functionality
-#     """
-
-###############################################################################
 # Functions
 ###############################################################################
 
 
 def get_template(project: str) -> dict:
     """
-    Grab team's template configuration file for experiment runtime.
+    Grab team's template configuration file for building Pydantic model.
 
     Uses the metadata_args values "team" and "project" found in bruker_control to select the
-    specific 2-Photon configuration file that will run the experiment for a session.
+    specific 2-Photon configuration file that will run the experiment for a session. Finally
+    builds Pydantic data model for use throughout the experimental session.
 
     Args:
         project:
@@ -162,7 +120,10 @@ def get_template(project: str) -> dict:
                 "Project Template is missing! Check your _DATA/project/2p/config folder."
                 )
 
-    return config_template
+    # Build Pydantic model from the json dictionary that's been loaded
+    config = Model.parse_obj(config_template)
+
+    return config
 
 
 def read_config(config_path: Path) -> dict:
@@ -268,59 +229,6 @@ def write_experiment_config(config_template: dict, experiment_arrays: list,
         json.dump(config_template, outFile)
 
 
-def get_arduino_metadata(config_template: dict) -> dict:
-    """
-    Grabs metadata relevent to Arduino runtime
-
-    Parses the template configuration supplied by the user and grabs only the
-    metadata that is relevant for the Arduino's function using dictionary
-    comprehension. Finally converts dictionary to json object for transfer.
-
-    Args:
-        config_template:
-            Configuration template value dictionary gathered from team's
-            configuration .json file.
-
-    Returns:
-        arduino_metadata
-            Dictionary of relevant Arduino metadata for experiment.
-    """
-
-    # Define the variables required for Arduino function
-    arduino_metadata_keys = ["totalNumberOfTrials", "punishTone", "rewardTone",
-                             "USDeliveryTime_Sucrose", "USDeliveryTime_Air",
-                             "USConsumptionTime_Sucrose", "stimDeliveryTime_Total"]
-
-    # Generate Dictionary of relevant Arduino metadata
-    arduino_metadata = {key: value for (key, value) in
-                        config_template["beh_metadata"].items() if
-                        key in arduino_metadata_keys}
-
-    return arduino_metadata
-
-
-def get_zstack_metadata(config_template: dict) -> dict:
-    """
-    Grabs metadata relevant for generating Z-stacks
-
-    Parses template configuration supplied by the user and grabs only the
-    metadata that is relevant for Prairie View executing a Z-stack.
-
-    Args:
-        config_template:
-            Configuration template value dictionary gathered from team's
-            configuration .json file.
-
-    Returns:
-        zstack_metadata
-            Dictionary of relevant Prairie View Z-Stack for experiment
-    """
-
-    zstack_metadata = config_template["zstack_metadata"]
-
-    return zstack_metadata
-
-
 def get_subject_metadata(project: str, subject_id: str) -> dict:
     """
     Parses imaging subject's .yml metadata file for NWB fields
@@ -391,7 +299,7 @@ def get_surgery_metadata(subject_metadata: dict) -> dict:
     return surgery_metadata
 
 
-def build_server_directory(project: str, subject_id: str, config_template: dict):
+def build_server_directory(project: str, subject_id: str, config: BaseModel):
     """
     Builds directories for copying files to server at the end of the day.
 
@@ -405,8 +313,8 @@ def build_server_directory(project: str, subject_id: str, config_template: dict)
             The team and project conducting the experiment (ie teamname_projectname)
         subject_id:
             Subject ID value from metadata_args["project"]
-        config_template:
-            Configuration template gathered for the project by get_template()
+        config:
+            
     
     Returns:
         session_path:
@@ -425,7 +333,9 @@ def build_server_directory(project: str, subject_id: str, config_template: dict)
     session_path.mkdir(parents=True, exist_ok=True)
 
     # If a z-stack is scheduled to run, build that directory to the full path
-    if config_template["zstack_metadata"]["zstack"]:
+    # Access the zstack metadata parameter zstack, a boolean status of whether
+    # to do the stack
+    if config.params.zstack_metadata.zstack:
         (session_path / "zstacks").mkdir(parents=True, exist_ok=True)
     
     return session_path

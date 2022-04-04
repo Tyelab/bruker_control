@@ -17,6 +17,11 @@ from operator import itemgetter
 # Import Tuple for appropriate typehinting of functions
 from typing import Tuple
 
+# Import typing for typehints on functions
+from typing import Any, Optional, List
+
+from main.datamodels import Params, TrialSettings, ItiSettings, BehaviorArrays
+
 
 ###############################################################################
 # Functions: No stimulation
@@ -28,7 +33,7 @@ from typing import Tuple
 # -----------------------------------------------------------------------------
 
 
-def gen_trialArray_nostim(config_template: dict) -> np.ndarray:
+def gen_trialArray_nostim(config: Params) -> np.ndarray:
     """
     Creates pseudorandom trial structure for binary discrimination task without stimulation.
 
@@ -49,26 +54,23 @@ def gen_trialArray_nostim(config_template: dict) -> np.ndarray:
 
     # Create trial array that's all reward trials, to be flipped randomly
     fresh_array = np.ones(
-        config_template["beh_metadata"]["totalNumberOfTrials"],
+        config.total_number_of_trials,
         dtype=int
         )
 
     # Calculate the number of punishment trials to deliver
     num_punish = round(
-        config_template["beh_metadata"]["percentPunish"] * len(fresh_array)
+        config.trial_settings.percent_punish * len(fresh_array)
         )
 
-    # Get maximum number of punishment trials that can occur in a row
-    max_seq_punish = config_template["beh_metadata"]["maxSequentialPunish"]
-
     # Get maximum number of reward trials that can occur in a row
-    max_seq_reward = config_template["beh_metadata"]["maxSequentialReward"]
+    max_seq_reward = config.trial_settings.max_sequential_reward
 
     # Generate potential flip positions for punish trials by making array of
     # trial indexes starting just after the starting rewards until the end
     # of the experimental session.
     potential_flips = np.arange(
-        config_template["beh_metadata"]["startingReward"],
+        config.trial_settings.starting_reward,
         len(fresh_array)
         )
 
@@ -90,14 +92,14 @@ def gen_trialArray_nostim(config_template: dict) -> np.ndarray:
             tmp_array,
             potential_flips,
             num_punish,
-            max_seq_punish
+            config.trial_settings.max_sequential_punish
             )
 
         # If the number of punish trials is less than half, getting a valid
         # trial set is unlikely if the number of rewards in a row is
         # restricted.  Therefore, sest the reward_check to False.
 
-        if config_template["beh_metadata"]["percentPunish"] < 0.50:
+        if config.trial_settings.percent_punish < 0.50:
             reward_check = False
 
         # Otherwise use check_session_rewards to ensure trial structure is
@@ -109,13 +111,13 @@ def gen_trialArray_nostim(config_template: dict) -> np.ndarray:
                 )
 
         # Check if the user specified having catch trials for their experiment
-        if config_template["beh_metadata"]["catchTrials"]:
+        if config.trial_settings.catch_trials:
 
             # Use generated trialArray and config_template values to perform
             # catch trial flips only if they want catch trials
             trialArray, catch_check = flip_catch(
                 trialArray,
-                config_template,
+                config.trial_settings,
                 catch_check
                 )
         
@@ -124,13 +126,11 @@ def gen_trialArray_nostim(config_template: dict) -> np.ndarray:
         else:
 
             catch_check = False
-    
-    print(trialArray)
 
     return trialArray
 
 
-def flip_catch(trialArray: np.ndarray, config_template: dict,
+def flip_catch(trialArray: np.ndarray, trials_config: TrialSettings,
                catch_check: bool) -> Tuple[np.ndarray, bool]:
     """
     Flips trials to catches in checked trialArray.
@@ -154,20 +154,11 @@ def flip_catch(trialArray: np.ndarray, config_template: dict,
             Boolean status for catch trials being flipped or not.
     """
 
-    # Get number of reward catch trials to deliver
-    num_catch_reward = config_template["beh_metadata"]["numCatchReward"]
-
-    # Get number of punishment catch trials
-    num_catch_punish = config_template["beh_metadata"]["numCatchPunish"]
-
-    # Get position for where catch trials are to start for session
-    catch_offset = config_template["beh_metadata"]["catchOffset"]
-
     # Get length of trialArray
     trialArray_len = len(trialArray)
 
     # Get position to start flipping catch trials using offset
-    catch_index_start = round(trialArray_len - (trialArray_len * catch_offset))
+    catch_index_start = round(trialArray_len - (trialArray_len * trials_config.catch_offset))
 
     # Get indexes for the possible catch trials
     catch_idxs = [idx for idx in range(catch_index_start, trialArray_len)]
@@ -186,17 +177,18 @@ def flip_catch(trialArray: np.ndarray, config_template: dict,
     # Make list of reward trial indexes
     reward_trials = [key for key in catch_dict if catch_dict[key] == 1]
 
-    # If the length of punish trials in subset obtained by offset, there's not
-    # enough punish trials available!  Returns the trialArray and a True catch
-    # check.  If that's not the case, then we can move forward.
-    if len(punish_trials) < num_catch_punish:
+    # If the length of punish trials in subset obtained by offset is less than
+    # specified number of punishment trials, there's not enough punish trials
+    # available!  Returns the trialArray and a True catch check.  If that's
+    # not the case, then we can move forward.
+    if len(punish_trials) < trials_config.num_catch_punish:
         print("Not enough punish trials to flip into catches! Reshuffling...")
         return trialArray, catch_check
 
     # If the length of reward trials in subset obtained by offset, there's not
     # enough reward trials available!  Returns the trialArray and a True catch
     # check.  If that's not the case, then we can move forward.
-    elif len(reward_trials) < num_catch_reward:
+    elif len(reward_trials) < trials_config.num_catch_reward:
         print("Not enough reward trials to flip into catches! Reshuffling...")
         return trialArray, catch_check
 
@@ -206,7 +198,10 @@ def flip_catch(trialArray: np.ndarray, config_template: dict,
 
     # Get random sample of available catch indexes for punish trials past
     # offset
-    punish_catch_list = punish_catch_sample(punish_trials, num_catch_punish)
+    punish_catch_list = punish_catch_sample(
+        punish_trials,
+        trials_config.num_catch_punish
+        )
 
     # For each index in the chosen punish_catch_list, change the trial's value
     # to 2.
@@ -215,7 +210,10 @@ def flip_catch(trialArray: np.ndarray, config_template: dict,
 
     # Get random sample of available catch indexes for reward trials past
     # offset
-    reward_catch_list = reward_catch_sample(reward_trials, num_catch_reward)
+    reward_catch_list = reward_catch_sample(
+        reward_trials,
+        trials_config.num_catch_reward
+        )
 
     # For each index in the chosen punish_catch_list, change the trial's value
     # to 3.
@@ -447,7 +445,7 @@ def flip_punishments(tmp_array: np.ndarray, potential_flips: np.ndarray,
 # -----------------------------------------------------------------------------
 
 
-def gen_jitter_ITIArray(config_template: dict) -> list:
+def gen_jitter_ITIArray(config: Params) -> list:
     """
     Generate jittered ITIArray for given experiment from user specified bounds.
 
@@ -464,36 +462,34 @@ def gen_jitter_ITIArray(config_template: dict) -> list:
         Jittered ITIArray.
     """
 
-    # Initialize empty iti array
-    iti_array = []
-
-    # Get total number of trials
-    num_trials = config_template["beh_metadata"]["totalNumberOfTrials"]
-
     # Get minimum ITI value from configuration and multiply by 1000 to convert
     # to milliseconds
-    iti_lower = config_template["beh_metadata"]["minITI"]*1000
+    iti_lower = config.iti_settings.min_iti*1000
 
     # Get maximum ITI value from configuation and mulitply by 1000 to convert
     # to milliseconds.
-    iti_upper = config_template["beh_metadata"]["maxITI"]*1000
+    iti_upper = config.iti_settings.min_iti*1000
 
     # Initialize random number generator with default_rng
     rng = default_rng()
 
     # Generate array by sampling from unfiorm distribution bound by the lower
     # and upper ITIs
-    iti_array = rng.uniform(low=iti_lower, high=iti_upper, size=num_trials)
+    iti_array = rng.uniform(
+        low=iti_lower,
+        high=iti_upper,
+        size=config.total_number_of_trials
+        )
 
     # ITI Array generated will have decimals in it and be float type
     # Use np.round() to round the elements in the array and type them as int.
     # Finally, convert the array to a list for pySerialTransfer.
-    ITIArray = np.round(iti_array).astype(int).tolist()
+    config.behavior_arrays.iti_array = np.round(iti_array).astype(int).tolist()
 
-    return ITIArray
+    return config
 
-
-def gen_static_ITIArray(config_template: dict) -> list:
+@classmethod
+def gen_static_ITIArray(config: Params) -> list:
     """
     Generate static, or without jitter, ITIArray.
 
@@ -509,20 +505,14 @@ def gen_static_ITIArray(config_template: dict) -> list:
         Static ITIArray
     """
 
-    # Initialize an empty iti_array
-    ITIArray = []
-
-    # Get total number of trials for session
-    num_trials = config_template["metadata"]["totalNumberOfTrials"]
-
     # Get the base ITI to use for the session and multiply by 1000 to convert
     # to milliseconds.
-    iti_duration = config_template["metadata"]["baseITI"]*1000
+    iti_duration = config.iti_settings.base_iti*1000
 
     # Build ITIArray into a list of values
-    ITIArray = [iti_duration] * num_trials
+    config.behavior_arrays.iti_array = [iti_duration] * config.total_number_of_trials
 
-    return ITIArray
+    return config
 
 
 # -----------------------------------------------------------------------------
@@ -530,7 +520,7 @@ def gen_static_ITIArray(config_template: dict) -> list:
 # -----------------------------------------------------------------------------
 
 
-def gen_jitter_toneArray(config_template: dict) -> list:
+def gen_jitter_toneArray(config: Params) -> list:
     """
     Generate jittered toneArray for given experiment from user specified bounds.
 
@@ -547,32 +537,30 @@ def gen_jitter_toneArray(config_template: dict) -> list:
         Jittered toneArray.
     """
 
-    # Initialize empty noise array
-    tone_array = []
-
-    # Get total number of trials
-    num_trials = config_template["metadata"]["totalNumberOfTrials"]
-
     # Get minimum tone time value from configuration and multiply by 1000 to
     # convert to milliseconds
-    tone_lower = config_template["metadata"]["minTone"]*1000
+    tone_lower = config.tone_settings.min_tone * 1000
 
     # Get maximum tone time value from configuration and multiply by 1000 to
     # convert to milliseconds
-    tone_upper = config_template["metadata"]["maxTone"]*1000
+    tone_upper = config.tone_settings.max_tone * 1000
 
     # Initialize random number generator with default_rng
     rng = default_rng()
 
     # Generate array by sampling from uniform distribution
-    tone_array = rng.uniform(low=tone_lower, high=tone_upper, size=num_trials)
+    tone_array = rng.uniform(
+        low=tone_lower,
+        high=tone_upper,
+        size=config.total_number_of_trials
+        )
 
     # Tone Array generated will have decimals in it and be float type.
     # Use np.round() to round the elements in the array and type them as int.
     # Finally, convert the array into a list for pySerialTransfer.
-    toneArray = np.round(tone_array).astype(int).tolist()
+    config.behavior_arrays.tone_array = np.round(tone_array).astype(int).tolist()
 
-    return toneArray
+    return config
 
 
 def gen_static_toneArray(config_template: dict) -> list:
