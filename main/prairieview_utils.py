@@ -656,3 +656,5 @@ def get_microscope_framerate() -> float:
 
     return framerate
 
+def 
+
