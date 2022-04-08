@@ -665,6 +665,7 @@ def get_pmt_gain(channel_number: int):
     
     Args:
         channel_number:
+            channel the software will monitor for data collection
 
     Returns:
         pmt_gain
