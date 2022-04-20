@@ -1,0 +1,10 @@
+Add:
+Pydantic data model
+
+Remove
+get_arduino_metadata
+get_zstack_metadata
+
+change:
+build_server_directory: references class objects
+

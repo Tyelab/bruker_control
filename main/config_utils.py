@@ -20,11 +20,14 @@ from datetime import datetime
 # Import YAML for gathering metadata about project
 from ruamel.yaml import YAML
 
-# Import pydantic for creating configuration classes
+# Import pydantic for using configuration classes
 from pydantic import BaseModel, Field
 
 # Import typing for typehints on functions
 from typing import Any, Optional, List
+
+# Import datamodels for configuration values
+import datamodels
 
 # Template configuration directories are within project directories.  The snlkt
 # server housing these directories is mounted to the X: volume on the machine
