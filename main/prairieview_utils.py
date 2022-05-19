@@ -656,3 +656,43 @@ def get_microscope_framerate() -> float:
 
     return framerate
 
+def get_pmt_gain(channel_number: int):
+    """
+    Queries Prairie View for the microscope's channel number.
+
+    The function will query Prairie View for the scope's current channel number setting, 
+    and returns it as the correct value of each PMT's gain.
+    
+    Args:
+        channel_number:
+            channel the software will monitor for data collection
+
+    Returns:
+        pmt_gain
+    """
+    
+    # Ask Prairie Link to get the current channel number. The function returns a string,
+    # so convert it to an integer
+    pmt_gain = int(pl.GetState("channel_number"))
+
+    return pmt_gain
+
+
+def get_laser_power() -> int:
+    """
+    Queries Prairie View for the microscope's current laser power.
+
+    The function will query Prairie View for the scope's current laser power setting.
+
+    Returns:
+        laser_power
+    """
+    
+    # Ask Prairie Link to get the current laser power. The function returns a string,
+    # so convert it to an integer
+    
+    laser_power = int(pl.GetState("laser_power"))
+    
+    return laser_power
+
+
