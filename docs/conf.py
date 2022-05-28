@@ -56,6 +56,7 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # a list of builtin themes.
 
 html_theme = "furo"
+html_title = "Bruker Control v1.9.2"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
