@@ -249,8 +249,11 @@ def write_experiment_config(config_template: dict, experiment_arrays: list,
     # Write the completed configuration file
     with open(config_fullpath, 'w') as outFile:
 
-        json.dump(config_template, outFile)
-
+        json.dump(
+            config_template,
+            outFile,
+            indent=4
+            )
 
 def get_arduino_metadata(config_template: dict) -> dict:
     """
