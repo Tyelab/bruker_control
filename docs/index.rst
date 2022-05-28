@@ -1,3 +1,4 @@
+==========================================
 Welcome to Bruker Control's Documentation!
 ==========================================
 
@@ -10,4 +11,5 @@ preferably, open an issue `here <https://github.com/Tyelab/headfix_control/issue
   about/index
   instructions/index
   configurations/configs
+  outputs/index
   functions/index
