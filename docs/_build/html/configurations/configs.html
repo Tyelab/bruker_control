@@ -3,13 +3,13 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="System Outputs" href="../outputs/index.html" /><link rel="prev" title="v1.9.2 User Guide: Get Yoked! 🏋️ 🏋️‍♀️" href="../instructions/index.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="System Outputs" href="../outputs/index.html" /><link rel="prev" title="Bruker’s (Legacy) Ultima Investigator" href="../ultima_investigator/index.html" />
 
-    <meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
-        <title>Configurations - Bruker Control v1.9.2</title>
+    <meta name="generator" content="sphinx-4.0.2, furo 2021.08.11.beta42"/>
+        <title>Configurations - Bruker Control v1.9.3</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=197f00461d56902ea7ca048ec6e6ba026f62c97b" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=93475b62d1c3bc01323a0eefdc14a62d77b12690" />
     
     
 
@@ -20,38 +20,36 @@
   --color-code-foreground: black;
   
   }
-  @media not print {
-    body[data-theme="dark"] {
+  body[data-theme="dark"] {
+    --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+  }
+  @media (prefers-color-scheme: dark) {
+    body:not([data-theme="light"]) {
       --color-code-background: #202020;
   --color-code-foreground: #d0d0d0;
   
     }
-    @media (prefers-color-scheme: dark) {
-      body:not([data-theme="light"]) {
-        --color-code-background: #202020;
-  --color-code-foreground: #d0d0d0;
-  
-      }
-    }
   }
-</style></head>
+</style>
+    <link media="(prefers-color-scheme: dark)" rel="stylesheet" href="../_static/pygments_dark.css"></head>
   <body>
     
-    <script>
-      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
-    </script>
-    
-
 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
   <symbol id="svg-toc" viewBox="0 0 24 24">
     <title>Contents</title>
-    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
-      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="none" d="M0 0h24v24H0z" />
+      <line x1="4" y1="6" x2="20" y2="6" />
+      <line x1="10" y1="12" x2="20" y2="12" />
+      <line x1="6" y1="18" x2="20" y2="18" />
     </svg>
   </symbol>
   <symbol id="svg-menu" viewBox="0 0 24 24">
     <title>Menu</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
       stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
       <line x1="3" y1="12" x2="21" y2="12"></line>
       <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -60,14 +58,14 @@
   </symbol>
   <symbol id="svg-arrow-right" viewBox="0 0 24 24">
     <title>Expand</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
       stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
       <polyline points="9 18 15 12 9 6"></polyline>
     </svg>
   </symbol>
   <symbol id="svg-sun" viewBox="0 0 24 24">
     <title>Light mode</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
       stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
       <circle cx="12" cy="12" r="5"></circle>
       <line x1="12" y1="1" x2="12" y2="3"></line>
@@ -82,7 +80,7 @@
   </symbol>
   <symbol id="svg-moon" viewBox="0 0 24 24">
     <title>Dark mode</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
       stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
       <path stroke="none" d="M0 0h24v24H0z" fill="none" />
       <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
@@ -90,7 +88,7 @@
   </symbol>
   <symbol id="svg-sun-half" viewBox="0 0 24 24">
     <title>Auto light/dark mode</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
       stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
       <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
       <circle cx="12" cy="12" r="9" />
@@ -123,7 +121,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Bruker Control v1.9.2</div></a>
+      <a href="../index.html"><div class="brand">Bruker Control v1.9.3</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +144,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Bruker Control v1.9.2</span>
+  <span class="sidebar-brand-text">Bruker Control v1.9.3</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -157,6 +155,7 @@
   <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../about/index.html">About Bruker Control</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../instructions/index.html">v1.9.2 User Guide: Get Yoked! 🏋️ 🏋️‍♀️</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ultima_investigator/index.html">Bruker’s (Legacy) Ultima Investigator</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Configurations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../outputs/index.html">System Outputs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../functions/index.html">Bruker Control’s Functions and Classes</a></li>
@@ -165,21 +164,15 @@
 
 </div>
 </div>
-
       </div>
       
     </div>
   </aside>
   <div class="main">
     <div class="content">
-      <div class="article-container">
-        <a href="#" class="back-to-top muted-link">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
-          </svg>
-          <span>Back to top</span>
-        </a>
-        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+      <article role="main">
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -192,9 +185,8 @@
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
-        <article role="main">
-          <section id="configurations">
-<h1>Configurations<a class="headerlink" href="#configurations" title="Permalink to this headline">#</a></h1>
+        <section id="configurations">
+<h1>Configurations<a class="headerlink" href="#configurations" title="Permalink to this headline">¶</a></h1>
 <p>The use of <code class="docutils literal notranslate"><span class="pre">bruker_control</span></code> requires an experimental configuration file held inside a <code class="docutils literal notranslate"><span class="pre">JSON</span></code> format. These were created as a means of doing the
 following:</p>
 <ul class="simple">
@@ -209,62 +201,62 @@ following:</p>
 Having a configuration file allows for there to be just one sketch for each team/project as needed that can stand ready for a session without needing to reupload
 a new sketch in between running individual animals.</p>
 <section id="example-project-config-behavior">
-<span id="config-values"></span><h2>Example Project Config: Behavior<a class="headerlink" href="#example-project-config-behavior" title="Permalink to this headline">#</a></h2>
+<span id="config-values"></span><h2>Example Project Config: Behavior<a class="headerlink" href="#example-project-config-behavior" title="Permalink to this headline">¶</a></h2>
 <p>Below is an example of what such a configuration looks like:</p>
-<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">"beh_metadata"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"totalNumberOfTrials"</span><span class="p">:</span><span class="w"> </span><span class="mi">60</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"startingReward"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"maxSequentialReward"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"maxSequentialPunish"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"punishTone"</span><span class="p">:</span><span class="w"> </span><span class="mi">2000</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"rewardTone"</span><span class="p">:</span><span class="w"> </span><span class="mi">9000</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"USDeliveryTime_Sucrose"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"USDeliveryTime_Air"</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"USConsumptionTime_Sucrose"</span><span class="p">:</span><span class="w"> </span><span class="mi">3000</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"vacuum"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"ITIJitter"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"baseITI"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"minITI"</span><span class="p">:</span><span class="w"> </span><span class="mi">15</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"maxITI"</span><span class="p">:</span><span class="w"> </span><span class="mi">30</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"toneJitter"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"baseTone"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"minTone"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"maxTone"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"catchTrials"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"numCatchReward"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"numCatchPunish"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"catchOffset"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"percentPunish"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"stim"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"shutterOnly"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"stimFrequency"</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"stimPulseTime"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"stimLambda"</span><span class="p">:</span><span class="w"> </span><span class="mi">590</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"stimDeliveryTime_PreCS"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"stimDeliveryTime_Total"</span><span class="p">:</span><span class="w"> </span><span class="mi">5000</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"stimStartPosition"</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"numStimReward"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"numStimPunish"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"numStimAlone"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"yoked"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"trialArray"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"ITIArray"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"toneArray"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"LEDArray"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"dropped_frames"</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span><span class="w"></span>
-<span class="w">  </span><span class="p">},</span><span class="w"></span>
-<span class="w">  </span><span class="nt">"zstack_metadata"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"zstack"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"stack_number"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"zdelta"</span><span class="p">:</span><span class="w"> </span><span class="mf">25.0</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">"zstep"</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="w"></span>
-<span class="w">  </span><span class="p">},</span><span class="w"></span>
-<span class="w">  </span><span class="nt">"weight_check"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">"beh_metadata"</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">"totalNumberOfTrials"</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span>
+    <span class="nt">"startingReward"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="nt">"maxSequentialReward"</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+    <span class="nt">"maxSequentialPunish"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="nt">"punishTone"</span><span class="p">:</span> <span class="mi">2000</span><span class="p">,</span>
+    <span class="nt">"rewardTone"</span><span class="p">:</span> <span class="mi">9000</span><span class="p">,</span>
+    <span class="nt">"USDeliveryTime_Sucrose"</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+    <span class="nt">"USDeliveryTime_Air"</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+    <span class="nt">"USConsumptionTime_Sucrose"</span><span class="p">:</span> <span class="mi">3000</span><span class="p">,</span>
+    <span class="nt">"vacuum"</span> <span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+    <span class="nt">"ITIJitter"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+    <span class="nt">"baseITI"</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+    <span class="nt">"minITI"</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
+    <span class="nt">"maxITI"</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
+    <span class="nt">"toneJitter"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+    <span class="nt">"baseTone"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="nt">"minTone"</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+    <span class="nt">"maxTone"</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+    <span class="nt">"catchTrials"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+    <span class="nt">"numCatchReward"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="nt">"numCatchPunish"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="nt">"catchOffset"</span> <span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span>
+    <span class="nt">"percentPunish"</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span>
+    <span class="nt">"stim"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+    <span class="nt">"shutterOnly"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+    <span class="nt">"stimFrequency"</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+    <span class="nt">"stimPulseTime"</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="nt">"stimLambda"</span><span class="p">:</span> <span class="mi">590</span><span class="p">,</span>
+    <span class="nt">"stimDeliveryTime_PreCS"</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="nt">"stimDeliveryTime_Total"</span><span class="p">:</span> <span class="mi">5000</span><span class="p">,</span>
+    <span class="nt">"stimStartPosition"</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+    <span class="nt">"numStimReward"</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="nt">"numStimPunish"</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="nt">"numStimAlone"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="nt">"yoked"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+    <span class="nt">"trialArray"</span><span class="p">:</span> <span class="p">{},</span>
+    <span class="nt">"ITIArray"</span><span class="p">:</span> <span class="p">{},</span>
+    <span class="nt">"toneArray"</span><span class="p">:</span> <span class="p">{},</span>
+    <span class="nt">"LEDArray"</span><span class="p">:</span> <span class="p">{},</span>
+    <span class="nt">"dropped_frames"</span><span class="p">:</span> <span class="p">{}</span>
+  <span class="p">},</span>
+  <span class="nt">"zstack_metadata"</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">"zstack"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+    <span class="nt">"stack_number"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="nt">"zdelta"</span><span class="p">:</span> <span class="mf">25.0</span><span class="p">,</span>
+    <span class="nt">"zstep"</span><span class="p">:</span> <span class="mf">1.0</span>
+  <span class="p">},</span>
+  <span class="nt">"weight_check"</span><span class="p">:</span> <span class="kc">true</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <section id="config-values-key-behavior-metadata">
-<h3>Config Values Key: Behavior Metadata<a class="headerlink" href="#config-values-key-behavior-metadata" title="Permalink to this headline">#</a></h3>
+<h3>Config Values Key: Behavior Metadata<a class="headerlink" href="#config-values-key-behavior-metadata" title="Permalink to this headline">¶</a></h3>
 <p>Many of the fields were written as to be self explanatory. Below you can find an explainer for each field:</p>
 <ul class="simple">
 <li><p><strong>totalNumberOfTrials</strong>: Total number of trials for an experiment</p></li>
@@ -309,7 +301,7 @@ a new sketch in between running individual animals.</p>
 </ul>
 </section>
 <section id="config-values-key-z-stack-metadata">
-<h3>Config Values Key: Z-Stack Metadata<a class="headerlink" href="#config-values-key-z-stack-metadata" title="Permalink to this headline">#</a></h3>
+<h3>Config Values Key: Z-Stack Metadata<a class="headerlink" href="#config-values-key-z-stack-metadata" title="Permalink to this headline">¶</a></h3>
 <p>If users want to have a z-stack performed for their imaging session before the experiment, they can use this metadata to define parameters used for imaging.</p>
 <ul class="simple">
 <li><p><strong>zstack</strong>: Whether or not to perform a z-stack for a given recording</p></li>
@@ -319,145 +311,145 @@ a new sketch in between running individual animals.</p>
 </ul>
 </section>
 <section id="config-values-key-miscellaneous">
-<h3>Config Values Key: Miscellaneous<a class="headerlink" href="#config-values-key-miscellaneous" title="Permalink to this headline">#</a></h3>
+<h3>Config Values Key: Miscellaneous<a class="headerlink" href="#config-values-key-miscellaneous" title="Permalink to this headline">¶</a></h3>
 <p>Some users need to make sure a weight has been recorded for the subject being imaged. To ensure that users remember to have weights recorded for their mice, there’s
 an option to perform a weight check. If the weight check fails, the experiment won’t go forward. It is likely that this will be removed in the near future.</p>
 </section>
 </section>
 <section id="example-subject-metadata">
-<h2>Example Subject Metadata<a class="headerlink" href="#example-subject-metadata" title="Permalink to this headline">#</a></h2>
+<h2>Example Subject Metadata<a class="headerlink" href="#example-subject-metadata" title="Permalink to this headline">¶</a></h2>
 <p>In an effort to make metadata about the subject programmatically available for use in generating Neurodata Without Borders compliant datasets as well as programmatically
 update laser power and wavelength for instances where z-stacks required multiple wavelengths for imaging different fluorophores. Below is an example of what the subject
 metdata looks like:</p>
-<div class="highlight-YAML notranslate"><div class="highlight"><pre><span></span><span class="c1"># Subject Metadata used for grabbing information </span><span class="w"></span>
-<span class="c1"># Jeremy Delahanty, Tye Lab Februrary 2022</span><span class="w"></span>
-<span class="c1"># This was generated by taking all available fields labmembers had stored</span><span class="w"></span>
-<span class="c1"># in their surgery logs and joining it with NWB metadata fields.</span><span class="w"></span>
-<span class="nt">subject_id</span><span class="p">:</span><span class="w"> </span><span class="s">"A000"</span><span class="w"></span>
-<span class="nt">subject_alias</span><span class="p">:</span><span class="w"> </span><span class="s">"best-mouse"</span><span class="w"></span>
-<span class="nt">ear_tag</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">l_ear</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-<span class="w">  </span><span class="nt">r_ear</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w"></span>
-<span class="nt">ear_notch</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">l_ear</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w"></span>
-<span class="w">  </span><span class="nt">r_ear</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w"></span>
-<span class="c1"># Cage IDs MUST be the barcode for the cage</span><span class="w"></span>
-<span class="nt">cage_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0123456</span><span class="w"></span>
-<span class="c1"># Cage Alias is whatever the experimenter likes to refer the cage as</span><span class="w"></span>
-<span class="nt">cage_alias</span><span class="p">:</span><span class="w"> </span><span class="s">"cage-alias"</span><span class="w"></span>
-<span class="c1"># Date of birth in YYYMMDD format</span><span class="w"></span>
-<span class="nt">dob</span><span class="p">:</span><span class="w"> </span><span class="s">"20220205"</span><span class="w"></span>
-<span class="c1"># Descriptions</span><span class="w"></span>
-<span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">"Mouse</span><span class="nv"> </span><span class="s">Description"</span><span class="w"></span>
-<span class="nt">genotype</span><span class="p">:</span><span class="w"> </span><span class="s">"HET</span><span class="nv"> </span><span class="s">DAT</span><span class="nv"> </span><span class="s">Cre"</span><span class="w"></span>
-<span class="nt">sex</span><span class="p">:</span><span class="w"> </span><span class="s">"M"</span><span class="w"></span>
-<span class="nt">species</span><span class="p">:</span><span class="w"> </span><span class="s">"Mus</span><span class="nv"> </span><span class="s">Musculus"</span><span class="w"></span>
-<span class="nt">strain</span><span class="p">:</span><span class="w"> </span><span class="s">"C57BL/6J"</span><span class="w"></span>
-<span class="c1"># Surgeries are organized by date</span><span class="w"></span>
-<span class="nt">surgery</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="s">"20210924"</span><span class="p p-Indicator">:</span><span class="w"></span>
-<span class="w">    </span><span class="nt">surgeon</span><span class="p">:</span><span class="w"> </span><span class="s">"Jeremy</span><span class="nv"> </span><span class="s">Delahanty"</span><span class="w"></span>
-<span class="w">    </span><span class="nt">start_time</span><span class="p">:</span><span class="w"> </span><span class="s">"10:00"</span><span class="w"></span>
-<span class="w">    </span><span class="nt">end_time</span><span class="p">:</span><span class="w"> </span><span class="s">"11:00"</span><span class="w"></span>
-<span class="w">    </span><span class="nt">stereotax</span><span class="p">:</span><span class="w"> </span><span class="s">"Delta"</span><span class="w"></span>
-<span class="w">    </span><span class="nt">anesthetic</span><span class="p">:</span><span class="w"> </span><span class="s">"Isoflurane"</span><span class="w"></span>
-<span class="w">    </span><span class="nt">skull_position</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="nt">bregma</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-0.02</span><span class="w"></span>
-<span class="w">      </span><span class="nt">lambda</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-0.02</span><span class="w"></span>
-<span class="w">      </span><span class="nt">level_left</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-0.01</span><span class="w"></span>
-<span class="w">      </span><span class="nt">level_right</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-0.01</span><span class="w"></span>
-<span class="w">    </span><span class="nt">headplate</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="nt">num_screws</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
-<span class="w">      </span><span class="nt">skull_hashing</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-<span class="w">    </span><span class="nt">grin_implant</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="s">"mPFC"</span><span class="w"></span>
-<span class="w">      </span><span class="nt">hemisphere</span><span class="p">:</span><span class="w"> </span><span class="s">"R"</span><span class="w"></span>
-<span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s">"Proview"</span><span class="w"></span>
-<span class="w">      </span><span class="nt">dims</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">1</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">4</span><span class="p p-Indicator">]</span><span class="w"></span>
-<span class="w">      </span><span class="nt">supplier</span><span class="p">:</span><span class="w"> </span><span class="s">"Inscopix"</span><span class="w"></span>
-<span class="w">      </span><span class="nt">ap</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.90</span><span class="w"></span>
-<span class="w">      </span><span class="nt">ml</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.45</span><span class="w"></span>
-<span class="w">      </span><span class="nt">dv</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-2.18</span><span class="w"></span>
-<span class="w">      </span><span class="nt">angle</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span><span class="w"></span>
-<span class="w">      </span><span class="nt">notes</span><span class="p">:</span><span class="w"> </span><span class="s">"None"</span><span class="w"></span>
-<span class="w">    </span><span class="nt">brain_injections</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="nt">gcamp</span><span class="p">:</span><span class="w"></span>
-<span class="w">        </span><span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="s">"mPFC"</span><span class="w"></span>
-<span class="w">        </span><span class="nt">hemisphere</span><span class="p">:</span><span class="w"> </span><span class="s">"R"</span><span class="w"></span>
-<span class="w">        </span><span class="nt">virus</span><span class="p">:</span><span class="w"> </span><span class="s">"AAV8"</span><span class="w"></span>
-<span class="w">        </span><span class="nt">promoter</span><span class="p">:</span><span class="w"> </span><span class="s">"promoter"</span><span class="w"></span>
-<span class="w">        </span><span class="nt">opsin</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span><span class="w"></span>
-<span class="w">        </span><span class="nt">fluorophore</span><span class="p">:</span><span class="w"> </span><span class="s">"jGCaMP7f"</span><span class="w"></span>
-<span class="w">        </span><span class="nt">fluorophore_excitation_lambda</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">482.5</span><span class="w"></span>
-<span class="w">        </span><span class="nt">fluorophore_emission_lambda</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">513.0</span><span class="w"></span>
-<span class="w">        </span><span class="nt">supplier</span><span class="p">:</span><span class="w"> </span><span class="s">"The</span><span class="nv"> </span><span class="s">Salk</span><span class="nv"> </span><span class="s">Institute</span><span class="nv"> </span><span class="s">for</span><span class="nv"> </span><span class="s">Biological</span><span class="nv"> </span><span class="s">Studies"</span><span class="w"></span>
-<span class="w">        </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">"Calcium</span><span class="nv"> </span><span class="s">Sensitive</span><span class="nv"> </span><span class="s">Green</span><span class="nv"> </span><span class="s">Fluorescent</span><span class="nv"> </span><span class="s">Indicator"</span><span class="w"></span>
-<span class="w">        </span><span class="nt">lot</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span><span class="w"></span>
-<span class="w">        </span><span class="nt">ap</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.90</span><span class="w"></span>
-<span class="w">        </span><span class="nt">ml</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.45</span><span class="w"></span>
-<span class="w">        </span><span class="nt">dv</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-2.20</span><span class="w"></span>
-<span class="w">        </span><span class="nt">angle</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span><span class="w"></span>
-<span class="w">        </span><span class="c1"># Volume in nL</span><span class="w"></span>
-<span class="w">        </span><span class="nt">volume</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">300</span><span class="w"></span>
-<span class="w">        </span><span class="c1"># Rate in nL/min</span><span class="w"></span>
-<span class="w">        </span><span class="nt">rate</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100.0</span><span class="w"></span>
-<span class="w">        </span><span class="c1"># Bevel Direction: Away from you is 0 degrees</span><span class="w"></span>
-<span class="w">        </span><span class="nt">bevel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">90</span><span class="w"></span>
-<span class="w">      </span><span class="nt">chr</span><span class="p">:</span><span class="w"></span>
-<span class="w">        </span><span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="s">"VTA"</span><span class="w"></span>
-<span class="w">        </span><span class="nt">hemisphere</span><span class="p">:</span><span class="w"> </span><span class="s">"R"</span><span class="w"></span>
-<span class="w">        </span><span class="nt">virus</span><span class="p">:</span><span class="w"> </span><span class="s">"AAV8"</span><span class="w"></span>
-<span class="w">        </span><span class="nt">promoter</span><span class="p">:</span><span class="w"> </span><span class="s">"hSyn"</span><span class="w"></span>
-<span class="w">        </span><span class="nt">cre</span><span class="p">:</span><span class="w"> </span><span class="s">"FLEX"</span><span class="w"></span>
-<span class="w">        </span><span class="nt">flp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span><span class="w"></span>
-<span class="w">        </span><span class="nt">opsin</span><span class="p">:</span><span class="w"> </span><span class="s">"chrimsonR"</span><span class="w"></span>
-<span class="w">        </span><span class="nt">opsin_excitation_lambda</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100.0</span><span class="w"></span>
-<span class="w">        </span><span class="nt">fluorophore</span><span class="p">:</span><span class="w"> </span><span class="s">"tdTomato"</span><span class="w"></span>
-<span class="w">        </span><span class="nt">fluorophore_excitation_lambda</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">482.5</span><span class="w"></span>
-<span class="w">        </span><span class="nt">fluorophore_emission_lambda</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">581.0</span><span class="w"></span>
-<span class="w">        </span><span class="nt">supplier</span><span class="p">:</span><span class="w"> </span><span class="s">"Supplier"</span><span class="w"></span>
-<span class="w">        </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">"description"</span><span class="w"></span>
-<span class="w">        </span><span class="nt">lot</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span><span class="w"></span>
-<span class="w">        </span><span class="nt">ap</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-3.30</span><span class="w"></span>
-<span class="w">        </span><span class="nt">ml</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.35</span><span class="w"></span>
-<span class="w">        </span><span class="nt">dv</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-4.05</span><span class="w"></span>
-<span class="w">        </span><span class="nt">angle</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span><span class="w"></span>
-<span class="w">        </span><span class="c1"># Volume in nL</span><span class="w"></span>
-<span class="w">        </span><span class="nt">volume</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">700.0</span><span class="w"></span>
-<span class="w">        </span><span class="c1"># Rate in nL/min</span><span class="w"></span>
-<span class="w">        </span><span class="nt">rate</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100.0</span><span class="w"></span>
-<span class="w">        </span><span class="c1"># Bevel Direction</span><span class="w"></span>
-<span class="w">        </span><span class="nt">bevel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">180</span><span class="w"></span>
-<span class="w">    </span><span class="nt">analgesics</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="nt">buprinex</span><span class="p">:</span><span class="w"></span>
-<span class="w">        </span><span class="nt">route</span><span class="p">:</span><span class="w"> </span><span class="s">"IP"</span><span class="w"></span>
-<span class="w">        </span><span class="nt">location</span><span class="p">:</span><span class="w"> </span><span class="s">"abdomen"</span><span class="w"></span>
-<span class="w">        </span><span class="c1"># Dosages are in mg/kg</span><span class="w"></span>
-<span class="w">        </span><span class="nt">dose</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span><span class="w"></span>
-<span class="w">        </span><span class="c1"># Volumes here in mL</span><span class="w"></span>
-<span class="w">        </span><span class="nt">volume</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2.0</span><span class="w"></span>
-<span class="w">      </span><span class="nt">lidocaine</span><span class="p">:</span><span class="w"></span>
-<span class="w">        </span><span class="nt">route</span><span class="p">:</span><span class="w"> </span><span class="s">"SQ"</span><span class="w"></span>
-<span class="w">        </span><span class="nt">location</span><span class="p">:</span><span class="w"> </span><span class="s">"scalp"</span><span class="w"></span>
-<span class="w">        </span><span class="nt">dose</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span><span class="w"></span>
-<span class="w">        </span><span class="nt">volume</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.5</span><span class="w"></span>
-<span class="w">      </span><span class="nt">loxicam</span><span class="p">:</span><span class="w"></span>
-<span class="w">        </span><span class="nt">route</span><span class="p">:</span><span class="w"> </span><span class="s">"IP"</span><span class="w"></span>
-<span class="w">        </span><span class="nt">location</span><span class="p">:</span><span class="w"> </span><span class="s">"abdomen"</span><span class="w"></span>
-<span class="w">        </span><span class="c1"># Dosages are in mg/kg</span><span class="w"></span>
-<span class="w">        </span><span class="nt">dose</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5.0</span><span class="w"></span>
-<span class="w">        </span><span class="nt">volume</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.5</span><span class="w"></span>
-<span class="w">    </span><span class="nt">fluids</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="nt">ringers</span><span class="p">:</span><span class="w"></span>
-<span class="w">        </span><span class="nt">route</span><span class="p">:</span><span class="w"> </span><span class="s">"IP"</span><span class="w"></span>
-<span class="w">        </span><span class="nt">location</span><span class="p">:</span><span class="w"> </span><span class="s">"abdomen"</span><span class="w"></span>
-<span class="w">        </span><span class="nt">percent</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20.0</span><span class="w"></span>
-<span class="w">        </span><span class="nt">volume</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span><span class="w"></span>
+<div class="highlight-YAML notranslate"><div class="highlight"><pre><span></span><span class="c1"># Subject Metadata used for grabbing information </span>
+<span class="c1"># Jeremy Delahanty, Tye Lab Februrary 2022</span>
+<span class="c1"># This was generated by taking all available fields labmembers had stored</span>
+<span class="c1"># in their surgery logs and joining it with NWB metadata fields.</span>
+<span class="nt">subject_id</span><span class="p">:</span> <span class="s">"A000"</span>
+<span class="nt">subject_alias</span><span class="p">:</span> <span class="s">"best-mouse"</span>
+<span class="nt">ear_tag</span><span class="p">:</span>
+  <span class="nt">l_ear</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+  <span class="nt">r_ear</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="nt">ear_notch</span><span class="p">:</span>
+  <span class="nt">l_ear</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+  <span class="nt">r_ear</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="c1"># Cage IDs MUST be the barcode for the cage</span>
+<span class="nt">cage_id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0123456</span>
+<span class="c1"># Cage Alias is whatever the experimenter likes to refer the cage as</span>
+<span class="nt">cage_alias</span><span class="p">:</span> <span class="s">"cage-alias"</span>
+<span class="c1"># Date of birth in YYYMMDD format</span>
+<span class="nt">dob</span><span class="p">:</span> <span class="s">"20220205"</span>
+<span class="c1"># Descriptions</span>
+<span class="nt">description</span><span class="p">:</span> <span class="s">"Mouse</span><span class="nv"> </span><span class="s">Description"</span>
+<span class="nt">genotype</span><span class="p">:</span> <span class="s">"HET</span><span class="nv"> </span><span class="s">DAT</span><span class="nv"> </span><span class="s">Cre"</span>
+<span class="nt">sex</span><span class="p">:</span> <span class="s">"M"</span>
+<span class="nt">species</span><span class="p">:</span> <span class="s">"Mus</span><span class="nv"> </span><span class="s">Musculus"</span>
+<span class="nt">strain</span><span class="p">:</span> <span class="s">"C57BL/6J"</span>
+<span class="c1"># Surgeries are organized by date</span>
+<span class="nt">surgery</span><span class="p">:</span>
+  <span class="s">"20210924"</span><span class="p p-Indicator">:</span>
+    <span class="nt">surgeon</span><span class="p">:</span> <span class="s">"Jeremy</span><span class="nv"> </span><span class="s">Delahanty"</span>
+    <span class="nt">start_time</span><span class="p">:</span> <span class="s">"10:00"</span>
+    <span class="nt">end_time</span><span class="p">:</span> <span class="s">"11:00"</span>
+    <span class="nt">stereotax</span><span class="p">:</span> <span class="s">"Delta"</span>
+    <span class="nt">anesthetic</span><span class="p">:</span> <span class="s">"Isoflurane"</span>
+    <span class="nt">skull_position</span><span class="p">:</span>
+      <span class="nt">bregma</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">-0.02</span>
+      <span class="nt">lambda</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">-0.02</span>
+      <span class="nt">level_left</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">-0.01</span>
+      <span class="nt">level_right</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">-0.01</span>
+    <span class="nt">headplate</span><span class="p">:</span>
+      <span class="nt">num_screws</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+      <span class="nt">skull_hashing</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+    <span class="nt">grin_implant</span><span class="p">:</span>
+      <span class="nt">target</span><span class="p">:</span> <span class="s">"mPFC"</span>
+      <span class="nt">hemisphere</span><span class="p">:</span> <span class="s">"R"</span>
+      <span class="nt">type</span><span class="p">:</span> <span class="s">"Proview"</span>
+      <span class="nt">dims</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">1</span><span class="p p-Indicator">,</span> <span class="nv">4</span><span class="p p-Indicator">]</span>
+      <span class="nt">supplier</span><span class="p">:</span> <span class="s">"Inscopix"</span>
+      <span class="nt">ap</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.90</span>
+      <span class="nt">ml</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.45</span>
+      <span class="nt">dv</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">-2.18</span>
+      <span class="nt">angle</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
+      <span class="nt">notes</span><span class="p">:</span> <span class="s">"None"</span>
+    <span class="nt">brain_injections</span><span class="p">:</span>
+      <span class="nt">gcamp</span><span class="p">:</span>
+        <span class="nt">target</span><span class="p">:</span> <span class="s">"mPFC"</span>
+        <span class="nt">hemisphere</span><span class="p">:</span> <span class="s">"R"</span>
+        <span class="nt">virus</span><span class="p">:</span> <span class="s">"AAV8"</span>
+        <span class="nt">promoter</span><span class="p">:</span> <span class="s">"promoter"</span>
+        <span class="nt">opsin</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
+        <span class="nt">fluorophore</span><span class="p">:</span> <span class="s">"jGCaMP7f"</span>
+        <span class="nt">fluorophore_excitation_lambda</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">482.5</span>
+        <span class="nt">fluorophore_emission_lambda</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">513.0</span>
+        <span class="nt">supplier</span><span class="p">:</span> <span class="s">"The</span><span class="nv"> </span><span class="s">Salk</span><span class="nv"> </span><span class="s">Institute</span><span class="nv"> </span><span class="s">for</span><span class="nv"> </span><span class="s">Biological</span><span class="nv"> </span><span class="s">Studies"</span>
+        <span class="nt">description</span><span class="p">:</span> <span class="s">"Calcium</span><span class="nv"> </span><span class="s">Sensitive</span><span class="nv"> </span><span class="s">Green</span><span class="nv"> </span><span class="s">Fluorescent</span><span class="nv"> </span><span class="s">Indicator"</span>
+        <span class="nt">lot</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
+        <span class="nt">ap</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.90</span>
+        <span class="nt">ml</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.45</span>
+        <span class="nt">dv</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">-2.20</span>
+        <span class="nt">angle</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
+        <span class="c1"># Volume in nL</span>
+        <span class="nt">volume</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">300</span>
+        <span class="c1"># Rate in nL/min</span>
+        <span class="nt">rate</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">100.0</span>
+        <span class="c1"># Bevel Direction: Away from you is 0 degrees</span>
+        <span class="nt">bevel</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">90</span>
+      <span class="nt">chr</span><span class="p">:</span>
+        <span class="nt">target</span><span class="p">:</span> <span class="s">"VTA"</span>
+        <span class="nt">hemisphere</span><span class="p">:</span> <span class="s">"R"</span>
+        <span class="nt">virus</span><span class="p">:</span> <span class="s">"AAV8"</span>
+        <span class="nt">promoter</span><span class="p">:</span> <span class="s">"hSyn"</span>
+        <span class="nt">cre</span><span class="p">:</span> <span class="s">"FLEX"</span>
+        <span class="nt">flp</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
+        <span class="nt">opsin</span><span class="p">:</span> <span class="s">"chrimsonR"</span>
+        <span class="nt">opsin_excitation_lambda</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">100.0</span>
+        <span class="nt">fluorophore</span><span class="p">:</span> <span class="s">"tdTomato"</span>
+        <span class="nt">fluorophore_excitation_lambda</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">482.5</span>
+        <span class="nt">fluorophore_emission_lambda</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">581.0</span>
+        <span class="nt">supplier</span><span class="p">:</span> <span class="s">"Supplier"</span>
+        <span class="nt">description</span><span class="p">:</span> <span class="s">"description"</span>
+        <span class="nt">lot</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
+        <span class="nt">ap</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">-3.30</span>
+        <span class="nt">ml</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.35</span>
+        <span class="nt">dv</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">-4.05</span>
+        <span class="nt">angle</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
+        <span class="c1"># Volume in nL</span>
+        <span class="nt">volume</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">700.0</span>
+        <span class="c1"># Rate in nL/min</span>
+        <span class="nt">rate</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">100.0</span>
+        <span class="c1"># Bevel Direction</span>
+        <span class="nt">bevel</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">180</span>
+    <span class="nt">analgesics</span><span class="p">:</span>
+      <span class="nt">buprinex</span><span class="p">:</span>
+        <span class="nt">route</span><span class="p">:</span> <span class="s">"IP"</span>
+        <span class="nt">location</span><span class="p">:</span> <span class="s">"abdomen"</span>
+        <span class="c1"># Dosages are in mg/kg</span>
+        <span class="nt">dose</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.0</span>
+        <span class="c1"># Volumes here in mL</span>
+        <span class="nt">volume</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2.0</span>
+      <span class="nt">lidocaine</span><span class="p">:</span>
+        <span class="nt">route</span><span class="p">:</span> <span class="s">"SQ"</span>
+        <span class="nt">location</span><span class="p">:</span> <span class="s">"scalp"</span>
+        <span class="nt">dose</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
+        <span class="nt">volume</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.5</span>
+      <span class="nt">loxicam</span><span class="p">:</span>
+        <span class="nt">route</span><span class="p">:</span> <span class="s">"IP"</span>
+        <span class="nt">location</span><span class="p">:</span> <span class="s">"abdomen"</span>
+        <span class="c1"># Dosages are in mg/kg</span>
+        <span class="nt">dose</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5.0</span>
+        <span class="nt">volume</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.5</span>
+    <span class="nt">fluids</span><span class="p">:</span>
+      <span class="nt">ringers</span><span class="p">:</span>
+        <span class="nt">route</span><span class="p">:</span> <span class="s">"IP"</span>
+        <span class="nt">location</span><span class="p">:</span> <span class="s">"abdomen"</span>
+        <span class="nt">percent</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">20.0</span>
+        <span class="nt">volume</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.0</span>
 
-<span class="nt">status</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">alive</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-<span class="w">  </span><span class="nt">time_of_death</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span><span class="w"></span>
-<span class="w">  </span><span class="nt">death_notes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span><span class="w"></span>
+<span class="nt">status</span><span class="p">:</span>
+  <span class="nt">alive</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+  <span class="nt">time_of_death</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
+  <span class="nt">death_notes</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
 </pre></div>
 </div>
 <p>Not every project has this metadata available and no project is required to have it to use the system. Only some of these fields are used by <code class="docutils literal notranslate"><span class="pre">bruker_control</span></code> while
@@ -470,25 +462,24 @@ may be reimplemented in the future.</p>
 <p>The remaining fields are used for documentation of the subject and NWB compliance.</p>
 </section>
 <section id="example-subject-metadata-weights">
-<h2>Example Subject Metadata: Weights<a class="headerlink" href="#example-subject-metadata-weights" title="Permalink to this headline">#</a></h2>
+<h2>Example Subject Metadata: Weights<a class="headerlink" href="#example-subject-metadata-weights" title="Permalink to this headline">¶</a></h2>
 <p>The NWB standard asks for weights to be recorded for a given recording. While they’re not required, users typically are weighing subjects before imaging sessions.
 In order to programatically add weights to the NWB File and access them later, a weights file was added to store subjects’ measurements. The files are very simple and consist
 of date/weight pairs. The date format is stored as <code class="docutils literal notranslate"><span class="pre">YYYYMMDD</span></code> as with all other dates stored in this system. Weights are stored in kilograms (kg) per the NWB standard’s
 documentation.</p>
-<div class="highlight-YAML notranslate"><div class="highlight"><pre><span></span><span class="s">"20211104"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0268</span><span class="w"></span>
-<span class="s">"20211111"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0260</span><span class="w"></span>
-<span class="s">"20211118"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0273</span><span class="w"></span>
-<span class="s">"20211125"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0250</span><span class="w"></span>
-<span class="s">"20211202"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0279</span><span class="w"></span>
-<span class="s">"20211209"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0247</span><span class="w"></span>
-<span class="s">"20211214"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0279</span><span class="w"></span>
+<div class="highlight-YAML notranslate"><div class="highlight"><pre><span></span><span class="s">"20211104"</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">0.0268</span>
+<span class="s">"20211111"</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">0.0260</span>
+<span class="s">"20211118"</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">0.0273</span>
+<span class="s">"20211125"</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">0.0250</span>
+<span class="s">"20211202"</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">0.0279</span>
+<span class="s">"20211209"</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">0.0247</span>
+<span class="s">"20211214"</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">0.0279</span>
 </pre></div>
 </div>
 </section>
 </section>
 
-        </article>
-      </div>
+      </article>
       <footer>
         
         <div class="related-pages">
@@ -501,33 +492,31 @@ documentation.</p>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="../instructions/index.html">
+          <a class="prev-page" href="../ultima_investigator/index.html">
               <svg><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">v1.9.2 User Guide: Get Yoked! 🏋️ 🏋️‍♀️</div>
+                <div class="title">Bruker’s (Legacy) Ultima Investigator</div>
                 
               </div>
             </a>
         </div>
-        <div class="bottom-of-page">
-          <div class="left-details">
-            <div class="copyright">
-                Copyright &#169; 2022, The Salk Institute for Biological Studies
-            </div>
-            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
-            
-            <a href="https://github.com/pradyunsg/furo">Furo</a>
-            
-          </div>
-          <div class="right-details">
-            <div class="icons">
-              
-            </div>
-          </div>
+
+        <div class="related-information">
+              Copyright &#169; 2022, The Salk Institute for Biological Studies
+            |
+            Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
+              and
+              <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+              <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
+            |
+            <a class="muted-link" href="../_sources/configurations/configs.rst.txt"
+               rel="nofollow">
+              Show Source
+            </a>
         </div>
         
       </footer>
@@ -568,6 +557,6 @@ documentation.</p>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/scripts/furo.js"></script>
+    <script src="../_static/scripts/main.js"></script>
     </body>
 </html>

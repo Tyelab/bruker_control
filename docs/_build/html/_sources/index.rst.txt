@@ -10,6 +10,7 @@ preferably, open an issue `here <https://github.com/Tyelab/headfix_control/issue
 
   about/index
   instructions/index
+  ultima_investigator/index
   configurations/configs
   outputs/index
   functions/index

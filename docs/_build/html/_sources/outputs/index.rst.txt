@@ -30,7 +30,7 @@ Imaging Files
 
 Raw "Cycle" Files
 -----------------
-Each recording is associated to a "CYCLE" number which is related to the number of different experiments you run in a given 2P experiment.
+Each recording has an associated "CYCLE" number which is related to the number of different experiments you run in a given 2P experiment.
 So far in the lab, every recording uses just one cycle to gather images.
 
 These "Cycle" files are the raw data files coming directly off the microscope. They have the following structure:
@@ -74,7 +74,7 @@ Converted .ome.tif Files
 ------------------------
 Bruker's "ripper" performs conversions from their raw binary formats into OME Tiffs.
 Unfortunately, it only outputs individual images and has no option to output multi-page tiffs at the moment.
-The conversion of these many individual tiffs to HDF5 or Zarr can be handled either through MATLAB scripts or Python via `bruker_pipeline <https://github.com/Tyelab/bruker_pipeline>`.
+The conversion of these many individual tiffs to HDF5 or Zarr can be handled either through MATLAB scripts or Python via `bruker_pipeline <https://github.com/Tyelab/bruker_pipeline>`_.
 
 The first OME Tif has metadata about all the images collected as well, but as of right now the OME information is discarded.
 A future development should be to save this metadata either in the H5 file that's created or, if Zarr is used, by writing to OME Zarr.
@@ -144,7 +144,8 @@ These videos have the following structure:
 
 * YYYYMMDD_SUBJECTID_PLANE#_PLANELOCATION.mp4
 
-These could be processed later into arrays of HOGs and HOG images through `this <https://github.com/Tyelab/MouseFacialExpressionAnalysis>`_ repository.
+These could be processed later into arrays of HOGs and HOG images through `this <https://github.com/Tyelab/MouseFacialExpressionAnalysis>`_ repository or on a Trial by Trial basis through
+MATLAB code that's been written.
 
 Configuration Files
 ===================
