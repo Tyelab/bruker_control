@@ -473,7 +473,7 @@ with magnets on the doors for the laser's hard shutter to open. If you need to a
 to have the doors to the microscope's housing open. Selecting the ``Open`` button in the maintenance tab
 allows you to override this safety feature and keep the hard shutter to the laser open.
 
-.. image:: ../images/ultima_investigator/maintenance_settings/maintenance_window.png
+.. image:: ../images/ultima_investigator/maintenance_settings/maintenance_imaging_shutter_override.png
     :alt: An image of the maintenance window with the Imaging Shutter Override option Open is selected is presented.
     :align: center
 
