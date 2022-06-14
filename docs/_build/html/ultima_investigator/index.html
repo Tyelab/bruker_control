@@ -1,0 +1,548 @@
+<!doctype html>
+<html class="no-js">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Configurations" href="../configurations/configs.html" /><link rel="prev" title="v1.9.3 User Guide: Get Yoked! 🏋️ 🏋️‍♀️" href="../instructions/index.html" />
+
+    <meta name="generator" content="sphinx-4.0.2, furo 2021.08.11.beta42"/>
+        <title>Bruker’s (Legacy) Ultima Investigator - Bruker Control v1.9.3</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=197f00461d56902ea7ca048ec6e6ba026f62c97b" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=93475b62d1c3bc01323a0eefdc14a62d77b12690" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  body[data-theme="dark"] {
+    --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+  }
+  @media (prefers-color-scheme: dark) {
+    body:not([data-theme="light"]) {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+  }
+</style>
+    <link media="(prefers-color-scheme: dark)" rel="stylesheet" href="../_static/pygments_dark.css"></head>
+  <body>
+    
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="none" d="M0 0h24v24H0z" />
+      <line x1="4" y1="6" x2="20" y2="6" />
+      <line x1="10" y1="12" x2="20" y2="12" />
+      <line x1="6" y1="18" x2="20" y2="18" />
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">Bruker Control v1.9.3</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  
+  <span class="sidebar-brand-text">Bruker Control v1.9.3</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../about/index.html">About Bruker Control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../instructions/index.html">v1.9.3 User Guide: Get Yoked! 🏋️ 🏋️‍♀️</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Bruker’s (Legacy) Ultima Investigator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configurations/configs.html">Configurations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outputs/index.html">System Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../functions/index.html">Bruker Control’s Functions and Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../functions/index.html#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+</div>
+</div>
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <article role="main">
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <section id="bruker-s-legacy-ultima-investigator">
+<h1>Bruker’s (Legacy) Ultima Investigator<a class="headerlink" href="#bruker-s-legacy-ultima-investigator" title="Permalink to this headline">¶</a></h1>
+<p>The microscope this repository has been developed for is theoretically capable of interacting with any multi-photon microscope from
+the <a class="reference external" href="https://www.bruker.com/en/products-and-solutions/fluorescence-microscopy/multiphoton-microscopes.html">Bruker Corporation</a>
+since each scope relies upon the <a class="reference external" href="https://pvupdate.blogspot.com/">Prairie View software and API</a>. However, it only has been tested
+while using a legacy <a class="reference external" href="https://www.bruker.com/en/products-and-solutions/fluorescence-microscopy/multiphoton-microscopes/ultima-investigator.html">Ultima Investigator</a>.
+It was purchased by the Tye Lab when the system was first entering its commercial phase around 2016. Given its age, there are
+things unique to our scope involving both the scope’s hardware and software.</p>
+<p>This page documents these aspects and also provides notes about the microscope’s use as well.</p>
+<section id="prairie-view-configuration">
+<h2>Prairie View Configuration<a class="headerlink" href="#prairie-view-configuration" title="Permalink to this headline">¶</a></h2>
+<img alt="Configuration Utility Logo" class="align-center" src="../_images/bruker_configuration_logo.png"/>
+<p>Prairie View has a configuration utility that lets you set many different parameters related to the hardware running the system.
+These settings include, among many:</p>
+<ul class="simple">
+<li><p>Laser Settings (i.e. pockels, beam path, shutter path)</p></li>
+<li><p>PMT Settings</p></li>
+<li><p>Microscope Axis Controller (X/Y/Z plane motion)</p></li>
+<li><p>Z-Focus Devices</p></li>
+</ul>
+<p>These settings should <em>not</em> be changed by the user of the system without the explicit confirmation of senior Team2P members and a
+representative from Bruker’s support team.</p>
+<p>You can find this tool by going to your Windows search bar and typing <code class="docutils literal notranslate"><span class="pre">Configuration</span></code> into the box. The OS will find the shortcut for you.</p>
+<img alt="Finding the Configuration App through Windows Search Bar" class="align-center" src="../_images/bruker_configuration_app_location.gif"/>
+<p>If for some reason the tool doesn’t come up in the search bar, navigate to this directory on your computer:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">C:\ProgramData\Bruker</span> <span class="pre">Fluorescence</span> <span class="pre">Microscopy\Prairie</span> <span class="pre">View\5.6.64.200\Configuration</span></code></dt><dd><ul>
+<li><p>Be sure to substitute your currently operating version of Prairie View into the path, the 5.6.64.200 part</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Here is what that page looks like:</p>
+<img alt="Full View of Configuration Utility" class="align-center" src="../_images/prairie_view_configuration_full.png"/>
+<section id="tye-lab-specific-configuration-settings">
+<h3>Tye Lab Specific Configuration Settings<a class="headerlink" href="#tye-lab-specific-configuration-settings" title="Permalink to this headline">¶</a></h3>
+<p>The lab’s microscope settings had to be customized some to enable the use of whole-field LED stimulation for optogenetic manipulation experiments.
+In order to use this feature, Prairie View had to be tricked into thinking it has the ability to perform point stimulations via spiral galvo operations.
+Point stimulations refer to the use of a stimulation laser that will stimulate one point in the field of view for your experiment. Typically, this point
+is a specific cell or list of cells an experimenter wants to manipulate during imaging. Our scope doesn’t have this ability as it’s missing both the
+spiral galvos themselves as well as the stimulation laser necessary to perform these functions. However, in order to trigger stimulations through the
+Voltage Output command in Prairie View, Prarie View must think that this hardware is present. This trickery is done by changing two settings in the
+Lasers/Shutters tab of the Configuration App as well as performing a calibration for the non-existent uncaging galvo ability.</p>
+<section id="laser-settings">
+<h4>Laser Settings<a class="headerlink" href="#laser-settings" title="Permalink to this headline">¶</a></h4>
+<p>Originally, the laser settings for our scope looked like this:</p>
+<img alt="Original Tye Lab Laser Settings" class="align-center" src="../_images/laser_settings_original_full.png"/>
+<p>You’ll notice that:</p>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">Device</span> <span class="pre">Type</span></code> field shows <code class="docutils literal notranslate"><span class="pre">Imaging</span> <span class="pre">(DAQ</span> <span class="pre">Buffered)</span></code></p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">Shared</span> <span class="pre">Line</span></code> field  cannot be toggled</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">Mark</span> <span class="pre">Points/Uncaging</span></code> input boxes can be toggled (strangely)</p></li>
+<li><p>The first option in <code class="docutils literal notranslate"><span class="pre">Uncaging</span></code> settings stating <code class="docutils literal notranslate"><span class="pre">Uncaging</span> <span class="pre">Galvos</span> <span class="pre">Present</span> <span class="pre">/</span> <span class="pre">Simulatneous</span> <span class="pre">Uncaging</span></code> is <em>not</em> checked</p></li>
+</ul>
+<p>The trick is to change the <code class="docutils literal notranslate"><span class="pre">Device</span> <span class="pre">Type</span></code> field and the <code class="docutils literal notranslate"><span class="pre">Uncaging</span> <span class="pre">Galvos</span> <span class="pre">Present</span> <span class="pre">/</span> <span class="pre">Simultaneous</span> <span class="pre">Uncaging</span></code> setting as shown below.</p>
+<img alt="Current Tye Lab Laser Settings" class="align-center" src="../_images/laser_settings_current_full.png"/>
+<p>Notice that:</p>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">Device</span> <span class="pre">Type</span></code> field  shows <code class="docutils literal notranslate"><span class="pre">Imaging/Uncaging</span> <span class="pre">(Alt.</span> <span class="pre">Beam</span> <span class="pre">Route)</span></code></p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">Shared</span> <span class="pre">Line</span></code> field can be toggled. <em>Don’t</em> change the number there.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">Mark</span> <span class="pre">Points/Uncagaing</span></code> input boxes <em>cannot</em> be toggled (strangely)</p></li>
+<li><p>The first option in <code class="docutils literal notranslate"><span class="pre">Uncaging</span></code> settings stating <code class="docutils literal notranslate"><span class="pre">Uncaging</span> <span class="pre">Galvos</span> <span class="pre">Present</span> <span class="pre">/</span> <span class="pre">Simultaneous</span> <span class="pre">Uncaging</span></code> <em>is</em> checked</p></li>
+</ul>
+</section>
+<section id="miscellaneous-settings">
+<h4>Miscellaneous Settings<a class="headerlink" href="#miscellaneous-settings" title="Permalink to this headline">¶</a></h4>
+<p>There’s a tab in the Configuration App called Miscellaneous that contains various configuration values.</p>
+<img alt="Miscellanous Configuration Tab" class="align-center" src="../_images/prairie_view_configuration_misc.png"/>
+<p>During a recent visit from Bruker’s technical team, they changed one setting related to the microscope base field.</p>
+<img alt="Microscope Base Settings in the Miscellaneous Tab" class="align-center" src="../_images/microscope_base_updated.png"/>
+<p>It was not noted what the setting was when they checked this, but the <code class="docutils literal notranslate"><span class="pre">Select</span> <span class="pre">the</span> <span class="pre">type</span> <span class="pre">of</span> <span class="pre">microscope</span> <span class="pre">base</span></code> now
+states <code class="docutils literal notranslate"><span class="pre">Bruker</span> <span class="pre">Ultima</span> <span class="pre">Investigator</span> <span class="pre">(Moving)</span></code>.</p>
+</section>
+<section id="uncaging-galvo-calibration">
+<h4>Uncaging Galvo Calibration<a class="headerlink" href="#uncaging-galvo-calibration" title="Permalink to this headline">¶</a></h4>
+<p>Within the Prairie View software, there is another trick related to calibrating uncaged galvos. Note again that this scope
+does not have this ability and we do this purely to enable whole-field LED stimulation through Voltage Outputs.</p>
+<p>These settings can be found by going to the <code class="docutils literal notranslate"><span class="pre">Tools</span></code> tab in the main Prairie View window and selecting the
+<code class="docutils literal notranslate"><span class="pre">Calibration/Alignment</span></code> option.</p>
+<img alt="Uncaging Galvo Calibration Location" class="align-center" src="../_images/uncaging_galvo_calibration_location.png"/>
+<p>Here is what finding that selection looks like:</p>
+<img alt="Uncaging Galvo Calibration Selection" class="align-center" src="../_images/uncaging_galvo_calibration_selection.gif"/>
+<p>Given that this is all trickery, it doesn’t matter which of the calibration modes you select. You can choose the
+<code class="docutils literal notranslate"><span class="pre">Burn</span> <span class="pre">Spots</span></code> option. Don’t worry, you won’t be actually burning anything.</p>
+<img alt="Burn Spots Option Selection" class="align-center" src="../_images/burn_spots_selection.png"/>
+<p>When you click the <code class="docutils literal notranslate"><span class="pre">Next</span></code> button, you can simply continue clicking <code class="docutils literal notranslate"><span class="pre">Next</span></code> until you are met with the <code class="docutils literal notranslate"><span class="pre">Finish</span></code>
+button. Now that things are “calibrated”, performing whole-field LED stimulations is possible. Documentation for
+setting up Voltage Output settings to use this feature is forthcoming.</p>
+<img alt="Uncaging Galvo Calibration Steps" class="align-center" src="../_images/uncaging_galvo_calibration_steps.gif"/>
+</section>
+</section>
+</section>
+<section id="prairie-view-scan-settings">
+<h2>Prairie View Scan Settings<a class="headerlink" href="#prairie-view-scan-settings" title="Permalink to this headline">¶</a></h2>
+<p>There are several Scan Settings that can be configured within the Prairie View software related to how the system
+acquires images.</p>
+<p>These settings can be found by going to the <code class="docutils literal notranslate"><span class="pre">Tools</span></code> tab and selecting the <code class="docutils literal notranslate"><span class="pre">Scan</span> <span class="pre">Settings</span></code> option.</p>
+<img alt="Scan Settings Location" class="align-center" src="../_images/scan_settings_selection.png"/>
+<p>You’ll notice that when this window first opens, all the selections are greyed out and inaccessible to change.
+This is because these are sensitive settings for running the microscope that most users do not need to access.
+If you’re not careful, you could accidentally damage the hardware!</p>
+<img alt="Scan Settings are Greyed Out by Default" class="align-center" src="../_images/scan_settings_disabled.png"/>
+<p>However, in our case as users of a legacy system, we need to ensure the software is using specific settings.</p>
+<p>To access these parameters, double <em>right-click</em> your mouse on the tab. The settings will all become accessible.</p>
+<img alt="Scan Settings Become Enabled by Double Right Clicking the Tab" class="align-center" src="../_images/scan_settings_enabled.png"/>
+<p>First, it is vital to note that this window updates according to which type of scanning is being performed. The
+<code class="docutils literal notranslate"><span class="pre">Scan</span> <span class="pre">Settings</span></code> window itself does <em>NOT</em> tell you which settings are being observed/updated. You must use the
+<code class="docutils literal notranslate"><span class="pre">Acquisition</span> <span class="pre">Mode</span></code> window for knowing which settings you are observing.</p>
+<img alt="Scan Settings Tab is Updated Between Imaging Modes" class="align-center" src="../_images/scan_settings_between_modes.gif"/>
+<p>In the <code class="docutils literal notranslate"><span class="pre">General</span></code> tab of <code class="docutils literal notranslate"><span class="pre">Scan</span> <span class="pre">Settings</span></code>, there’s a button on the bottom left corner of the window labeled
+<code class="docutils literal notranslate"><span class="pre">Load</span> <span class="pre">Defaults</span></code>.</p>
+<img alt="The Load Default Button is located on the bottom right of the window" class="align-center" src="../_images/scan_settings_load_default_highlighted.png"/>
+<p>When you click this button, a drop down menu will be presented containing different Bruker Microscopy platforms
+such as the 2Pplus, Investigator+, and others. Given our scope’s age, the settings we use are found in the <code class="docutils literal notranslate"><span class="pre">Legacy</span></code>
+window. Select the <code class="docutils literal notranslate"><span class="pre">Ultima/Investigator</span> <span class="pre">(Divide/5)</span></code> option.</p>
+<img alt="The Ultima/Investigator (Divide/5) Default is Selected" class="align-center" src="../_images/scan_settings_default_legacy.png"/>
+<p>This setting relates to timing how the galvos in move while scanning your field of view. If the setting is incorrect,
+the images you collect will be strangely stretched and your field of view incomplete! Examples of this behavior are
+below.</p>
+<section id="galvo-galvo-mode">
+<h3>Galvo-Galvo Mode<a class="headerlink" href="#galvo-galvo-mode" title="Permalink to this headline">¶</a></h3>
+<img alt="The Galvo-Galvo mode is selected." class="align-center" src="../_images/acquisition_mode_galvo.png"/>
+<p>The Galvo-Galvo mode of image acquisition has parameters that look like this:</p>
+<img alt="The Galvo-Galvo General Settings are Displayed" class="align-center" src="../_images/galvo_galvo_scan_settings_general.png"/>
+<p>Note that in this mode, the Voltage Divider Values for the X and Y axes are the
+same.</p>
+<img alt="The Galvo-Galvo General Voltage Settings are Highlighted" class="align-center" src="../_images/galvo_galvo_scan_settings_divider_values.png"/>
+<p>Here’s an example image of a pollen grain imaged with the correct settings:</p>
+<img alt="A Round Pollen Grain is Presented" class="align-center" src="../_images/non_stretched_pollen_grain.png"/>
+<p>If these are different values, you will notice that your images are stretched apart in
+odd ways!</p>
+<p>Here’s an example of incorrect settings:</p>
+<img alt="The Galvo-Galvo General Voltage Settings are Highlighted. They are different here." class="align-center" src="../_images/galvo_galvo_scan_settings_divider_values_incorrect.png"/>
+<p>Here is an example of what a stretched image looks like:</p>
+<img alt="An Oblong Pollen Grain is Presented" class="align-center" src="../_images/stretched_pollen_grain.png"/>
+<p>This behavior was occuring for an unknown amount of time before the Bruker representatives
+corrected it for us. The consequence of this configuration error is not only a corrupted image, but also any
+other calibrations you might perform such as the calculation of a point spread function, or PSF, will be
+inaccurate too! If one didn’t notice this error, it would be easy to think there was an issue somewhere else
+in the system such as the optical path.</p>
+<p>An additional setting should be checked to ensure that the galvos are scanning in the correct directions. The
+relevant setting is called the <code class="docutils literal notranslate"><span class="pre">X</span> <span class="pre">Scan</span> <span class="pre">Amplitude</span></code>. If this setting isn’t consistent between scanning modes,
+you will see the positions of objects in the field of view switch sides when going between Galvo-Galvo and
+Resonant Galvo!</p>
+<p>Here is an example of the flipped amplitude on the left from Galvo-Galvo settings to comared to the correct
+amplitude on the right from the Resonant Galvo settings.</p>
+<img alt="A Comparison of Incorrect X Scan Amplitude on the Left vs Correct Settings on the Right" class="align-center" src="../_images/scan_settings_x_scan_amplitude_reversed.png"/>
+<p>Here’s an example of what that behavior looks like:</p>
+<img alt="A Demonstration of Incorrect X Scan Amplitude Settings Shows Mirroring of the FOV" class="align-center" src="../_images/reversed_x_amplitude_demo.gif"/>
+<p>And here’s what the correct settings look like:</p>
+<img alt="A Demonstration of Incorrect X Scan Amplitude Settings Shows Mirroring of the FOV" class="align-center" src="../_images/correct_x_amplitude_demo.gif"/>
+<p>Notice that the position and size of the pollen grains is the same between scan modes!</p>
+<p>This behavior was occuring for an unknown amount of time before the Bruker representatives
+corrected it for us. The consequence of this error include that any comparisons
+between your z-stack/Galvo imaging will be misaligned. In some analysis softwares, such as
+<a class="reference external" href="https://suite2p.readthedocs.io/en/latest/">Suite2p</a>, users have the option of providing
+a z-stack for performing correction of <a class="reference external" href="https://suite2p.readthedocs.io/en/latest/FAQ.html?highlight=z%20drift#z-drift">z-drift</a>
+in your imaging session. How to do this is described <a class="reference external" href="https://suite2p.readthedocs.io/en/latest/gui.html?highlight=z%20drift#z-stack-alignment">here</a>.</p>
+</section>
+<section id="resonant-galvo-mode">
+<h3>Resonant Galvo Mode<a class="headerlink" href="#resonant-galvo-mode" title="Permalink to this headline">¶</a></h3>
+<img alt="The Resonant Galvo mode is selected." class="align-center" src="../_images/resonant_galvo_acquisition_mode.png"/>
+<p>The Resonant Galvo mode of image acquisition has parameters that look like this:</p>
+<img alt="The Resonant Galvo General Settings is Displayed" class="align-center" src="../_images/resonant_galvo_scan_settings_general.png"/>
+<p>The slow axis during scanning is in the Y axis whereas the fast axis for scanning is the X axis. These speeds
+are reflected in the <code class="docutils literal notranslate"><span class="pre">X</span> <span class="pre">Voltage</span> <span class="pre">Divider</span> <span class="pre">Value</span></code> and <code class="docutils literal notranslate"><span class="pre">X</span> <span class="pre">Acceleration</span></code> parameters.</p>
+<p>There’s an additional setting that needs mentioning here related to the PMT pre-amplifier offset. The particulars
+of what this offset actually does are still unknown and need specific clarification from Bruker’s technical team.
+If these settings are not correct, your imaging session will suffer from artifacts that are generated by
+electrical noise from the pre-amplifier. This, in combination with <a class="reference external" href="https://docs.scanimage.org/Solutions/PMT%2Bnoise.html">PMT “ripple noise”</a>,
+unequal sampling of the FOV by the DAQ due to nonlinear speads of the resonant galvo, and detector shot noise can
+cumulatively add significant amounts of noise to your recordings. For a discussion of these artifacts as well as
+attempts to compensate for them, see <a class="reference external" href="https://forum.image.sc/t/efficient-artifact-subtraction-of-electrical-and-resonant-scanning-artifacts-using-python-and-zarr-matlab/62939">this Image.sc forum post</a>.</p>
+<p>Thus far, it has been found that <a class="reference external" href="https://forum.image.sc/t/image-subtraction-in-python-behaves-differently-than-imagej/67942/5">removing the artifacts</a>
+through the subtraction of an average dark image is insufficient to help with motion correction of an average signal
+to noise recording. It has yet to be tested on a low signal to noise recording.</p>
+<p>The relevant settings for these artifacts can be found in the <code class="docutils literal notranslate"><span class="pre">DAQs</span> <span class="pre">/</span> <span class="pre">Preamplifier</span></code> tab. The settings shown next
+are problematic ones:</p>
+<img alt="The Resonant Galvo DAQs/Preamplifier Settings are Displayed. The Offset Value is incorrect." class="align-center" src="../_images/bad_preamplifier_settings.png"/>
+</section>
+<section id="preamplifier-artifacts">
+<h3>Preamplifier Artifacts<a class="headerlink" href="#preamplifier-artifacts" title="Permalink to this headline">¶</a></h3>
+<p>In order to illustrate these problems best, be sure to use the <code class="docutils literal notranslate"><span class="pre">Range</span> <span class="pre">Check</span></code> color table in the Image window.</p>
+<img alt="The Image window in Prairie View is shown. The colormap setting is changed to Range Check" class="align-center" src="../_images/range_check_settings.gif"/>
+<p>You’ll notice that when the <code class="docutils literal notranslate"><span class="pre">Range</span> <span class="pre">Check</span></code> setting is selected in the gif above that the entirety of the image
+turns blue. In this color mapping, pixel values of 0 are blue while pixel values at the max of the applied
+Look Up Table (or LUT) are red. The full range of values possible in this system are 0 through 65535 (the
+max value of an unsigned 16bit integer that the scope samples at). In this above example, the PMTs and lasers
+were off so there was no possible signal for the DAQ to sample from. However, when the preamplifiers are on,
+there is still some small amount of electrical noise present. If you select the <code class="docutils literal notranslate"><span class="pre">Auto</span></code> button on the LUT, it
+will place the limits of the LUT around the signal that’s present.</p>
+<img alt="Auto-correcting the LUT is performed and the preamplifier offset is displayed." class="align-center" src="../_images/preamplifier_offset_bad_lut_norm.gif"/>
+<p>If your settings aren’t corrected and you perform averaging of your data at any point, you will have this in
+your data!</p>
+<img alt="An average of the artifact alone is displayed with a scale bar from 0 to 34 as its values." class="align-center" src="../_images/average_bad_preamplifier_offset.png"/>
+<p>Despite the artifact’s magnitude being small, it’s relative strength to low signal to noise recordings is
+approximately 20% which is significant.</p>
+</section>
+<section id="dark-image-with-artifact">
+<h3>Dark Image with Artifact<a class="headerlink" href="#dark-image-with-artifact" title="Permalink to this headline">¶</a></h3>
+<p>If you collect a Dark Image, where the PMTs are on but there is no or minimal light present in the room, without
+correcting this setting, you will see this:</p>
+<img alt="A Dark Image with the artifact is displayed. Vertical lines are present through the FOV" class="align-center" src="../_images/dark_image_bad_offset.gif"/>
+<p>An individual image of this artifact, while varying between images somewhat, essentially looks like this:</p>
+<img alt="A Dark Image with the artifact is displayed. Vertical lines are present through the FOV" class="align-center" src="../_images/dark_image_bad_offset.png"/>
+<p>An average of this looks similar to the average of the preamplifier alone:</p>
+<img alt="A Dark Image with the artifact is displayed. Vertical lines are present through the FOV" class="align-center" src="../_images/average_dark_image_bad_preamplifier_offset.png"/>
+<p>When you take an example recording with some pollen grains, you can see the lines present somewhat.</p>
+<img alt="An average of pollen grain images is displayed. The artifact is somewhat present towards the edge of the FOV." class="align-center" src="../_images/average_pollen_grains_bad_preamplifier_offset.png"/>
+<p>The link above to the Image.sc forum illustrates them much better. It appears to be more severe when looking
+down a GRIN lens in the brain.</p>
+</section>
+<section id="correcting-for-the-artifact">
+<h3>Correcting for the Artifact<a class="headerlink" href="#correcting-for-the-artifact" title="Permalink to this headline">¶</a></h3>
+<p>The way this artifact is mitigated is by changing the offset for the PMT that’s being imaged. Bruker’s
+technical team discovered that putting the value to -0.04 creates a much more uniform and lower magnitude
+noise. A consequence of lowering this offset value is that the true signal we’re interested in will also
+be somewhat dimmer.  However, given that the structures we’re imaging have quite bright fluorescence, a
+small decrease in the signal of a cell is well worth the dramatic reduction in noise.</p>
+<img alt="Corrected preamplifier settings are displayed" class="align-center" src="../_images/corrected_preamplifier_settings.png"/>
+<p>Here is what it looks like in real time to change this offset value:</p>
+<img alt="Corrected preamplifier settings are displayed" class="align-center" src="../_images/preamplifier_offset_correction.gif"/>
+</section>
+<section id="dark-image-without-artifact">
+<h3>Dark Image Without Artifact<a class="headerlink" href="#dark-image-without-artifact" title="Permalink to this headline">¶</a></h3>
+<p>Here is an example of what the corrected settings produce while collecting a dark image:</p>
+<img alt="A Dark Image without the artifiact is displayed" class="align-center" src="../_images/dark_image_corrected_offset.gif"/>
+<p>You can see that the noise is much more uniform across the entire FOV and is not suffering from the vertical
+striping pattern as much.</p>
+<p>Here is what an individual image of the preamplfier noise with the corrected offset looks like:</p>
+<img alt="An image of the preamplifier noise alone with corrected settings is displayed" class="align-center" src="../_images/corrected_preamplifier_offset.png"/>
+<p>An average of the preamplifier noise alone illustrates how much less noise is present:</p>
+<img alt="An image of the preamplifier noise alone with corrected settings is displayed" class="align-center" src="../_images/average_corrected_preamplifier_offset.png"/>
+<p>This is further exemplified by the average dark image collected with this offset:</p>
+<img alt="An average of Dark Images with the corrected pre-amplifier offset is displayed" class="align-center" src="../_images/average_dark_image_corrected_preamplifier_offset.png"/>
+<p>Finally, when imaging an example pollen grain, you can see that the veritcal striping is no longer
+as prominent. However, do note that there is still a form of vertical bars seen on the edges of the FOV.
+This is due to the nonlinear speed of the resonant galvo and unequal sampling of the DAQ receiving data
+from the PMTs.</p>
+<img alt="An recording of pollen grains with the Resonant Galvo is presented" class="align-center" src="../_images/pollen_grains_corrected_offset.gif"/>
+<p>The average images of pollen grains with these settings are also more free of artifacts, although the differences
+are not as prominent as one would hope:</p>
+<img alt="An average of pollen grain images collected by Resonant Galvo is presented" class="align-center" src="../_images/average_pollen_grains_corrected_preamplifier_offset.png"/>
+<p>It remains to be tested whether or not the benefits seen when looking at these pollen
+grains will be recreated while looking down a GRIN lens into the brain.</p>
+</section>
+</section>
+<section id="prairie-view-maintenance-settings">
+<h2>Prairie View Maintenance Settings<a class="headerlink" href="#prairie-view-maintenance-settings" title="Permalink to this headline">¶</a></h2>
+<p>This tab has the very useful feature of allowing you to override the safety shutter for the
+multi-photon laser. This is necessary when performing alignment procedures, documentation of
+which is forthcoming. Note that it will be uncommon to interact with these settings. If
+you need to, you should confirm with a senior member of Team2P and a represenative from Bruker
+for what you plan on doing.</p>
+<p>It can be found by mousing over the <code class="docutils literal notranslate"><span class="pre">Tools</span></code> tab on the very bottom of the drop down window.</p>
+<img alt="An image of the Tools tab is presented where the dropdown option of Maintenance is highlighted" class="align-center" src="../_images/maintenance_tab_selection.png"/>
+<p>You will be greeted by a new window with settings related to galvo positioning, PMT shutter overrides,
+and imaging shutter overrides.</p>
+<img alt="An image of the maintenance window is presented." class="align-center" src="../_images/maintenance_window.png"/>
+<p>During normal operation, there is a safety feature that magnets along the frame of the box must be in contact
+with magnets on the doors for the laser’s hard shutter to open. If you need to align the laser, you will have
+to have the doors to the microscope’s housing open. Selecting the <code class="docutils literal notranslate"><span class="pre">Open</span></code> button in the maintenance tab
+allows you to override this safety feature and keep the hard shutter to the laser open.</p>
+<img alt="An image of the maintenance window with the Imaging Shutter Override option Open is selected is presented." class="align-center" src="../_images/maintenance_window.png"/>
+</section>
+</section>
+
+      </article>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="../configurations/configs.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Configurations</div>
+              </div>
+              <svg><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="../instructions/index.html">
+              <svg><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">v1.9.3 User Guide: Get Yoked! 🏋️ 🏋️‍♀️</div>
+                
+              </div>
+            </a>
+        </div>
+
+        <div class="related-information">
+              Copyright &#169; 2022, The Salk Institute for Biological Studies
+            |
+            Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
+              and
+              <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+              <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
+            |
+            <a class="muted-link" href="../_sources/ultima_investigator/index.rst.txt"
+               rel="nofollow">
+              Show Source
+            </a>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            Contents
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Bruker’s (Legacy) Ultima Investigator</a><ul>
+<li><a class="reference internal" href="#prairie-view-configuration">Prairie View Configuration</a><ul>
+<li><a class="reference internal" href="#tye-lab-specific-configuration-settings">Tye Lab Specific Configuration Settings</a><ul>
+<li><a class="reference internal" href="#laser-settings">Laser Settings</a></li>
+<li><a class="reference internal" href="#miscellaneous-settings">Miscellaneous Settings</a></li>
+<li><a class="reference internal" href="#uncaging-galvo-calibration">Uncaging Galvo Calibration</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#prairie-view-scan-settings">Prairie View Scan Settings</a><ul>
+<li><a class="reference internal" href="#galvo-galvo-mode">Galvo-Galvo Mode</a></li>
+<li><a class="reference internal" href="#resonant-galvo-mode">Resonant Galvo Mode</a></li>
+<li><a class="reference internal" href="#preamplifier-artifacts">Preamplifier Artifacts</a></li>
+<li><a class="reference internal" href="#dark-image-with-artifact">Dark Image with Artifact</a></li>
+<li><a class="reference internal" href="#correcting-for-the-artifact">Correcting for the Artifact</a></li>
+<li><a class="reference internal" href="#dark-image-without-artifact">Dark Image Without Artifact</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#prairie-view-maintenance-settings">Prairie View Maintenance Settings</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/scripts/main.js"></script>
+    </body>
+</html>
