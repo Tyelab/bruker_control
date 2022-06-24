@@ -22,10 +22,10 @@
 */
 
 //// PACKAGES ////
-#include <Adafruit_MPR121.h>              // Adafruit MPR121 capicitance board recording
-#include <digitalWriteFast.h>             // Speeds up communication for digital srite
-#include <Wire.h>                         // Enhances comms with MPR121
-#include <SerialTransfer.h>               // Enables serial comms between Python config and Arduino
+#include <Adafruit_MPR121.h>            // Adafruit MPR121 capicitance board recording
+#include <digitalWriteFast.h>           // Speeds up communication for digital write
+#include <Wire.h>                       // Enhances comms with MPR121
+#include <SerialTransfer.h>             // Enables serial comms between Python config and Arduino
 
 // rename SerialTransfer to myTransfer
 SerialTransfer myTransfer;
@@ -52,7 +52,7 @@ struct __attribute__((__packed__)) metadata_struct {
 int32_t trialArray[MAX_NUM_TRIALS];
 // The ITI for each trial is transmitted from Python to the Arduino
 int32_t ITIArray[MAX_NUM_TRIALS];
-// The amount of time a tone is transmitted from Python to the Arudino
+// The amount of time a tone is played is transmitted from Python to the Arudino
 int32_t toneArray[MAX_NUM_TRIALS];
 // The timepoints for stimulating the subject via LED are transmitted from Python to Arduino
 int32_t LEDArray[MAX_NUM_TRIALS];
@@ -66,7 +66,7 @@ int32_t pythonGo;
 int transmissionStatus = 0;
 
 //// TRIAL TYPES ////
-// trial variables are encoded as 0 and 1
+// trial variables are encoded as 0, 1, 2, 3, 4, 5, 6
 // 0 is negative stimulus [air], 1 is  positive stimulus [sucrose]
 // 2 is negative catch [air catch], 3 is positive catch [sucrose catch]
 // 4 is negative LED stim, 5 is positive LED stim, 6 is stim only
@@ -88,11 +88,13 @@ int thisToneDuration;
 
 //// LED Variables ////
 int thisLED;
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 
 //// FLAG ASSIGNMENT ////
-// In this version, the vacuum has been removed from the setup.
-// Therefore, vacuum related flags have been commented out.
-// Flags can be categorized by purpose:
+// Flags are categorized by purpose:
 // Serial Transfer Flags
 boolean acquireMetaData = true;
 boolean acquireTrials = false;
@@ -107,9 +109,15 @@ boolean cameraDelay = false;
 boolean brukerTrigger = false;
 boolean newTrial = false;
 boolean ITI = false;
+<<<<<<< Updated upstream
 boolean giveStim = false;         // Stim here means airpuff or sucrose, not LED stim
 boolean giveCatch = false;
 boolean giveLED = false;
+=======
+boolean giveStim = false;             // Stim here means airpuff or sucrose, not LED stim
+boolean giveCatch = false;
+boolean giveLED = false;              // Flag for when to send an LED trigger to Prairie View
+>>>>>>> Stashed changes
 boolean LEDOn = false;
 boolean newUSDelivery = false;
 boolean newUSDeliveryCatch = false;
@@ -117,7 +125,11 @@ boolean solenoidOn = false;
 boolean vacOn = false;
 boolean consume = false;
 boolean cleanIt = false;
+<<<<<<< Updated upstream
 boolean noise = false;            // can't use tone as it's protected in Arduino
+=======
+boolean noise = false;                // Can't use tone as it's protected in Arduino
+>>>>>>> Stashed changes
 boolean toneDAQ = false;
 
 //// TIMING VARIABLES ////
@@ -155,8 +167,12 @@ uint16_t lasttouched = 0;
 
 
 //// PIN ASSIGNMENT: Stimuli and Solenoids ////
+<<<<<<< Updated upstream
+=======
+// input
+>>>>>>> Stashed changes
 const int lickPin = 2;                        // input from MPR121
-//const int airPin = 3; // measure delay from solenoid to mouse
+//const int airPin = 3;                       // measure delay from solenoid to mouse
 // output
 const int solPin_air = 22;                    // solenoid for air puff control
 const int vacPin = 24;                        // solenoid for vacuum control
@@ -164,18 +180,19 @@ const int solPin_liquid = 26;                 // solenoid for liquid control: su
 const int speakerPin = 12;                    // speaker control pin
 const int bruker2PTriggerPin = 11;            // trigger to start Bruker 2P Recording on Prairie View
 const int brukerLEDTriggerPin = 39;           // trigger to initiate an LED Pulse on Prairie View
+<<<<<<< Updated upstream
+=======
+
+//// PIN ASSIGNMENT: RESET /////
+const int resetPin = 0;                       // Pin driven LOW for resetting the Arduino through software.
+>>>>>>> Stashed changes
 
 //// PIN ASSIGNMENT: NIDAQ ////
 // NIDAQ input
 // none
 // NIDAQ output
-const int itiDeliveryPin = 31;                // ITI Timestamp
 const int lickDetectPin = 41;                 // detect sucrose licks
-const int speakerDeliveryPin_Airpuff = 50;    // tone delivery for airpuff trials
-const int speakerDeliveryPin_Liquid = 51;     // tone delivery for sucrose trials
-
-//// PIN ASSIGNMENT: RESET ////
-const int resetPin = 0;                       // reset Arduino by driving this pin LOW
+const int speakerDeliveryPin = 51;            // noise delivery
 
 // Metadata and flow-control functions
 /**
@@ -451,17 +468,18 @@ void lickDetect() {
 // ITI Function
 /**
    Starts ITI for new trials and continues the ITI for duration
-   specified by trial's index in the ITIARray. Gathers the trial
-   type selected and defines it for the next sessions. Sends
-   ITI signal to DAQ.
+   specified by trial's index in the ITIray. Gathers the trial
+   type selected and defines it for the next session. Also determines
+   when an LED stimulation trigger should be sent if appropriate.
+   Finally prints out to the Serial Monitor what the trial type is
+   for the user.
 
    @param ms Current time in milliseconds (ms)
 */
 void startITI(long ms) {
   if (newTrial) {                                 // start new ITI
-    digitalWriteFast(itiDeliveryPin, HIGH);
     Serial.print("Starting New Trial: ");
-    Serial.println(currentTrial + 1);
+    Serial.println(currentTrial + 1);             // add 1 to current trial so user sees non zero-indexed value
     trialType = trialArray[currentTrial];         // gather trial type
     newTrial = false;
     if (trialType > 3) {
@@ -471,11 +489,16 @@ void startITI(long ms) {
       typeTrial(trialType);
     }
     ITI = true;
-    int thisITI = ITIArray[currentTrial];         // get ITI for this trial
+    thisITI = ITIArray[currentTrial];             // get ITI for this trial
     ITIend = ms + thisITI;
+<<<<<<< Updated upstream
     // turn off when done
   } else if (ITI && (ms >= ITIend)) {             // ITI is over, start playing the tone
     digitalWriteFast(itiDeliveryPin, LOW);
+=======
+  }
+  else if (ITI && (ms >= ITIend)) {               // ITI is over, start playing the tone
+>>>>>>> Stashed changes
     ITI = false;
     noise = true;
   }
@@ -556,6 +579,7 @@ long setLEDStart(long ms) {
   
   return LEDStart, LEDEnd;
 }
+<<<<<<< Updated upstream
 
 /**
  * Sends TTL to Bruker's DAQ to start an LED pulse train.
@@ -580,6 +604,8 @@ void offLED (long ms) {
     digitalWriteFast(brukerLEDTriggerPin, LOW);
   }
 }
+=======
+>>>>>>> Stashed changes
 
 // Tone Functions
 /**
@@ -661,6 +687,95 @@ void onTone(long ms) {
   }
 }
 
+/**
+ * Sends TTL to Bruker's DAQ to start an LED pulse train.
+ * 
+ * @param ms Current time in milliseconds (ms)
+ */
+void brukerTriggerLED (long ms) {
+  if (giveLED && (ms >= LEDStart)) {
+    giveLED = false;
+    LEDOn = true;
+    digitalWriteFast(brukerLEDTriggerPin, HIGH);
+    Serial.println("LED Trigger Sent!");
+  }
+}
+
+/**
+ * Sends brukerLEDTriggerPin LOW after 
+ */
+void offLED (long ms) {
+  if (LEDOn && (ms >= LEDEnd)) {
+    LEDOn = false;
+    digitalWriteFast(brukerLEDTriggerPin, LOW);
+  }
+}
+
+// Tone Functions
+/**
+   Plays tone for given trial type for specified duration defined
+   in toneArray.  Sends signal to DAQ that speaker is on. If
+   non-catch trials, signals script to use giveStim functions. If
+   catch trials, signals script to use giveCatch functions.
+
+   @param ms Current time in milliseconds (ms)
+*/
+void tonePlayer(long ms) {
+  if (noise) {
+    noise = false;
+    thisToneDuration = toneArray[currentTrial];
+    toneDAQ = true;
+    toneListeningMS = ms + thisToneDuration;
+    switch (trialType) {
+      case 0:
+        digitalWriteFast(speakerDeliveryPin, HIGH);
+        tone(speakerPin, metadata.punishTone, thisToneDuration);
+        giveStim = true;
+        break;
+      case 1:
+        digitalWriteFast(speakerDeliveryPin, HIGH);
+        tone(speakerPin, metadata.rewardTone, thisToneDuration);
+        giveStim = true;
+        break;
+      case 2:
+        digitalWriteFast(speakerDeliveryPin, HIGH);
+        tone(speakerPin, metadata.punishTone, thisToneDuration);
+        giveCatch = true;
+        break;
+      case 3:
+        digitalWriteFast(speakerDeliveryPin, HIGH);
+        tone(speakerPin, metadata.rewardTone, thisToneDuration);
+        giveCatch = true;
+        break;
+      case 4:
+        digitalWriteFast(speakerDeliveryPin, HIGH);
+        tone(speakerPin, metadata.punishTone, thisToneDuration);
+        giveStim = true;
+        break;
+      case 5:
+        digitalWriteFast(speakerDeliveryPin, HIGH);
+        tone(speakerPin, metadata.rewardTone, thisToneDuration);
+        giveStim = true;
+        break;
+      case 6:
+        giveCatch = true;
+        break;
+    }
+  }
+
+/**
+   Signals for the speaker to turn off and stop sending signal to DAQ that
+   the speaker is active.
+
+   @param ms Current time in milliseconds (ms)
+*/
+void onTone(long ms) {
+  if (toneDAQ && (ms >= toneListeningMS)) {
+    toneDAQ = false;
+    digitalWriteFast(speakerDeliveryPin, LOW);
+  }
+}
+
 // Stimuli functions
 /**
    Delivers the stimuli before the end of the tone for how long
@@ -683,7 +798,65 @@ void presentStimulus(long ms) {
   }
 }
 
-// Stimulus Delivery: 0 is airpuff, 1 is sucrose
+// Stimuli functions
+/**
+   Delivers stimuli when trial types are non-catch trials. Delivers the
+   stimuli before the end of the tone for how long the solenoid delivering
+   it is required to be open.
+
+   @param ms Current time in milliseconds (ms)
+*/
+void presentStimulus(long ms) {
+  switch (trialType) {
+    case 0:
+      if (giveStim && (ms >=  toneListeningMS - metadata.USDeliveryTime_Air)) {
+        newUSDelivery = true;
+        break;
+      }
+    case 1:
+      if (giveStim && (ms >= toneListeningMS - metadata.USDeliveryTime_Sucrose)) {
+        newUSDelivery = true;
+        break;
+      }
+    case 4:
+      if (giveStim && (ms >= toneListeningMS - metadata.USDeliveryTime_Sucrose)) {
+        newUSDelivery = true;
+        break;
+      }
+    case 5:
+      if (giveStim && (ms >= toneListeningMS - metadata.USDeliveryTime_Air)) {
+        newUSDelivery = true;
+        break;
+      }
+  }
+}
+
+/**
+   Delivers stimuli when trial types are catch trials. Does NOT open solenoids
+   for stimuli at any point.
+
+   @param ms Current time in milliseconds (ms)
+*/
+void presentCatch(long ms) {
+  switch (trialType) {
+    case 2:
+      if (giveCatch && (ms >= toneListeningMS - metadata.USDeliveryTime_Air)) {
+        newUSDeliveryCatch = true;
+        break;
+      }
+    case 3:
+      if (giveCatch && (ms >= toneListeningMS - metadata.USDeliveryTime_Sucrose)) {
+        newUSDeliveryCatch = true;
+        break;
+      }
+    case 6:
+      if (giveCatch && (ms >= toneListeningMS - metadata.USDeliveryTime_Sucrose)) {
+        newUSDeliveryCatch = true;
+        break;
+      }
+  }
+}
+
 /**
    Signals for solenoid activity depending on current trial type. If
    stimuli trials, solenoids are opened. If catch trials, only a
@@ -693,7 +866,6 @@ void presentStimulus(long ms) {
 */
 void USDelivery(long ms) {
   if (newUSDelivery) {
-    Serial.println("Delivering US");
     newUSDelivery = false;
     giveStim = false;
     solenoidOn = true;
@@ -708,12 +880,42 @@ void USDelivery(long ms) {
         USDeliveryMS = ms + metadata.USDeliveryTime_Sucrose;
         digitalWriteFast(solPin_liquid, HIGH);
         break;
+      case 4:
+        Serial.println("Delivering Airpuff (LED)");
+        USDeliveryMS = ms + metadata.USDeliveryTime_Air;
+        digitalWriteFast(solPin_air, HIGH);
+        break;
+      case 5:
+        Serial.println("Delivering Sucrose (LED)");
+        USDeliveryMS = ms + metadata.USDeliveryTime_Sucrose;
+        digitalWriteFast(solPin_liquid, HIGH);
+        break;
+    }
+  }
+  else if (newUSDeliveryCatch) {
+    newUSDeliveryCatch = false;
+    giveCatch = false;
+    solenoidOn = true;
+    switch (trialType) {
+      case 2:
+        Serial.println("Delivering Airpuff Catch");
+        USDeliveryMS = ms + metadata.USDeliveryTime_Air;
+        break;
+      case 3:
+        Serial.println("Delivering Sucrose Catch");
+        USDeliveryMS = ms + metadata.USDeliveryTime_Sucrose;
+        break;
+      case 6:
+        USDeliveryMS = ms + metadata.USDeliveryTime_Sucrose;
+        break;
     }
   }
 }
 
+
 /**
    Turns off solenoids if presenting stimuli and resets the solenoidOn flags.
+   If a sucrose trial was presented (catch or not), the consume flag is true.
 
    @param ms Current time in milliseconds (ms)
 */
@@ -721,20 +923,80 @@ void offSolenoid(long ms) {
   if (solenoidOn && (toneDAQ == false)) {
     switch (trialType) {
       case 0:
-        Serial.println("Air Solenoid Off");
         solenoidOn = false;
         digitalWriteFast(solPin_air, LOW);
-        newTrial = true;
         currentTrial++;
         break;
       case 1:
-        Serial.println("Liquid Solenoid Off");
         solenoidOn = false;
+        sucroseConsumptionMS = (ms + metadata.USConsumptionTime_Sucrose);
+        consume = true;
+        currentTrial++;
         digitalWriteFast(solPin_liquid, LOW);
-        newTrial = true;
+        break;
+      case 2:
+        solenoidOn = false;
         currentTrial++;
         break;
+      case 3:
+        solenoidOn = false;
+        sucroseConsumptionMS = (ms + metadata.USConsumptionTime_Sucrose);
+        consume = true;
+        currentTrial++;
+        break;
+      case 4:
+        solenoidOn = false;
+        digitalWriteFast(solPin_air, LOW);
+        currentTrial++;
+        currentLED++;
+        break;
+      case 5:
+        solenoidOn = false;
+        sucroseConsumptionMS = (ms + metadata.USConsumptionTime_Sucrose);
+        consume = true;
+        currentTrial++;
+        currentLED++;
+        digitalWriteFast(solPin_liquid, LOW);
+        break;
+      case 6:
+        Serial.println("End of LED Only Trial");
+        solenoidOn = false;
+        currentTrial++;
+        currentLED++;
+        break;
     }
+  }
+}
+
+/**
+   Signals to turn on vacuum once specified consumption period is over.
+
+   @param ms Current time in milliseconds (ms)
+*/
+void consuming(long ms) {
+  if (consume && (ms >= sucroseConsumptionMS)) {         // move on after allowed to consume
+    consume = false;
+    cleanIt = true;
+  }
+}
+
+/**
+   Turns on vacuum for specified vacDelay and turns it off
+   once vacuum time has elapsed.
+
+   @param ms Current time in milliseconds (ms)
+*/
+void vacuum(long ms) {
+  if (cleanIt) {
+    cleanIt = false;
+    vacOn = true;
+    vacTime = ms + vacDelay;
+    digitalWriteFast(vacPin, HIGH);
+  }
+  else if (vacOn && (ms >= vacTime)) {
+    vacOn = false;
+    digitalWriteFast(vacPin, LOW);
+    newTrial = true;
   }
 }
 
