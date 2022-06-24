@@ -88,10 +88,6 @@ int thisToneDuration;
 
 //// LED Variables ////
 int thisLED;
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
 
 //// FLAG ASSIGNMENT ////
 // Flags are categorized by purpose:
@@ -109,15 +105,9 @@ boolean cameraDelay = false;
 boolean brukerTrigger = false;
 boolean newTrial = false;
 boolean ITI = false;
-<<<<<<< Updated upstream
-boolean giveStim = false;         // Stim here means airpuff or sucrose, not LED stim
-boolean giveCatch = false;
-boolean giveLED = false;
-=======
 boolean giveStim = false;             // Stim here means airpuff or sucrose, not LED stim
 boolean giveCatch = false;
 boolean giveLED = false;              // Flag for when to send an LED trigger to Prairie View
->>>>>>> Stashed changes
 boolean LEDOn = false;
 boolean newUSDelivery = false;
 boolean newUSDeliveryCatch = false;
@@ -125,11 +115,7 @@ boolean solenoidOn = false;
 boolean vacOn = false;
 boolean consume = false;
 boolean cleanIt = false;
-<<<<<<< Updated upstream
-boolean noise = false;            // can't use tone as it's protected in Arduino
-=======
 boolean noise = false;                // Can't use tone as it's protected in Arduino
->>>>>>> Stashed changes
 boolean toneDAQ = false;
 
 //// TIMING VARIABLES ////
@@ -167,10 +153,7 @@ uint16_t lasttouched = 0;
 
 
 //// PIN ASSIGNMENT: Stimuli and Solenoids ////
-<<<<<<< Updated upstream
-=======
 // input
->>>>>>> Stashed changes
 const int lickPin = 2;                        // input from MPR121
 //const int airPin = 3;                       // measure delay from solenoid to mouse
 // output
@@ -180,12 +163,9 @@ const int solPin_liquid = 26;                 // solenoid for liquid control: su
 const int speakerPin = 12;                    // speaker control pin
 const int bruker2PTriggerPin = 11;            // trigger to start Bruker 2P Recording on Prairie View
 const int brukerLEDTriggerPin = 39;           // trigger to initiate an LED Pulse on Prairie View
-<<<<<<< Updated upstream
-=======
 
 //// PIN ASSIGNMENT: RESET /////
 const int resetPin = 0;                       // Pin driven LOW for resetting the Arduino through software.
->>>>>>> Stashed changes
 
 //// PIN ASSIGNMENT: NIDAQ ////
 // NIDAQ input
@@ -491,14 +471,9 @@ void startITI(long ms) {
     ITI = true;
     thisITI = ITIArray[currentTrial];             // get ITI for this trial
     ITIend = ms + thisITI;
-<<<<<<< Updated upstream
     // turn off when done
   } else if (ITI && (ms >= ITIend)) {             // ITI is over, start playing the tone
     digitalWriteFast(itiDeliveryPin, LOW);
-=======
-  }
-  else if (ITI && (ms >= ITIend)) {               // ITI is over, start playing the tone
->>>>>>> Stashed changes
     ITI = false;
     noise = true;
   }
@@ -579,7 +554,6 @@ long setLEDStart(long ms) {
   
   return LEDStart, LEDEnd;
 }
-<<<<<<< Updated upstream
 
 /**
  * Sends TTL to Bruker's DAQ to start an LED pulse train.
@@ -604,8 +578,6 @@ void offLED (long ms) {
     digitalWriteFast(brukerLEDTriggerPin, LOW);
   }
 }
-=======
->>>>>>> Stashed changes
 
 // Tone Functions
 /**
@@ -776,27 +748,6 @@ void onTone(long ms) {
   }
 }
 
-// Stimuli functions
-/**
-   Delivers the stimuli before the end of the tone for how long
-   the solenoid delivering it is required to be open.
-
-   @param ms Current time in milliseconds (ms)
-*/
-void presentStimulus(long ms) {
-  switch (trialType) {
-    case 0:
-      if (giveStim && (ms >= toneListeningMS - metadata.USDeliveryTime_Air)) {
-        newUSDelivery = true;
-        break;
-      }
-    case 1:
-      if (giveStim && (ms >= toneListeningMS - metadata.USDeliveryTime_Sucrose)) {
-        newUSDelivery = true;
-        break;
-      }
-  }
-}
 
 // Stimuli functions
 /**
