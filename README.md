@@ -137,5 +137,5 @@ Gene Therapy Research Scientist\
 Gene Therapy Division, Neurocrine
 
 Dexter Tsin\
-UCSD Bioinformatics Undergraduate Student\
-Tye Lab, Salk Institute for Biological Studies
+Incoming Princeton Neuroscience Graduate Student! Congrats Dexter!\
+Former Tye Lab, Salk Institute for Biological Studies
