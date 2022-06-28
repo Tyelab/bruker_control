@@ -174,6 +174,7 @@ const int resetPin = 0;                       // Pin driven LOW for resetting th
 // NIDAQ output
 const int lickDetectPin = 41;                 // detect sucrose licks
 const int speakerDeliveryPin = 51;            // noise delivery
+const int itiDeliveryPin = 42;                // signal for when an ITI is occuring
 
 // Metadata and flow-control functions
 /**
@@ -457,6 +458,7 @@ void lickDetect() {
 */
 void startITI(long ms) {
   if (newTrial) {                                 // start new ITI
+    digitalWriteFast(itiDeliveryPin, HIGH)
     Serial.print("Starting New Trial: ");
     Serial.println(currentTrial + 1);             // add 1 to current trial so user sees non zero-indexed value
     trialType = trialArray[currentTrial];         // gather trial type
@@ -625,6 +627,7 @@ void tonePlayer(long ms) {
         break;
       case 6:
         giveCatch = true;
+        digitalWriteFast(speakerDeliveryPin, HIGH);
         break;
     }
   }
@@ -871,6 +874,7 @@ void setup() {
   pinMode(speakerPin, OUTPUT);
   pinMode(speakerDeliveryPin, OUTPUT);
   pinMode(lickDetectPin, OUTPUT);
+  pinMode(itiDeliveryPin, OUTPUT);
   pinMode(bruker2PTriggerPin, OUTPUT);
   pinMode(brukerLEDTriggerPin, OUTPUT);
   pinMode(resetPin, OUTPUT);

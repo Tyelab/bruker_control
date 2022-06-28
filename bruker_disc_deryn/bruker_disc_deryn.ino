@@ -172,7 +172,9 @@ const int resetPin = 0;                       // Pin driven LOW for resetting th
 // none
 // NIDAQ output
 const int lickDetectPin = 41;                 // detect sucrose licks
-const int speakerDeliveryPin = 51;            // noise delivery
+const int speakerDeliveryPin_Airpuff = 50;    // tone delivery for airpuff trials
+const int speakerDeliveryPin_Liquid = 51;     // tone delivery for sucrose trials
+const int itiDeliveryPin = 31;                // signal for when an ITI is occuring
 
 // Metadata and flow-control functions
 /**
@@ -458,6 +460,7 @@ void lickDetect() {
 */
 void startITI(long ms) {
   if (newTrial) {                                 // start new ITI
+    digitalWriteFast(itiDeliveryPin, HIGH);
     Serial.print("Starting New Trial: ");
     Serial.println(currentTrial + 1);             // add 1 to current trial so user sees non zero-indexed value
     trialType = trialArray[currentTrial];         // gather trial type
@@ -472,11 +475,12 @@ void startITI(long ms) {
     thisITI = ITIArray[currentTrial];             // get ITI for this trial
     ITIend = ms + thisITI;
     // turn off when done
-  } else if (ITI && (ms >= ITIend)) {             // ITI is over, start playing the tone
+  } else if (ITI && (ms >= ITIend) && trialType != 6) {             // ITI is over, start playing the tone
     digitalWriteFast(itiDeliveryPin, LOW);
     ITI = false;
     noise = true;
-  }
+  } else if (ITI && ())
+
 }
 
 // Trial Type Function
@@ -927,6 +931,7 @@ void offSolenoid(long ms) {
 void consuming(long ms) {
   if (consume && (ms >= sucroseConsumptionMS)) {         // move on after allowed to consume
     consume = false;
+    newTrial = true;
     cleanIt = true;
   }
 }
@@ -947,7 +952,6 @@ void vacuum(long ms) {
   else if (vacOn && (ms >= vacTime)) {
     vacOn = false;
     digitalWriteFast(vacPin, LOW);
-    newTrial = true;
   }
 }
 
@@ -973,6 +977,7 @@ void setup() {
   pinMode(speakerDeliveryPin_Liquid, OUTPUT);
   pinMode(itiDeliveryPin, OUTPUT);
   pinMode(bruker2PTriggerPin, OUTPUT);
+  pinMode(brukerLEDTriggerPin, OUTPUT);
   pinMode(lickDetectPin, OUTPUT);
   pinMode(resetPin, OUTPUT);
 
