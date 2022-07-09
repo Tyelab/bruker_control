@@ -1003,6 +1003,8 @@ void loop() {
     startITI(ms);
     tonePlayer(ms);
     onTone(ms);
+    brukerTriggerLED(ms);
+    offLED(ms);
     presentStimulus(ms);
     presentCatch(ms);
     USDelivery(ms);
