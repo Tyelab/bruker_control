@@ -6,6 +6,14 @@ A changelog for commits and changes before this version will not be added.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## bruker_control.py v1.10.2 - 2022-07-18 Maintenance Update
+A couple small changes made a maintenance update necessary, mostly related to where
+things are stored on the server. Unfortunately for now, things are hardcoded to static
+volume letters that are polled from. I don't like this method of doing things, but I
+haven't been able to spend enough time on the second refactor for the library where all
+these parameters become class objects that organize data in a nicer way for use in the
+program. So for now, this bandaid that I don't like has to do...
+
 ## bruker_control.py v1.9.2 - 2022-02-28
 Dr. [Talmo Pereira](https://github.com/talmo) informed me that we should be encoding our videos using
 the `H264` video codec instead of using `DIVX` encoding. It allows for nearly lossless compression and

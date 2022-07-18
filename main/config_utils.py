@@ -20,10 +20,16 @@ from datetime import datetime
 # Import YAML for gathering metadata about project
 from ruamel.yaml import YAML
 
-# Template configuration directories are within project directories.  The snlkt
-# server housing these directories is mounted to the X: volume on the machine
-# BRUKER.
-SERVER_BASEPATH = Path("X:/_DATA")
+# Template configuration directories are within project directories. Teams
+# have started merging into their own project volumes, making a dictionary
+# for each project:project_dir dictionary pairing.
+# TODO Part of the second refactor should be to have class object for server
+# directories built, a method of which would be gathering the appropriate
+# Path object for each volume. That way the config utils can just have a class
+# that's dedicated to grepping this information and passing it to the relevant
+# parts of the program.
+SERVER_PATHS = {"specialk_cs": Path("V:"),
+                "specialk_lh": Path("U:")}
 
 # Experimental configuration directories are in the Raw Data volume on the
 # machine BRUKER which is mounted to E:. This is where configs will be written
@@ -120,8 +126,12 @@ def get_template(project: str) -> dict:
         template_config
     """
 
+    # Determine which path to use by grabbing appropriate key/value pair from static dir
+    # on the machine
+    server_location = SERVER_PATHS[project]
+
     # Append base directory with selected team and project
-    template_dir = SERVER_BASEPATH / project / "2p" / "config"
+    template_dir = server_location / "2p" / "config"
 
     # Glob the configuration directory for the .json file and convert it to a list
     template_config_path = list(template_dir.glob("*.json"))
@@ -329,8 +339,11 @@ def get_subject_metadata(project: str, subject_id: str) -> dict:
     # Define YAML object parser with safe loading
     yaml = YAML(typ='safe')
 
+    # Grab appropriate server volume location
+    server_location = SERVER_PATHS[project]
+
     # Construct the base path for the subject's YAML file
-    subject_path = SERVER_BASEPATH / project / "subjects" / subject_id
+    subject_path = server_location / "subjects" / subject_id
 
     # Generate a glob object for finding the yaml file and turn it into a list.
     subject_metadata = list(subject_path.glob(f"{subject_id}.yml"))
@@ -402,11 +415,14 @@ def build_server_directory(project: str, subject_id: str, config_template: dict)
     # Gather the date of the day's session
     session_date = datetime.today().strftime("%Y%m%d")
 
+    # Grab appropriate server volume location
+    server_location = SERVER_PATHS[project]
+
     # Create list of elements that compose the session path
     session_elements = ["2p", "raw", subject_id, session_date]
 
     # Build the session's name and convert to a Pathlib object
-    session_path = SERVER_BASEPATH / project / Path("/".join(session_elements))
+    session_path = server_location / Path("/".join(session_elements))
 
     # Build the session path to the server
     session_path.mkdir(parents=True, exist_ok=True)
@@ -437,7 +453,10 @@ def weight_check(project: str, subject_id: str):
 
     yaml = YAML(typ='safe')
 
-    weight_dir = SERVER_BASEPATH / project / "subjects" / subject_id
+    # Grab appropriate server volume location
+    server_location = SERVER_PATHS[project]
+
+    weight_dir = server_location / "subjects" / subject_id
 
     subject_weight_file = list(weight_dir.glob(f"{subject_id}_weights.yml"))
 

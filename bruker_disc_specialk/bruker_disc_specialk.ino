@@ -4,7 +4,6 @@
    Purpose: Present stimuli to headfixed subject and send signals to DAQ for Tye Lab Team specialk
 
    @author Deryn LeDuke, Kyle Fischer PhD, Dexter Tsin, Jeremy Delahanty
-   @Maintainer Jeremy Delahanty
    @version 1.8.0 10/27/21
 
    Adapted from DISC_V7.ino by Kyle Fischer and Mauri van der Huevel Oct. 2019
@@ -626,6 +625,7 @@ void tonePlayer(long ms) {
         break;
       case 6:
         giveCatch = true;
+        digitalWriteFast(speakerDeliveryPin, HIGH);
         break;
     }
   }
