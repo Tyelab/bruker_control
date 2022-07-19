@@ -310,14 +310,14 @@ def capture_recording(framerate: float, num_frames: int, current_plane: int, ima
 
     # Assign video name as the config_filename for readability and append .mp4 as the file
     # format.
-    video_name = session_name + ".mp4"
+    video_name = session_name + ".avi"
 
     # Create full video path
     video_fullpath = str((video_dir / video_name))
 
     # Define video codec for writing images, use avc1 for H264 compatibility which is best
     # for reliable seeking and is nearly lossless
-    fourcc = cv2.VideoWriter_fourcc(*'avc1')
+    fourcc = cv2.VideoWriter_fourcc(*'DIVX')
 
     # Start the Camera
     h, camera, width, height = init_camera_recording()
@@ -336,9 +336,12 @@ def capture_recording(framerate: float, num_frames: int, current_plane: int, ima
     frame_number = 1
 
     cv2.namedWindow("Live!")
-    # cv2.moveWindow("Live!", IMSHOW_X_POS, IMSHOW_Y_POS)
+    cv2.moveWindow("Live!", IMSHOW_X_POS, IMSHOW_Y_POS)
 
-    for frame in tqdm(range(num_frames), desc="Experiment Progress", ascii=True):
+    while frame_number < num_frames:
+
+        # Experimental progress bar in term
+        tqdm(range(num_frames), desc="Experiment Progress", ascii=True)
 
         # Introduce try/except block in case of dropped frames
         try:
@@ -358,13 +361,15 @@ def capture_recording(framerate: float, num_frames: int, current_plane: int, ima
                 imshow_height = int(height * SCALING_FACTOR / 100)
 
                 imshow_dims = (imshow_width, imshow_height)
-  
-                # resize image
-                # resized = cv2.resize(content, imshow_dims, interpolation = cv2.INTER_AREA)
 
                 out.write(content)
-                # cv2.imshow("Live!", resized)
-                # cv2.waitKey(1)
+
+                # resize image
+                resized = cv2.resize(content, imshow_dims, interpolation = cv2.INTER_AREA)
+                
+
+                cv2.imshow("Live!", resized)
+                cv2.waitKey(1)
 
                 frame_number += 1
 
