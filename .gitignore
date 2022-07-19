@@ -1,3 +1,4 @@
 .vscode
+.DS_Store
 bruker_cleanup/bruker_cleanup.ino
 main/__pycache__
