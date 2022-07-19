@@ -95,7 +95,7 @@ def set_resonant_galvo():
 
 
 def set_galvo_galvo():
-    """
+    """ Hi Annie!
     Sets Acquisition Mode to Galvo Galvo.
 
     Z-Series recordings are performed in Galvo Galvo mode. This ensures that
@@ -650,7 +650,7 @@ def get_microscope_framerate() -> float:
     # so convert it to a float
     framerate = float(pl.GetState("framerate"))
 
-    # The framerate value is calculated with a precision of 12 decimals. Use just to the 
+    # The framerate value is calculated with a precision of 12 decimals. Use just to the
     # hundredths value, or 2 decimal places
     framerate = np.round(framerate, decimals=2)
 
@@ -660,9 +660,9 @@ def get_pmt_gain(channel_number: int):
     """
     Queries Prairie View for the microscope's channel number.
 
-    The function will query Prairie View for the scope's current channel number setting, 
+    The function will query Prairie View for the scope's current channel number setting,
     and returns it as the correct value of each PMT's gain.
-    
+
     Args:
         channel_number:
             channel the software will monitor for data collection
@@ -670,7 +670,7 @@ def get_pmt_gain(channel_number: int):
     Returns:
         pmt_gain
     """
-    
+
     # Ask Prairie Link to get the current channel number. The function returns a string,
     # so convert it to an integer
     pmt_gain = int(pl.GetState("channel_number"))
@@ -687,12 +687,10 @@ def get_laser_power() -> int:
     Returns:
         laser_power
     """
-    
+
     # Ask Prairie Link to get the current laser power. The function returns a string,
     # so convert it to an integer
-    
+
     laser_power = int(pl.GetState("laser_power"))
-    
+
     return laser_power
-
-
