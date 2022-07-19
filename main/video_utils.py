@@ -13,6 +13,9 @@ from harvesters.core import Harvester
 # Import OpenCV2 to write images/videos to file + previews
 import cv2
 
+# Import scikit-video
+import skvideo.io as io
+
 # Import datetime for filenaming
 from datetime import datetime
 
@@ -120,7 +123,7 @@ def init_camera_preview() -> Tuple[Harvester, Harvester, int, int]:
 
     # Grab Camera, Change Settings
     # Create image_acquirer object for Harvester, grab first (only) device
-    camera = h.create_image_acquirer(0)
+    camera = h.create(0)
 
     # Gather node map to camera properties
     n = camera.remote_device.node_map
@@ -138,7 +141,7 @@ def init_camera_preview() -> Tuple[Harvester, Harvester, int, int]:
 
     # Start the acquisition
     print("Starting Preview")
-    camera.start_acquisition()
+    camera.start()
 
     # Return harvester, camera, and width/height in pixels of camera
     return h, camera, width, height
@@ -164,7 +167,7 @@ def capture_preview():
     cv2.moveWindow("Preview", IMSHOW_X_POS, IMSHOW_Y_POS)
     while preview_status is True:
         try:
-            with camera.fetch_buffer() as buffer:
+            with camera.fetch() as buffer:
                 # Define frame content with buffer.payload
                 content = buffer.payload.components[0].data.reshape(height,
                                                                     width)
@@ -231,7 +234,7 @@ def init_camera_recording() -> Tuple[Harvester, Harvester, int, int]:
 
     # Grab Camera, Change Settings
     # Create image_acquirer object for Harvester, grab first (only) device
-    camera = h.create_image_acquirer(0)
+    camera = h.create(0)
 
     # Gather node map to camera properties
     n = camera.remote_device.node_map
@@ -259,7 +262,7 @@ def init_camera_recording() -> Tuple[Harvester, Harvester, int, int]:
 
     # Start the acquisition, return camera and harvester for buffer
     print("Starting Acquisition")
-    camera.start_acquisition()
+    camera.start()
 
     # Return Harvester, camera, and frame dimensions
     return h, camera, width, height
@@ -310,26 +313,31 @@ def capture_recording(framerate: float, num_frames: int, current_plane: int, ima
 
     # Assign video name as the config_filename for readability and append .mp4 as the file
     # format.
-    video_name = session_name + ".avi"
+    video_name = session_name + ".mp4"
 
     # Create full video path
-    video_fullpath = str((video_dir / video_name))
+    video_fullpath = str(video_dir / video_name)
 
     # Define video codec for writing images, use avc1 for H264 compatibility which is best
     # for reliable seeking and is nearly lossless
-    fourcc = cv2.VideoWriter_fourcc(*'DIVX')
+    fourcc = cv2.VideoWriter_fourcc(*'x264')
 
     # Start the Camera
     h, camera, width, height = init_camera_recording()
 
     # Create VideoWriter object: file, codec, framerate, dims, color value
-    out = cv2.VideoWriter(
-        video_fullpath,
-        fourcc,
-        framerate,
-        (width, height),
-        isColor=False
-        )
+    # out = cv2.VideoWriter(
+    #     video_fullpath,
+    #     fourcc,
+    #     framerate,
+    #     (width, height),
+    #     isColor=False
+    #     )
+
+    # out = io.FFmpegWriter(
+    #     video_fullpath,
+    #     outputdict={f"-framerate: {framerate}, -vcodec: libx264, -pix_fmt: yuv420, -crf: 23"}
+    #     )
 
     dropped_frames = []
 
@@ -338,49 +346,51 @@ def capture_recording(framerate: float, num_frames: int, current_plane: int, ima
     cv2.namedWindow("Live!")
     cv2.moveWindow("Live!", IMSHOW_X_POS, IMSHOW_Y_POS)
 
-    while frame_number < num_frames:
-
         # Experimental progress bar in term
-        tqdm(range(num_frames), desc="Experiment Progress", ascii=True)
+    for frame_number in range(0, num_frames): #, desc="Experiment Progress", ascii=True):
 
         # Introduce try/except block in case of dropped frames
-        try:
+        # try:
 
-            # Use with statement to acquire buffer, payload, an data
-            # Payload is 1D numpy array, RESHAPE WITH HEIGHT THEN WIDTH
-            # Numpy is backwards, reshaping as heightxwidth writes correctly
-            with camera.fetch_buffer() as buffer:
+        # Use with statement to acquire buffer, payload, an data
+        # Payload is 1D numpy array, RESHAPE WITH HEIGHT THEN WIDTH
+        # Numpy is backwards, reshaping as heightxwidth writes correctly
+        with camera.fetch() as buffer:
 
-                # Define frame content with buffer.payload
-                content = buffer.payload.components[0].data.reshape(
-                    height,
-                    width
-                    )
+            # Define frame content with buffer.payload
+            content = buffer.payload.components[0].data.reshape(
+                height,
+                width
+                )
 
-                imshow_width = int(width * SCALING_FACTOR / 100)
-                imshow_height = int(height * SCALING_FACTOR / 100)
 
-                imshow_dims = (imshow_width, imshow_height)
+            imshow_width = int(width * SCALING_FACTOR / 100)
+            imshow_height = int(height * SCALING_FACTOR / 100)
 
-                out.write(content)
+            imshow_dims = (imshow_width, imshow_height)
 
-                # resize image
-                resized = cv2.resize(content, imshow_dims, interpolation = cv2.INTER_AREA)
-                
+            # out.writeFrame(content)
 
-                cv2.imshow("Live!", resized)
-                cv2.waitKey(1)
+            # resize image
+            resized = cv2.resize(content, imshow_dims, interpolation = cv2.INTER_AREA)
+            
 
-                frame_number += 1
+            cv2.imshow("Live!", resized)
+            c = cv2.waitKey(1)
+            
+
+            frame_number += 1
 
         # TODO Raise warning for frame drops? What is this error...
-        except Exception:
-            dropped_frames.append(frame_number)
-            frame_number += 1
-            pass
+        # except Exception:
+        #     dropped_frames.append(frame_number)
+        #     frame_number += 1
+        #     print("dropped frame!!!")
+
+        #     pass
 
     # Release VideoWriter object
-    out.release()
+    # out.close()
 
     # Destroy camera window
     cv2.destroyAllWindows()
@@ -406,7 +416,7 @@ def shutdown_camera(camera: Harvester, harvester: Harvester):
     """
 
     print("Stopping Acquisition")
-    camera.stop_acquisition()
+    camera.stop()
 
     # Destroy the camera object, which releases the resource
     print("Camera Destroyed")
