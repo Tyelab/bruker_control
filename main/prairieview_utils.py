@@ -95,7 +95,7 @@ def set_resonant_galvo():
 
 
 def set_galvo_galvo():
-    """ Hi Annie!
+    """
     Sets Acquisition Mode to Galvo Galvo.
 
     Z-Series recordings are performed in Galvo Galvo mode. This ensures that
