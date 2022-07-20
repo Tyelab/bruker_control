@@ -2,14 +2,12 @@
    Tye Lab Headfixed Discrimination Task: Bruker 2P Microscope
    Name: bruker_disc_specialk
    Purpose: Present stimuli to headfixed subject and send signals to DAQ for Tye Lab Team specialk
-
    @author Deryn LeDuke, Kyle Fischer PhD, Dexter Tsin, Jeremy Delahanty
+   @Maintainer Jeremy Delahanty
    @version 1.8.0 10/27/21
-
    Adapted from DISC_V7.ino by Kyle Fischer and Mauri van der Huevel Oct. 2019
    digitalWriteFast.h written by Watterott Electronic https://github.com/watterott/Arduino-Libs/tree/master/digitalWriteFast
    SerialTransfer.h written by PowerBroker2 https://github.com/PowerBroker2/SerialTransfer
-
    The program operates using these steps:
      1. Open communications to Python on Bruker PC
      2. Receive metadata, trial type array, ITI array, tone duration array, and LED Stim timings array
@@ -18,7 +16,6 @@
      5. Send trigger to the Bruker DAQ to start the microscopy sessio
      6. Run through the trials specified in totalNumberOfTrials
      7. Reset the Arduino
-
 */
 
 //// PACKAGES ////
@@ -163,7 +160,7 @@ const int vacPin = 24;                        // solenoid for vacuum control
 const int solPin_liquid = 26;                 // solenoid for liquid control: sucrose, water, EtOH
 const int speakerPin = 12;                    // speaker control pin
 const int bruker2PTriggerPin = 11;            // trigger to start Bruker 2P Recording on Prairie View
-const int brukerLEDTriggerPin = 39;           // trigger to initiate an LED Pulse on Prairie View
+const int brukerLEDTriggerPin = 37;           // trigger to initiate an LED Pulse on Prairie View
 
 //// PIN ASSIGNMENT: RESET /////
 const int resetPin = 0;                       // Pin driven LOW for resetting the Arduino through software.
@@ -452,7 +449,6 @@ void lickDetect() {
    when an LED stimulation trigger should be sent if appropriate.
    Finally prints out to the Serial Monitor what the trial type is
    for the user.
-
    @param ms Current time in milliseconds (ms)
 */
 void startITI(long ms) {
@@ -583,7 +579,6 @@ void offLED (long ms) {
    in toneArray.  Sends signal to DAQ that speaker is on. If
    non-catch trials, signals script to use giveStim functions. If
    catch trials, signals script to use giveCatch functions.
-
    @param ms Current time in milliseconds (ms)
 */
 void tonePlayer(long ms) {
@@ -625,7 +620,6 @@ void tonePlayer(long ms) {
         break;
       case 6:
         giveCatch = true;
-        digitalWriteFast(speakerDeliveryPin, HIGH);
         break;
     }
   }
@@ -634,7 +628,6 @@ void tonePlayer(long ms) {
 /**
    Signals for the speaker to turn off and stop sending signal to DAQ that
    the speaker is active.
-
    @param ms Current time in milliseconds (ms)
 */
 void onTone(long ms) {
@@ -649,7 +642,6 @@ void onTone(long ms) {
    Delivers stimuli when trial types are non-catch trials. Delivers the
    stimuli before the end of the tone for how long the solenoid delivering
    it is required to be open.
-
    @param ms Current time in milliseconds (ms)
 */
 void presentStimulus(long ms) {
@@ -680,7 +672,6 @@ void presentStimulus(long ms) {
 /**
    Delivers stimuli when trial types are catch trials. Does NOT open solenoids
    for stimuli at any point.
-
    @param ms Current time in milliseconds (ms)
 */
 void presentCatch(long ms) {
@@ -707,7 +698,6 @@ void presentCatch(long ms) {
    Signals for solenoid activity depending on current trial type. If
    stimuli trials, solenoids are opened. If catch trials, only a
    message indicating that the catch is being "delivered" is displayed.
-
    @param ms Current time in milliseconds (ms)
 */
 void USDelivery(long ms) {
@@ -762,7 +752,6 @@ void USDelivery(long ms) {
 /**
    Turns off solenoids if presenting stimuli and resets the solenoidOn flags.
    If a sucrose trial was presented (catch or not), the consume flag is true.
-
    @param ms Current time in milliseconds (ms)
 */
 void offSolenoid(long ms) {
@@ -823,7 +812,6 @@ void offSolenoid(long ms) {
 
 /**
    Signals to turn on vacuum once specified consumption period is over.
-
    @param ms Current time in milliseconds (ms)
 */
 void consuming(long ms) {
@@ -836,7 +824,6 @@ void consuming(long ms) {
 /**
    Turns on vacuum for specified vacDelay and turns it off
    once vacuum time has elapsed.
-
    @param ms Current time in milliseconds (ms)
 */
 void vacuum(long ms) {
