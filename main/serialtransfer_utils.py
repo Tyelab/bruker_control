@@ -50,6 +50,8 @@ def transfer_data(arduino_metadata: str, experiment_arrays: list):
 
         transfer_metadata(arduino_metadata, link)
 
+        print(type((experiment_arrays[3])[0]))
+
         transfer_experiment_arrays(experiment_arrays, link)
 
         link.close()
