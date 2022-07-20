@@ -13,9 +13,6 @@ from harvesters.core import Harvester
 # Import OpenCV2 to write images/videos to file + previews
 import cv2
 
-# Import scikit-video
-import skvideo.io as io
-
 # Import datetime for filenaming
 from datetime import datetime
 
@@ -276,7 +273,7 @@ def capture_recording(framerate: float, num_frames: int, current_plane: int, ima
 
     Takes values from init_camera_recording() to capture images delivered by
     camera buffer, reshapes the image to appropriate height and width, displays
-    the image to an opencv window, and writes the image to a .avi file.
+    the image to an opencv window, and writes the image to a .mp4 file.
     When the camera acquires the specified number of frames for an experiment,
     the window closes, the camera object is destroyed, and the video is written
     to disk.
@@ -320,24 +317,19 @@ def capture_recording(framerate: float, num_frames: int, current_plane: int, ima
 
     # Define video codec for writing images, use avc1 for H264 compatibility which is best
     # for reliable seeking and is nearly lossless
-    fourcc = cv2.VideoWriter_fourcc(*'x264')
+    fourcc = cv2.VideoWriter_fourcc(*'avc1')
 
     # Start the Camera
     h, camera, width, height = init_camera_recording()
 
     # Create VideoWriter object: file, codec, framerate, dims, color value
-    # out = cv2.VideoWriter(
-    #     video_fullpath,
-    #     fourcc,
-    #     framerate,
-    #     (width, height),
-    #     isColor=False
-    #     )
-
-    # out = io.FFmpegWriter(
-    #     video_fullpath,
-    #     outputdict={f"-framerate: {framerate}, -vcodec: libx264, -pix_fmt: yuv420, -crf: 23"}
-    #     )
+    out = cv2.VideoWriter(
+        video_fullpath,
+        fourcc,
+        framerate,
+        (width, height),
+        isColor=False
+        )
 
     dropped_frames = []
 
@@ -347,50 +339,50 @@ def capture_recording(framerate: float, num_frames: int, current_plane: int, ima
     cv2.moveWindow("Live!", IMSHOW_X_POS, IMSHOW_Y_POS)
 
         # Experimental progress bar in term
-    for frame_number in range(0, num_frames): #, desc="Experiment Progress", ascii=True):
+    for frame_number in tqdm(range(num_frames), desc="Experiment Progress", ascii=True):
 
         # Introduce try/except block in case of dropped frames
-        # try:
+        try:
 
-        # Use with statement to acquire buffer, payload, an data
-        # Payload is 1D numpy array, RESHAPE WITH HEIGHT THEN WIDTH
-        # Numpy is backwards, reshaping as heightxwidth writes correctly
-        with camera.fetch() as buffer:
+            # Use with statement to acquire buffer, payload, an data
+            # Payload is 1D numpy array, RESHAPE WITH HEIGHT THEN WIDTH
+            # Numpy is backwards, reshaping as heightxwidth writes correctly
+            with camera.fetch() as buffer:
 
-            # Define frame content with buffer.payload
-            content = buffer.payload.components[0].data.reshape(
-                height,
-                width
-                )
+                # Define frame content with buffer.payload
+                content = buffer.payload.components[0].data.reshape(
+                    height,
+                    width
+                    )
 
 
-            imshow_width = int(width * SCALING_FACTOR / 100)
-            imshow_height = int(height * SCALING_FACTOR / 100)
+                imshow_width = int(width * SCALING_FACTOR / 100)
+                imshow_height = int(height * SCALING_FACTOR / 100)
 
-            imshow_dims = (imshow_width, imshow_height)
+                imshow_dims = (imshow_width, imshow_height)
 
-            # out.writeFrame(content)
+                out.write(content)
 
-            # resize image
-            resized = cv2.resize(content, imshow_dims, interpolation = cv2.INTER_AREA)
-            
+                # resize image
+                resized = cv2.resize(content, imshow_dims, interpolation = cv2.INTER_AREA)
+                
 
-            cv2.imshow("Live!", resized)
-            c = cv2.waitKey(1)
-            
+                cv2.imshow("Live!", resized)
+                c = cv2.waitKey(1)
+                
 
-            frame_number += 1
+                frame_number += 1
 
         # TODO Raise warning for frame drops? What is this error...
-        # except Exception:
-        #     dropped_frames.append(frame_number)
-        #     frame_number += 1
-        #     print("dropped frame!!!")
+        except Exception:
+            dropped_frames.append(frame_number)
+            frame_number += 1
+            print("dropped frame!!!")
 
-        #     pass
+            pass
 
     # Release VideoWriter object
-    # out.close()
+    out.release()
 
     # Destroy camera window
     cv2.destroyAllWindows()
