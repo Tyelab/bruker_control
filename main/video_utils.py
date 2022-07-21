@@ -315,6 +315,13 @@ def capture_recording(framerate: float, num_frames: int, current_plane: int, ima
     # Create full video path
     video_fullpath = str(video_dir / video_name)
 
+    # TODO: Instead of invoking opencv for writing file to disk, the use of something
+    # like skvideo which wraps around ffmpeg should be used. We could ensure our videos
+    # are encoded according to how SLEAP/Talmo recommends doing things. Still not sure
+    # how to pipe stuff into skvideo properly... need Jonny Saunders' /Chris Rodgers' help.
+    # Opencv could probably be used to display the numpy array that comes out of
+    # harvesters... not sure how skvideo does this yet. See Issue#
+
     # Define video codec for writing images, use avc1 for H264 compatibility which is best
     # for reliable seeking and is nearly lossless
     fourcc = cv2.VideoWriter_fourcc(*'avc1')

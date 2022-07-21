@@ -345,8 +345,6 @@ def get_subject_metadata(project: str, subject_id: str) -> dict:
     # Construct the base path for the subject's YAML file
     subject_path = server_location / "subjects" / subject_id
 
-    print(subject_path)
-
     # Generate a glob object for finding the yaml file and turn it into a list.
     subject_metadata = list(subject_path.glob(f"{subject_id}.yml"))
 
