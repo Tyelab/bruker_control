@@ -14,6 +14,10 @@ haven't been able to spend enough time on the second refactor for the library wh
 these parameters become class objects that organize data in a nicer way for use in the
 program. So for now, this bandaid that I don't like has to do...
 
+Additional changes were made by Annie to clean things up and use some better datatypes for the Arduino
+code!
+
+
 ## bruker_control.py v1.9.2 - 2022-02-28
 Dr. [Talmo Pereira](https://github.com/talmo) informed me that we should be encoding our videos using
 the `H264` video codec instead of using `DIVX` encoding. It allows for nearly lossless compression and
