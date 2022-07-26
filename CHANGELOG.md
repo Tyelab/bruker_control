@@ -6,7 +6,7 @@ A changelog for commits and changes before this version will not be added.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## bruker_control.py v1.10.2 - 2022-07-18 Maintenance Update
+## bruker_control.py v1.10.2 - 2022-07-25 Maintenance Update
 A couple small changes made a maintenance update necessary, mostly related to where
 things are stored on the server. Unfortunately for now, things are hardcoded to static
 volume letters that are polled from. I don't like this method of doing things, but I
@@ -28,7 +28,7 @@ It also appears that the use of the pre-amplifier offset has successfully remove
 scanning noise even in lower SNR regimes of imaging. Documentation to illustrate this is
 forthcoming.
 
-Lastly, it should be noted that currently Prairie View v5.6.64.100 is broken when trying to
+It should be noted that currently Prairie View v5.6.64.100 is broken when trying to
 use the voltage output triggers as Austin currently does. Therefore, Austin must use the
 previous version of 5.5.64.500 for his recordings to work properly. It appears that there
 may also be a setting in the `Scan Settings` that has reversed the scan direction of the
@@ -36,6 +36,12 @@ resonant galvo which may require us to flip the tiffs later on. Another setting 
 fixed in 5.6.64.100 which corrected stretched z-stack images appears to have not been
 applied to the 5.5.64.500 version. This will be handled outside the git repository most likely,
 but documentation associated to this will be added accordingly.
+
+Lastly, Annie has started working on the repository too which is very exciting! She corrected
+a few things and is working on some different branches to fix datatypes invoked in the Arduino
+code as well as write better ways of invoking the video writer for the facial expression videos.
+
+:heart: Jeremy Delahanty
 
 ### Changed
 **_Python_**
