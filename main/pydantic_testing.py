@@ -141,8 +141,7 @@ class Model(BaseModel):
     """
     params: Optional[Params] = Field(None, alias='PARAMS')
 
-    @property
-    def ITIArray(self) -> List[int]:
+    def ITIArray(self.params.iti_settings) -> List[int]:
         
         if self.params.iti_settings.iti_jitter:
 
@@ -161,7 +160,6 @@ class Model(BaseModel):
         
         return iti_array
     
-    @property
     def toneArray(self) -> List[int]:
         
         if self.params.tone_settings.tone_jitter:
@@ -181,7 +179,6 @@ class Model(BaseModel):
         
         return tone_array
     
-    @property
     def trialArray(self) -> List[int]:
         
         if self.params.trial_settings.stim_settings.stim:
@@ -191,7 +188,8 @@ class Model(BaseModel):
             trial_array = gen_trialArray_nostim(self)
         
         return trial_array
-            
+    
+    
             
     
 def gen_trialArray_nostim(config: Params) -> np.ndarray:

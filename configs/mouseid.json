@@ -1,0 +1,82 @@
+{"name": "subject ID, maybe eartag",
+"alias": "best mouse",
+"dob": "datetime",
+"markers": {
+    "earTag": "left",
+    "earNotch": "1",
+    "tailMarkings": 0
+},
+"cage": {
+    "id": 0123456,
+    "alias": "best cage"
+},
+"genotype": "genotype, should be from JAX database like autopilot does",
+"sex": "sex",
+"species": "species",
+"strain": "strain, should be handled by genotype field?",
+"surgeries": [
+    {
+        "uuid": "uuid?",
+        "start": "datetime",
+        "end": "datetime",
+        "surgeon": "surgeon, or researcher object?",
+        "stereotax": "station? linked objects for info about stereotax model?",
+        "anesthetics": [
+            {
+                "isoflurane": [
+                    {
+                        "timestamp": "timestamp",
+                        "concentration": "concentration",
+                        "route": "route"
+                    },
+                    {
+                        "timestamp": "timestamp",
+                        "concentration": "concentration",
+                        "route": "route"
+                    }
+                ],
+                "ketamine": [
+                    {
+                        "timestamp": "timestamp",
+                        "concentration": "concentration",
+                        "route": "route"
+                    }
+                ]
+
+            }
+        ],
+        "anatomy": {
+            "skull": {
+                "securedBy": "ear bars/head bars",
+                "leveling": {
+                    "bregma": ["x", "y", "z"],
+                    "lambda": ["x", "y", "z"],
+                    "right": ["x", "y", "z"],
+                    "left": ["x", "y", "z"]
+                },
+                "hardware": {
+                    "headplate": {
+                        "model": "model",
+                        "securedBy": ["item1", "material1", "item2", "method1"],
+                        "location": "location, specific anatomical terms??"
+                    }
+                },
+            "brain": {
+                ""
+            }
+        }
+    }
+    
+        "timestamp": "2022-06-30T19:08:25.823469",
+        "value": 0.02
+    }{
+        "timestamp": "2022-06-30T19:08:31.582601",
+        "value": 0.02
+    }
+}
+
+
+
+
+
+}
