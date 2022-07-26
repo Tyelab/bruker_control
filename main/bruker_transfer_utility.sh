@@ -163,6 +163,13 @@ else
             # by the bruker_pipeline converter beyblade later.
             echo /snlkt/$1/2p/raw/$subject/$date/$server_dir >> /drives/x/bruker_pipeline/raw_conversion/$conversion_identifier
             rsync -rP --remove-source-files $directory $transfer_path/2p/raw/$subject/$date/
+            # Reference Image directories are in the microscopy directory that has just been rsynced. These need
+            # to be removed before the data directory can be removed. So get this directory/any other weird directories
+            # present (there shouldn't be any others...) and remove them.
+            for ref_directory in $directory/*
+                do
+                    rmdir $ref_directory
+                done
             # Remove the directory now that the transfer to the server is complete. rmdir only removes directories
             # that are empty, so if something went wrong the contents of the directory are safe.
             rmdir $directory
