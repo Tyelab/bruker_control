@@ -14,8 +14,71 @@ haven't been able to spend enough time on the second refactor for the library wh
 these parameters become class objects that organize data in a nicer way for use in the
 program. So for now, this bandaid that I don't like has to do...
 
-Additional changes were made by Annie to clean things up and use some better datatypes for the Arduino
-code!
+One substantial thing that has happened is that I nuked the conda environment and
+reinstalled a bunch of things. Attempting to update or modify the environment was
+generating many warning and error messages. Different pieces of the software were also
+behaving strangely, especially those associated with piping the camera's data into files
+through opencv. I decided to just destroy the environment and reinstall everything while also
+making an environment file that encapsulates the current state of the software.
+
+On the hardware side, we had to resolder parts on the relay circuit board as well as resolder
+the speaker to the wires communicating with the Arduino.
+
+It also appears that the use of the pre-amplifier offset has successfully removed resonant
+scanning noise even in lower SNR regimes of imaging. Documentation to illustrate this is
+forthcoming.
+
+Lastly, it should be noted that currently Prairie View v5.6.64.100 is broken when trying to
+use the voltage output triggers as Austin currently does. Therefore, Austin must use the
+previous version of 5.5.64.500 for his recordings to work properly. It appears that there
+may also be a setting in the `Scan Settings` that has reversed the scan direction of the
+resonant galvo which may require us to flip the tiffs later on. Another setting that was
+fixed in 5.6.64.100 which corrected stretched z-stack images appears to have not been
+applied to the 5.5.64.500 version. This will be handled outside the git repository most likely,
+but documentation associated to this will be added accordingly.
+
+### Changed
+**_Python_**
+
+*`config_utils.py`*
+
+Previously all projects had their data stored on the `snlktdata` server, so a glob was performed
+for grabbing the teams' that were known to use the system and, therefore, inform the program's
+argparser what the valid choices for projects were. Now, this has been changed to hardcoded project/path
+keys in a dictionary. Until a better way of doing this is written, projects *must* be mapped to these
+directories:
+- specialk_cs: V:
+- specialk_lh: U:
+
+Until things are clarified more explicitly about where Deryn's Valence project will be storing this information
+(currently present on the X:, the `snlktdata`, drive) I haven't mapped a specific location for her project yet. Also
+want to let her choose her own letter!
+
+*`config_utils.py`: Exceptions*
+
+Previous messages for the `TemplateError` and `SubjectError` exceptions pointed to the unified directory
+locations. Until the code is refactored to use class objects, these messages are still pretty general, but
+now tell the user to check out their project's specific subject/project directories.
+
+For the Template exceptions, you would see this before:
+
+- Missing: `Project Template is missing! Check your _DATA/project/2p/config folder.`
+- Multiple: `Project has multiple template files! Check your 2p_template_configs/project folder.`
+
+Now, these are unified to produce one message:
+
+- Missing: `Project Template is missing! Check your 2p/config folder for your project.`
+- Multiple: `Project has multiple template files! Check your 2p/config folder for your project.`
+
+For the Subject exceptions, you would see this before:
+
+- Missing: `No subject metadata found! Check _DATA/project/subjects/subject_id`
+- Multiple: `Multiple subject files found! Check _DATA/project/subjects/subject_id`
+
+Now, you will see this instead:
+
+- Missing: `No subject metadata found! Check your project's subjects directory (ie U:/subjects/subjectid/)`
+- Multiple: `Multiple subject files found! Check your project's subjects directory (ie U:/subjects/subjectid/)`
 
 
 ## bruker_control.py v1.9.2 - 2022-02-28
