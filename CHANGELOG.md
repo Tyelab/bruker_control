@@ -86,6 +86,16 @@ Now, you will see this instead:
 - Missing: `No subject metadata found! Check your project's subjects directory (ie U:/subjects/subjectid/)`
 - Multiple: `Multiple subject files found! Check your project's subjects directory (ie U:/subjects/subjectid/)`
 
+**_Transfer Script_**
+Prairie View creates reference image folders inside each time series recording. When rsync successfully
+moves all the data from the local machine to the server, it tries to delete the folder. However, attempting
+to remove directories that aren't empty fails, even if the directory inside the top level directory is empty also.
+
+This behavior was intentional because it felt best to not remove directories that had any contents inside them
+just in case rsync failed for some reason. A new small for loop has been introduced to get any of these directories
+after rsync is complete and remove them. This ensures that all the directories for a given project are empty
+and cleaned up before the next day's imaging session.
+
 
 ## bruker_control.py v1.9.2 - 2022-02-28
 Dr. [Talmo Pereira](https://github.com/talmo) informed me that we should be encoding our videos using
