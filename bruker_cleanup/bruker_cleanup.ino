@@ -1,5 +1,5 @@
 /*
-  
+
   Cleanup script for liquid solenoids.
 
   Opens liquid solenoid for 10 seconds, then closes for 500ms.
@@ -15,15 +15,17 @@
 const int solPin_liquid = 26;
 const int vacPin = 24;
 
-void setup() {
+void setup()
+{
   // Initialize liquid solenoid pin for cleaning
   pinMode(solPin_liquid, OUTPUT);
   pinMode(vacPin, OUTPUT);
 }
 
 // the loop function runs over and over again forever
-void loop() {
-  //Open solenoid for 10 seconds or 150msec if making sure needle is ready
+void loop()
+{
+  // Open solenoid for 10 seconds or 150msec if making sure needle is ready
   digitalWrite(solPin_liquid, HIGH);
   delay(200);
   digitalWrite(solPin_liquid, LOW);
@@ -32,5 +34,4 @@ void loop() {
   delay(500);
   digitalWrite(vacPin, LOW);
   delay(1000);
-
 }
