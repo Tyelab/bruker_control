@@ -139,3 +139,7 @@ Gene Therapy Division, Neurocrine
 Dexter Tsin\
 Incoming Princeton Neuroscience Graduate Student! Congrats Dexter!\
 Former Tye Lab, Salk Institute for Biological Studies
+
+Annie Ehler\
+Computer Analyst I\
+Tye Lab, Salk Institute for Biological Studies
