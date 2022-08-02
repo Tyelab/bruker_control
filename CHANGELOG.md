@@ -6,7 +6,7 @@ A changelog for commits and changes before this version will not be added.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## bruker_control.py v1.10.2 - 2022-07-25 Maintenance Update
+## bruker_control.py v1.10.2 - 2022-08-01 Maintenance Update
 A couple small changes made a maintenance update necessary, mostly related to where
 things are stored on the server. Unfortunately for now, things are hardcoded to static
 volume letters that are polled from. I don't like this method of doing things, but I
@@ -36,6 +36,21 @@ resonant galvo which may require us to flip the tiffs later on. Another setting 
 fixed in 5.6.64.100 which corrected stretched z-stack images appears to have not been
 applied to the 5.5.64.500 version. This will be handled outside the git repository most likely,
 but documentation associated to this will be added accordingly.
+
+Another unfortunate problem has been found with our Standard Instruments DAC where Channel 2
+no longer functions as its supposed to! During a recent recording with Austin, the middle of the
+recording had a sudden drop in the PMT values seen in the LUT in the middle range. After
+troubleshooting some with Steve from Bruker, it was discovered that the second channel receiving
+data streams from the PMT is damaged and malfunctioning. The reason for this damage is unknown.
+Steve said it is quite rare for this problem to happen and the only way it can be fixed is by
+purchasing a new card which costs approximately $10k! One way I can see this damage having
+occured is either through shipping problems when the scope was moved long ago or when Jorge was
+adding additional SSDs to the machine and had to disconnect the pins when moving the case and
+opening it up. However, things were working fine for many months after this, so why it would fail
+suddenly in this manner is still confusing. The only other way I could imagine things having this
+problem is due to an issue arising from the use of the PMT channel offset parameter somehow damaging
+the pin or card in some manner. Steve from Bruker said that should have no effect on these pins and
+it would be highly unlikely for this to be the issue. We'll have to monitor this closely.
 
 Lastly, Annie has started working on the repository too which is very exciting! She corrected
 a few things and is working on some different branches to fix datatypes invoked in the Arduino
@@ -95,6 +110,11 @@ This behavior was intentional because it felt best to not remove directories tha
 just in case rsync failed for some reason. A new small for loop has been introduced to get any of these directories
 after rsync is complete and remove them. This ensures that all the directories for a given project are empty
 and cleaned up before the next day's imaging session.
+
+**_Environment File_**
+A new environment file has been added to repository since there was not one present previously. As mentioned
+above, there were problems associated with the conda installations on the machine so I uninstalled them and
+started over fresh. You can find this environment file in the repository simply as `environment.yml`.
 
 
 ## bruker_control.py v1.9.2 - 2022-02-28
