@@ -334,8 +334,11 @@ def prepare_tseries(project: str, subject_id: str, current_plane: int,
 
 
         # TODO: Make this channel setting its own function in next refactor
+        # NOTE: It was discovered on 7/27/22 that the 2nd channel on the
+        # PMT DAC card is faulty somehow. Until we receive a new card from Eun,
+        # we have to use channel 3 as our "Second" channel.
         pl.SendScriptCommands("-SetChannel '1' 'Off'")
-        pl.SendScriptCommands("-SetChannel '2' 'On'")
+        pl.SendScriptCommands("-SetChannel '3' 'On'")
 
         # TODO: Make this part of a configuration and make tseries_stim
         # vs tseries_nostim. Must be done with next refactor...
@@ -610,6 +613,10 @@ def zstack(zstack_metadata: dict, project: str, subject_id: str,
 def set_one_channel_zseries(indicator_emission: float):
     """
     Sets proper recording channel to use (1: Red 2: Green) in the z-stack.
+    NOTE: On 7/27/22, it was discovered that the second channel on the DAC
+    for the PMTs is faulty. Until a new card arrives, we will be using
+    the 3rd channel on the card. Changes in the code for the script commands
+    are now to set channel 3 on when imaging.
 
     Different indicators have different channels that should be recorded from
     depending on the emission wavelengths of the indicators being imaged.
@@ -622,14 +629,20 @@ def set_one_channel_zseries(indicator_emission: float):
 
     # If the indicator's emission wavelength is above green wavelengths,
     # use only the red channel.
+    # NOTE: It was discovered on 7/27/22 that the 2nd channel on the
+    # PMT DAC card is faulty somehow. Until we receive a new card from Eun,
+    # we have to use channel 3 as our "Second" channel.
     if indicator_emission >= 570.0:
         pl.SendScriptCommands("-SetChannel '1' 'On'")
-        pl.SendScriptCommands("-SetChannel '2' 'Off'")
+        pl.SendScriptCommands("-SetChannel '3' 'Off'")
 
     # Otherwise, use the green channel
+    # NOTE: It was discovered on 7/27/22 that the 2nd channel on the
+    # PMT DAC card is faulty somehow. Until we receive a new card from Eun,
+    # we have to use channel 3 as our "Second" channel.
     else:
         pl.SendScriptCommands("-SetChannel '1' 'Off'")
-        pl.SendScriptCommands("-SetChannel '2' 'On'")
+        pl.SendScriptCommands("-SetChannel '3' 'On'")
 
 
 def get_microscope_framerate() -> float:

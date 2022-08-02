@@ -139,6 +139,13 @@ else
             date=$(echo $directory | cut -d '/' -f 2 | cut -d '_' -f 1 )
             subject=$(echo $directory | cut -d '/' -f 2 | cut -d '_' -f 2 )
             rsync -rP --remove-source-files $directory $transfer_path/2p/raw/$subject/$date/zstacks
+            # Reference Image directories are in the microscopy directory that has just been rsynced. These need
+            # to be removed before the data directory can be removed. So get this directory/any other weird directories
+            # present (there shouldn't be any others...) and remove them.
+            for ref_directory in $directory/*
+                do
+                    rmdir $ref_directory
+                done
             rmdir $directory
         else
             echo "No z-stacks found!"
@@ -184,6 +191,5 @@ else
 
 echo "File transfer to server complete!" | Mail -s "bruker_transfer_utility" acoley@salk.edu
 echo "File transfer to server complete!" | Mail -s "bruker_transfer_utility" jdelahanty@salk.edu
-echo "Two windmills are standing in a field. One asks the other, 'What kind of music do you like?' The other says, 'Im a big metal fan" | Mail -s "Really blew me away!" abakhtisuroosh@salk.edu
 
 fi
