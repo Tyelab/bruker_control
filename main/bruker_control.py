@@ -6,7 +6,7 @@
 # https://github.com/PowerBroker2/pySerialTransfer
 # Genie Nano manufactured by Teledyne DALSA
 
-__version__ = "1.9.3 Get Yoked"
+__version__ = "1.10.4 Get Yoked"
 
 # Import experiment utils to run different experiments
 import experiment_utils
@@ -21,12 +21,20 @@ from pathlib import Path
 # Import sys for exiting program safely
 # import sys
 
-# Static Directory for teams found in SNLKT Server
-RAW_PATH = Path("X:/_DATA")
+# TODO: Paths to different teams/projects must be static on the machine until
+# a better way of polling this is completed. Should try polling the
+# file system for available mounted paths or something at some point
+# TEAM_PATHS = Path("")
+
+# Static Directory for teams found in SNLKT Server. Until doing this via
+# class methods is implemented, having a dictionary for these values is
+# necessary... this isn't a great way to do this I don't think...
+# VALID_CHOICES = {"specialk_cs": Path("V:/specialk_cs"),
+#                 "specialk_lh": Path("U:/specialk_lh")}
 
 # Generate valid team choices for argparser variable project by checking the server for
 # valid project names
-PROJECT_CHOICES = [project.name for project in RAW_PATH.glob("*") if project.is_dir()]
+PROJECT_CHOICES = ["specialk_cs", "specialk_lh", "deryn_fd"]
 
 ###############################################################################
 # Main Function

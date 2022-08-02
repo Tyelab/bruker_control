@@ -20,8 +20,8 @@ declare -A project_paths
 # Add key:value pairs for project_name:project_path line by line for valid
 # project paths/directories
 project_paths["deryn_fd"]=/drives/x/Deryn/2P_raw_data
-project_paths["specialk_cs"]=/drives/y
-project_paths["specialk_lh"]=/drives/w
+project_paths["specialk_cs"]=/drives/v
+project_paths["specialk_lh"]=/drives/u
 
 transfer_path=${project_paths[$1]}
 
@@ -139,6 +139,13 @@ else
             date=$(echo $directory | cut -d '/' -f 2 | cut -d '_' -f 1 )
             subject=$(echo $directory | cut -d '/' -f 2 | cut -d '_' -f 2 )
             rsync -rP --remove-source-files $directory $transfer_path/2p/raw/$subject/$date/zstacks
+            # Reference Image directories are in the microscopy directory that has just been rsynced. These need
+            # to be removed before the data directory can be removed. So get this directory/any other weird directories
+            # present (there shouldn't be any others...) and remove them.
+            for ref_directory in $directory/*
+                do
+                    rmdir $ref_directory
+                done
             rmdir $directory
         else
             echo "No z-stacks found!"
@@ -162,7 +169,14 @@ else
             # Echo these particular variables to the raw_conversion text file on the server. This will be used
             # by the bruker_pipeline converter beyblade later.
             echo /snlkt/$1/2p/raw/$subject/$date/$server_dir >> /drives/x/bruker_pipeline/raw_conversion/$conversion_identifier
-            # rsync -rP --remove-source-files $directory $transfer_path/2p/raw/$subject/$date/
+            rsync -rP --remove-source-files $directory $transfer_path/2p/raw/$subject/$date/
+            # Reference Image directories are in the microscopy directory that has just been rsynced. These need
+            # to be removed before the data directory can be removed. So get this directory/any other weird directories
+            # present (there shouldn't be any others...) and remove them.
+            for ref_directory in $directory/*
+                do
+                    rmdir $ref_directory
+                done
             # Remove the directory now that the transfer to the server is complete. rmdir only removes directories
             # that are empty, so if something went wrong the contents of the directory are safe.
             rmdir $directory

@@ -180,13 +180,13 @@ def run_imaging_experiment(metadata_args):
         prairieview_utils.end_tseries()
 
         config_utils.write_experiment_config(
-        config_template,
-        experiment_arrays,
-        dropped_frames,
-        project,
-        subject_id,
-        str(imaging_plane),
-        current_plane
+            config_template,
+            experiment_arrays,
+            dropped_frames,
+            project,
+            subject_id,
+            str(imaging_plane),
+            current_plane
         )
 
         if current_plane == requested_planes:
