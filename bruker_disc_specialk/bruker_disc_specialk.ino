@@ -4,7 +4,7 @@
    Purpose: Present stimuli to headfixed subject and send signals to DAQ for Tye Lab Team specialk
    @author Deryn LeDuke, Kyle Fischer PhD, Dexter Tsin, Jeremy Delahanty
    @Maintainer Jeremy Delahanty
-   @version 1.8.0 10/27/21
+   @version 1.9.0 10/7/22
    Adapted from DISC_V7.ino by Kyle Fischer and Mauri van der Huevel Oct. 2019
    digitalWriteFast.h written by Watterott Electronic https://github.com/watterott/Arduino-Libs/tree/master/digitalWriteFast
    SerialTransfer.h written by PowerBroker2 https://github.com/PowerBroker2/SerialTransfer
