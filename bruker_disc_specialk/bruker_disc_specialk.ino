@@ -40,6 +40,8 @@ struct __attribute__((__packed__)) metadata_struct {
   uint8_t USDeliveryTime_Air;               // amount of time to open air solenoid
   uint16_t USConsumptionTime_Sucrose;       // amount of time to wait for sucrose consumption
   uint16_t stimDeliveryTime_Total;          // amount of time LED is scheduled to run
+  uint16_t USDelay;                         // amount of time to wait before US delivery is valid
+  bool lickContingency;                     // whether or not Lick Contingency is true
 } metadata;
 
 //// EXPERIMENT ARRAYS ////
@@ -52,7 +54,7 @@ int32_t ITIArray[MAX_NUM_TRIALS];
 // The amount of time a tone is played is transmitted from Python to the Arudino
 int32_t toneArray[MAX_NUM_TRIALS];
 // The timepoints for stimulating the subject via LED are transmitted from Python to Arduino
-uint32_t LEDArray[MAX_NUM_TRIALS];
+int32_t LEDArray[MAX_NUM_TRIALS];
 
 //// PYTHON TRANSMISSION STATUS ////
 // Additional control is required for running the experiment correctly.
@@ -115,6 +117,7 @@ boolean consume = false;
 boolean cleanIt = false;
 boolean noise = false;                // Can't use tone as it's protected in Arduino
 boolean toneDAQ = false;
+boolean licked = false;
 
 //// TIMING VARIABLES ////
 // Time is measured in milliseconds for this program
@@ -134,6 +137,7 @@ unsigned long USDeliveryMS;
 unsigned long noiseDeliveryMS;
 unsigned long toneListeningMS;
 unsigned long toneDAQMS;
+unsigned long USDelivery;
 // Vacuum has a set amount of time to be active
 const int vacDelay = 500; // vacuum delay
 
@@ -416,6 +420,7 @@ void reset_board() {
   cleanIt = false;
   noise = false;
   toneDAQ = false;
+  licked = false;
   Serial.println("Resetting Arduino after 3 seconds...");
   delay(3000);
   Serial.println("RESETTING");
@@ -426,17 +431,20 @@ void reset_board() {
 /**
    Standard MPR121 capacitance board script monitoring for touches
    to the sucrose delivery needle. Uses pin 2 on the board for
-   monitoring the capacitance touching.
+   monitoring the capacitance touching. Updated with variable where
+   if the board detects a touch it will set the licked flag to true
 */
 void lickDetect() {
   currtouched = cap.touched(); // Get currently touched contacts
   // if it is *currently* touched and *wasn't* touched before, alert!
   if ((currtouched & _BV(2)) && !(lasttouched & _BV(2))) {
     digitalWriteFast(lickDetectPin, HIGH);
+    licked = true;
   }
   // if it *was* touched and now *isn't*, alert!
   if (!(currtouched & _BV(2)) && (lasttouched & _BV(2))) {
     digitalWriteFast(lickDetectPin, LOW);
+    licked = false;
   }
   lasttouched = currtouched;
 }
@@ -566,6 +574,8 @@ void brukerTriggerLED (unsigned long ms) {
 /**
  * Sends brukerLEDTriggerPin LOW after 
  */
+// TODO: This probably isn't actually necessary... should try removing
+// and see what happens
 void offLED (unsigned long ms) {
   if (LEDOn && (ms >= LEDEnd)) {
     LEDOn = false;
@@ -587,6 +597,7 @@ void tonePlayer(unsigned long ms) {
     thisToneDuration = toneArray[currentTrial];
     toneDAQ = true;
     toneListeningMS = ms + thisToneDuration;
+    USDeliveryMS = ms + metadata.USDelay
     switch (trialType) {
       case 0:
         digitalWriteFast(speakerDeliveryPin, HIGH);
@@ -620,7 +631,8 @@ void tonePlayer(unsigned long ms) {
         break;
       case 6:
         giveCatch = true;
-        break;
+        digitalWriteFast(speakerDeliveryPin, HIGH);         // no tone plays, but this gives a "trial start"
+        break;                                              // marker for downstream analyses with LED only trials
     }
   }
 }
@@ -644,25 +656,46 @@ void onTone(unsigned long ms) {
    it is required to be open.
    @param ms Current time in milliseconds (ms)
 */
+// NOTE: Unfortunately many if statements are necessary here for sucrose trials.
 void presentStimulus(unsigned long ms) {
   switch (trialType) {
     case 0:
-      if (giveStim && (ms >=  toneListeningMS - metadata.USDeliveryTime_Air)) {
+      if (giveStim && (ms >=  USDeliveryMS)) {
         newUSDelivery = true;
         break;
       }
     case 1:
-      if (giveStim && (ms >= toneListeningMS - metadata.USDeliveryTime_Sucrose)) {
-        newUSDelivery = true;
-        break;
+      if giveStim {
+          if {lickContingency
+            if (licked && (ms >= USDeliveryMS)) {
+              newUSDelivery = true;
+              break;
+            }
+          }
+          else {
+            if (ms >= USDeliveryMS) {
+              newUSDelivery = true;
+              break;
+            }
+          }
       }
     case 4:
-      if (giveStim && (ms >= toneListeningMS - metadata.USDeliveryTime_Sucrose)) {
-        newUSDelivery = true;
-        break;
-      }
+      if giveStim {
+                if {lickContingency
+                  if (licked && (ms >= USDeliveryMS)) {
+                    newUSDelivery = true;
+                    break;
+                  }
+                }
+                else {
+                  if (ms >= USDeliveryMS) {
+                    newUSDelivery = true;
+                    break;
+                  }
+                }
+            }
     case 5:
-      if (giveStim && (ms >= toneListeningMS - metadata.USDeliveryTime_Air)) {
+      if (giveStim && (ms >=  USDeliveryMS)) {
         newUSDelivery = true;
         break;
       }
@@ -674,6 +707,7 @@ void presentStimulus(unsigned long ms) {
    for stimuli at any point.
    @param ms Current time in milliseconds (ms)
 */
+// NOTE: Unfortunately many if statements are necessary here for sucrose trials.
 void presentCatch(unsigned long ms) {
   switch (trialType) {
     case 2:
