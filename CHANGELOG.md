@@ -6,13 +6,116 @@ A changelog for commits and changes before this version will not be added.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## bruker_control.py v1.10.2 - 2022-07-18 Maintenance Update
+## bruker_control.py v1.10.2 - 2022-08-01 Maintenance Update
 A couple small changes made a maintenance update necessary, mostly related to where
 things are stored on the server. Unfortunately for now, things are hardcoded to static
 volume letters that are polled from. I don't like this method of doing things, but I
 haven't been able to spend enough time on the second refactor for the library where all
 these parameters become class objects that organize data in a nicer way for use in the
 program. So for now, this bandaid that I don't like has to do...
+
+One substantial thing that has happened is that I nuked the conda environment and
+reinstalled a bunch of things. Attempting to update or modify the environment was
+generating many warning and error messages. Different pieces of the software were also
+behaving strangely, especially those associated with piping the camera's data into files
+through opencv. I decided to just destroy the environment and reinstall everything while also
+making an environment file that encapsulates the current state of the software.
+
+On the hardware side, we had to resolder parts on the relay circuit board as well as resolder
+the speaker to the wires communicating with the Arduino.
+
+It also appears that the use of the pre-amplifier offset has successfully removed resonant
+scanning noise even in lower SNR regimes of imaging. Documentation to illustrate this is
+forthcoming.
+
+It should be noted that currently Prairie View v5.6.64.100 is broken when trying to
+use the voltage output triggers as Austin currently does. Therefore, Austin must use the
+previous version of 5.5.64.500 for his recordings to work properly. It appears that there
+may also be a setting in the `Scan Settings` that has reversed the scan direction of the
+resonant galvo which may require us to flip the tiffs later on. Another setting that was
+fixed in 5.6.64.100 which corrected stretched z-stack images appears to have not been
+applied to the 5.5.64.500 version. This will be handled outside the git repository most likely,
+but documentation associated to this will be added accordingly.
+
+Another unfortunate problem has been found with our Standard Instruments DAC where Channel 2
+no longer functions as its supposed to! During a recent recording with Austin, the middle of the
+recording had a sudden drop in the PMT values seen in the LUT in the middle range. After
+troubleshooting some with Steve from Bruker, it was discovered that the second channel receiving
+data streams from the PMT is damaged and malfunctioning. The reason for this damage is unknown.
+Steve said it is quite rare for this problem to happen and the only way it can be fixed is by
+purchasing a new card which costs approximately $10k! One way I can see this damage having
+occured is either through shipping problems when the scope was moved long ago or when Jorge was
+adding additional SSDs to the machine and had to disconnect the pins when moving the case and
+opening it up. However, things were working fine for many months after this, so why it would fail
+suddenly in this manner is still confusing. The only other way I could imagine things having this
+problem is due to an issue arising from the use of the PMT channel offset parameter somehow damaging
+the pin or card in some manner. Steve from Bruker said that should have no effect on these pins and
+it would be highly unlikely for this to be the issue. We'll have to monitor this closely.
+
+Lastly, Annie has started working on the repository too which is very exciting! She corrected
+a few things and is working on some different branches to fix datatypes invoked in the Arduino
+code as well as write better ways of invoking the video writer for the facial expression videos.
+
+:heart: Jeremy Delahanty
+
+### Changed
+**_Python_**
+
+*`config_utils.py`*
+
+Previously all projects had their data stored on the `snlktdata` server, so a glob was performed
+for grabbing the teams' that were known to use the system and, therefore, inform the program's
+argparser what the valid choices for projects were. Now, this has been changed to hardcoded project/path
+keys in a dictionary. Until a better way of doing this is written, projects *must* be mapped to these
+directories:
+- specialk_cs: V:
+- specialk_lh: U:
+
+Until things are clarified more explicitly about where Deryn's Valence project will be storing this information
+(currently present on the X:, the `snlktdata`, drive) I haven't mapped a specific location for her project yet. Also
+want to let her choose her own letter!
+
+*`config_utils.py`: Exceptions*
+
+Previous messages for the `TemplateError` and `SubjectError` exceptions pointed to the unified directory
+locations. Until the code is refactored to use class objects, these messages are still pretty general, but
+now tell the user to check out their project's specific subject/project directories.
+
+For the Template exceptions, you would see this before:
+
+- Missing: `Project Template is missing! Check your _DATA/project/2p/config folder.`
+- Multiple: `Project has multiple template files! Check your 2p_template_configs/project folder.`
+
+Now, these are unified to produce one message:
+
+- Missing: `Project Template is missing! Check your 2p/config folder for your project.`
+- Multiple: `Project has multiple template files! Check your 2p/config folder for your project.`
+
+For the Subject exceptions, you would see this before:
+
+- Missing: `No subject metadata found! Check _DATA/project/subjects/subject_id`
+- Multiple: `Multiple subject files found! Check _DATA/project/subjects/subject_id`
+
+Now, you will see this instead:
+
+- Missing: `No subject metadata found! Check your project's subjects directory (ie U:/subjects/subjectid/)`
+- Multiple: `Multiple subject files found! Check your project's subjects directory (ie U:/subjects/subjectid/)`
+
+**_Transfer Script_**
+Prairie View creates reference image folders inside each time series recording. When rsync successfully
+moves all the data from the local machine to the server, it tries to delete the folder. However, attempting
+to remove directories that aren't empty fails, even if the directory inside the top level directory is empty also.
+
+This behavior was intentional because it felt best to not remove directories that had any contents inside them
+just in case rsync failed for some reason. A new small for loop has been introduced to get any of these directories
+after rsync is complete and remove them. This ensures that all the directories for a given project are empty
+and cleaned up before the next day's imaging session.
+
+**_Environment File_**
+A new environment file has been added to repository since there was not one present previously. As mentioned
+above, there were problems associated with the conda installations on the machine so I uninstalled them and
+started over fresh. You can find this environment file in the repository simply as `environment.yml`.
+
 
 ## bruker_control.py v1.9.2 - 2022-02-28
 Dr. [Talmo Pereira](https://github.com/talmo) informed me that we should be encoding our videos using

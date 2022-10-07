@@ -160,7 +160,7 @@ const int vacPin = 24;                        // solenoid for vacuum control
 const int solPin_liquid = 26;                 // solenoid for liquid control: sucrose, water, EtOH
 const int speakerPin = 12;                    // speaker control pin
 const int bruker2PTriggerPin = 11;            // trigger to start Bruker 2P Recording on Prairie View
-const int brukerLEDTriggerPin = 39;           // trigger to initiate an LED Pulse on Prairie View
+const int brukerLEDTriggerPin = 37;           // trigger to initiate an LED Pulse on Prairie View
 
 //// PIN ASSIGNMENT: RESET /////
 const int resetPin = 0;                       // Pin driven LOW for resetting the Arduino through software.

@@ -140,7 +140,7 @@ def get_template(project: str) -> dict:
     # something is wrong. Raise an exception.
     if len(template_config_path) > 1:
         raise TemplateError(
-            "Project has multiple template files! Check your 2p_template_configs/project folder."
+            "Project has multiple template files! Check your 2p/config folder for your project."
             )
 
     # Otherwise, try to load the one present file. If it's not there,
@@ -153,7 +153,7 @@ def get_template(project: str) -> dict:
 
         except IndexError:
             raise TemplateError(
-                "Project Template is missing! Check your _DATA/project/2p/config folder."
+                "Project Template is missing! Check your 2p/config folder for your project."
                 )
 
     return config_template
@@ -345,14 +345,12 @@ def get_subject_metadata(project: str, subject_id: str) -> dict:
     # Construct the base path for the subject's YAML file
     subject_path = server_location / "subjects" / subject_id
 
-    print(subject_path)
-
     # Generate a glob object for finding the yaml file and turn it into a list.
     subject_metadata = list(subject_path.glob(f"{subject_id}.yml"))
 
     # Check if there's multiple metadata files present for a subject.
     if len(subject_metadata) > 1:
-        raise SubjectError("Multiple subject files found! Check _DATA/project/subjects/subject_id")
+        raise SubjectError("Multiple subject files found! Check your project's subjects directory (ie U:/subjects/subjectid/)")
 
     # Otherwise, try to load the one present file. If it's not there,
     # an index error occurs and an exception is raised.
@@ -361,7 +359,7 @@ def get_subject_metadata(project: str, subject_id: str) -> dict:
             subject_metadata = yaml.load(subject_metadata[0])
         
         except IndexError:
-            raise SubjectError("No subject metadata found! Check _DATA/project/subjects/subject_id")
+            raise SubjectError("No subject metadata found! Check your project's subjects directory (ie U:/subjects/subjectid/)")
 
     return subject_metadata
 

@@ -273,7 +273,7 @@ def capture_recording(framerate: float, num_frames: int, current_plane: int, ima
 
     Takes values from init_camera_recording() to capture images delivered by
     camera buffer, reshapes the image to appropriate height and width, displays
-    the image to an opencv window, and writes the image to a .avi file.
+    the image to an opencv window, and writes the image to a .mp4 file.
     When the camera acquires the specified number of frames for an experiment,
     the window closes, the camera object is destroyed, and the video is written
     to disk.
@@ -315,6 +315,13 @@ def capture_recording(framerate: float, num_frames: int, current_plane: int, ima
     # Create full video path
     video_fullpath = str(video_dir / video_name)
 
+    # TODO: Instead of invoking opencv for writing file to disk, the use of something
+    # like skvideo which wraps around ffmpeg should be used. We could ensure our videos
+    # are encoded according to how SLEAP/Talmo recommends doing things. Still not sure
+    # how to pipe stuff into skvideo properly... need Jonny Saunders' /Chris Rodgers' help.
+    # Opencv could probably be used to display the numpy array that comes out of
+    # harvesters... not sure how skvideo does this yet. See Issue#
+
     # Define video codec for writing images, use avc1 for H264 compatibility which is best
     # for reliable seeking and is nearly lossless
     fourcc = cv2.VideoWriter_fourcc(*'avc1')
@@ -344,9 +351,9 @@ def capture_recording(framerate: float, num_frames: int, current_plane: int, ima
         # Introduce try/except block in case of dropped frames
         try:
 
-        # Use with statement to acquire buffer, payload, an data
-        # Payload is 1D numpy array, RESHAPE WITH HEIGHT THEN WIDTH
-        # Numpy is backwards, reshaping as heightxwidth writes correctly
+            # Use with statement to acquire buffer, payload, an data
+            # Payload is 1D numpy array, RESHAPE WITH HEIGHT THEN WIDTH
+            # Numpy is backwards, reshaping as heightxwidth writes correctly
             with camera.fetch() as buffer:
 
                 # Define frame content with buffer.payload
