@@ -1285,6 +1285,6 @@ def gen_LEDArray(config_template: dict, trialArray: np.ndarray, ITIArray: np.nda
         # Calculate when to send the LED stimulation trigger to Prairie View.
         # Above we simply copied the ITI values into LEDArray, now we subtract
         # by when we need to provide the LED stimulus before hand.
-        LEDArray = np.subtract(LEDArray, precs_delay).tolist()
+        LEDArray = list(np.subtract(LEDArray, precs_delay))
 
     return LEDArray

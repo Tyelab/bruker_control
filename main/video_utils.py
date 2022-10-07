@@ -384,7 +384,6 @@ def capture_recording(framerate: float, num_frames: int, current_plane: int, ima
         except Exception:
             dropped_frames.append(frame_number)
             frame_number += 1
-            print("dropped frame!!!")
 
             pass
 
