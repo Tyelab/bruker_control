@@ -17,9 +17,254 @@ import numpy as np
 # Import sys for exiting program safely
 import sys
 
+# Import subprocess for uploading team's sketch the first time the program is
+# run
+import subprocess as sp
+
+# Import pathlib for gathering team's arduino sketch
+from pathlib import Path
+
+# Import typing for type hints
+from typing import List
+
+# Import os for gathering which user is currently running the experiment
+import os
+
+# Import json for decoding ascii strings into dictionaries, ensure that
+# experiment can find the Arduino being used before running the session
+import json
+
+# Gather username of whoever is signed into the computer that day for
+# grepping the appropriate sketches
+USERNAME = os.getlogin()
+
+# Until something like Autopilot is used, hardcoding sketch paths
+# in this manner is how things like this will have to be done...
+SKETCH_PATHS = Path(f"C:/Users/{USERNAME}/Documents/gitrepos/bruker_control/")
+
+
+###############################################################################
+# Classes
+###############################################################################
+
+
+class Arduino:
+    """
+    Generic Arduino class for interacting with arbitrary Arduino boards.
+
+    Class for discovering boards available on the system with ability
+    to select arbitrary Arduino boards discovered on the machine. Compiles
+    and uploads sketches to the board before the experiment starts.
+    """
+
+    def __init__(self, sketch_path:Path, idx:int=0):
+        self.sketch_path = sketch_path
+
+        properties = self.list_boards()
+
+        if idx > len(properties):
+            raise ValueError(f"Requested board with index {idx}, but {len(properties)} boards found")
+        
+        self.board_name = properties[idx][0]
+        self.fqbn = properties[idx][1]
+        self.board_com = properties[idx][2]
+
+
+    @classmethod
+    def list_boards(cls) -> List[tuple]:
+        """
+        Query CLI for finding available Arduinos on the machine.
+        """
+
+        print("Determining Board Properties...")
+
+        # Query the CLI with a subprocess
+        com_list = sp.run(
+            [
+                "arduino-cli",
+                "board",
+                "list",
+                "--format",
+                "json"
+            ],
+            capture_output=True
+        ).stdout.decode("ascii")
+
+        # Load json formatted output for parsing
+        decoded_com_list = json.loads(com_list)
+
+        # For each address found in the com_list (the CLI)
+        # will report all noted COM addresses even if its
+        # not sure what it is), find its name, fully-qualified
+        # board name (fqbn) and the COM ports associated with it
+        for address in decoded_com_list:
+            if "matching_boards" in address:
+                matching_boards = address["matching_boards"]
+                # If only one board is found, having the port
+                # addresses in a list makes list comprehension
+                # easier later...
+                addresses = [address["port"]]
+                break
+
+        # Create list of tuples with the name, fqbn, and port
+        # that will be used to update the class properties
+        boards = [
+            (
+                matching_boards[board]["name"], 
+                matching_boards[board]["fqbn"],
+                addresses[board]["address"]) for board in range(0, len(matching_boards)
+            )
+        ]
+
+        return boards
+
+    def compile_sketch(self):
+        """
+        Use the CLI to compile the project's Arduino sketch
+        """
+
+        print("Compiling Sketch...")
+
+        compile_sketch = sp.run(
+            [
+                "arduino-cli",
+                "compile",
+                "--fqbn",
+                self.fqbn,
+                str(self.sketch_path),
+                "-v",
+                "--format",
+                "json"
+            ],
+            capture_output=True
+        ).stdout.decode("ascii")
+
+        compile_output = json.loads(compile_sketch)
+
+        if compile_output["success"]:
+            print("Sketch compiled successfully!")
+        
+        # TODO: Things like this should be logged...
+        else:
+            print("COMPILATION ERROR!!!")
+            print(compile_output)   
+
+    def upload_sketch(self):
+        """
+        Use the CLI to upload the sketch to the Arduino.
+        """
+
+        print("Uploading Sketch...")
+
+        upload_sketch = sp.run(
+            [
+                "arduino-cli",
+                "upload",
+                "-p",
+                self.board_com,
+                "--fqbn",
+                self.fqbn,
+                str(self.sketch_path),
+                "--format",
+                "json",
+                "--verbose"
+            ],
+            capture_output=True
+        )
+
+        # TODO: Another thing that should be logged
+        if upload_sketch.returncode:
+            print(upload_sketch.stdout.decode())
+            print(upload_sketch.stderr.decode())
+        else:
+            print("Upload successful!")
+
+
+###############################################################################
+# Exceptions
+###############################################################################
+
+
+class SketchError(Exception):
+    """
+    Exception for when there's an error finding or using an Arduino sketch.
+    """
+    def __init__(self, *args):
+        if args:
+            self.message = args[0]
+        else:
+            self.message = None
+
+    def __str__(self):
+        if self.message:
+            return "SketchError: " + "{0}".format(self.message)
+        else:
+            return "SKETCH ERROR"
+
+
 ###############################################################################
 # Functions
 ###############################################################################
+
+
+def upload_arduino_sketch(project: Path):
+    """
+    Takes project name running experiment and finds sketch, uploads to board.
+
+    Uses project name to grab .ino file for given team, compiles it, and
+    finally sends it to the Arduino using the arduino-cli.
+
+    Args:
+        project:
+            The team and project conducting the experiment (ie teamname_projectname)
+    """
+
+    # Currently teams that have separate projects use just one sketch (by design for now...)
+    # The teamname is just the first part of the project name separated by an "_".
+    team_name = project.split("_")[0]
+
+    # Assemble what should be the full path of the Arduino sketch in use
+    project_sketch = SKETCH_PATHS / ("bruker_disc_" + team_name)
+
+    # Glob whatever sketch is found inside the directory
+    arduino_sketches = [sketch for sketch in project_sketch.glob("*.ino")]
+
+    # If the length of the list for the sketch is greater than 1,
+    # something is wrong. Raise an exception.    
+    if len(arduino_sketches) > 1:
+        raise SketchError(
+        "Project has multiple Arduino sketches! Check your local bruker_control repo in your project's sketch folder."
+        )
+
+    # Otherwise, try to load the one present file. If it's not there,
+    # an index error occurs and an exception is raised.
+    else:
+        try:
+            arduino_sketch = arduino_sketches[0]
+
+        except IndexError:
+            raise SketchError(
+                "Project Arduino sketch is missing! Check your local bruker_control repo in your project's sketch folder."
+                )
+    
+    # Tell the user that their sketch was found.
+    # TODO This should all be piped to a logs file of some sort...
+    # and ideally it would all be part of the Arduino object...
+    print("Sketch found!")
+
+    # Initialize Arduino object
+    arduino = Arduino(arduino_sketch)
+
+    arduino.compile_sketch()
+
+    arduino.upload_sketch()
+
+
+    # Use instance method to compile the sketch
+    # arduino.compile_sketch()
+
+    # # Use instance method to upload to board
+    # arduino.upload_sketch()
 
 
 def transfer_data(arduino_metadata: str, experiment_arrays: list):
@@ -241,6 +486,8 @@ def transfer_metadata(arduino_metadata: str, link: txfer.SerialTransfer):
         metaData_size = link.tx_obj(arduino_metadata['USDeliveryTime_Air'],        metaData_size, val_type_override='B')
         metaData_size = link.tx_obj(arduino_metadata['USConsumptionTime_Sucrose'], metaData_size, val_type_override='H')
         metaData_size = link.tx_obj(arduino_metadata['stimDeliveryTime_Total'],    metaData_size, val_type_override='H')
+        metaData_size = link.tx_obj(arduino_metadata['USDelay'],                   metaData_size, val_type_override='H')
+        metaData_size = link.tx_obj(arduino_metadata['lickContingency'], metaData_size)
 
         # Send the metadata to the Arduino.  The metadata is transferred first
         # and therefore receives the packet_id of 0.

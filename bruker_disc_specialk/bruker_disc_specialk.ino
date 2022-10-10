@@ -137,7 +137,7 @@ unsigned long USDeliveryMS;
 unsigned long noiseDeliveryMS;
 unsigned long toneListeningMS;
 unsigned long toneDAQMS;
-unsigned long USDelivery;
+unsigned long USDeliveryMSStart;
 // Vacuum has a set amount of time to be active
 const int vacDelay = 500; // vacuum delay
 
@@ -597,7 +597,7 @@ void tonePlayer(unsigned long ms) {
     thisToneDuration = toneArray[currentTrial];
     toneDAQ = true;
     toneListeningMS = ms + thisToneDuration;
-    USDeliveryMS = ms + metadata.USDelay
+    USDeliveryMSStart = ms + metadata.USDelay;
     switch (trialType) {
       case 0:
         digitalWriteFast(speakerDeliveryPin, HIGH);
@@ -660,42 +660,42 @@ void onTone(unsigned long ms) {
 void presentStimulus(unsigned long ms) {
   switch (trialType) {
     case 0:
-      if (giveStim && (ms >=  USDeliveryMS)) {
+      if (giveStim && (ms >=  USDeliveryMSStart)) {
         newUSDelivery = true;
         break;
       }
     case 1:
-      if giveStim {
-          if {lickContingency
-            if (licked && (ms >= USDeliveryMS)) {
+      if (giveStim) {
+          if (metadata.lickContingency) {
+            if (licked && (ms >= USDeliveryMSStart)) {
               newUSDelivery = true;
               break;
             }
           }
           else {
-            if (ms >= USDeliveryMS) {
+            if (ms >= USDeliveryMSStart) {
               newUSDelivery = true;
               break;
             }
           }
       }
     case 4:
-      if giveStim {
-                if {lickContingency
-                  if (licked && (ms >= USDeliveryMS)) {
+      if (giveStim) {
+                if (metadata.lickContingency) {
+                  if (licked && (ms >= USDeliveryMSStart)) {
                     newUSDelivery = true;
                     break;
                   }
                 }
                 else {
-                  if (ms >= USDeliveryMS) {
+                  if (ms >= USDeliveryMSStart) {
                     newUSDelivery = true;
                     break;
                   }
                 }
             }
     case 5:
-      if (giveStim && (ms >=  USDeliveryMS)) {
+      if (giveStim && (ms >=  USDeliveryMSStart)) {
         newUSDelivery = true;
         break;
       }
@@ -707,7 +707,9 @@ void presentStimulus(unsigned long ms) {
    for stimuli at any point.
    @param ms Current time in milliseconds (ms)
 */
-// NOTE: Unfortunately many if statements are necessary here for sucrose trials.
+// NOTE: These timings are technically incorrect. However, since they're catch trials
+// it doesn't influence the behavior of the script. So they are (sloppily) left untouched
+// in this version.
 void presentCatch(unsigned long ms) {
   switch (trialType) {
     case 2:

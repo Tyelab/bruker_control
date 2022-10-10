@@ -284,9 +284,17 @@ def get_arduino_metadata(config_template: dict) -> dict:
     """
 
     # Define the variables required for Arduino function
-    arduino_metadata_keys = ["totalNumberOfTrials", "punishTone", "rewardTone",
-                             "USDeliveryTime_Sucrose", "USDeliveryTime_Air",
-                             "USConsumptionTime_Sucrose", "stimDeliveryTime_Total"]
+    arduino_metadata_keys = [
+        "totalNumberOfTrials",
+        "punishTone",
+        "rewardTone",
+        "USDeliveryTime_Sucrose",
+        "USDeliveryTime_Air",
+        "USConsumptionTime_Sucrose",
+        "stimDeliveryTime_Total",
+        "USDelay",
+        "lickContingency"
+        ]
 
     # Generate Dictionary of relevant Arduino metadata
     arduino_metadata = {key: value for (key, value) in
@@ -563,6 +571,16 @@ def write_yoked_config(subject_type: str, current_plane: int, project: str, expe
 
         json.dump(yoked_config, outFile)
 
+
+def get_available_passengers(project: str) -> list:
+    
+    subject_directory = SERVER_PATHS[project] /"subjects"
+
+    subjects = [subject for subject in subject_directory.glob("*")]
+
+    print(subjects)
+
+     
 
 def check_yoked_config(subject_type: str, current_plane: int, project: str) -> list:
     """

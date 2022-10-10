@@ -2,6 +2,7 @@
 # Jeremy Delahanty May 2021
 
 # Import config_utils functions for manipulating config files
+from asyncio.subprocess import PIPE
 import config_utils
 
 # Import video_utils functions for using Harvesters for camera
@@ -16,6 +17,10 @@ import trial_utils
 # Import prairieview_utils for interacting with Bruker
 import prairieview_utils
 
+from PySide2 import QtWidgets
+import flight_manifest
+import subprocess
+
 # Import sys to safely exit
 import sys
 
@@ -26,7 +31,7 @@ import sys
 def run_imaging_experiment(metadata_args):
 
     # Gather subject_id
-    subject_id = metadata_args["subject_id"]
+    # subject_id = metadata_args["subject_id"]
 
     # Gather project information
     project = metadata_args["project"]
@@ -36,7 +41,12 @@ def run_imaging_experiment(metadata_args):
 
     # Get value of subject's experimental/control type
     group_type = metadata_args["group"]
+    
+    passengers = subprocess.run(flight_manifest.run_flight_manifest(project), capture_output=True).stdout
 
+    print(passengers)
+
+    sys.exit()
     print("Gathering metadata...")
     # TODO: Unite all these functions into one call and build a
     # metadata Class that contains each of these things in it.  This will
@@ -45,9 +55,16 @@ def run_imaging_experiment(metadata_args):
     # Get configuration template with config_utils.get_template
     config_template = config_utils.get_template(project)
 
-    if config_template["weight_check"]:
+    # Use new Arduino class to verify and upload available Arduino sketches
+    # automatically
+    serialtransfer_utils.upload_arduino_sketch(project)
+    # TODO: After updating how weights are represented, this should
+    # basically tell the user to input a weight (in kg? maybe just g
+    # and conver to NWB for them later...) and then append that to
+    # the weights information
+    # if config_template["weight_check"]:
 
-        config_utils.weight_check(project, subject_id)
+    #     config_utils.weight_check(project, subject_id)
 
     # Get Z-Stack metadata
     zstack_metadata = config_utils.get_zstack_metadata(config_template)
