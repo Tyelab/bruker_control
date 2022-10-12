@@ -146,8 +146,9 @@ class Arduino:
         
         # TODO: Things like this should be logged...
         else:
-            print("COMPILATION ERROR!!!")
+            print("COMPILATION ERROR!!! Error in Arduino Script!")
             print(compile_output)   
+            sys.exit()
 
     def upload_sketch(self):
         """
@@ -174,8 +175,10 @@ class Arduino:
 
         # TODO: Another thing that should be logged
         if upload_sketch.returncode:
+            print("UPLOAD FAILURE! Serial Monitor Open Elsewhere?")
             print(upload_sketch.stdout.decode())
             print(upload_sketch.stderr.decode())
+            sys.exit()
         else:
             print("Upload successful!")
 
@@ -255,16 +258,11 @@ def upload_arduino_sketch(project: Path):
     # Initialize Arduino object
     arduino = Arduino(arduino_sketch)
 
+    # Use instance method to compile the sketch
     arduino.compile_sketch()
 
-    arduino.upload_sketch()
-
-
-    # Use instance method to compile the sketch
-    # arduino.compile_sketch()
-
     # # Use instance method to upload to board
-    # arduino.upload_sketch()
+    arduino.upload_sketch()
 
 
 def transfer_data(arduino_metadata: str, experiment_arrays: list):
@@ -294,8 +292,6 @@ def transfer_data(arduino_metadata: str, experiment_arrays: list):
         link.open()
 
         transfer_metadata(arduino_metadata, link)
-
-        print(type((experiment_arrays[3])[0]))
 
         transfer_experiment_arrays(experiment_arrays, link)
 
@@ -487,7 +483,6 @@ def transfer_metadata(arduino_metadata: str, link: txfer.SerialTransfer):
         metaData_size = link.tx_obj(arduino_metadata['USConsumptionTime_Sucrose'], metaData_size, val_type_override='H')
         metaData_size = link.tx_obj(arduino_metadata['stimDeliveryTime_Total'],    metaData_size, val_type_override='H')
         metaData_size = link.tx_obj(arduino_metadata['USDelay'],                   metaData_size, val_type_override='H')
-        metaData_size = link.tx_obj(arduino_metadata['lickContingency'], metaData_size)
 
         # Send the metadata to the Arduino.  The metadata is transferred first
         # and therefore receives the packet_id of 0.

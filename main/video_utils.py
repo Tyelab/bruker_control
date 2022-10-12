@@ -25,6 +25,9 @@ from tqdm import tqdm
 # Import pathlib Path for directory management
 from pathlib import Path
 
+# Import sys for exiting safely
+import sys
+
 # Static cti file location
 # CTI stands for "Common Transport Interface" and is a type of acquisition software library
 # that interacts with the Windows file system as a DLL, or dynamic link library. The CTI standard
@@ -43,6 +46,12 @@ SCALING_FACTOR = 50
 # move the window created to these locations
 IMSHOW_X_POS = 1920
 IMSHOW_Y_POS = 450
+
+###############################################################################
+# Classes
+###############################################################################
+
+# class Camera GENI Cam Compliant machines etc
 
 ###############################################################################
 # Exceptions
@@ -111,7 +120,7 @@ def init_camera_preview() -> Tuple[Harvester, Harvester, int, int]:
 
     # Try printing the camera list
     try:
-        print("Connected to camera: ", camera_list[0])
+        print("Connected to camera: ", camera_list[0].model, camera_list[0].user_defined_name)
 
     # If no devices are detected, the list will have no elements!  Raise an
     # exception to quit the program.
@@ -226,8 +235,10 @@ def init_camera_recording() -> Tuple[Harvester, Harvester, int, int]:
     # Update Harvester object
     h.update()
 
+    camera_list = h.device_info_list
+
     # Print device list to make sure camera is present
-    print("Connected to Camera: \n", h.device_info_list)
+    print("Connected to Camera: ", camera_list[0].model, camera_list[0].user_defined_name)
 
     # Grab Camera, Change Settings
     # Create image_acquirer object for Harvester, grab first (only) device
@@ -425,26 +436,29 @@ def shutdown_camera(camera: Harvester, harvester: Harvester):
     harvester.reset()
 
 
-def calculate_frames(session_len_s: int) -> int:
+def calculate_frames(session_len_s: int, framerate: float) -> int:
     """
     Calculates number of images to collect during the experiment.
 
     Converts imaging session length into number of frames to collect by
-    microscope and, therefore, camera.
+    microscope and, therefore, camera. Currently, the camera takes an
+    image each time the microscope does via its TTLs.
 
     Args:
         session_len_s:
             Experimental session length in seconds
+        framerate:
+            Framerate of microscope.
 
     Returns:
         num_frames
     """
 
-    # Generate buffer of 300 images to ensure enough data is captured when
+    # Generate buffer of 900 images to ensure enough data is captured when
     # session ends.
-    imaging_buffer = 300
+    imaging_buffer = 900
 
     # Calculate number of video frames
-    video_frames = (round(session_len_s)*30) + imaging_buffer
+    video_frames = (round(session_len_s)*framerate) + imaging_buffer
 
     return video_frames

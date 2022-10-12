@@ -2,7 +2,7 @@
 # See here: https://github.com/auto-pi-lot/autopilot/discussions/191
 
 from PySide2 import QtWidgets
-from PySide2.QtWidgets import QCheckBox, QPushButton, QLabel, QGroupBox
+from PySide2.QtWidgets import QCheckBox, QPushButton, QLabel, QGroupBox, QWidget
 from typing import List, Dict, Tuple, Optional
 import sys
 from pathlib import Path
@@ -17,6 +17,7 @@ class CheckList(QtWidgets.QWidget):
         self._flight_manifest = self.get_subjects(project)
         self._checkboxes = {} # type: Dict[str, QCheckBox]
         self.title = title
+        self._selected_subjects = self.get_values()
 
         self.layout = QtWidgets.QVBoxLayout()
 
@@ -27,7 +28,7 @@ class CheckList(QtWidgets.QWidget):
         self.layout.addWidget(self.ok_button)
 
         # connect button to action triggered when clicked
-        self.ok_button.clicked.connect(self.print_values)
+        self.ok_button.clicked.connect(self.get_values)
 
         # set layout of main widget
         self.setLayout(self.layout)
@@ -70,14 +71,25 @@ class CheckList(QtWidgets.QWidget):
         return check_group
 
 
-    def print_values(self):
-        print(self.value(), file=sys.stdout)
+    def get_values(self):
+        # get subjects from value method
+        selected_subjects = self.value()
+
+        # grab only subjects that were selected
+        selected_subjects = [subject for subject in selected_subjects if selected_subjects[subject]]
+        
+        self.close()
+
+        return selected_subjects
+
         
 
 
-def run_flight_manifest(project):
+def run(project):
     
     app = QtWidgets.QApplication(sys.argv)
     subjects = CheckList(project=project)
     subjects.show()
     app.exec_()
+    passengers = subjects.get_values()
+    return passengers

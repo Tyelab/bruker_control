@@ -26,6 +26,9 @@ from pathlib import Path
 # Import numpy for rounding framerates
 import numpy as np
 
+# Impot socket to grab hostname and IP address for PL Connection
+import socket
+
 # Save the Praire View application as pl
 pl = client.Dispatch("PrairieLink64.Application")
 
@@ -37,6 +40,13 @@ DATA_PATH = "E:/"
 
 # Define Valid 2P Indicators for setting Z-series sessions correctly
 IMAGING_VARIABLES = ["fluorophore", "fluorophore_excitation_lambda"]
+
+###############################################################################
+# Classes
+###############################################################################
+
+# class BrukerUltimaInvestigatorLegacy:
+    # class stuff one day...
 
 ###############################################################################
 # Functions
@@ -51,11 +61,21 @@ def pv_connect():
     """
     Connect to Prairie View
 
+    First grabs machin hostname and IP address for connecting to Prairie Link.
     Used to connect to Prairie View at the beginning of each session with their
     API.  This function takes no arguments and returns nothing.
     """
 
-    pl.Connect()
+    # Grab hostname using socket
+    host_name = socket.gethostname()
+
+    # Grab IP address
+    ip_address = socket.gethostbyname(host_name)
+
+    # Use hostname and password from Prairie View
+    # Password found in lower left corner ofL
+    # Tools -> Scripts -> Edit Scripts ... dialog
+    pl.Connect(f"{ip_address}", "BKJB")
     print("Connected to Prairie View")
 
 
@@ -321,7 +341,11 @@ def prepare_tseries(project: str, subject_id: str, current_plane: int,
             describing excitation and emission wavelengths.
     """
 
-    set_tseries_filename(project, subject_id, current_plane, imaging_plane)
+    set_tseries_filename(
+        project,
+        subject_id,
+        current_plane,
+        imaging_plane)
 
     set_resonant_galvo()
 
@@ -334,11 +358,8 @@ def prepare_tseries(project: str, subject_id: str, current_plane: int,
 
 
         # TODO: Make this channel setting its own function in next refactor
-        # NOTE: It was discovered on 7/27/22 that the 2nd channel on the
-        # PMT DAC card is faulty somehow. Until we receive a new card from Eun,
-        # we have to use channel 3 as our "Second" channel.
         pl.SendScriptCommands("-SetChannel '1' 'Off'")
-        pl.SendScriptCommands("-SetChannel '3' 'On'")
+        pl.SendScriptCommands("-SetChannel '2' 'On'")
 
         # TODO: Make this part of a configuration and make tseries_stim
         # vs tseries_nostim. Must be done with next refactor...
@@ -410,7 +431,11 @@ def configure_zseries(project: str, subject_id: str, current_plane: int,
     )
 
     # Set Z-Stack parameters
-    set_zseries_parameters(imaging_plane, zstack_delta, zstack_step)
+    set_zseries_parameters(
+        imaging_plane,
+        zstack_delta,
+        zstack_step
+        )
 
 
 def set_zseries_parameters(imaging_plane, zstack_delta, zstack_step):
@@ -493,8 +518,14 @@ def set_zseries_filename(project: str, subject_id: str,
 
     # Set session name by joining variables with underscores
     session_name = "_".join(
-        [session_date, subject_id, imaging_plane, "plane{}".format(current_plane), indicator_name, "raw"]
-        )
+        [session_date,
+        subject_id,
+        imaging_plane,
+        "plane{}".format(current_plane),
+        indicator_name,
+        "raw"
+        ]
+    )
 
     # Set imaging filename by adding zseries and to session_name
     imaging_filename = "_".join([session_name, "zseries"])
@@ -599,12 +630,16 @@ def zstack(zstack_metadata: dict, project: str, subject_id: str,
 
             pl.SendScriptCommands("-ZSeries")
 
+            # To make sure the sleep command below is basically correct, use the galvo-galvo
+            # framerate for how long to sleep things for the tqdm progress bar
+            framerate = get_microscope_framerate()
+
             # Make progress bar for z-stack duration
             for second in tqdm(range(0, int(zstack_delta)*2), desc="Z-Stack Progress", ascii=True):
 
-                # After some additional testing it appears that this value sleeps an
-                # appropriate amount.
-                sleep(1.33)
+                # Sleep the progress bar for each frame that's taken. In otherwords, sleep for
+                # whatever the FPS is of the scope at the time of doing the galvo-galvo scan.
+                sleep(framerate)
 
 
     # Put Z-axis back to imaging plane
@@ -613,10 +648,6 @@ def zstack(zstack_metadata: dict, project: str, subject_id: str,
 def set_one_channel_zseries(indicator_emission: float):
     """
     Sets proper recording channel to use (1: Red 2: Green) in the z-stack.
-    NOTE: On 7/27/22, it was discovered that the second channel on the DAC
-    for the PMTs is faulty. Until a new card arrives, we will be using
-    the 3rd channel on the card. Changes in the code for the script commands
-    are now to set channel 3 on when imaging.
 
     Different indicators have different channels that should be recorded from
     depending on the emission wavelengths of the indicators being imaged.
@@ -629,12 +660,9 @@ def set_one_channel_zseries(indicator_emission: float):
 
     # If the indicator's emission wavelength is above green wavelengths,
     # use only the red channel.
-    # NOTE: It was discovered on 7/27/22 that the 2nd channel on the
-    # PMT DAC card is faulty somehow. Until we receive a new card from Eun,
-    # we have to use channel 3 as our "Second" channel.
     if indicator_emission >= 570.0:
         pl.SendScriptCommands("-SetChannel '1' 'On'")
-        pl.SendScriptCommands("-SetChannel '3' 'Off'")
+        pl.SendScriptCommands("-SetChannel '2' 'Off'")
 
     # Otherwise, use the green channel
     # NOTE: It was discovered on 7/27/22 that the 2nd channel on the
@@ -642,7 +670,7 @@ def set_one_channel_zseries(indicator_emission: float):
     # we have to use channel 3 as our "Second" channel.
     else:
         pl.SendScriptCommands("-SetChannel '1' 'Off'")
-        pl.SendScriptCommands("-SetChannel '3' 'On'")
+        pl.SendScriptCommands("-SetChannel '2' 'On'")
 
 
 def get_microscope_framerate() -> float:
