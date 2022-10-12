@@ -26,8 +26,14 @@ from pathlib import Path
 # Import numpy for rounding framerates
 import numpy as np
 
-# Impot socket to grab hostname and IP address for PL Connection
+# Import socket to grab hostname and IP address for PL Connection
 import socket
+
+# Import os for getting Username and finding file containing Prairie Link Password
+import os
+
+# Import json for grabbing password from File of Prairie Link
+import json
 
 # Save the Praire View application as pl
 pl = client.Dispatch("PrairieLink64.Application")
@@ -56,6 +62,29 @@ IMAGING_VARIABLES = ["fluorophore", "fluorophore_excitation_lambda"]
 # PrairieLink Comms Functions
 # -----------------------------------------------------------------------------
 
+
+def get_pv_password():
+    """
+    Load Prairie View Password from file or obtain it from user.
+
+    Prairie View has placed a password on their API that's unique to each
+    user account on the system. Per Michael Fox, this was done not because
+    of worries about malicious intent but because sometimes IT systems
+    will be HTTP address sniffing (basically looking for computers to talk to)
+    and start trying to talk to the scope on accident. This can keep the scope's
+    software either busy or, more likely, will raise errors from Bruker's API that
+    interferes with the experiment because the API will interpret the communications
+    as PrairieLink commands.
+    
+    Since it's different per user, a local file must be stored in the repo that contains
+    the correct password. This password is found by going to: 
+    Tools -> Scripts -> Edit Scripts ... dialog in the bottom left corner of the window.
+    It is 4 characters long, all uppercase. The default password will be the string "0000"
+    and must be updated by the user the first time they install bruker_control OR likely when
+    there's a Prairie View Update.
+    """
+
+    
 
 def pv_connect():
     """
