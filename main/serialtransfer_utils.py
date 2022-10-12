@@ -137,9 +137,9 @@ class Arduino:
                 "json"
             ],
             capture_output=True
-        ).stdout.decode("ascii")
+        )
 
-        compile_output = json.loads(compile_sketch)
+        compile_output = json.loads(compile_sketch.stdout.decode())
 
         if compile_output["success"]:
             print("Sketch compiled successfully!")
@@ -147,7 +147,8 @@ class Arduino:
         # TODO: Things like this should be logged...
         else:
             print("COMPILATION ERROR!!! Error in Arduino Script!")
-            print(compile_output)   
+            print(compile_output)
+            print(compile_sketch.stderr.decode())   
             sys.exit()
 
     def upload_sketch(self):
