@@ -9,6 +9,7 @@
 # Import Prairie View Application
 # NOTE Prairie View Interface Installation:  Do NOT use pip install, use conda.
 # conda install pywin32
+from webbrowser import get
 import win32com.client as client
 
 # Import datetime for folder naming
@@ -17,7 +18,7 @@ from datetime import datetime
 # Import sleep to let Prairie View change between Galov and Resonant Galvo
 from time import sleep
 
-# Import tqdm for progress bar
+# Import tqdm for progress bar  
 from tqdm import tqdm
 
 # Import pathlib for creating z-stack directory
@@ -32,7 +33,10 @@ import socket
 # Import os for getting Username and finding file containing Prairie Link Password
 import os
 
-# Import json for grabbing password from File of Prairie Link
+# Import sys for exiting safely
+import sys
+
+# Import json for reading/writing password file
 import json
 
 # Save the Praire View application as pl
@@ -47,12 +51,41 @@ DATA_PATH = "E:/"
 # Define Valid 2P Indicators for setting Z-series sessions correctly
 IMAGING_VARIABLES = ["fluorophore", "fluorophore_excitation_lambda"]
 
+# Get the username for finding local password file
+USERNAME = os.getlogin()
+
+# Define static path for where password file is in the repo:
+PRAIRIELINK_PASSWORD_FILE = Path(
+    f"C:/Users/{USERNAME}/Documents/gitrepos/bruker_control/configs/prairielink_password.json"
+    )
+
 ###############################################################################
 # Classes
 ###############################################################################
 
 # class BrukerUltimaInvestigatorLegacy:
     # class stuff one day...
+
+
+###############################################################################
+# Exceptions
+###############################################################################
+
+class PrairieLinkPasswordError(Exception):
+    """
+    Exception for when there's an error when parsing prairelink password.
+    """
+    def __init__(self, *args):
+        if args:
+            self.message = args[0]
+        else:
+            self.message = None
+
+    def __str__(self):
+        if self.message:
+            return "PrairieLink Password Error: " + "{0}".format(self.message)
+        else:
+            return "PRAIRIELINK PASSWORD ERROR"
 
 ###############################################################################
 # Functions
@@ -63,7 +96,7 @@ IMAGING_VARIABLES = ["fluorophore", "fluorophore_excitation_lambda"]
 # -----------------------------------------------------------------------------
 
 
-def get_pv_password():
+def get_pv_password() -> str:
     """
     Load Prairie View Password from file or obtain it from user.
 
@@ -73,18 +106,80 @@ def get_pv_password():
     will be HTTP address sniffing (basically looking for computers to talk to)
     and start trying to talk to the scope on accident. This can keep the scope's
     software either busy or, more likely, will raise errors from Bruker's API that
-    interferes with the experiment because the API will interpret the communications
-    as PrairieLink commands.
+    interferes with the experiment as the API will interpret the communications
+    as (malformed) PrairieLink commands.
     
     Since it's different per user, a local file must be stored in the repo that contains
     the correct password. This password is found by going to: 
     Tools -> Scripts -> Edit Scripts ... dialog in the bottom left corner of the window.
     It is 4 characters long, all uppercase. The default password will be the string "0000"
     and must be updated by the user the first time they install bruker_control OR likely when
-    there's a Prairie View Update.
+    there's a Prairie View Update. If the password isn't the default, it's passed onto the
+    connect function.
+
+    returns:
+        password
     """
 
+    # Load password file
+    try:
+
+        print("Reading password file...")
+
+        with open(PRAIRIELINK_PASSWORD_FILE, 'r') as inFile:
+
+            contents = inFile.read()
+
+            # Use json.loads to load file
+            passwd = json.loads(
+                contents
+            )
+        
+        print("Password file read!")
+
+    except:
+        raise PrairieLinkPasswordError(
+            "PRAIRIELINK PASSWORD FILE ERROR: Possible file is missing, json corrupted? See local repo's configs folder..."
+            )
     
+    # Check if the password is still the default password.
+    if passwd["prairielink_password"] == "0000":
+
+        print("PrairieLink Password is default password.")
+        print("Please find your profile's correct Prairie View password. You can find it in: ")
+        print("Tools -> Scripts -> Edit Scripts")
+
+        # Gather password from user
+        password = input("Please enter the password: ")
+
+        # Update the password in the file, make sure it's upper case since PrairieLink is
+        # probably case sensitive.
+        passwd["prairielink_password"] = password.upper()
+
+        try:
+
+            with open(PRAIRIELINK_PASSWORD_FILE, 'w') as outFile:
+
+                # Update the password file with new file.
+                json.dump(
+                    passwd,
+                    outFile
+                )
+
+            print("Password updated!")
+
+        except:
+            raise PrairieLinkPasswordError(
+                "ERROR WRITING NEW PRAIRIELINK PASSWORD: json corrupted?"
+            )
+        
+    else:
+
+        # If it wasn't the default password, the updated password should be there.
+        password = passwd["prairielink_password"]
+
+    return password
+
 
 def pv_connect():
     """
@@ -101,10 +196,14 @@ def pv_connect():
     # Grab IP address
     ip_address = socket.gethostbyname(host_name)
 
+    # Check if password is correct/available.
+    password = get_pv_password()
+
+    # TODO: This should be a try/except block in case the connection fails for some reason...
     # Use hostname and password from Prairie View
     # Password found in lower left corner ofL
     # Tools -> Scripts -> Edit Scripts ... dialog
-    pl.Connect(f"{ip_address}", "BKJB")
+    pl.Connect(f"{ip_address}", f"{password}")
     print("Connected to Prairie View")
 
 
