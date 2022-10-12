@@ -458,7 +458,7 @@ def calculate_frames(session_len_s: int, framerate: float) -> int:
     # session ends.
     imaging_buffer = 900
 
-    # Calculate number of video frames
-    video_frames = (round(session_len_s)*framerate) + imaging_buffer
+    # Calculate number of video frames, coerce calculation in to class int for tqdm later
+    video_frames = int((round(session_len_s)*framerate) + imaging_buffer)
 
     return video_frames

@@ -203,7 +203,7 @@ def pv_connect():
     # Use hostname and password from Prairie View
     # Password found in lower left corner ofL
     # Tools -> Scripts -> Edit Scripts ... dialog
-    pl.Connect(f"{ip_address}", f"{password}")
+    pl.Connect(f"{ip_address}", password)
     print("Connected to Prairie View")
 
 
@@ -758,16 +758,12 @@ def zstack(zstack_metadata: dict, project: str, subject_id: str,
 
             pl.SendScriptCommands("-ZSeries")
 
-            # To make sure the sleep command below is basically correct, use the galvo-galvo
-            # framerate for how long to sleep things for the tqdm progress bar
-            framerate = get_microscope_framerate()
-
             # Make progress bar for z-stack duration
             for second in tqdm(range(0, int(zstack_delta)*2), desc="Z-Stack Progress", ascii=True):
 
-                # Sleep the progress bar for each frame that's taken. In otherwords, sleep for
-                # whatever the FPS is of the scope at the time of doing the galvo-galvo scan.
-                sleep(framerate)
+                # Sleep the progress bar. Empirically this looks about how long it takes each frame 
+                # to be taken and then move the scope down to take the next image.
+                sleep(2.2)
 
 
     # Put Z-axis back to imaging plane
