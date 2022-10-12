@@ -41,8 +41,8 @@ struct __attribute__((__packed__)) metadata_struct {
   uint8_t totalNumberOfTrials;              // total number of trials for experiment
   uint16_t punishTone;                      // airpuff frequency tone in Hz
   uint16_t rewardTone;                      // sucrose frequency tone in Hz
-  uint8_t USDeliveryTime_Sucrose;           // amount of time to open sucrose solenoid
-  uint8_t USDeliveryTime_Air;               // amount of time to open air solenoid
+  uint8_t  USDeliveryTime_Sucrose;           // amount of time to open sucrose solenoid
+  uint8_t  USDeliveryTime_Air;               // amount of time to open air solenoid
   uint16_t USConsumptionTime_Sucrose;       // amount of time to wait for sucrose consumption
   uint16_t stimDeliveryTime_Total;          // amount of time LED is scheduled to run
 } metadata;
@@ -90,33 +90,54 @@ boolean acquireLED = false;
 boolean rx = true;
 boolean pythonGoSignal = false;
 boolean arduinoGoSignal = false;
-// Experiment State Flags
+// Experiment State Flags (These have been changed to reflect the new flags)
 boolean cameraDelay = false;
 boolean brukerTrigger = false;
-boolean newTrial = false;
-boolean ITI = false;
-boolean giveStim = false;
-boolean newUSDelivery = false;
-boolean solenoidOn = false;
-boolean noise = false; // can't use tone as it's protected in Arduino
-boolean toneDAQ = false;
+// Arduino Loop Flags
+// Trial type
+boolean Air=false;
+boolean Sucrose=false;
+boolean Catch=false;
+boolean newTrial=true;
+// ITI booleans
+boolean ITIReady=false;
+boolean ITIRunning=false;
+// Stimulus booleans
+boolean StimulusReady=false;
+// CS booleans
+boolean SpeakerRunning=false;
+// US booleans
+boolean USRunning=false;
+boolean USReady=false;
+// Vacuum booleans
+boolean VacuumReady=false;
+boolean VacuumRunning=false;
+// Lick contingency variables
+boolean LickDetected=false;
+//int LickDetected;
+boolean contcurrent = false; // for lick contingency
+boolean WindowFlag=false;
 
 //// TIMING VARIABLES ////
 // Time is measured in milliseconds for this program
+// Things that don't change but need to be specified anyways
+const int VacuumDelay=100;
+const int USDelayTime=500; // Hard codes the US Delay because it doesn't seem like its there on the config
 long ms; // milliseconds
 // Each experimental condition has a time parameter
-long ITIend;
-long rewardDelayMS;
-long sucroseDelayMS;
-long USDeliveryMS_Sucrose;
-long sucroseConsumptionMS;
-long airDelayMS;
-long USDeliveryMS_Air;
-long USDeliveryMS;
-long noiseDeliveryMS;
-long toneListeningMS;
-long toneDAQMS;
-
+// Things that change depending on trial no.
+int CurrentType;
+int CurrentTrial;
+int CurrentITI;
+int CurrentNoise;
+// Things that change depending on ms no.
+long VacuumEnd;
+long ITIEnd;
+long NoiseEnd;
+long Noisestart;
+long USstart;
+long USend;
+long USbegin;
 
 //// ADAFRUIT MPR121 ////
 // Lick Sensor Variables
@@ -129,24 +150,21 @@ uint16_t lasttouched = 0;
 #define _BV(bit) (1 << (bit)) // capacitance detection using bitshift operations, need to learn about what these are - JD
 #endif
 
-
 //// PIN ASSIGNMENT: Stimuli and Solenoids ////
-// In this version, the vacuum has been removed from the setup.
-// Therefore, vacuum related pins have been commented out.
 // input
 const int lickPin = 2;                        // input from MPR121
 //const int airPin = 3; // measure delay from solenoid to mouse
 // output
-const int solPin_air = 22;                    // solenoid for air puff control
-const int solPin_liquid = 26;                 // solenoid for liquid control: sucrose, water, EtOH
-const int speakerPin = 12;                    // speaker control pin
+const int vacPin=24;
+const int sol_air = 22;                    // solenoid for air puff control
+const int sol_sucrose = 26;                 // solenoid for liquid control: sucrose, water, EtOH
+const int speaker = 12;                    // speaker control pin
 const int bruker2PTriggerPin = 11;            // trigger to start Bruker 2P Recording on Prairie View
 
 //// PIN ASSIGNMENT: NIDAQ ////
 // NIDAQ input
-// none
 // NIDAQ output
-const int itiDeliveryPin = 31;                // ITI Timestamp
+const int ITInewTrial = 31;                // ITI Timestamp
 const int lickDetectPin = 41;                 // detect sucrose licks
 const int speakerDeliveryPin_Airpuff = 50;    // tone delivery for airpuff trials
 const int speakerDeliveryPin_Liquid = 51;     // tone delivery for sucrose trials
@@ -386,12 +404,19 @@ void reset_board() {
   cameraDelay = false;
   brukerTrigger = false;
   newTrial = false;
-  ITI = false;
-  giveStim = false;
-  newUSDelivery = false;
-  solenoidOn = false;
-  noise = false;
-  toneDAQ = false;
+  ITIReady = false;
+  ITIRunning = false;
+  Air = false;
+  Sucrose = false;
+  Catch = false;
+  StimulusReady = false;
+  USRunning = false;
+  USReady = false;
+  VacuumReady = false;
+  VacuumRunning = false;
+  LickDetected = false;
+  contcurrent = false;
+  WindowFlag = false;
   Serial.println("Resetting Arduino after 3 seconds...");
   delay(3000);
   Serial.println("RESETTING");
@@ -409,17 +434,45 @@ void lickDetect() {
   // if it is *currently* touched and *wasn't* touched before, alert!
   if ((currtouched & _BV(2)) && !(lasttouched & _BV(2))) {
     digitalWriteFast(lickDetectPin, HIGH);
+    contcurrent=true;
   }
   // if it *was* touched and now *isn't*, alert!
   if (!(currtouched & _BV(2)) && (lasttouched & _BV(2))) {
     digitalWriteFast(lickDetectPin, LOW);
+    contcurrent=false;
   }
   lasttouched = currtouched;
 }
 
 /** The following functions are edited to reflect the new trial structure (lick contingency)
  *  The edited trial structure comes from DISC_LC_V3.2. 
- */
+*/
+// Determine Trial Type
+
+void DetermineTrialType(long ms) {
+  if (newTrial) {
+      Serial.println("Starting trial ");
+      Serial.println(currentTrial);
+      Serial.println("Trial Type is:");
+      CurrentType=trialArray[currentTrial];
+      switch (CurrentType){
+        case 0:
+        Serial.println("Air");
+        Air=true;
+        break;
+        case 1:
+        Serial.println("Sucrose");  
+        Sucrose=true;
+        break;
+        case 3:
+        Serial.println("Catch");
+        Catch=true;
+        break;
+      }
+     newTrial=false;
+     ITIReady=true;
+  }
+}
 // ITI Function
 /**
    Starts ITI for new trials and continues the ITI for duration
@@ -430,149 +483,172 @@ void lickDetect() {
    @param ms Current time in milliseconds (ms)
 */
 void startITI(long ms) {
-  if (newTrial) {                                 // start new ITI
-    digitalWriteFast(itiDeliveryPin, HIGH);
-    Serial.print("Starting New Trial: ");
-    Serial.println(currentTrial + 1);
-    trialType = trialArray[currentTrial];         // gather trial type
-    newTrial = false;
-    ITI = true;
-    int thisITI = ITIArray[currentTrial];         // get ITI for this trial
-    ITIend = ms + thisITI;
-    // turn off when done
-  } else if (ITI && (ms >= ITIend)) {             // ITI is over
-    digitalWriteFast(itiDeliveryPin, LOW);
-    ITI = false;
-    noise = true;
+  if (ITIReady) {
+    ITIReady=false;
+    Serial.println("Starting ITI");
+    digitalWriteFast(ITInewTrial, HIGH); // Report to NIDAQ
+    CurrentITI=ITIArray[currentTrial];
+    ITIEnd=ms+CurrentITI;
+    Serial.println(CurrentITI);
+    ITIRunning=true;
+  }
+  else if (ITIRunning && (ms >=ITIEnd)){
+    Serial.println("Ending ITI");
+    digitalWriteFast(ITInewTrial, LOW); // Report to NIDAQ
+    ITIRunning=false;
+    StimulusReady=true;
+  }
+}
+// Stimulus Functions
+// Air Functions 
+void AirStimulus (long ms) {
+  if (Air){
+  if (StimulusReady){
+    CurrentNoise=toneArray[currentTrial];
+    StimulusReady=false;
+    NoiseEnd=ms+CurrentNoise;
+    USstart=ms+USDelayTime;
+    USend=USstart+metadata.USDeliveryTime_Air;
+    Serial.println("Playing tone for Air"); 
+    Serial.println(CurrentNoise);
+    tone(speaker, metadata.punishTone, CurrentNoise); //Start Speaker
+    digitalWriteFast(speakerDeliveryPin_Airpuff, HIGH); // Report to NIDAQ
+    USReady=true;
+  }  
+  else if (USReady && (ms >=USstart)){
+    USReady=false;
+    Serial.println("Airpuff On"); 
+    digitalWriteFast(sol_air, HIGH); // Start Airpuff
+    USRunning=true;
+  }
+  else if (USRunning && (ms >=USend)){
+    USRunning=false;
+    Serial.println("Airpuff Off");
+    digitalWriteFast(sol_air, LOW); // Turn off Airpuff
+    SpeakerRunning=true;
+  }
+  else if (SpeakerRunning && (ms >=NoiseEnd)){
+    SpeakerRunning=false;
+    Air=false;
+    noTone(speaker); // Turn off tone
+    Serial.println("Speaker Off");
+    digitalWriteFast(speakerDeliveryPin_Airpuff, LOW); // Report to NIDAQ    
+    newTrial=true;
+    currentTrial++;    
+   }
   }
 }
 
+// Sucrose Stimulus (NOTE: This is for LICK CONTINGENCY-> WITH US DELAY)
 
-// Tone Functions
-/**
-   Plays tone for given trial type for specified duration defined
-   in toneArray. Sends signal to DAQ that speaker is on.
-
-   @param ms Current time in milliseconds (ms)
-*/
-void tonePlayer(long ms) {
-  if (noise) {
-    Serial.println("Playing Tone");
-    int thisNoiseDuration = toneArray[currentTrial];
-    noise = false;
-    toneDAQ = true;
-    toneListeningMS = ms + thisNoiseDuration;
-    switch (trialType) {
-      case 0:
-        Serial.println("Air");
-        tone(speakerPin, metadata.punishTone, thisNoiseDuration);
-        digitalWriteFast(speakerDeliveryPin_Airpuff, HIGH);
-        giveStim = true;
-        break;
-      case 1:
-        Serial.println("Sucrose");
-        tone(speakerPin, metadata.rewardTone, thisNoiseDuration);
-        digitalWriteFast(speakerDeliveryPin_Liquid, HIGH);
-        giveStim = true;
-        break;
-    }
-  }
-}
-
-/**
-   Signals for the speaker to turn off and stop sending signal to DAQ that
-   the speaker is active.
-
-   @param ms Current time in milliseconds (ms)
-*/
-void onTone(long ms) {
-  if (toneDAQ && (ms >= toneListeningMS)){
-    toneDAQ = false;
-    switch (trialType) {
-      case 0:
-        digitalWriteFast(speakerDeliveryPin_Airpuff, LOW);
-        break;
-      case 1:
-        digitalWriteFast(speakerDeliveryPin_Liquid, LOW);
-        break;
-    }
-  }
-}
-
-// Stimuli functions
-/**
-   Delivers the stimuli before the end of the tone for how long
-   the solenoid delivering it is required to be open.
-
-   @param ms Current time in milliseconds (ms)
-*/
-void presentStimulus(long ms) {
-  switch (trialType) {
-    case 0:
-      if (giveStim && (ms >= toneListeningMS - metadata.USDeliveryTime_Air)) {
-        newUSDelivery = true;
-        break;
+void SucroseStimulus (long ms) {
+  if (Sucrose){
+    if (StimulusReady){
+      // start the tone- regardless of lick/no lick
+      CurrentNoise=toneArray[currentTrial];
+      StimulusReady=false;
+      NoiseEnd=ms+CurrentNoise;
+      USbegin=ms+USDelayTime;
+      Serial.println("Playing tone for Sucrose");
+      tone(speaker, metadata.rewardTone, CurrentNoise);// Start speaker
+      digitalWriteFast(speakerDeliveryPin_Liquid, HIGH); // Report to NIDAQ
+      Serial.println(CurrentNoise);
+      // now tell the arduino to run a lick window for the time of the current noise:
+      USReady=true;
       }
-    case 1:
-      if (giveStim && (ms >= toneListeningMS - metadata.USDeliveryTime_Sucrose)) {
-        newUSDelivery = true;
-        break;
+      while (USReady && ms <=NoiseEnd){
+        ms=millis(); //redeclare ms for timing
+        lickDetect(); //redeclare lick detect for background info
+        SpeakerRunning=true;
+        Serial.println("Lick Window Open- waiting for licks");
+      if (contcurrent){ 
+        Serial.println("Lick Detected!");
+        WindowFlag=true;
       }
-  }
-}
-
-// Stimulus Delivery: 0 is airpuff, 1 is sucrose
-/**
-   Signals for solenoid activity depending on current trial type. If
-   stimuli trials, solenoids are opened. If catch trials, only a
-   message indicating that the catch is being "delivered" is displayed.
-
-   @param ms Current time in milliseconds (ms)
-*/
-void USDelivery(long ms) {
-  if (newUSDelivery) {
-    Serial.println("Delivering US");
-    newUSDelivery = false;
-    giveStim = false;
-    solenoidOn = true;
-    switch (trialType) {
-      case 0:
-        Serial.println("Delivering Airpuff");
-        USDeliveryMS = ms + metadata.USDeliveryTime_Air;
-        digitalWriteFast(solPin_air, HIGH);
-        break;
-      case 1:
-        Serial.println("Delivering Sucrose");
-        USDeliveryMS = ms + metadata.USDeliveryTime_Sucrose;
-        digitalWriteFast(solPin_liquid, HIGH);
-        break;
+      else if (WindowFlag && ms>=USbegin){
+        WindowFlag=false;
+        USReady=false;
+        SpeakerRunning=false;
+        Serial.println("Dispensing Sucrose");
+        USstart=ms;               //establish US start 
+        USend=USstart+metadata.USDeliveryTime_Sucrose; //establish US end  
+        LickDetected=true;
+      }
+      else if (SpeakerRunning && ms>=NoiseEnd){
+        USReady=false;
+        noTone(speaker); // turn off speaker
+        Serial.println("Speaker Off");
+        digitalWriteFast(speakerDeliveryPin_Liquid,LOW); // Report to NIDAQ
+        Serial.println(ms);
+        Sucrose=false;
+        VacuumReady=true;
+      }
+    }
+    if (LickDetected && (ms >=USstart)){
+      LickDetected=false;
+      Serial.println("Sucrose On");
+      digitalWriteFast(sol_sucrose, HIGH); //Start sucrose
+      USRunning=true;
+    }
+    else if (USRunning && (ms >= USend)){
+      USRunning=false;
+      Serial.println("Sucrose Off");
+      digitalWriteFast(sol_sucrose, LOW); //Turn off sucrose
+      SpeakerRunning=true;
+    }
+    else if (SpeakerRunning && ms>=NoiseEnd){
+      SpeakerRunning=false;      
+      noTone(speaker); // turn off speaker
+      Serial.println("Speaker Off");
+      digitalWriteFast(speakerDeliveryPin_Liquid,LOW); // Report to NIDAQ
+      Serial.println(ms);
+      Sucrose=false;
+      VacuumReady=true;
     }
   }
 }
 
-/**
-   Turns off solenoids if presenting stimuli and resets the solenoidOn flags.
+// Catch Trial Functions
 
-   @param ms Current time in milliseconds (ms)
-*/
-void offSolenoid(long ms) {
-  if (solenoidOn && (toneDAQ == false)) {
-    switch (trialType) {
-      case 0:
-        Serial.println("Air Solenoid Off");
-        solenoidOn = false;
-        digitalWriteFast(solPin_air, LOW);
-        newTrial = true;
-        currentTrial++;
-        break;
-      case 1:
-        Serial.println("Liquid Solenoid Off");
-        solenoidOn = false;
-        digitalWriteFast(solPin_liquid, LOW);
-        newTrial = true;
-        currentTrial++;
-        break;
-    }
+void CatchTrial (long ms) {
+  if (Catch) {
+   if (StimulusReady){
+    CurrentNoise=toneArray[currentTrial];
+    StimulusReady=false;
+    NoiseEnd=ms+CurrentNoise;
+    Serial.println("Playing tone for Sucrose (catch)"); 
+    Serial.println(CurrentNoise);
+    tone(speaker, metadata.rewardTone, CurrentNoise); //Start Speaker
+    digitalWriteFast(speakerDeliveryPin_Liquid, HIGH); // Report to NIDAQ
+    SpeakerRunning=true;
+   }
+  else if (SpeakerRunning && (ms >=NoiseEnd)){
+    SpeakerRunning=false;
+    Catch=false;
+    noTone(speaker); // Turn off tone
+    Serial.println("Speaker Off");
+    digitalWriteFast(speakerDeliveryPin_Liquid, LOW); // Report to NIDAQ    
+    newTrial=true;
+    currentTrial++;    
+  }
+  }
+}
+// Vacuum Delivery
+
+void VacuumDelivery (long ms){
+  if (VacuumReady){
+    Serial.println("Vacuum On");
+    digitalWriteFast(vacPin, HIGH); // Start vacuum
+    VacuumEnd=ms+VacuumDelay;
+    VacuumReady=false;
+    VacuumRunning=true;
+  }
+  else if (VacuumRunning && (ms >=VacuumEnd)){
+    VacuumRunning=false;
+    Serial.println("Vacuum Off");
+    digitalWriteFast(vacPin, LOW); // End vacuum
+    newTrial=true;
+    currentTrial++;
   }
 }
 
@@ -590,15 +666,18 @@ void setup() {
   digitalWriteFast(resetPin, HIGH);
   // input
   pinMode(lickPin, INPUT);
-  //output
-  pinMode(solPin_air, OUTPUT);
-  pinMode(solPin_liquid, OUTPUT);
-  pinMode(speakerPin, OUTPUT);
+  //output (arduino)
+  pinMode(sol_air, OUTPUT);
+  pinMode(sol_sucrose, OUTPUT);
+  pinMode(vacPin, OUTPUT);
+  pinMode(speaker, OUTPUT);
+  //daq output
   pinMode(speakerDeliveryPin_Airpuff, OUTPUT);
   pinMode(speakerDeliveryPin_Liquid, OUTPUT);
-  pinMode(itiDeliveryPin, OUTPUT);
+  pinMode(ITInewTrial, OUTPUT);
   pinMode(bruker2PTriggerPin, OUTPUT);
   pinMode(lickDetectPin, OUTPUT);
+  //internal pins
   pinMode(resetPin, OUTPUT);
 
   // -- INITIALIZE TOUCH SENSOR -- //
@@ -608,6 +687,9 @@ void setup() {
     while (1);
   } // need to learn what value 0x5A represents - JD
   Serial.println("MPR121 found!");
+  // Set thresholds for capactiance
+  cap.setThresholds(1,1);
+  Serial.println("Capacitance Thresholds Set (touched:released):(1,1)");
 }
 
 //// THE BIZ ////
@@ -617,16 +699,24 @@ void loop() {
   go_signal();
   camera_delay();
   bruker_trigger();
-  if (currentTrial < metadata.totalNumberOfTrials) {
+  if (currentTrial < metadata.totalNumberOfTrials) { // See updated functions (9/22)
     ms = millis();
     lickDetect();
+    DetermineTrialType(ms);
     startITI(ms);
-    tonePlayer(ms);
-    onTone(ms);
-    presentStimulus(ms);
-    USDelivery(ms);
-    offSolenoid(ms);
-  }
+    switch(CurrentType){
+      case 0:
+      AirStimulus(ms);
+      break;
+      case 1:
+      SucroseStimulus(ms);
+      VacuumDelivery(ms);
+      break;
+      case 2:
+      CatchTrial(ms);
+      break;
+      }
+     }
   else if (currentTrial == metadata.totalNumberOfTrials) {
     reset_board();
   }

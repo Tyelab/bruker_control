@@ -29,7 +29,8 @@ from ruamel.yaml import YAML
 # that's dedicated to grepping this information and passing it to the relevant
 # parts of the program.
 SERVER_PATHS = {"specialk_cs": Path("V:"),
-                "specialk_lh": Path("U:")}
+                "specialk_lh": Path("U:"),
+                }
 
 # Experimental configuration directories are in the Raw Data volume on the
 # machine BRUKER which is mounted to E:. This is where configs will be written
@@ -66,7 +67,7 @@ class SubjectError(Exception):
             self.message = args[0]
         else:
             self.message = None
-    
+
     def __str__(self):
         if self.message:
             return "SubjectError: " + "{0}".format(self.message)
@@ -135,7 +136,7 @@ def get_template(project: str) -> dict:
 
     # Glob the configuration directory for the .json file and convert it to a list
     template_config_path = list(template_dir.glob("*.json"))
-    
+
     # If the length of the list for the template file is great than 1,
     # something is wrong. Raise an exception.
     if len(template_config_path) > 1:
@@ -357,7 +358,7 @@ def get_subject_metadata(project: str, subject_id: str) -> dict:
     else:
         try:
             subject_metadata = yaml.load(subject_metadata[0])
-        
+
         except IndexError:
             raise SubjectError("No subject metadata found! Check your project's subjects directory (ie U:/subjects/subjectid/)")
 
@@ -407,7 +408,7 @@ def build_server_directory(project: str, subject_id: str, config_template: dict)
             Subject ID value from metadata_args["project"]
         config_template:
             Configuration template gathered for the project by get_template()
-    
+
     Returns:
         session_path:
             Path that files should be written to after experiment is finished.
@@ -430,10 +431,10 @@ def build_server_directory(project: str, subject_id: str, config_template: dict)
     # If a z-stack is scheduled to run, build that directory to the full path
     if config_template["zstack_metadata"]["zstack"]:
         (session_path / "zstacks").mkdir(parents=True, exist_ok=True)
-    
+
     return session_path
 
-    
+
 def weight_check(project: str, subject_id: str):
     '''
     Checks subject's weight file for current measurement.
@@ -473,10 +474,10 @@ def weight_check(project: str, subject_id: str):
     else:
         try:
             subject_weights = yaml.load(subject_weight_file[0])
-        
+
         except IndexError:
             raise SubjectError("No subject weight file found! Check _DATA/project/subjects/subject_id")
-        
+
         # Once it's confirmed there aren't multiple weight files, check that subject has weight
         # recorded for that day. If there's no weight measured, then a KeyError occurs and an
         # exception is raised.
@@ -581,7 +582,7 @@ def check_yoked_config(subject_type: str, current_plane: int, project: str) -> l
             Which plane number is being currently imaged (i.e. 1, 2, 3)
         project:
             The team and project conducting the experiment (ie teamname_projectname)
-    
+
     Returns:
         experiment_arrays
 
@@ -613,7 +614,7 @@ def check_yoked_config(subject_type: str, current_plane: int, project: str) -> l
     if len(yoked_files) != 1:
 
         experiment_arrays = None
-    
+
     # If a file is found, load the values into the experiment arrays
     else:
 
