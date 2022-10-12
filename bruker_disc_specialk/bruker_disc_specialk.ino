@@ -36,8 +36,8 @@ struct __attribute__((__packed__)) metadata_struct {
   uint8_t totalNumberOfTrials;              // total number of trials for experiment
   uint16_t punishTone;                      // airpuff frequency tone in Hz
   uint16_t rewardTone;                      // sucrose frequency tone in Hz
-  uint8_t USDeliveryTime_Sucrose;           // amount of time to open sucrose solenoid
-  uint8_t USDeliveryTime_Air;               // amount of time to open air solenoid
+  uint16_t USDeliveryTime_Sucrose;           // amount of time to open sucrose solenoid
+  uint16_t USDeliveryTime_Air;               // amount of time to open air solenoid
   uint16_t USConsumptionTime_Sucrose;       // amount of time to wait for sucrose consumption
   uint16_t stimDeliveryTime_Total;          // amount of time LED is scheduled to run
   uint16_t USDelay;                         // amount of time to wait before delivering US after tone starts
@@ -135,20 +135,7 @@ unsigned long USDeliveryMS;
 unsigned long noiseDeliveryMS;
 unsigned long toneListeningMS;
 unsigned long toneDAQMS;
-// unsigned long ITIEnd;
-// unsigned long LEDStart;
-// unsigned long LEDEnd;
-// unsigned long rewardDelayMS;
-// unsigned long sucroseDelayMS;
-// unsigned long USDeliveryMS_Sucrose;
-// unsigned long sucroseConsumptionMS;
-// unsigned long vacTime;
-// unsigned long airDelayMS;
-// unsigned long USDeliveryMS_Air;
-// unsigned long USDeliveryMS;
-// unsigned long noiseDeliveryMS;
-// unsigned long toneListeningMS;
-// unsigned long toneDAQMS;
+
 // Vacuum has a set amount of time to be active
 const int vacDelay = 500; // vacuum delay
 
