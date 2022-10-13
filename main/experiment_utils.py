@@ -2,7 +2,6 @@
 # Jeremy Delahanty May 2021
 
 # Import config_utils functions for manipulating config files
-from asyncio.subprocess import PIPE
 import config_utils
 
 # Import video_utils functions for using Harvesters for camera
@@ -29,9 +28,6 @@ import sys
 
 def run_imaging_experiment(metadata_args):
 
-    # Gather subject_id
-    # subject_id = metadata_args["subject_id"]
-
     # Gather project information
     project = metadata_args["project"]
 
@@ -53,7 +49,7 @@ def run_imaging_experiment(metadata_args):
 
     # Use new Arduino class to verify and upload available Arduino sketches
     # automatically
-    serialtransfer_utils.upload_arduino_sketch(project)
+    # serialtransfer_utils.upload_arduino_sketch(project)
     # TODO: After updating how weights are represented, this should
     # basically tell the user to input a weight (in kg? maybe just g
     # and conver to NWB for them later...) and then append that to
@@ -143,7 +139,10 @@ def run_imaging_experiment(metadata_args):
             session_len_s = trial_utils.calculate_session_length(experiment_arrays)
 
             # Start preview of animal's face.  Zero microscope over lens here.
-            video_utils.capture_preview()
+            video_utils.capture_preview(
+                project,
+                subject_id
+            )
 
             imaging_plane = prairieview_utils.get_imaging_plane()
 
