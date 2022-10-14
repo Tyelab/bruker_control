@@ -49,7 +49,8 @@ def run_imaging_experiment(metadata_args):
 
     # Use new Arduino class to verify and upload available Arduino sketches
     # automatically
-    # serialtransfer_utils.upload_arduino_sketch(project)
+    serialtransfer_utils.upload_arduino_sketch(project)
+
     # TODO: After updating how weights are represented, this should
     # basically tell the user to input a weight (in kg? maybe just g
     # and conver to NWB for them later...) and then append that to
@@ -213,8 +214,8 @@ def run_imaging_experiment(metadata_args):
             else:
                 current_plane += 1
 
-        # Disconnect from Prairie View and end the experiments for the day
-        prairieview_utils.pv_disconnect()
+    # Disconnect from Prairie View and end the experiments for the day
+    prairieview_utils.pv_disconnect()
 
-        print("Exiting...")
-        sys.exit()
+    print("Exiting...")
+    sys.exit()
