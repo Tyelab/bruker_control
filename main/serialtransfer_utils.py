@@ -2,6 +2,7 @@
 # Jeremy Delahanty May 2021
 # pySerialTransfer written by PowerBroker2
 # https://github.com/PowerBroker2/pySerialTransfer
+# Uploading sketches through CLI inspired by Deryn LeDuke's use of the it in MATLAB
 
 ###############################################################################
 # Import Packages
