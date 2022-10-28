@@ -115,6 +115,7 @@ Prairie View has a tab specific for the laser. Select this tab.
   :align: center
 
 When you first select this window, you'll notice:
+
 * The laser is "off". Even though you turned the laser's key to activate it, it is not yet fully powered and ready to interact with Prarie View.
 * The laser is not "Mode Locked".
 * The shutter is closed. This refers to the soft shutter.
@@ -147,6 +148,7 @@ When on and mode-locked successfully, you should see something like this:
 
 .. image:: ../images/modelocked.png
   :alt: The laser sits at 920nm and is mode-locked!
+  :align: center
 
 Now your laser is aligned and ready for imaging!
 
