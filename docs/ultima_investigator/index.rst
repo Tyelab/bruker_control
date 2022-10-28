@@ -381,7 +381,7 @@ Correcting for the Artifact
 ***************************
 
 The way this artifact is mitigated is by changing the offset for the PMT that's being imaged. Bruker's
-technical team discovered that putting the value to -0.04 creates a much more uniform and lower magnitude
+technical team discovered that adjusting the value creates a much more uniform and lower magnitude
 noise. A consequence of lowering this offset value is that the true signal we're interested in will also
 be somewhat dimmer.  However, given that the structures we're imaging have quite bright fluorescence, a
 small decrease in the signal of a cell is well worth the dramatic reduction in noise.

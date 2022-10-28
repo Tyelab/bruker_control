@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="prev" title="System Outputs" href="../outputs/index.html" />
 
     <meta name="generator" content="sphinx-4.0.2, furo 2021.08.11.beta42"/>
-        <title>Bruker Control’s Functions and Classes - Bruker Control v1.9.3</title>
+        <title>Bruker Control’s Functions and Classes - Bruker Control v1.11.4</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=197f00461d56902ea7ca048ec6e6ba026f62c97b" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=93475b62d1c3bc01323a0eefdc14a62d77b12690" />
@@ -121,7 +121,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Bruker Control v1.9.3</div></a>
+      <a href="../index.html"><div class="brand">Bruker Control v1.11.4</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -144,7 +144,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Bruker Control v1.9.3</span>
+  <span class="sidebar-brand-text">Bruker Control v1.11.4</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -154,7 +154,7 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../about/index.html">About Bruker Control</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../instructions/index.html">v1.9.3 User Guide: Get Yoked! 🏋️ 🏋️‍♀️</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../instructions/index.html">v1.11.4 User Guide: Take Flight! ✈️</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ultima_investigator/index.html">Bruker’s (Legacy) Ultima Investigator</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../configurations/configs.html">Configurations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../outputs/index.html">System Outputs</a></li>
@@ -200,13 +200,17 @@ tested using one camera so far.</p>
 </dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="video_utils.calculate_frames">
-<span class="sig-prename descclassname"><span class="pre">video_utils.</span></span><span class="sig-name descname"><span class="pre">calculate_frames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_len_s</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#video_utils.calculate_frames" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">video_utils.</span></span><span class="sig-name descname"><span class="pre">calculate_frames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_len_s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">framerate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#video_utils.calculate_frames" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates number of images to collect during the experiment.</p>
 <p>Converts imaging session length into number of frames to collect by
-microscope and, therefore, camera.</p>
+microscope and, therefore, camera. Currently, the camera takes an
+image each time the microscope does via its TTLs.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>session_len_s</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Experimental session length in seconds</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>session_len_s</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Experimental session length in seconds</p></li>
+<li><p><strong>framerate</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Framerate of microscope.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></p>
@@ -218,22 +222,31 @@ microscope and, therefore, camera.</p>
 </dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="video_utils.capture_preview">
-<span class="sig-prename descclassname"><span class="pre">video_utils.</span></span><span class="sig-name descname"><span class="pre">capture_preview</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#video_utils.capture_preview" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">video_utils.</span></span><span class="sig-name descname"><span class="pre">capture_preview</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#video_utils.capture_preview" title="Permalink to this definition">¶</a></dt>
 <dd><p>Capture frames generated by camera object and display them in preview mode.</p>
 <p>Takes values from init_camera_preview() to capture images delivered by
-camera buffer, reshapes the image to appropriate height and width, and
-finally displays the image to an opencv window. When user hits the ‘Esc’
-key, the window closes and the camera object is destroyed. This function
-takes no arguments and returns nothing.</p>
+camera buffer, reshapes the image to appropriate height and width, draws
+a grid upon the preview</p>
+<p>When user hits the ‘Esc’ key, the window closes and the camera object is destroyed.
+Finally, the preview content is saved as an image that is timestamped with the day’s
+date and placed into the subject’s metadata directory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>project</strong> – The team and project conducting the experiment</p></li>
+<li><p><strong>subject_id</strong> – The subject being recorded</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="video_utils.capture_recording">
 <span class="sig-prename descclassname"><span class="pre">video_utils.</span></span><span class="sig-name descname"><span class="pre">capture_recording</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">framerate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_frames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_plane</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imaging_plane</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#video_utils.capture_recording" title="Permalink to this definition">¶</a></dt>
 <dd><p>Capture frames generated by camera object, display them in recording mode,
-and write frames to .avi file.</p>
+and write frames to .mp4 file.</p>
 <p>Takes values from init_camera_recording() to capture images delivered by
 camera buffer, reshapes the image to appropriate height and width, displays
-the image to an opencv window, and writes the image to a .avi file.
+the image to an opencv window, and writes the image to a .mp4 file.
 When the camera acquires the specified number of frames for an experiment,
 the window closes, the camera object is destroyed, and the video is written
 to disk.</p>
@@ -375,18 +388,14 @@ experimental_array_list at index 0</p></li>
 </dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="trial_utils.calculate_session_length">
-<span class="sig-prename descclassname"><span class="pre">trial_utils.</span></span><span class="sig-name descname"><span class="pre">calculate_session_length</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment_arrays</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trial_utils.calculate_session_length" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">trial_utils.</span></span><span class="sig-name descname"><span class="pre">calculate_session_length</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment_arrays</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trial_utils.calculate_session_length" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates number of imaging frames to collect for experimental session.</p>
 <p>Iterates through experiment runtime arrays to calculate amount of time and,
 therefore, the total number of frames that the microscope and camera should
 collect for the experiment.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>experiment_arrays</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – List of experiment runtime arrays generated from generate_arrays().</p></li>
-<li><p><strong>config_template</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Configuration template value dictionary gathered from team’s
-configuration .json file.</p></li>
-</ul>
+<dd class="field-odd"><p><strong>experiment_arrays</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – List of experiment runtime arrays generated from generate_arrays().</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></p>
@@ -833,258 +842,18 @@ trialArray.</p></li>
 <h2>config_utils.py<a class="headerlink" href="#config-utils-py" title="Permalink to this headline">¶</a></h2>
 <p>Module contains functions for reading, writing, and passing configuration
 information to different modules or files including NWB files.</p>
-<span class="target" id="module-config_utils"></span><dl class="py exception">
-<dt class="sig sig-object py" id="config_utils.SubjectError">
-<em class="property"><span class="pre">exception</span> </em><span class="sig-prename descclassname"><span class="pre">config_utils.</span></span><span class="sig-name descname"><span class="pre">SubjectError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#config_utils.SubjectError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Exception for when there’s an error when parsing information for a subject.</p>
-</dd></dl>
-<dl class="py exception">
-<dt class="sig sig-object py" id="config_utils.TemplateError">
-<em class="property"><span class="pre">exception</span> </em><span class="sig-prename descclassname"><span class="pre">config_utils.</span></span><span class="sig-name descname"><span class="pre">TemplateError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#config_utils.TemplateError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Exception for when there’s an error when parsing templates.</p>
-</dd></dl>
-<dl class="py function">
-<dt class="sig sig-object py" id="config_utils.build_server_directory">
-<span class="sig-prename descclassname"><span class="pre">config_utils.</span></span><span class="sig-name descname"><span class="pre">build_server_directory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#config_utils.build_server_directory" title="Permalink to this definition">¶</a></dt>
-<dd><p>Builds directories for copying files to server at the end of the day.</p>
-<p>Directories are not automatically built for different subjects on different days
-because dates and times might change. Therefore, they’re built during runtime.
-The directory for a given animal in the 2P folder for a given project will already
-exist, so this function creates the appropriate structure.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>project</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The team and project conducting the experiment (ie teamname_projectname)</p></li>
-<li><p><strong>subject_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Subject ID value from metadata_args[“project”]</p></li>
-<li><p><strong>config_template</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Configuration template gathered for the project by get_template()</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Path that files should be written to after experiment is finished.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>session_path</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py function">
-<dt class="sig sig-object py" id="config_utils.check_yoked_config">
-<span class="sig-prename descclassname"><span class="pre">config_utils.</span></span><span class="sig-name descname"><span class="pre">check_yoked_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_plane</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#config_utils.check_yoked_config" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks to see if a yoked trialset already exists for a session.</p>
-<p>If a user wants yoked trial sessions, a check is performed to see if a trial set
-for the given experimental group and given plane has been generated yet. If no
-file is available, a None object is returned and trialsets are generated with
-trial_utils as normal. If a file is available, those experimental arrays are
-loaded and saved as the expeirment_arrays.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>subject_type</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Type of group the subject is a part of, either “experimental” or “control”.</p></li>
-<li><p><strong>current_plane</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Which plane number is being currently imaged (i.e. 1, 2, 3)</p></li>
-<li><p><strong>project</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The team and project conducting the experiment (ie teamname_projectname)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>experiment_arrays</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py function">
-<dt class="sig sig-object py" id="config_utils.get_arduino_metadata">
-<span class="sig-prename descclassname"><span class="pre">config_utils.</span></span><span class="sig-name descname"><span class="pre">get_arduino_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#config_utils.get_arduino_metadata" title="Permalink to this definition">¶</a></dt>
-<dd><p>Grabs metadata relevent to Arduino runtime</p>
-<p>Parses the template configuration supplied by the user and grabs only the
-metadata that is relevant for the Arduino’s function using dictionary
-comprehension. Finally converts dictionary to json object for transfer.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>config_template</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Configuration template value dictionary gathered from team’s
-configuration .json file.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><dl class="simple">
-<dt>arduino_metadata</dt><dd><p>Dictionary of relevant Arduino metadata for experiment.</p>
-</dd>
-</dl>
-</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py function">
-<dt class="sig sig-object py" id="config_utils.get_subject_metadata">
-<span class="sig-prename descclassname"><span class="pre">config_utils.</span></span><span class="sig-name descname"><span class="pre">get_subject_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#config_utils.get_subject_metadata" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parses imaging subject’s .yml metadata file for NWB fields</p>
-<p>Locates and then uses ruamel.yaml to parse the metadata fields with safe
-loading. Gathers yaml data and places it into a dictionary for use later
-in the NWB file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>project</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The team and project conducting the experiment (ie teamname_projectname)</p></li>
-<li><p><strong>subject_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Subject ID from metadata_args[“subject”]</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>subject_metadata</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py function">
-<dt class="sig sig-object py" id="config_utils.get_surgery_metadata">
-<span class="sig-prename descclassname"><span class="pre">config_utils.</span></span><span class="sig-name descname"><span class="pre">get_surgery_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject_metadata</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#config_utils.get_surgery_metadata" title="Permalink to this definition">¶</a></dt>
-<dd><p>Grabs surgery information from subject’s metadata file.</p>
-<p>Implant information and virus information for stimulation and recording
-is contained within the subject’s metadata file.  This information is used
-for filenaming purposes particularly in the Z-Stack files as well as the
-NWB files’ metadata sections.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>subject_metadata</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Metadata obtained from get_subject_metadata()</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>surgery_metadata</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py function">
-<dt class="sig sig-object py" id="config_utils.get_template">
-<span class="sig-prename descclassname"><span class="pre">config_utils.</span></span><span class="sig-name descname"><span class="pre">get_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#config_utils.get_template" title="Permalink to this definition">¶</a></dt>
-<dd><p>Grab team’s template configuration file for experiment runtime.</p>
-<p>Uses the metadata_args values “team” and “project” found in bruker_control to select the
-specific 2-Photon configuration file that will run the experiment for a session.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>project</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The team and project conducting the experiment (ie teamname_projectname)</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>template_config</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py function">
-<dt class="sig sig-object py" id="config_utils.get_zstack_metadata">
-<span class="sig-prename descclassname"><span class="pre">config_utils.</span></span><span class="sig-name descname"><span class="pre">get_zstack_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#config_utils.get_zstack_metadata" title="Permalink to this definition">¶</a></dt>
-<dd><p>Grabs metadata relevant for generating Z-stacks</p>
-<p>Parses template configuration supplied by the user and grabs only the
-metadata that is relevant for Prairie View executing a Z-stack.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>config_template</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Configuration template value dictionary gathered from team’s
-configuration .json file.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><dl class="simple">
-<dt>zstack_metadata</dt><dd><p>Dictionary of relevant Prairie View Z-Stack for experiment</p>
-</dd>
-</dl>
-</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py function">
-<dt class="sig sig-object py" id="config_utils.read_config">
-<span class="sig-prename descclassname"><span class="pre">config_utils.</span></span><span class="sig-name descname"><span class="pre">read_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#config_utils.read_config" title="Permalink to this definition">¶</a></dt>
-<dd><p>Utility function for reading config files</p>
-<p>General purpose function for reading .json files containing configuration
-values for an experiment.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>config_path</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>) – Pathlib path to the template configuration file.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Dictionary of contents inside the configuration .json file</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py function">
-<dt class="sig sig-object py" id="config_utils.weight_check">
-<span class="sig-prename descclassname"><span class="pre">config_utils.</span></span><span class="sig-name descname"><span class="pre">weight_check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#config_utils.weight_check" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks subject’s weight file for current measurement.</p>
-<p>Some teams want to ensure that their recordings have a weight gathered that
-day. In practice, it can be something that users could forget to do accidentally
-and then be left without that data when they need it. If the project’s configuration
-requires users to gather a weight for that day, this function will search for the
-subject’s weight file and check if a measurement has been taken.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>project</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The team and project conducting the experiment (ie teamname_projectname)</p></li>
-<li><p><strong>subject_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Subject ID value from metadata_args[“project”]</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py function">
-<dt class="sig sig-object py" id="config_utils.write_experiment_config">
-<span class="sig-prename descclassname"><span class="pre">config_utils.</span></span><span class="sig-name descname"><span class="pre">write_experiment_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_template</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment_arrays</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropped_frames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imaging_plane</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_plane</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#config_utils.write_experiment_config" title="Permalink to this definition">¶</a></dt>
-<dd><p>Writes experiental configuration file to Raw Data drive.</p>
-<p>Takes the configuration template and appends on the experimental arrays and
-dropped frames from the experiment. Then writes the configuration to disk.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>config_template</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Configuration template value dictionary gathered from team’s
-configuration .json file.</p></li>
-<li><p><strong>experiment_arrays</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – List of arrays used for experimental runtime. [0] is trialArray,
-[1] is ITIArray, [2] is toneArray, [3] is LEDArray. These must
-always be in this order.</p></li>
-<li><p><strong>dropped_frames</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – List of dropped frames from the camera during the experiment</p></li>
-<li><p><strong>project</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The team and project conducting the experiment (ie teamname_projectname)</p></li>
-<li><p><strong>subject_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Subject ID from metadata_args[“subject_id”]</p></li>
-<li><p><strong>imaging_plane</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Plane 2P images were acquired at, the Z-axis value</p></li>
-<li><p><strong>current_plane</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Current plane being imaged as in 1st, 2nd, 3rd, etc</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py function">
-<dt class="sig sig-object py" id="config_utils.write_yoked_config">
-<span class="sig-prename descclassname"><span class="pre">config_utils.</span></span><span class="sig-name descname"><span class="pre">write_yoked_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_plane</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment_arrays</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#config_utils.write_yoked_config" title="Permalink to this definition">¶</a></dt>
-<dd><p>Write out yoked configurations for unique plane/subject combinations.</p>
-<p>Yoked trial sets indicate that an entire experimental group will receive the same
-pseudorandom trials. This generates sessions that are far easier to compare between
-mice and also larger N for each dataset for statistical analysis of neural activity
-later. These are written to the local filesystem first and will be copied to the server
-at the end of the day.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>subject_type</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Type of group the subject is a part of, either “experimental” or “control”.</p></li>
-<li><p><strong>current_plane</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Which plane number is being currently imaged (i.e. 1, 2, 3)</p></li>
-<li><p><strong>project</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The team and project conducting the experiment (ie teamname_projectname)</p></li>
-<li><p><strong>experiment_arrays</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – List of experimental arrays to be sent via pySerialTransfer</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
 </section>
 <section id="prairieview-utils-py">
 <h2>prairieview_utils.py<a class="headerlink" href="#prairieview-utils-py" title="Permalink to this headline">¶</a></h2>
 <p>Module contains functions for interacting with Prairie View’s API to set data
 directories, filenames, and gathering imaging plane information. Also sets
 microscope laser values according to user presets and initiates image acquisition.</p>
-<span class="target" id="module-prairieview_utils"></span><dl class="py function">
+<span class="target" id="module-prairieview_utils"></span><dl class="py exception">
+<dt class="sig sig-object py" id="prairieview_utils.PrairieLinkPasswordError">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">PrairieLinkPasswordError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.PrairieLinkPasswordError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception for when there’s an error when parsing prairelink password.</p>
+</dd></dl>
+<dl class="py function">
 <dt class="sig sig-object py" id="prairieview_utils.configure_zseries">
 <span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">configure_zseries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_plane</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imaging_plane</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indicator_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stack</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zstack_delta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zstack_step</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.configure_zseries" title="Permalink to this definition">¶</a></dt>
 <dd><p>Readies the Bruker 2-Photon microscope for a Z-Series</p>
@@ -1198,6 +967,34 @@ and returns it as the correct value of each PMT’s gain.</p>
 </dl>
 </dd></dl>
 <dl class="py function">
+<dt class="sig sig-object py" id="prairieview_utils.get_pv_password">
+<span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">get_pv_password</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.get_pv_password" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load Prairie View Password from file or obtain it from user.</p>
+<p>Prairie View has placed a password on their API that’s unique to each
+user account on the system. Per Michael Fox, this was done not because
+of worries about malicious intent but because sometimes IT systems
+will be HTTP address sniffing (basically looking for computers to talk to)
+and start trying to talk to the scope on accident. This can keep the scope’s
+software either busy or, more likely, will raise errors from Bruker’s API that
+interferes with the experiment as the API will interpret the communications
+as (malformed) PrairieLink commands.</p>
+<p>Since it’s different per user, a local file must be stored in the repo that contains
+the correct password. This password is found by going to:
+Tools -&gt; Scripts -&gt; Edit Scripts … dialog in the bottom left corner of the window.
+It is 4 characters long, all uppercase. The default password will be the string “0000”
+and must be updated by the user the first time they install bruker_control OR likely when
+there’s a Prairie View Update. If the password isn’t the default, it’s passed onto the
+connect function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>password</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
 <dt class="sig sig-object py" id="prairieview_utils.prepare_tseries">
 <span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">prepare_tseries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_plane</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imaging_plane</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surgery_metadata</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.prepare_tseries" title="Permalink to this definition">¶</a></dt>
 <dd><p>Readies the Bruker 2-Photon microscope for a T-Series experiment</p>
@@ -1222,7 +1019,8 @@ describing excitation and emission wavelengths.</p></li>
 <dt class="sig sig-object py" id="prairieview_utils.pv_connect">
 <span class="sig-prename descclassname"><span class="pre">prairieview_utils.</span></span><span class="sig-name descname"><span class="pre">pv_connect</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#prairieview_utils.pv_connect" title="Permalink to this definition">¶</a></dt>
 <dd><p>Connect to Prairie View</p>
-<p>Used to connect to Prairie View at the beginning of each session with their
+<p>First grabs machin hostname and IP address for connecting to Prairie Link.
+Used to connect to Prairie View at the beginning of each session with their
 API.  This function takes no arguments and returns nothing.</p>
 </dd></dl>
 <dl class="py function">
@@ -1384,7 +1182,40 @@ describing excitation and emission wavelengths.</p></li>
 <h2>serialtransfer_utils.py<a class="headerlink" href="#serialtransfer-utils-py" title="Permalink to this headline">¶</a></h2>
 <p>Module contains functions for sending, receiving, and checking trial information
 to the Arduino delivering stimuli via pySerialTransfer.</p>
-<span class="target" id="module-serialtransfer_utils"></span><dl class="py function">
+<span class="target" id="module-serialtransfer_utils"></span><dl class="py class">
+<dt class="sig sig-object py" id="serialtransfer_utils.Arduino">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">serialtransfer_utils.</span></span><span class="sig-name descname"><span class="pre">Arduino</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sketch_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#serialtransfer_utils.Arduino" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generic Arduino class for interacting with arbitrary Arduino boards.</p>
+<p>Class for discovering boards available on the system with ability
+to select arbitrary Arduino boards discovered on the machine. Compiles
+and uploads sketches to the board before the experiment starts.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="serialtransfer_utils.Arduino.compile_sketch">
+<span class="sig-name descname"><span class="pre">compile_sketch</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#serialtransfer_utils.Arduino.compile_sketch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use the CLI to compile the project’s Arduino sketch</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="serialtransfer_utils.Arduino.list_boards">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">list_boards</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#serialtransfer_utils.Arduino.list_boards" title="Permalink to this definition">¶</a></dt>
+<dd><p>Query CLI for finding available Arduinos on the machine.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="serialtransfer_utils.Arduino.upload_sketch">
+<span class="sig-name descname"><span class="pre">upload_sketch</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#serialtransfer_utils.Arduino.upload_sketch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use the CLI to upload the sketch to the Arduino.</p>
+</dd></dl>
+</dd></dl>
+<dl class="py exception">
+<dt class="sig sig-object py" id="serialtransfer_utils.SketchError">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-prename descclassname"><span class="pre">serialtransfer_utils.</span></span><span class="sig-name descname"><span class="pre">SketchError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#serialtransfer_utils.SketchError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception for when there’s an error finding or using an Arduino sketch.</p>
+</dd></dl>
+<dl class="py function">
 <dt class="sig sig-object py" id="serialtransfer_utils.array_error_check">
 <span class="sig-prename descclassname"><span class="pre">serialtransfer_utils.</span></span><span class="sig-name descname"><span class="pre">array_error_check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transmitted_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">received_array</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#serialtransfer_utils.array_error_check" title="Permalink to this definition">¶</a></dt>
 <dd><p>Performs Python side error checking for array transmission.</p>
@@ -1510,6 +1341,18 @@ experiment will start!</p>
 </dd>
 </dl>
 </dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="serialtransfer_utils.upload_arduino_sketch">
+<span class="sig-prename descclassname"><span class="pre">serialtransfer_utils.</span></span><span class="sig-name descname"><span class="pre">upload_arduino_sketch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#serialtransfer_utils.upload_arduino_sketch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes project name running experiment and finds sketch, uploads to board.</p>
+<p>Uses project name to grab .ino file for given team, compiles it, and
+finally sends it to the Arduino using the arduino-cli.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>project</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>) – The team and project conducting the experiment (ie teamname_projectname)</p>
+</dd>
+</dl>
+</dd></dl>
 </section>
 </section>
 <section id="indices-and-tables">
@@ -1540,7 +1383,7 @@ experiment will start!</p>
         </div>
 
         <div class="related-information">
-              Copyright &#169; 2022, The Salk Institute for Biological Studies
+              Copyright &#169; 2022, The Salk Institute for Biological Studies and Howard Hughes Medical Institute (HHMI)
             |
             Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
               and

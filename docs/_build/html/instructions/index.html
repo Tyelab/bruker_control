@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Bruker’s (Legacy) Ultima Investigator" href="../ultima_investigator/index.html" /><link rel="prev" title="About Bruker Control" href="../about/index.html" />
 
     <meta name="generator" content="sphinx-4.0.2, furo 2021.08.11.beta42"/>
-        <title>v1.9.3 User Guide: Get Yoked! 🏋️ 🏋️‍♀️ - Bruker Control v1.9.3</title>
+        <title>v1.11.4 User Guide: Take Flight! ✈️ - Bruker Control v1.11.4</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=197f00461d56902ea7ca048ec6e6ba026f62c97b" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=93475b62d1c3bc01323a0eefdc14a62d77b12690" />
@@ -121,7 +121,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Bruker Control v1.9.3</div></a>
+      <a href="../index.html"><div class="brand">Bruker Control v1.11.4</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -144,7 +144,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Bruker Control v1.9.3</span>
+  <span class="sidebar-brand-text">Bruker Control v1.11.4</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -154,7 +154,7 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../about/index.html">About Bruker Control</a></li>
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">v1.9.3 User Guide: Get Yoked! 🏋️ 🏋️‍♀️</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">v1.11.4 User Guide: Take Flight! ✈️</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ultima_investigator/index.html">Bruker’s (Legacy) Ultima Investigator</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../configurations/configs.html">Configurations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../outputs/index.html">System Outputs</a></li>
@@ -185,8 +185,8 @@
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
-        <section id="v1-9-3-user-guide-get-yoked">
-<h1>v1.9.3 User Guide: Get Yoked! 🏋️ 🏋️‍♀️<a class="headerlink" href="#v1-9-3-user-guide-get-yoked" title="Permalink to this headline">¶</a></h1>
+        <section id="v1-11-4-user-guide-take-flight">
+<h1>v1.11.4 User Guide: Take Flight! ✈️<a class="headerlink" href="#v1-11-4-user-guide-take-flight" title="Permalink to this headline">¶</a></h1>
 <p>A (very) basic rundown of the experimental runtime is included below.</p>
 <img alt="User steps for using bruker_control.py" src="../_images/bruker_user_execution_graph.svg"/><section id="user-guide">
 <h2>User Guide<a class="headerlink" href="#user-guide" title="Permalink to this headline">¶</a></h2>
@@ -210,30 +210,33 @@
 <li><p>If it fails, first try drying the sucrose delivery needle and, if that fails, grease the interface between the two needles. Ensure that you don’t get any grease where the sucrose droplet forms.</p></li>
 </ul>
 </div></blockquote>
-<ol class="arabic simple" start="3">
-<li><p>Upload your team’s Arduino sketch! You only need to upload this sketch once: at the start of the day!</p></li>
-</ol>
-<p>Now the Arduino system is ready and waiting for the experiment’s trials!
-The board will reset on its own once the imaging session is complete.</p>
+<p>Once backfilled, the Arduino is nearly ready to run the experiment! <code class="docutils literal notranslate"><span class="pre">bruker_control</span></code> now checks that experimental script compiles and uploads the sketch for you.</p>
+<p>If you watch the Serial Monitor during the experiment, do <em>NOT</em> open it now. Wait until after you see that the script has uploaded successfully in the terminal.</p>
 </section>
 <section id="prairie-view">
 <h3><em>Prairie View</em><a class="headerlink" href="#prairie-view" title="Permalink to this headline">¶</a></h3>
+<img alt="Shortcut to Prairie View" class="align-center" src="../_images/pv_shortcut.png"/>
 <p>Prairie View will open several windows when it starts. The first looks like this:</p>
 <img alt="Prairie View starting window" class="align-center" src="../_images/pv_starting_window.png"/>
-<p>In the currently running version (5.6.64.200), an error message appears
-related to servo motors that do not exist in the Ultima Investigator. The
-starting window shown above will end up looking like this:</p>
-<img alt="Servo Error message" class="align-center" src="../_images/prairieview_servo_error.png"/>
-<p>This has no influence upon the function of the system and can be ignored.</p>
-<p>The next window is the primary window for Prairie View.</p>
+<p>In the currently running version (5.7.64.200), two messages will appear related to unused PMT shutters and uncaged galvo settings requiring attention</p>
+<p>These has no influence upon the function of the system and can be ignored. Documentation about why they are shown is forthcoming.</p>
+<p>The next windows are the primary windows for Prairie View: The Control Suite and Image Display.</p>
+<img alt="images/pv_main_windows.png" src="images/pv_main_windows.png"/>
+<p>The Control Suite is on the left and the Image Window is on the right. There are a few steps you’ll need to do now to ensure the scope and Prairie View are ready.</p>
 <ol class="arabic simple">
-<li><p>Primary Window: T-Series</p></li>
+<li><p>Control Suite: T- Series</p></li>
 </ol>
-<img alt="T-Series tab" class="align-center" src="../_images/t_series_start.png"/>
+<img alt="The arrow points to the t-series tab within the suite." class="align-center" src="../_images/suite_t-series.png"/>
+<p>Multiple settings should be checked for correctness before initiating the experiment.</p>
+<img alt="The T-Series Window is Shown" class="align-center" src="../_images/t_series_complete.png"/>
 <ul class="simple">
-<li><p>In the <cite>T-Series</cite> tab, there’s a box on the bottom left corner that states <cite>Start with input trigger</cite>. Make sure that this is selected.</p></li>
-<li><p>Make sure that there’s a large number of images scheduled to be collected (&gt;50k). This ensures that Prairie View will collect images for the full duration of the experiment. When the correct number of images are collected, <cite>bruker_control</cite> will send an <cite>Abort</cite> command to stop the experiment.</p></li>
-<li><p>Ensure that the <cite>T-Series</cite> is using the correct voltage recording experiment for your data before you start.</p></li>
+<li><p>On the bottom left corner of this tab, there is a checkbox  that states <cite>Start with input trigger</cite>. Make sure that this is selected.</p></li>
+<li><p>Make sure that there’s a large number of images scheduled to be collected (&gt;70k). This ensures that Prairie View will collect images for the full duration of the experiment. When the correct number of images are collected, <cite>bruker_control</cite> will send an <cite>Abort</cite> command to stop the experiment.</p></li>
+<li><p>Current users of the Legacy Ultima Investigator are imaging at Maximum Speed. Make sure that the <cite>Max Speed</cite> box is selected. The <cite>Period</cite> and <cite>Duration</cite> are set by recording at full speed with the number of images you’ve scheduled to collect.</p></li>
+<li><p>Photo Activation: Although we do photoactivation experiments currently with the whole field LED, we do not provide stimulation using this part of the software.</p></li>
+<li><p>Brightness Over Time (<cite>BOT</cite>): Measure the intensity of the image or hand selected ROI. Some labs do this when performing optogenetic stimulations to have a second reference of when stimulations occur. Users of this system do not currently use it.</p></li>
+<li><p>External Trigger: Whether to trigger a <cite>BOT</cite> measurement using an external trigger on the DAQ. This should be not be selected.</p></li>
+<li><p>Ensure that the <cite>T-Series</cite> is using the correct voltage recording experiment for your project and experiment before you start.</p></li>
 <li><p>If you are performing whole-field LED stimulations, ensure that the <cite>Mark Points Series</cite> is the correct one for team’s experiment. These will have been configured ahead of time.</p></li>
 </ul>
 <ol class="arabic simple" start="2">
@@ -241,8 +244,11 @@ starting window shown above will end up looking like this:</p>
 </ol>
 <img alt="Preferences window" class="align-center" src="../_images/preferences_screenshot.png"/>
 <ul class="simple">
-<li><p>Make sure that the <cite>Never</cite> option under the <cite>Preferences/Convert Images</cite> tab is selected.
-* This ensures that Prairie View will <em>not</em> convert the raw data into tiffs after the recording is complete.</p></li>
+<li><p>Make sure that the <cite>Never</cite> option under the <cite>Preferences/Convert Images</cite> tab is selected.</p>
+<ul>
+<li><p>This ensures that Prairie View will <em>not</em> convert the raw data into tiffs after the recording is complete.</p></li>
+</ul>
+</li>
 </ul>
 <p>This process can take some time and Prairie View hangs until it is done. It can take 15-20 minutes to perform the conversion so you will not be able to start the next
 subject until the ripping process is complete.</p>
@@ -253,10 +259,32 @@ subject until the ripping process is complete.</p>
 <img alt="Voltage Recording tab in electrophysiology" class="align-center" src="../_images/voltage_recording_start.png"/>
 <p>The voltage recording window will have multiple experiments saved for different teams’ relevant DAQ channels. Select your team’s appropriate experiment.</p>
 <img alt="Voltage Recording Experiment Settings" class="align-center" src="../_images/voltage_recording_settings.png"/>
-<p>At this point, Prairie View is ready to start imaging! You start the experiment in Python.</p>
+<p>Now that the recording settings are correct, it’s time to prep the laser. You will already likely have turned the laser box on and switched on the laser warning light. If you haven’t do these things first before continuing!</p>
+<ol class="arabic simple" start="4">
+<li><p>The Laser</p></li>
+</ol>
+<p>Prairie View has a tab specific for the laser. Select this tab.</p>
+<img alt="An arrow points to the Laser Tab in Suite" class="align-center" src="../_images/suite_laser.png"/>
+<p>When you first select this window, you’ll notice:
+* The laser is “off”. Even though you turned the laser’s key to activate it, it is not yet fully powered and ready to interact with Prarie View.
+* The laser is not “Mode Locked”.
+* The shutter is closed. This refers to the soft shutter.</p>
+<img alt="The starting laser settings are displayed." class="align-center" src="images/starting_laser_settings.png"/>
+<p>First, click the <cite>On</cite> button.</p>
+<img alt="The laser's &quot;On&quot; button has been selected." class="align-center" src="../_images/laser_on_button_selected.png"/>
+<p>Notice that the box to the right is red and states “Not mode-locked”. You can read more here about what that means and why we need to “Mode-Lock” here.</p>
+<p>The mode locking procedure consists of cycling through wavelengths with the laser. Select the lowest wavelength button of 720nm first. It will take some time to get there.</p>
+<img alt="The laser wavelength cylces downwards." class="align-center" src="../_images/modelock_low.gif"/>
+<p>Next, select the highest wavelength button of 1000nm. This will also take some time to change. Sometimes on the way up the first time it will mode-lock as it does here. If it doesn’t, just continue to cycle back and forth.</p>
+<img alt="The laser wavelength cycles upwards and it successfully mode-locks." class="align-center" src="../_images/modelock_success.gif"/>
+<p>When on and mode-locked successfully, you should see something like this:</p>
+<img alt="The laser sits at 920nm and is mode-locked!" src="../_images/modelocked.png"/>
+<p>Now your laser is aligned and ready for imaging!</p>
+<p>Before you move on, make sure that the lights in the room are off. Then, turn on the PMTs on the main box just below the keyboard and have the room lights off.</p>
+<p>With these steps complete, you can move on to starting Python!</p>
 </section>
-<section id="python">
-<h3><em>Python</em><a class="headerlink" href="#python" title="Permalink to this headline">¶</a></h3>
+<section id="python-and-the-experiment">
+<h3><em>Python and the Experiment</em><a class="headerlink" href="#python-and-the-experiment" title="Permalink to this headline">¶</a></h3>
 <img alt="Example Command Line Execution" class="align-center" src="../_images/introduction_1.gif"/>
 <p>Use the <cite>Anaconda Command Prompt</cite> to start a Python Terminal and then type the following commands:</p>
 <ol class="arabic simple">
@@ -265,19 +293,47 @@ subject until the ripping process is complete.</p>
 <ul class="simple">
 <li><p>Activating the conda environment <cite>bruker_control</cite> gives Python access to all the packages it needs to run the experiment.</p></li>
 </ul>
-<ol class="arabic simple" start="2">
-<li><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">Documents\gitrepos\bruker_control\bruker_control.py</span> <span class="pre">-p</span> <span class="pre">TEAMNAME_PROJECT</span> <span class="pre">-i</span> <span class="pre">#IMAGINGPLANES</span> <span class="pre">-s</span> <span class="pre">SUBJECTID</span> <span class="pre">-g</span> <span class="pre">EXPERIMENTAL_GROUP</span></code></p></li>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">Documents\gitrepos\bruker_control\main\bruker_control.py</span> <span class="pre">-p</span> <span class="pre">TEAMNAME_PROJECT</span> <span class="pre">-i</span> <span class="pre">#IMAGINGPLANES</span> <span class="pre">-g</span> <span class="pre">EXPERIMENTAL_GROUP</span></code></p></li>
 </ol>
 <p>The different arguments on this command line mean…</p>
 <ul class="simple">
 <li><p>-p The teamname and project that is using the system (ie specialk_cs) <em>REQUIRED</em></p></li>
 <li><p>-i The number of imaging planes that you plan to image for your subject <em>REQUIRED</em></p></li>
-<li><p>-s The subject ID for the animal being imaged <em>REQUIRED</em></p></li>
 <li><p>-g The experimental group that the animal belongs to <em>OPTIONAL</em></p></li>
 </ul>
+<p>When you supply these arguments to the command line, a new small GUI appears and allows you to select mice from your given project that you plan to image that day! Thanks Jonny Saunders for teaching me how to do it! ❤️</p>
+<img alt="A demo of executing the command line is shown." class="align-center" src="../_images/introduction_2.gif"/>
+<p>There’s not a lot more you need to do at this point! <cite>bruker_control</cite> do the following steps:</p>
+<ol class="arabic simple">
+<li><p>Load your project’s configuration file</p></li>
+<li><p>Locate your team’s Arduino Sketch</p></li>
+<li><p>Ensure that the Arduino you’re using is properly connected and determine its properties</p></li>
+<li><p>Compile your Arduino sketch to check for compilation errors</p></li>
+<li><p>Upload the sketch to the board where it will await trials</p></li>
+<li><p>Read the password file that allows Python to connect to Prairie View</p></li>
+<li><p>Connect to Prairie View</p></li>
+<li><p>Create trials according to your project’s rules and settings</p></li>
+<li><p>Connect to the machine vision camera for facial recordings</p></li>
+<li><p>Display a Preview of the mouse’s face with a grid drawn over it for aligning to initial recording day.</p></li>
+</ol>
+<blockquote>
+<div><ul class="simple">
+<li><p>You may have already lined up the sucrose delivery needle and airpuff needles to their correct positions, but if you haven’t now is when you should do that.</p></li>
+</ul>
+</div></blockquote>
+<img alt="What a subject might look like in the preview camera." class="align-center" src="../_images/friend.gif"/>
+<ol class="arabic simple" start="11">
+<li><p>At this point you should also ensure that the microscope’s objective is lined up over the lens and lowered to the plane you wish to image.</p></li>
+<li><p>Double check that the values of your PMTs and Pockels are what you expect.</p></li>
+<li><p>When you’re certain you’re ready to go and that the Farraday cage is completely closed, you can hit the <cite>Esc</cite> key. This will start the experiment!</p></li>
+<li><p>Watch the magic happen!</p></li>
+</ol>
+<p>At this point, <cite>bruker_control</cite> takes care of the rest! It will transmit the trial information to the Arduino, and tell Prairie View to start the recording session of the animal’s face and brain activity.
+It will write out the experiment’s information into the <code class="docutils literal notranslate"><span class="pre">E:</span></code> drive appropriate for your team’s raw data automatically so its ready for transferring to the server later.</p>
 </section>
 <section id="using-yoked-configurations">
-<h3>Using Yoked Configurations<a class="headerlink" href="#using-yoked-configurations" title="Permalink to this headline">¶</a></h3>
+<h3><em>Using Yoked Configurations</em><a class="headerlink" href="#using-yoked-configurations" title="Permalink to this headline">¶</a></h3>
 <p>If you have your configuration file set to use yoked trials, you <em>must</em> use the <code class="docutils literal notranslate"><span class="pre">EXPERIMENTAL_GROUP</span></code> argument.
 This gives <code class="docutils literal notranslate"><span class="pre">bruker_control</span></code> the final piece of information needed for generating yoked trial-sets: which group the subject belongs to.
 Yoked configurations are uniquely generated for each group on each day for each plane. There are two valid options:</p>
@@ -295,28 +351,6 @@ Yoked configurations are uniquely generated for each group on each day for each 
 </ul>
 <p>If you specified <code class="docutils literal notranslate"><span class="pre">yoked=true</span></code> in your configuration but <em>DONT</em> have the <code class="docutils literal notranslate"><span class="pre">EXPERIMENTAL_GROUP</span></code> argument, <code class="docutils literal notranslate"><span class="pre">bruker_control</span></code> will attempt to continue
 forward anyways and crash. Implementing a check and useful error message if the check fails is currently underway.</p>
-<p>When you hit enter with this command line, things will get started right away! The next steps below describe the procedure.</p>
-</section>
-<section id="the-experiment">
-<h3><em>The Experiment</em><a class="headerlink" href="#the-experiment" title="Permalink to this headline">¶</a></h3>
-<p>There’s not too much you need to do at this point! The steps are as follows:</p>
-<ol class="arabic simple">
-<li><p>A preview video will appear on the screen that shows the subject’s face.</p></li>
-</ol>
-<blockquote>
-<div><ul class="simple">
-<li><p>You may have already lined up the sucrose delivery needle and airpuff needles to their correct positions, but if you haven’t now is when you should do that.</p></li>
-</ul>
-</div></blockquote>
-<ol class="arabic simple" start="2">
-<li><p>At this point you should also ensure that the microscope’s objective is lined up over the lens and lowered to the plane you wish to image.</p></li>
-<li><p>Double check that the values of your PMTs and the laser are what you expect</p></li>
-<li><p>When you’re certain you’re ready to go and that the Farraday cage is completely closed, you can hit the <cite>Esc</cite> key. This will start the experiment!</p></li>
-<li><p>Watch the magic happen!</p></li>
-</ol>
-<p>At this point, <cite>bruker_control</cite> takes care of the rest! It will automatically generate trial structures that comply with your rules, transmit them to the Arduino,
-and tell Prairie View to start the recording session of the animal’s face and brain activity. It will write out the experiment’s information into the <code class="docutils literal notranslate"><span class="pre">E:</span></code> drive
-appropriate for your team’s raw data automatically so its ready for transferring to the server later.</p>
 </section>
 <section id="transferring-files-to-snlktdata">
 <h3><em>Transferring Files to snlktdata</em><a class="headerlink" href="#transferring-files-to-snlktdata" title="Permalink to this headline">¶</a></h3>
@@ -362,7 +396,7 @@ command called <code class="docutils literal notranslate"><span class="pre">rsyn
         </div>
 
         <div class="related-information">
-              Copyright &#169; 2022, The Salk Institute for Biological Studies
+              Copyright &#169; 2022, The Salk Institute for Biological Studies and Howard Hughes Medical Institute (HHMI)
             |
             Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
               and
@@ -389,13 +423,12 @@ command called <code class="docutils literal notranslate"><span class="pre">rsyn
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">v1.9.3 User Guide: Get Yoked! 🏋️ 🏋️‍♀️</a><ul>
+<li><a class="reference internal" href="#">v1.11.4 User Guide: Take Flight! ✈️</a><ul>
 <li><a class="reference internal" href="#user-guide">User Guide</a><ul>
 <li><a class="reference internal" href="#arduino"><em>Arduino</em></a></li>
 <li><a class="reference internal" href="#prairie-view"><em>Prairie View</em></a></li>
-<li><a class="reference internal" href="#python"><em>Python</em></a></li>
-<li><a class="reference internal" href="#using-yoked-configurations">Using Yoked Configurations</a></li>
-<li><a class="reference internal" href="#the-experiment"><em>The Experiment</em></a></li>
+<li><a class="reference internal" href="#python-and-the-experiment"><em>Python and the Experiment</em></a></li>
+<li><a class="reference internal" href="#using-yoked-configurations"><em>Using Yoked Configurations</em></a></li>
 <li><a class="reference internal" href="#transferring-files-to-snlktdata"><em>Transferring Files to snlktdata</em></a></li>
 </ul>
 </li>

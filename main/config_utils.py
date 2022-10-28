@@ -20,6 +20,9 @@ from datetime import datetime
 # Import YAML for gathering metadata about project
 from ruamel.yaml import YAML
 
+# Import sys for exiting properly
+import sys
+
 # Template configuration directories are within project directories. Teams
 # have started merging into their own project volumes, making a dictionary
 # for each project:project_dir dictionary pairing.
@@ -126,6 +129,9 @@ def get_template(project: str) -> dict:
         template_config
     """
 
+    # Tell user search is underway
+    print("Loading project configuration")
+
     # Determine which path to use by grabbing appropriate key/value pair from static dir
     # on the machine
     server_location = SERVER_PATHS[project]
@@ -149,6 +155,9 @@ def get_template(project: str) -> dict:
         try:
             template_config = template_config_path[0]
             config_template = read_config(template_config)
+
+            # If no exception here, things have worked! Let the user know
+            print("Project configuration loaded!")
 
 
         except IndexError:
@@ -284,14 +293,33 @@ def get_arduino_metadata(config_template: dict) -> dict:
     """
 
     # Define the variables required for Arduino function
-    arduino_metadata_keys = ["totalNumberOfTrials", "punishTone", "rewardTone",
-                             "USDeliveryTime_Sucrose", "USDeliveryTime_Air",
-                             "USConsumptionTime_Sucrose", "stimDeliveryTime_Total"]
+    arduino_metadata_keys = [
+        "totalNumberOfTrials",
+        "punishTone",
+        "rewardTone",
+        "USDeliveryTime_Sucrose",
+        "USDeliveryTime_Air",
+        "USConsumptionTime_Sucrose",
+        "stimDeliveryTime_Total",
+        "USDelay",
+        ]
 
-    # Generate Dictionary of relevant Arduino metadata
-    arduino_metadata = {key: value for (key, value) in
-                        config_template["beh_metadata"].items() if
-                        key in arduino_metadata_keys}
+    try:
+        # Generate Dictionary of relevant Arduino metadata
+        arduino_metadata = {
+            key: value for (key, value) in config_template["beh_metadata"].items() if
+                            key in arduino_metadata_keys
+        }
+
+        print("Successfully loaded Arduino Metadata!")
+
+    # TODO: There's a few exceptions that can happen here, but I'm not sure of all of them
+    # so for now this will be a (bad) catchall except statement that will quit the program.
+    except:
+
+        print("Error loading Arduino config!")
+        print("Likely a key is missing in your project's configuration.json file")
+        sys.exit()
 
     return arduino_metadata
 
@@ -563,6 +591,16 @@ def write_yoked_config(subject_type: str, current_plane: int, project: str, expe
 
         json.dump(yoked_config, outFile)
 
+
+def get_available_passengers(project: str) -> list:
+    
+    subject_directory = SERVER_PATHS[project] /"subjects"
+
+    subjects = [subject for subject in subject_directory.glob("*")]
+
+    print(subjects)
+
+     
 
 def check_yoked_config(subject_type: str, current_plane: int, project: str) -> list:
     """

@@ -6,7 +6,7 @@
 # https://github.com/PowerBroker2/pySerialTransfer
 # Genie Nano manufactured by Teledyne DALSA
 
-__version__ = "1.10.4 Get Yoked"
+__version__ = "1.11.4 Take Flight"
 
 # Import experiment utils to run different experiments
 import experiment_utils
@@ -26,12 +26,6 @@ from pathlib import Path
 # file system for available mounted paths or something at some point
 # TEAM_PATHS = Path("")
 
-# Static Directory for teams found in SNLKT Server. Until doing this via
-# class methods is implemented, having a dictionary for these values is
-# necessary... this isn't a great way to do this I don't think...
-# VALID_CHOICES = {"specialk_cs": Path("V:/specialk_cs"),
-#                 "specialk_lh": Path("U:/specialk_lh")}
-
 # Generate valid team choices for argparser variable project by checking the server for
 # valid project names
 PROJECT_CHOICES = ["specialk_cs", "specialk_lh", "deryn_fd"]
@@ -44,6 +38,7 @@ PROJECT_CHOICES = ["specialk_cs", "specialk_lh", "deryn_fd"]
 if __name__ == "__main__":
 
     # Create argument parser for metadata configuration
+    # TODO: Use click library? Talmo/Chris Roat use it...
     metadata_parser = argparse.ArgumentParser(
         description='Set Metadata',
         epilog="Good luck on your work!",
@@ -57,16 +52,6 @@ if __name__ == "__main__":
         action='store',
         dest='imaging_planes',
         help='Number of Imaging Planes (required)',
-        required=True
-    )
-
-    # Add subject ID argument
-    metadata_parser.add_argument(
-        '-s', '--subject_id',
-        type=str,
-        action='store',
-        dest='subject_id',
-        help='Subject ID (required)',
         required=True
     )
 

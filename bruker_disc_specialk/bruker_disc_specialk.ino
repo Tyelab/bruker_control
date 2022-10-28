@@ -13,7 +13,7 @@
      2. Receive metadata, trial type array, ITI array, tone duration array, and LED Stim timings array
      3. Confirm Python has finished sending data
      4. Delay program for 5 seconds to allow Teledyne Genie Nano to start up
-     5. Send trigger to the Bruker DAQ to start the microscopy sessio
+     5. Send trigger to the Bruker DAQ to start the microscopy session
      6. Run through the trials specified in totalNumberOfTrials
      7. Reset the Arduino
 */
@@ -36,10 +36,11 @@ struct __attribute__((__packed__)) metadata_struct {
   uint8_t totalNumberOfTrials;              // total number of trials for experiment
   uint16_t punishTone;                      // airpuff frequency tone in Hz
   uint16_t rewardTone;                      // sucrose frequency tone in Hz
-  uint8_t USDeliveryTime_Sucrose;           // amount of time to open sucrose solenoid
-  uint8_t USDeliveryTime_Air;               // amount of time to open air solenoid
+  uint16_t USDeliveryTime_Sucrose;           // amount of time to open sucrose solenoid
+  uint16_t USDeliveryTime_Air;               // amount of time to open air solenoid
   uint16_t USConsumptionTime_Sucrose;       // amount of time to wait for sucrose consumption
   uint16_t stimDeliveryTime_Total;          // amount of time LED is scheduled to run
+  uint16_t USDelay;                         // amount of time to wait before delivering US after tone starts
 } metadata;
 
 //// EXPERIMENT ARRAYS ////
@@ -78,13 +79,13 @@ int currentTrial = -1;
 int currentLED = 0;
 
 //// ITIs ////
-int thisITI;
+unsigned long thisITI;
 
 //// Tones ////
-int thisToneDuration;
+unsigned long thisToneDuration;
 
 //// LED Variables ////
-int thisLED;
+unsigned long thisLED;
 
 
 //// FLAG ASSIGNMENT ////
@@ -118,22 +119,23 @@ boolean toneDAQ = false;
 
 //// TIMING VARIABLES ////
 // Time is measured in milliseconds for this program
-long ms; // milliseconds
+unsigned long ms; // milliseconds
 // Each experimental condition has a time parameter
-long ITIend;
-long LEDStart;
-long LEDEnd;
-long rewardDelayMS;
-long sucroseDelayMS;
-long USDeliveryMS_Sucrose;
-long sucroseConsumptionMS;
-long vacTime;
-long airDelayMS;
-long USDeliveryMS_Air;
-long USDeliveryMS;
-long noiseDeliveryMS;
-long toneListeningMS;
-long toneDAQMS;
+unsigned long ITIEnd;
+unsigned long LEDStart;
+unsigned long LEDEnd;
+unsigned long rewardDelayMS;
+unsigned long sucroseDelayMS;
+unsigned long USDeliveryMS_Sucrose;
+unsigned long sucroseConsumptionMS;
+unsigned long vacTime;
+unsigned long airDelayMS;
+unsigned long USDeliveryMS_Air;
+unsigned long USDeliveryMS;
+unsigned long noiseDeliveryMS;
+unsigned long toneListeningMS;
+unsigned long toneDAQMS;
+
 // Vacuum has a set amount of time to be active
 const int vacDelay = 500; // vacuum delay
 
@@ -451,7 +453,7 @@ void lickDetect() {
    for the user.
    @param ms Current time in milliseconds (ms)
 */
-void startITI(long ms) {
+void startITI(unsigned long ms) {
   if (newTrial) {                                 // start new ITI
     Serial.print("Starting New Trial: ");
     Serial.println(currentTrial + 1);             // add 1 to current trial so user sees non zero-indexed value
@@ -465,9 +467,9 @@ void startITI(long ms) {
     }
     ITI = true;
     thisITI = ITIArray[currentTrial];             // get ITI for this trial
-    ITIend = ms + thisITI;
+    ITIEnd = ms + thisITI;
   }
-  else if (ITI && (ms >= ITIend)) {               // ITI is over, start playing the tone
+  else if (ITI && (ms >= ITIEnd)) {               // ITI is over, start playing the tone
     ITI = false;
     noise = true;
   }
@@ -479,7 +481,7 @@ void startITI(long ms) {
  * The output is used to print the trial type to the user right after
  * the trial number is printed out for the user.
  * 
- * @param trialType Type of trial coming into the user.
+ * @param trialType Type of trial coming in the experiment.
  */
  void typeTrial (int trialType) {
   switch (trialType) {
@@ -508,7 +510,7 @@ void startITI(long ms) {
  * @param trialType Type of trial being conducted (0-6)
  * @param ms Current time in milliseconds (ms)
  */
-int typeLED (int trialType, long ms) {
+int typeLED (int trialType, unsigned long ms) {
   switch (trialType) {
     case 4:
       Serial.println("Airpuff LED");
@@ -536,12 +538,12 @@ int typeLED (int trialType, long ms) {
  * @return LEDStart Time in ms to wait before sending LED Trigger
  * @return LEDEnd Time in ms that LED train will be on after triggering
  */
-long setLEDStart(long ms) {
+long setLEDStart(unsigned long ms) {
   giveLED = true;
   // Reset LED Values for new calculation to be correct
   // Gives negative values for LEDEnd without this...
-  LEDStart = 0;
-  LEDEnd = 0;
+  LEDStart = 0UL;
+  LEDEnd = 0UL;
   thisLED = LEDArray[currentLED];
   LEDStart = ms + thisLED;
   LEDEnd = LEDStart + metadata.stimDeliveryTime_Total;
@@ -554,7 +556,7 @@ long setLEDStart(long ms) {
  * 
  * @param ms Current time in milliseconds (ms)
  */
-void brukerTriggerLED (long ms) {
+void brukerTriggerLED (unsigned long ms) {
   if (giveLED && (ms >= LEDStart)) {
     giveLED = false;
     LEDOn = true;
@@ -566,7 +568,7 @@ void brukerTriggerLED (long ms) {
 /**
  * Sends brukerLEDTriggerPin LOW after 
  */
-void offLED (long ms) {
+void offLED (unsigned long ms) {
   if (LEDOn && (ms >= LEDEnd)) {
     LEDOn = false;
     digitalWriteFast(brukerLEDTriggerPin, LOW);
@@ -581,7 +583,7 @@ void offLED (long ms) {
    catch trials, signals script to use giveCatch functions.
    @param ms Current time in milliseconds (ms)
 */
-void tonePlayer(long ms) {
+void tonePlayer(unsigned long ms) {
   if (noise) {
     noise = false;
     thisToneDuration = toneArray[currentTrial];
@@ -620,6 +622,7 @@ void tonePlayer(long ms) {
         break;
       case 6:
         giveCatch = true;
+        digitalWriteFast(speakerDeliveryPin, HIGH); // false tone for indicating trial start/end in downstream analysis
         break;
     }
   }
@@ -627,12 +630,14 @@ void tonePlayer(long ms) {
 
 /**
    Signals for the speaker to turn off and stop sending signal to DAQ that
-   the speaker is active.
+   the speaker is active. Increments new trial and starts next one.
    @param ms Current time in milliseconds (ms)
 */
-void onTone(long ms) {
+void offTone(unsigned long ms) {
   if (toneDAQ && (ms >= toneListeningMS)) {
     toneDAQ = false;
+    currentTrial++;
+    newTrial = true;
     digitalWriteFast(speakerDeliveryPin, LOW);
   }
 }
@@ -644,25 +649,25 @@ void onTone(long ms) {
    it is required to be open.
    @param ms Current time in milliseconds (ms)
 */
-void presentStimulus(long ms) {
+void presentStimulus(unsigned long ms) {
   switch (trialType) {
     case 0:
-      if (giveStim && (ms >=  toneListeningMS - metadata.USDeliveryTime_Air)) {
+      if (giveStim && (ms >=  toneListeningMS - metadata.USDelay)) {
         newUSDelivery = true;
         break;
       }
     case 1:
-      if (giveStim && (ms >= toneListeningMS - metadata.USDeliveryTime_Sucrose)) {
+      if (giveStim && (ms >= toneListeningMS - metadata.USDelay)) {
         newUSDelivery = true;
         break;
       }
     case 4:
-      if (giveStim && (ms >= toneListeningMS - metadata.USDeliveryTime_Sucrose)) {
+      if (giveStim && (ms >= toneListeningMS - metadata.USDelay)) {
         newUSDelivery = true;
         break;
       }
     case 5:
-      if (giveStim && (ms >= toneListeningMS - metadata.USDeliveryTime_Air)) {
+      if (giveStim && (ms >= toneListeningMS - metadata.USDelay)) {
         newUSDelivery = true;
         break;
       }
@@ -674,7 +679,9 @@ void presentStimulus(long ms) {
    for stimuli at any point.
    @param ms Current time in milliseconds (ms)
 */
-void presentCatch(long ms) {
+// NOTE: The timings encoded here are technically incorrect, but since nothing
+// is delivered anyways it doesn't change the behavior of the script.
+void presentCatch(unsigned long ms) {
   switch (trialType) {
     case 2:
       if (giveCatch && (ms >= toneListeningMS - metadata.USDeliveryTime_Air)) {
@@ -700,7 +707,7 @@ void presentCatch(long ms) {
    message indicating that the catch is being "delivered" is displayed.
    @param ms Current time in milliseconds (ms)
 */
-void USDelivery(long ms) {
+void USDelivery(unsigned long ms) {
   if (newUSDelivery) {
     newUSDelivery = false;
     giveStim = false;
@@ -754,56 +761,43 @@ void USDelivery(long ms) {
    If a sucrose trial was presented (catch or not), the consume flag is true.
    @param ms Current time in milliseconds (ms)
 */
-void offSolenoid(long ms) {
-  if (solenoidOn && (toneDAQ == false)) {
+void offSolenoid(unsigned long ms) {
+  if (solenoidOn && (ms >= USDeliveryMS)) {
     switch (trialType) {
       case 0:
         solenoidOn = false;
         digitalWriteFast(solPin_air, LOW);
-        newTrial = true;
-        currentTrial++;
         break;
       case 1:
         solenoidOn = false;
         sucroseConsumptionMS = (ms + metadata.USConsumptionTime_Sucrose);
         consume = true;
-        newTrial = true;
-        currentTrial++;
         digitalWriteFast(solPin_liquid, LOW);
         break;
       case 2:
         solenoidOn = false;
-        newTrial = true;
-        currentTrial++;
         break;
       case 3:
         solenoidOn = false;
         sucroseConsumptionMS = (ms + metadata.USConsumptionTime_Sucrose);
         consume = true;
-        newTrial = true;
-        currentTrial++;
         break;
       case 4:
         solenoidOn = false;
         digitalWriteFast(solPin_air, LOW);
         newTrial = true;
-        currentTrial++;
         currentLED++;
         break;
       case 5:
         solenoidOn = false;
         sucroseConsumptionMS = (ms + metadata.USConsumptionTime_Sucrose);
         consume = true;
-        newTrial = true;
-        currentTrial++;
         currentLED++;
         digitalWriteFast(solPin_liquid, LOW);
         break;
       case 6:
         Serial.println("End of LED Only Trial");
         solenoidOn = false;
-        newTrial = true;
-        currentTrial++;
         currentLED++;
         break;
     }
@@ -814,7 +808,7 @@ void offSolenoid(long ms) {
    Signals to turn on vacuum once specified consumption period is over.
    @param ms Current time in milliseconds (ms)
 */
-void consuming(long ms) {
+void consuming(unsigned long ms) {
   if (consume && (ms >= sucroseConsumptionMS)) {         // move on after allowed to consume
     consume = false;
     cleanIt = true;
@@ -826,7 +820,7 @@ void consuming(long ms) {
    once vacuum time has elapsed.
    @param ms Current time in milliseconds (ms)
 */
-void vacuum(long ms) {
+void vacuum(unsigned long ms) {
   if (cleanIt) {
     cleanIt = false;
     vacOn = true;
@@ -884,7 +878,7 @@ void loop() {
     lickDetect();
     startITI(ms);
     tonePlayer(ms);
-    onTone(ms);
+    offTone(ms);
     brukerTriggerLED(ms);
     offLED(ms);
     presentStimulus(ms);

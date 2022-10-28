@@ -677,8 +677,7 @@ def gen_toneArray(config_template: dict) -> list:
 ###############################################################################
 
 
-def calculate_session_length(experiment_arrays: list,
-                             config_template: dict) -> int:
+def calculate_session_length(experiment_arrays: list) -> int:
     """
     Calculates number of imaging frames to collect for experimental session.
 
@@ -689,53 +688,13 @@ def calculate_session_length(experiment_arrays: list,
     Args:
         experiment_arrays:
             List of experiment runtime arrays generated from generate_arrays().
-        config_template:
-            Configuration template value dictionary gathered from team's
-            configuration .json file.
 
     Returns:
         Session length in seconds.
     """
 
-    # NOTE: 10/22/21, Jeremy Delahanty
-    # Users currently have stimuli delivery (air/liquid) occur DURING
-    # the tone playing, not afterwards as the commented out blocks would
-    # require. A large refactor will take place in the future that
-    # will generate a class for stimulations that happen during a tone
-    # and a class for stimulations that happens afterwards. For now,
-    # these other values will remain commented out pending this refactor
-    # or if someone really needs to do it after stimulation.
-
-    # Get vacuum status for the experiment
-    # vacuum = config_template["beh_metadata"]["vacuum"]
-
-    # Get amount of milliseconds reward is delivered for
-    # reward_delivery_ms = config_template["beh_metadata"]["USDeliveryTime_Sucrose"]
-
-    # Get amount of milliseconds rewards are present for
-    # reward_prsnt_ms = config_template["beh_metadata"]["USConsumptionTime_Sucrose"]
-
-    # Get amount of milliseconds punishments are present for
-    # punish_delivery_ms = config_template["beh_metadata"]["USDeliveryTime_Air"]
-
     # Make session_length_s variable and add to it as values are calculated
     session_len_s = 0
-
-    # trialArray is always in index 0 in the experimental array_list
-    # trialArray = experiment_arrays[0]
-
-    # Calculate reward_seconds and add to session length
-    # reward_seconds = calculate_reward_seconds(
-    #     reward_delivery_ms,
-    #     reward_prsnt_ms,
-    #     trialArray,
-    #     vacuum
-    #     )
-    # session_len_s += reward_seconds
-
-    # # Calculate punish seconds
-    # punish_seconds = calculate_punish_seconds(punish_delivery_ms, trialArray)
-    # session_len_s += punish_seconds
 
     # Calculate total number of seconds ITI's occur.  The 1st element in the
     # experimental_array_list is always the ITIArray.  Add to session length.
@@ -1285,6 +1244,6 @@ def gen_LEDArray(config_template: dict, trialArray: np.ndarray, ITIArray: np.nda
         # Calculate when to send the LED stimulation trigger to Prairie View.
         # Above we simply copied the ITI values into LEDArray, now we subtract
         # by when we need to provide the LED stimulus before hand.
-        LEDArray = np.subtract(LEDArray, precs_delay).tolist()
+        LEDArray = np.subtract(LEDArray, precs_delay).astype(int).tolist()
 
     return LEDArray
