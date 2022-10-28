@@ -18,11 +18,11 @@ sys.path.insert(0, os.path.abspath('../main'))
 # -- Project information -----------------------------------------------------
 
 project = 'Bruker Control'
-copyright = '2022, The Salk Institute for Biological Studies'
+copyright = '2022, The Salk Institute for Biological Studies and Howard Hughes Medical Institute (HHMI)'
 author = 'Jeremy Delahanty'
 
 # The full version, including alpha/beta/rc tags
-release = '1.9.3'
+release = '1.11.4'
 
 
 # -- General configuration ---------------------------------------------------
@@ -56,7 +56,7 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # a list of builtin themes.
 
 html_theme = "furo"
-html_title = "Bruker Control v1.9.3"
+html_title = "Bruker Control v1.11.4"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

@@ -1,6 +1,6 @@
-============================================
- v1.11.4 User Guide: Take Flight! :airplane:
-============================================
+=====================================
+ v1.11.4 User Guide: Take Flight! ✈️
+=====================================
 
 A (very) basic rundown of the experimental runtime is included below.
 
@@ -84,6 +84,7 @@ Multiple settings should be checked for correctness before initiating the experi
     :align: center
 
 * Make sure that the `Never` option under the `Preferences/Convert Images` tab is selected.
+  
   * This ensures that Prairie View will *not* convert the raw data into tiffs after the recording is complete. 
 
 This process can take some time and Prairie View hangs until it is done. It can take 15-20 minutes to perform the conversion so you will not be able to start the next
@@ -176,9 +177,9 @@ The different arguments on this command line mean...
 * -i The number of imaging planes that you plan to image for your subject *REQUIRED*
 * -g The experimental group that the animal belongs to *OPTIONAL*
 
-When you supply these arguments to the command line, a new small GUI appears and allows you to select mice from your given project that you plan to image that day! Thanks Jonny Saunders for teaching me how to do it! :heart:
+When you supply these arguments to the command line, a new small GUI appears and allows you to select mice from your given project that you plan to image that day! Thanks Jonny Saunders for teaching me how to do it! ❤️
 
-.. image:: ../images/introduction_2.mp4
+.. image:: ../images/introduction_2.gif
   :alt: A demo of executing the command line is shown.
   :align: center
 
@@ -209,9 +210,9 @@ At this point, `bruker_control` takes care of the rest! It will transmit the tri
 It will write out the experiment's information into the ``E:`` drive appropriate for your team's raw data automatically so its ready for transferring to the server later.
 
 
-**************************
-Using Yoked Configurations
-**************************
+****************************
+*Using Yoked Configurations*
+****************************
 
 If you have your configuration file set to use yoked trials, you *must* use the ``EXPERIMENTAL_GROUP`` argument.
 This gives ``bruker_control`` the final piece of information needed for generating yoked trial-sets: which group the subject belongs to.
