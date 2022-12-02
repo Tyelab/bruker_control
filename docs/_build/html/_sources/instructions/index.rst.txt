@@ -50,12 +50,6 @@ In the currently running version (5.7.64.200), two messages will appear related 
 
 These has no influence upon the function of the system and can be ignored. Documentation about why they are shown is forthcoming.
 
-The next windows are the primary windows for Prairie View: The Control Suite and Image Display.
-
-.. image:: ../images/pv_main_windows.png
-
-The Control Suite is on the left and the Image Window is on the right. There are a few steps you'll need to do now to ensure the scope and Prairie View are ready.
-
 1. Control Suite: T- Series
 
 .. image:: ../images/suite_t-series.png
@@ -115,6 +109,7 @@ Prairie View has a tab specific for the laser. Select this tab.
   :align: center
 
 When you first select this window, you'll notice:
+
 * The laser is "off". Even though you turned the laser's key to activate it, it is not yet fully powered and ready to interact with Prarie View.
 * The laser is not "Mode Locked".
 * The shutter is closed. This refers to the soft shutter.
@@ -147,6 +142,7 @@ When on and mode-locked successfully, you should see something like this:
 
 .. image:: ../images/modelocked.png
   :alt: The laser sits at 920nm and is mode-locked!
+  :align: center
 
 Now your laser is aligned and ready for imaging!
 

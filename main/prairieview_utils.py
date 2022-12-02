@@ -9,7 +9,6 @@
 # Import Prairie View Application
 # NOTE Prairie View Interface Installation:  Do NOT use pip install, use conda.
 # conda install pywin32
-from webbrowser import get
 import win32com.client as client
 
 # Import datetime for folder naming
@@ -789,9 +788,6 @@ def set_one_channel_zseries(indicator_emission: float):
         pl.SendScriptCommands("-SetChannel '2' 'Off'")
 
     # Otherwise, use the green channel
-    # NOTE: It was discovered on 7/27/22 that the 2nd channel on the
-    # PMT DAC card is faulty somehow. Until we receive a new card from Eun,
-    # we have to use channel 3 as our "Second" channel.
     else:
         pl.SendScriptCommands("-SetChannel '1' 'Off'")
         pl.SendScriptCommands("-SetChannel '2' 'On'")
