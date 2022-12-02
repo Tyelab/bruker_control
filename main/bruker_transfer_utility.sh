@@ -162,10 +162,14 @@ else
             # Directories on the server don't have a folder for microscopy specifically, only z-stacks do
             # Therefore we make a new variable for adding directories to the raw_conversion file that's
             # generated for microscopy conversions.
+            # First, if the directory found is a SingleImage folder generated during a Live Scan, tell
+            # the user that it was found and then remove it and its contents. These aren't useful for anything.
             if [[ "$directory" == *"Single"* ]]; then
                 echo "Single Image Found, removing: "
                 echo $directory
                 rm -r $directory
+            # Otherwise, copy the directory contents to the server and add the completed conversion to the
+            # raw_conversion text file used by beyblade.
             else
                 server_dir=$(echo $directory | cut -d '/' -f 2 )
                 echo "Copying: " $server_dir
