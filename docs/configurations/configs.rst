@@ -72,7 +72,29 @@ Many of the fields were written as to be self explanatory. Below you can find an
 - **toneArray**: Array of tone durations to deliver to the subject
 - **LEDArray**: Array of times for delivering LED stimulation. Calculated by ``trial_utils.py`` by taking the ITI for the appropriate trial and subtracting the ``stimDeliveryTime_PreCS`` value
 - **dropped_frames**: List of video frames that are dropped when transferring data from the Genie Nano to the computer during an experiment. Packet loss is rare, but has occured previously.
-  
+
+------------------------------
+Config Values Key: Trial Types
+------------------------------
+
+Currently accessible trial types in `bruker_control` are entirely designed around one behavior paradigm: the delivery of sucrose or an airpuff to the headfixed subject.
+Perhaps in the future a library like `Autopilot <https://docs.auto-pi-lot.com/en/latest/>`_ could be used to dynamically generate trials using the library's powerful framework.
+We create base trial types around these and then have additional trial types we build off them:
+
+- LED optogenetic stimulation trials **with** airpuff and sucrose presented
+- LED only trials: Trials where no stimuli are presented but the LED is triggered to stimulate neurons
+- Catch trials: trials where only the tone (or conditioned stimulus) is presented and the associated airpuff or sucrose (unconditioned stimulus) is not
+
+When building the trial arrays, each trial type is associated with a specific number. The key for these numbers is:
+
+- 0: Airpuff
+- 1: Sucrose
+- 2: Airpuff Catch
+- 3: Sucrose Catch
+- 4: Airpuff LED
+- 5: Sucrose LED
+- 6: LED Only
+
 ------------------------------------
 Config Values Key: Z-Stack Metadata
 ------------------------------------
@@ -90,6 +112,15 @@ Config Values Key: Miscellaneous
 
 Some users need to make sure a weight has been recorded for the subject being imaged. To ensure that users remember to have weights recorded for their mice, there's
 an option to perform a weight check. If the weight check fails, the experiment won't go forward. It is likely that this will be removed in the near future.
+
+---------------------------
+Complete Configuration File
+---------------------------
+
+This is an example of what a completed configuration file looks like after an experiment is completed (from a real experiment!):
+
+.. literalinclude:: complete_config.json
+    :language: json
 
 ************************
 Example Subject Metadata

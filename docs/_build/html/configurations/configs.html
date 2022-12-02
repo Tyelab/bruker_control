@@ -300,6 +300,27 @@ a new sketch in between running individual animals.</p>
 <li><p><strong>dropped_frames</strong>: List of video frames that are dropped when transferring data from the Genie Nano to the computer during an experiment. Packet loss is rare, but has occured previously.</p></li>
 </ul>
 </section>
+<section id="config-values-key-trial-types">
+<h3>Config Values Key: Trial Types<a class="headerlink" href="#config-values-key-trial-types" title="Permalink to this headline">¶</a></h3>
+<p>Currently accessible trial types in <cite>bruker_control</cite> are entirely designed around one behavior paradigm: the delivery of sucrose or an airpuff to the headfixed subject.
+Perhaps in the future a library like <a class="reference external" href="https://docs.auto-pi-lot.com/en/latest/">Autopilot</a> could be used to dynamically generate trials using the library’s powerful framework.
+We create base trial types around these and then have additional trial types we build off them:</p>
+<ul class="simple">
+<li><p>LED optogenetic stimulation trials <strong>with</strong> airpuff and sucrose presented</p></li>
+<li><p>LED only trials: Trials where no stimuli are presented but the LED is triggered to stimulate neurons</p></li>
+<li><p>Catch trials: trials where only the tone (or conditioned stimulus) is presented and the associated airpuff or sucrose (unconditioned stimulus) is not</p></li>
+</ul>
+<p>When building the trial arrays, each trial type is associated with a specific number. The key for these numbers is:</p>
+<ul class="simple">
+<li><p>0: Airpuff</p></li>
+<li><p>1: Sucrose</p></li>
+<li><p>2: Airpuff Catch</p></li>
+<li><p>3: Sucrose Catch</p></li>
+<li><p>4: Airpuff LED</p></li>
+<li><p>5: Sucrose LED</p></li>
+<li><p>6: LED Only</p></li>
+</ul>
+</section>
 <section id="config-values-key-z-stack-metadata">
 <h3>Config Values Key: Z-Stack Metadata<a class="headerlink" href="#config-values-key-z-stack-metadata" title="Permalink to this headline">¶</a></h3>
 <p>If users want to have a z-stack performed for their imaging session before the experiment, they can use this metadata to define parameters used for imaging.</p>
@@ -314,6 +335,261 @@ a new sketch in between running individual animals.</p>
 <h3>Config Values Key: Miscellaneous<a class="headerlink" href="#config-values-key-miscellaneous" title="Permalink to this headline">¶</a></h3>
 <p>Some users need to make sure a weight has been recorded for the subject being imaged. To ensure that users remember to have weights recorded for their mice, there’s
 an option to perform a weight check. If the weight check fails, the experiment won’t go forward. It is likely that this will be removed in the near future.</p>
+</section>
+<section id="complete-configuration-file">
+<h3>Complete Configuration File<a class="headerlink" href="#complete-configuration-file" title="Permalink to this headline">¶</a></h3>
+<p>This is an example of what a completed configuration file looks like after an experiment is completed (from a real experiment!):</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="nt">"beh_metadata"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">"totalNumberOfTrials"</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span>
+        <span class="nt">"startingReward"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="nt">"maxSequentialReward"</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">"maxSequentialPunish"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="nt">"punishTone"</span><span class="p">:</span> <span class="mi">2000</span><span class="p">,</span>
+        <span class="nt">"rewardTone"</span><span class="p">:</span> <span class="mi">9000</span><span class="p">,</span>
+        <span class="nt">"USDeliveryTime_Sucrose"</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+        <span class="nt">"USDeliveryTime_Air"</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+        <span class="nt">"USConsumptionTime_Sucrose"</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="nt">"USDelay"</span><span class="p">:</span> <span class="mi">2000</span><span class="p">,</span>
+        <span class="nt">"vacuum"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+        <span class="nt">"ITIJitter"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+        <span class="nt">"baseITI"</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">"minITI"</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span>
+        <span class="nt">"maxITI"</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
+        <span class="nt">"toneJitter"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+        <span class="nt">"baseTone"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="nt">"minTone"</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">"maxTone"</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">"catchTrials"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+        <span class="nt">"numCatchReward"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="nt">"numCatchPunish"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="nt">"catchOffset"</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span>
+        <span class="nt">"percentPunish"</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span>
+        <span class="nt">"stim"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+        <span class="nt">"shutter_only"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+        <span class="nt">"stimFrequency"</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+        <span class="nt">"stimPulseTime"</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="nt">"stimLambda"</span><span class="p">:</span> <span class="mi">590</span><span class="p">,</span>
+        <span class="nt">"stimDeliveryTime_PreCS"</span><span class="p">:</span> <span class="mi">6000</span><span class="p">,</span>
+        <span class="nt">"stimDeliveryTime_Total"</span><span class="p">:</span> <span class="mi">5000</span><span class="p">,</span>
+        <span class="nt">"stimStartPosition"</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+        <span class="nt">"numStimReward"</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="nt">"numStimPunish"</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="nt">"numStimAlone"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="nt">"yoked"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+        <span class="nt">"trialArray"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="mi">0</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="mi">0</span><span class="p">,</span>
+            <span class="mi">0</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="mi">0</span><span class="p">,</span>
+            <span class="mi">0</span><span class="p">,</span>
+            <span class="mi">0</span><span class="p">,</span>
+            <span class="mi">6</span><span class="p">,</span>
+            <span class="mi">6</span><span class="p">,</span>
+            <span class="mi">4</span><span class="p">,</span>
+            <span class="mi">5</span><span class="p">,</span>
+            <span class="mi">4</span><span class="p">,</span>
+            <span class="mi">5</span><span class="p">,</span>
+            <span class="mi">5</span><span class="p">,</span>
+            <span class="mi">4</span><span class="p">,</span>
+            <span class="mi">4</span><span class="p">,</span>
+            <span class="mi">4</span><span class="p">,</span>
+            <span class="mi">5</span><span class="p">,</span>
+            <span class="mi">5</span><span class="p">,</span>
+            <span class="mi">6</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="mi">3</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="mi">0</span><span class="p">,</span>
+            <span class="mi">2</span><span class="p">,</span>
+            <span class="mi">3</span><span class="p">,</span>
+            <span class="mi">2</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="mi">0</span><span class="p">,</span>
+            <span class="mi">3</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="mi">1</span>
+        <span class="p">],</span>
+        <span class="nt">"ITIArray"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="mi">29480</span><span class="p">,</span>
+            <span class="mi">29582</span><span class="p">,</span>
+            <span class="mi">25763</span><span class="p">,</span>
+            <span class="mi">25851</span><span class="p">,</span>
+            <span class="mi">25784</span><span class="p">,</span>
+            <span class="mi">27231</span><span class="p">,</span>
+            <span class="mi">27803</span><span class="p">,</span>
+            <span class="mi">26458</span><span class="p">,</span>
+            <span class="mi">28338</span><span class="p">,</span>
+            <span class="mi">27721</span><span class="p">,</span>
+            <span class="mi">29685</span><span class="p">,</span>
+            <span class="mi">26766</span><span class="p">,</span>
+            <span class="mi">27797</span><span class="p">,</span>
+            <span class="mi">27750</span><span class="p">,</span>
+            <span class="mi">26832</span><span class="p">,</span>
+            <span class="mi">27437</span><span class="p">,</span>
+            <span class="mi">27762</span><span class="p">,</span>
+            <span class="mi">26503</span><span class="p">,</span>
+            <span class="mi">29295</span><span class="p">,</span>
+            <span class="mi">28137</span><span class="p">,</span>
+            <span class="mi">28762</span><span class="p">,</span>
+            <span class="mi">26795</span><span class="p">,</span>
+            <span class="mi">25739</span><span class="p">,</span>
+            <span class="mi">29311</span><span class="p">,</span>
+            <span class="mi">27552</span><span class="p">,</span>
+            <span class="mi">25838</span><span class="p">,</span>
+            <span class="mi">28862</span><span class="p">,</span>
+            <span class="mi">27459</span><span class="p">,</span>
+            <span class="mi">28341</span><span class="p">,</span>
+            <span class="mi">28575</span><span class="p">,</span>
+            <span class="mi">26141</span><span class="p">,</span>
+            <span class="mi">29665</span><span class="p">,</span>
+            <span class="mi">27975</span><span class="p">,</span>
+            <span class="mi">29316</span><span class="p">,</span>
+            <span class="mi">25065</span><span class="p">,</span>
+            <span class="mi">26304</span><span class="p">,</span>
+            <span class="mi">25210</span><span class="p">,</span>
+            <span class="mi">28299</span><span class="p">,</span>
+            <span class="mi">25331</span><span class="p">,</span>
+            <span class="mi">28878</span><span class="p">,</span>
+            <span class="mi">26094</span><span class="p">,</span>
+            <span class="mi">27875</span><span class="p">,</span>
+            <span class="mi">28720</span><span class="p">,</span>
+            <span class="mi">26682</span><span class="p">,</span>
+            <span class="mi">29879</span><span class="p">,</span>
+            <span class="mi">25739</span><span class="p">,</span>
+            <span class="mi">25534</span><span class="p">,</span>
+            <span class="mi">28427</span><span class="p">,</span>
+            <span class="mi">29739</span><span class="p">,</span>
+            <span class="mi">26514</span><span class="p">,</span>
+            <span class="mi">26915</span><span class="p">,</span>
+            <span class="mi">26121</span><span class="p">,</span>
+            <span class="mi">26061</span><span class="p">,</span>
+            <span class="mi">28227</span><span class="p">,</span>
+            <span class="mi">29269</span><span class="p">,</span>
+            <span class="mi">29778</span><span class="p">,</span>
+            <span class="mi">28466</span><span class="p">,</span>
+            <span class="mi">29169</span><span class="p">,</span>
+            <span class="mi">25100</span><span class="p">,</span>
+            <span class="mi">27282</span>
+        <span class="p">],</span>
+        <span class="nt">"toneArray"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span><span class="p">,</span>
+            <span class="mi">3000</span>
+        <span class="p">],</span>
+        <span class="nt">"LEDArray"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="mi">22762</span><span class="p">,</span>
+            <span class="mi">20795</span><span class="p">,</span>
+            <span class="mi">19739</span><span class="p">,</span>
+            <span class="mi">23311</span><span class="p">,</span>
+            <span class="mi">21552</span><span class="p">,</span>
+            <span class="mi">19838</span><span class="p">,</span>
+            <span class="mi">22862</span><span class="p">,</span>
+            <span class="mi">21459</span><span class="p">,</span>
+            <span class="mi">22341</span><span class="p">,</span>
+            <span class="mi">22575</span><span class="p">,</span>
+            <span class="mi">20141</span><span class="p">,</span>
+            <span class="mi">23665</span><span class="p">,</span>
+            <span class="mi">21975</span>
+        <span class="p">],</span>
+        <span class="nt">"dropped_frames"</span><span class="p">:</span> <span class="p">[]</span>
+    <span class="p">},</span>
+    <span class="nt">"zstack_metadata"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">"zstack"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+        <span class="nt">"stack_number"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="nt">"zdelta"</span><span class="p">:</span> <span class="mf">25.0</span><span class="p">,</span>
+        <span class="nt">"zstep"</span><span class="p">:</span> <span class="mf">1.0</span>
+    <span class="p">},</span>
+    <span class="nt">"weight_check"</span><span class="p">:</span> <span class="kc">false</span>
+<span class="p">}</span>
+</pre></div>
+</div>
 </section>
 </section>
 <section id="example-subject-metadata">
@@ -536,8 +812,10 @@ documentation.</p>
 <li><a class="reference internal" href="#">Configurations</a><ul>
 <li><a class="reference internal" href="#example-project-config-behavior">Example Project Config: Behavior</a><ul>
 <li><a class="reference internal" href="#config-values-key-behavior-metadata">Config Values Key: Behavior Metadata</a></li>
+<li><a class="reference internal" href="#config-values-key-trial-types">Config Values Key: Trial Types</a></li>
 <li><a class="reference internal" href="#config-values-key-z-stack-metadata">Config Values Key: Z-Stack Metadata</a></li>
 <li><a class="reference internal" href="#config-values-key-miscellaneous">Config Values Key: Miscellaneous</a></li>
+<li><a class="reference internal" href="#complete-configuration-file">Complete Configuration File</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#example-subject-metadata">Example Subject Metadata</a></li>

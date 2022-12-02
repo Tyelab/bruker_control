@@ -50,12 +50,6 @@ In the currently running version (5.7.64.200), two messages will appear related 
 
 These has no influence upon the function of the system and can be ignored. Documentation about why they are shown is forthcoming.
 
-The next windows are the primary windows for Prairie View: The Control Suite and Image Display.
-
-.. image:: ../images/pv_main_windows.png
-
-The Control Suite is on the left and the Image Window is on the right. There are a few steps you'll need to do now to ensure the scope and Prairie View are ready.
-
 1. Control Suite: T- Series
 
 .. image:: ../images/suite_t-series.png

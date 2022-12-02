@@ -162,24 +162,34 @@ else
             # Directories on the server don't have a folder for microscopy specifically, only z-stacks do
             # Therefore we make a new variable for adding directories to the raw_conversion file that's
             # generated for microscopy conversions.
-            server_dir=$(echo $directory | cut -d '/' -f 2 )
-            echo "Copying: " $server_dir
-            date=$(echo $directory | cut -d '/' -f 2 | cut -d '_' -f 1 )
-            subject=$(echo $directory | cut -d '/' -f 2 | cut -d '_' -f 2 )
-            # Echo these particular variables to the raw_conversion text file on the server. This will be used
-            # by the bruker_pipeline converter beyblade later.
-            echo /snlkt/$1/2p/raw/$subject/$date/$server_dir >> /drives/x/bruker_pipeline/raw_conversion/$conversion_identifier
-            rsync -rP --remove-source-files $directory $transfer_path/2p/raw/$subject/$date/
-            # Reference Image directories are in the microscopy directory that has just been rsynced. These need
-            # to be removed before the data directory can be removed. So get this directory/any other weird directories
-            # present (there shouldn't be any others...) and remove them.
-            for ref_directory in $directory/*
-                do
-                    rmdir $ref_directory
-                done
-            # Remove the directory now that the transfer to the server is complete. rmdir only removes directories
-            # that are empty, so if something went wrong the contents of the directory are safe.
-            rmdir $directory
+            # First, if the directory found is a SingleImage folder generated during a Live Scan, tell
+            # the user that it was found and then remove it and its contents. These aren't useful for anything.
+            if [[ "$directory" == *"Single"* ]]; then
+                echo "Single Image Found, removing: "
+                echo $directory
+                rm -r $directory
+            # Otherwise, copy the directory contents to the server and add the completed conversion to the
+            # raw_conversion text file used by beyblade.
+            else
+                server_dir=$(echo $directory | cut -d '/' -f 2 )
+                echo "Copying: " $server_dir
+                date=$(echo $directory | cut -d '/' -f 2 | cut -d '_' -f 1 )
+                subject=$(echo $directory | cut -d '/' -f 2 | cut -d '_' -f 2 )
+                # Echo these particular variables to the raw_conversion text file on the server. This will be used
+                # by the bruker_pipeline converter beyblade later.
+                echo /snlkt/$1/2p/raw/$subject/$date/$server_dir >> /drives/x/bruker_pipeline/raw_conversion/$conversion_identifier
+                rsync -rP --remove-source-files $directory $transfer_path/2p/raw/$subject/$date/
+                # Reference Image directories are in the microscopy directory that has just been rsynced. These need
+                # to be removed before the data directory can be removed. So get this directory/any other weird directories
+                # present (there shouldn't be any others...) and remove them.
+                for ref_directory in $directory/*
+                    do
+                        rmdir $ref_directory
+                    done
+                # Remove the directory now that the transfer to the server is complete. rmdir only removes directories
+                # that are empty, so if something went wrong the contents of the directory are safe.
+                rmdir $directory
+            fi
         else
             echo "No t-series found!"
         fi

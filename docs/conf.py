@@ -39,7 +39,7 @@ extensions = [
 autoclass_content = "both"
 atuodoc_member_order = "bysource"
 
-autodoc_mock_imports = ['win32com']
+autodoc_mock_imports = ['win32com', 'os']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

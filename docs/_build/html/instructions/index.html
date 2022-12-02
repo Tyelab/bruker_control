@@ -220,9 +220,6 @@
 <img alt="Prairie View starting window" class="align-center" src="../_images/pv_starting_window.png"/>
 <p>In the currently running version (5.7.64.200), two messages will appear related to unused PMT shutters and uncaged galvo settings requiring attention</p>
 <p>These has no influence upon the function of the system and can be ignored. Documentation about why they are shown is forthcoming.</p>
-<p>The next windows are the primary windows for Prairie View: The Control Suite and Image Display.</p>
-<img alt="images/pv_main_windows.png" src="images/pv_main_windows.png"/>
-<p>The Control Suite is on the left and the Image Window is on the right. There are a few steps you’ll need to do now to ensure the scope and Prairie View are ready.</p>
 <ol class="arabic simple">
 <li><p>Control Suite: T- Series</p></li>
 </ol>
@@ -265,11 +262,13 @@ subject until the ripping process is complete.</p>
 </ol>
 <p>Prairie View has a tab specific for the laser. Select this tab.</p>
 <img alt="An arrow points to the Laser Tab in Suite" class="align-center" src="../_images/suite_laser.png"/>
-<p>When you first select this window, you’ll notice:
-* The laser is “off”. Even though you turned the laser’s key to activate it, it is not yet fully powered and ready to interact with Prarie View.
-* The laser is not “Mode Locked”.
-* The shutter is closed. This refers to the soft shutter.</p>
-<img alt="The starting laser settings are displayed." class="align-center" src="images/starting_laser_settings.png"/>
+<p>When you first select this window, you’ll notice:</p>
+<ul class="simple">
+<li><p>The laser is “off”. Even though you turned the laser’s key to activate it, it is not yet fully powered and ready to interact with Prarie View.</p></li>
+<li><p>The laser is not “Mode Locked”.</p></li>
+<li><p>The shutter is closed. This refers to the soft shutter.</p></li>
+</ul>
+<img alt="The starting laser settings are displayed." class="align-center" src="../_images/starting_laser_settings.png"/>
 <p>First, click the <cite>On</cite> button.</p>
 <img alt="The laser's &quot;On&quot; button has been selected." class="align-center" src="../_images/laser_on_button_selected.png"/>
 <p>Notice that the box to the right is red and states “Not mode-locked”. You can read more here about what that means and why we need to “Mode-Lock” here.</p>
@@ -278,7 +277,7 @@ subject until the ripping process is complete.</p>
 <p>Next, select the highest wavelength button of 1000nm. This will also take some time to change. Sometimes on the way up the first time it will mode-lock as it does here. If it doesn’t, just continue to cycle back and forth.</p>
 <img alt="The laser wavelength cycles upwards and it successfully mode-locks." class="align-center" src="../_images/modelock_success.gif"/>
 <p>When on and mode-locked successfully, you should see something like this:</p>
-<img alt="The laser sits at 920nm and is mode-locked!" src="../_images/modelocked.png"/>
+<img alt="The laser sits at 920nm and is mode-locked!" class="align-center" src="../_images/modelocked.png"/>
 <p>Now your laser is aligned and ready for imaging!</p>
 <p>Before you move on, make sure that the lights in the room are off. Then, turn on the PMTs on the main box just below the keyboard and have the room lights off.</p>
 <p>With these steps complete, you can move on to starting Python!</p>
