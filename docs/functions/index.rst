@@ -68,6 +68,18 @@ to the Arduino delivering stimuli via pySerialTransfer.
 
 .. automodule:: serialtransfer_utils
   :members:
+  
+******************
+flight_manifest.py
+******************
+
+GUI for selecting which mice are scheduled to be run in a given day's imaging.
+Thank you to Dr. Jonny Saunders for showing me how to do it! <3
+
+.. currentmodule:: main/flight_manifest
+
+.. automodule:: flight_manifest
+  :members:
 
 ==================
 Indices and tables
