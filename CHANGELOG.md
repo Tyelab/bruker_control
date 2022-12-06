@@ -1,10 +1,142 @@
 # Changelog
 Any changes made by **`Team 2P`** that make it into the `main` branch are logged here.
 
-A changelog for commits and changes before this version will not be added.
+A changelog for commits and changes before v1.0.0 will not be added.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## bruker_control.py v1.11.4 - 2022-10-24
+A few changes were made in this version related to:
+- Adapting to how Prairie View does things in the current version 5.7.64.100
+- Follow better practices for validating, compiling, and uploading Arduino sketches
+- Introduce a (simple) GUI for iterating through subjects in a given day
+- Update documentation to be more specific/helpful for users in a step by step way
+- Use better datatypes in the Arduino script (Thanks Annie!) and a false tone for LED trials
+- Our new Standard Instruments DAC has arrived! Nice!
+
+Read on to see some of the specifics if you'd like!
+
+:heart: Jeremy Delahanty
+
+### Changed
+**_Python_**
+
+*`prairieview_utils.py`: `pv_connect()`*
+
+`pv_connect` now has a couple extra steps for interacting with the system due to a
+change in Prairie View 5.7.64.100. Per Michael Fox, a password is now required for
+connecting to a machine running a Bruker scope because there have been incidents where
+campus IT systems are attempting to sniff for HTTP connections on the network. This can
+lead to the campus' systems accidentally trying to communicate with Prairie View and
+throwing an error during recordings that interrupt acquisitions. Now, this function
+will first grab the machine's IP address and then the hostname of the computer. It
+then invokes a new function `get_pv_password` to get the appropriate password for
+communicating with the scope.
+
+*`prairieview_utils.py`: `prepare_tseries`*
+
+This has the channels that are set corrected to channel 2 for the green fluorophore
+so the newly installed DAC's channels are reflected appropriately.
+
+*`serialtransfer_utils.py`: `transfer_metadata`*
+
+`transfer_metadata` includes a new parameter titled `USDelay` which is also an added
+field in the experimental metadata file. This adds a feature that was necessary
+given the changes we needed to do for our behavioral paradigms. Initially, rewards
+or punishments were requested by users to be delivered only at the end of the tone
+being played. It was discovered that the mice were not learning the task appropriately
+in this paradigm and so a different method, which had been previously used for training
+long ago, was introduced into the system. Now, the `USDelay` parameter tells the Arduino
+script to wait some number of milliseconds after a tone begins playing to deliver a
+stimulus.
+
+A second change was made for changing the `val_type_override` in the `USDeliveryTime_Air`
+metadata parameter. Previously, its value was `B`, corresponding to an unsigned char
+datatype. This was insufficiently large for requested times larger than 2 digits (ie 100ms)
+and so it has been changed to `H` for an unsigned short datatype.
+
+
+*`video_utils.py`: `capture_preview`*
+
+The preview function has been updated to include a new grid that is drawn over the content
+of the image that is helpful for better aligning the camera across days per Austin's
+experience. It will now also take the resized image with the grid drawn on it and write
+it to the server in the subject's experimental directory.
+
+*`bruker_control.py`: `argparsing`*
+
+The `subject_id` CLI argument has been removed in favor of a GUI that allows a user
+to select which subjects they are going to run for a given day.
+
+*`experiment_utils.py`: `run_imaging_experiment`*
+
+Several changes have happened in the order of how things are executed for the
+imaging experiment.
+
+- Flight manifest GUI used for determining which subjects are to be run
+- New Arduino class and associated function used for finding, compiling, and uploading Arduino sketch
+- Connecting to Prarie View happens once at the beginning of the sessions and remains until after all subjects are completed.
+- The framerate of the microscope is gathered after the z-stack, if requested, has been completed and the scope is in resonant galvo mode for the T-Series
+
+**_Arduino_**
+
+*`bruker_disc_specialk.ino`: `tonePlayer`*
+
+A false tone was added to the `LED Only` trial type. This was requested by Felix as
+a means of knowing when this trial type was happening. No tone is delivered but
+the `speakerDeliveryPin` that reports to the DAQ is sent high for the appropriate
+amount of time.
+
+### Added
+**_Python_**
+
+*`flight_manifest.py`*
+
+A new GUI has been added for selecting all the subjects you intend on recording from
+that day. This is invoked right at the start of the experiment and lets you select
+from a dropdown list containing all the subjects found in your project's subject directory.
+Thanks Jonny Saunders for teaching me how to do it! :heart:
+
+*`prairieview_utils.py`: `get_pv_password()`*
+
+A new function has been added for grabbing the appropriate password used for
+connecting to the newest edition of Prarie View. This is necessary due to the
+change described above in how Bruker lets users interact with the system.
+
+A password file is now included in the repository but is not tracked by git.
+It has a default value set and, if `bruker_control` finds that the default is
+still in place, it will ask the user to navigate into Prairie View to find the
+appropriate password and enter it at the command line. Once the password file
+is updated, the experiment can continue as normal.
+
+*`prairieview_utils.py`: `PrairieLinkPasswordError`*
+
+A new exception is in place for situations where the password file cannot
+be found with a message telling the user potential reasons for the problem.
+
+*`serialtransfer_utils.py`: `Arduino Class`*
+
+A new Arduino class has been introduced thanks to the awesome teaching of
+Jonny Saunders (again!). They taught me how to use class methods properly
+and construct an object that lets us use the Arduino CLI for:
+- Finding available boards
+- Select appropriate matching board
+- Compile an arduino sketch and error out if it fails
+- Upload the sketch to the found board
+
+It is simply titled `Arduino`!
+
+*`serialtransfer_utils.py`: `upload_arduino_sketch`*
+
+A wrapper function that finds available sketches in the appropriate team's directory
+and invokes the new `Arduino` class has been created.
+
+*`serialtransfer_utils.py`: `SketchError Exception`*
+
+A new exception has been introduced for generic Arduino sketch problems. It's
+currently used for if there are too many or no Arduino sketches found for
+uploading to the board.
 
 ## bruker_control.py v1.10.2 - 2022-08-01 Maintenance Update
 A couple small changes made a maintenance update necessary, mostly related to where
