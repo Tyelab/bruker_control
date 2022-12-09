@@ -37,7 +37,18 @@ import json
 
 # Gather username of whoever is signed into the computer that day for
 # grepping the appropriate sketches
-USERNAME = os.getlogin()
+# For appropriate RTD autodoc functionality, check to see if
+# this is being run in a readthedocs workflow.
+# See:
+# https://docs.readthedocs.io/en/stable/faq.html#how-do-i-change-behavior-when-building-with-read-the-docs
+on_rtd = os.environ.get('READTHEDOCS') == 'True'
+
+# If this is being read by readthedocs, give it a fake fun username
+if on_rtd:
+    USERNAME = "pockel"
+# Otherwise, get the real username running the experiment.
+else:
+    USERNAME = os.getlogin()
 
 # Until something like Autopilot is used, hardcoding sketch paths
 # in this manner is how things like this will have to be done...
