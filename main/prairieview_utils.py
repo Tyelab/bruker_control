@@ -53,6 +53,13 @@ IMAGING_VARIABLES = ["fluorophore", "fluorophore_excitation_lambda"]
 # Get the username for finding local password file
 USERNAME = os.getlogin()
 
+on_rtd = os.environ.get('READTHEDOCS') == 'True'
+
+if on_rtd:
+    USERNAME = "pockel"
+else:
+    USERNAME = os.getlogin()
+
 # Define static path for where password file is in the repo:
 PRAIRIELINK_PASSWORD_FILE = Path(
     f"C:/Users/{USERNAME}/Documents/gitrepos/bruker_control/configs/prairielink_password.json"
