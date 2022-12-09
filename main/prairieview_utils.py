@@ -51,12 +51,16 @@ DATA_PATH = "E:/"
 IMAGING_VARIABLES = ["fluorophore", "fluorophore_excitation_lambda"]
 
 # Get the username for finding local password file
-# USERNAME = os.getlogin()
-
+# For appropriate RTD autodoc functionality, check to see if
+# this is being run in a readthedocs workflow.
+# See:
+# https://docs.readthedocs.io/en/stable/faq.html#how-do-i-change-behavior-when-building-with-read-the-docs
 on_rtd = os.environ.get('READTHEDOCS') == 'True'
 
+# If this is being read by readthedocs, give it a fake fun username
 if on_rtd:
     USERNAME = "pockel"
+# Otherwise, get the real username running the experiment.
 else:
     USERNAME = os.getlogin()
 
