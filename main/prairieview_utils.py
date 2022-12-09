@@ -51,7 +51,7 @@ DATA_PATH = "E:/"
 IMAGING_VARIABLES = ["fluorophore", "fluorophore_excitation_lambda"]
 
 # Get the username for finding local password file
-USERNAME = os.getlogin()
+# USERNAME = os.getlogin()
 
 on_rtd = os.environ.get('READTHEDOCS') == 'True'
 
