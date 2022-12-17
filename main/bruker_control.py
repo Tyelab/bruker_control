@@ -11,6 +11,9 @@ __version__ = "1.11.4 Take Flight"
 # Import experiment utils to run different experiments
 import experiment_utils
 
+# Import testing utils to run different tests
+import test_behavior
+
 # Import argparse for runtime control
 import argparse
 
@@ -66,6 +69,15 @@ if __name__ == "__main__":
         required=True
     )
 
+    # Add test flag
+    metadata_parser.add_argument(
+        '-t', '--test',
+        action='store_true',
+        dest='test',
+        help='Use Test Values (bool flag)',
+        required=False
+        )
+
     # Add Experimental Condition flag
     # Until there is consistent adoption of subject metadata files,
     # users wishing to use the "yoked" trial settings will have to add
@@ -81,15 +93,6 @@ if __name__ == "__main__":
         required=False
     )
 
-    # Add demo flag
-    metadata_parser.add_argument(
-        '-d', '--demo',
-        action='store_true',
-        dest='demo',
-        help='Use Demonstration Values (bool flag)',
-        required=False
-        )
-
     # Add program version argument
     metadata_parser.add_argument(
         '--version',
@@ -99,6 +102,9 @@ if __name__ == "__main__":
 
     # Parse the arguments given by the user
     metadata_args = vars(metadata_parser.parse_args())
+
+    if metadata_args["test"]:
+        test_behavior.testing()
 
     # Run an imaging experiment using the provided arguments by the user
     experiment_utils.run_imaging_experiment(metadata_args)

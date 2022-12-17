@@ -132,6 +132,12 @@ def get_template(project: str) -> dict:
     # Tell user search is underway
     print("Loading project configuration")
 
+    if project == "test":
+
+        config_template = read_config(Path("E:/testing/test2.json"))
+
+        return config_template
+
     # Determine which path to use by grabbing appropriate key/value pair from static dir
     # on the machine
     server_location = SERVER_PATHS[project]

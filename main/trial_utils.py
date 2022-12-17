@@ -518,11 +518,11 @@ def gen_static_ITIArray(config_template: dict) -> list:
     ITIArray = []
 
     # Get total number of trials for session
-    num_trials = config_template["metadata"]["totalNumberOfTrials"]
+    num_trials = config_template["beh_metadata"]["totalNumberOfTrials"]
 
     # Get the base ITI to use for the session and multiply by 1000 to convert
     # to milliseconds.
-    iti_duration = config_template["metadata"]["baseITI"]*1000
+    iti_duration = config_template["beh_metadata"]["baseITI"]*1000
 
     # Build ITIArray into a list of values
     ITIArray = [iti_duration] * num_trials
