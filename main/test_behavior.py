@@ -16,23 +16,42 @@ import prairieview_utils
 # Import the Flight Manifest GUI
 import flight_manifest
 
+# Import pytest for testing functions and modules
+import pytest
+
 # Import sys to safely exit
 import sys
 
-def testing():
+def test_reward_check():
     
-    config_template = config_utils.get_template("test")
+    trialArray = [1,1,1,0,1,1,1,1,1]
 
-    experiment_arrays = trial_utils.generate_arrays(config_template)
+    max_seq_reward = 3
 
-    # Get metadata that the Arduino requires
-    arduino_metadata = config_utils.get_arduino_metadata(config_template)
+    assert trial_utils.check_session_rewards(trialArray, max_seq_reward) == 1
 
-    # Now that the Bruker scope is ready and waiting, send the data to
-    # the Arduino through pySerialTransfer
-    serialtransfer_utils.transfer_data(
-        arduino_metadata,
-        experiment_arrays
-        )
-    
-    sys.exit()
+    trialArray = [1,1,1,0,1,2,3,5,1,1]
+
+    max_seq_reward = 3
+
+    assert trial_utils.check_session_rewards(trialArray, max_seq_reward) == 1
+
+def test_punish_check():
+
+    trialArray = [1,1,1,0,0,1,0,0,0,0]
+
+    max_seq_punish = 3
+
+    assert trial_utils.check_session_punishments(trialArray, max_seq_punish) == 1
+
+    # experiment_arrays = trial_utils.generate_arrays(config_template)
+
+    # # Get metadata that the Arduino requires
+    # arduino_metadata = config_utils.get_arduino_metadata(config_template)
+
+    # # Now that the Bruker scope is ready and waiting, send the data to
+    # # the Arduino through pySerialTransfer
+    # serialtransfer_utils.transfer_data(
+    #     arduino_metadata,
+    #     experiment_arrays
+    #     )

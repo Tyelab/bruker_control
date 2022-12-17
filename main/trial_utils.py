@@ -328,18 +328,18 @@ def check_session_punishments(trialArray: np.ndarray, max_seq_punish: int) -> bo
     # Loop over the trialArray
     for trial in trialArray:
 
+        # TODO: Is this really the best I can do? There's gotta be a cleaner way...
+        # If the trial is anything other than a punish trial, stimulation or not,
+        # set number of punishments in a row to zero
+        if trial in non_punishment_trials:
+            punishments = 0
+
         # If the number of punishments in a row reaches max number of allowed
         # punishment trials from configuration, set punish_check as True and
         # break the loop.
         if punishments > max_seq_punish:
             punish_check = True
-            break
-
-        # TODO: Is this really the best I can do? There's gotta be a cleaner way...
-        # If the trial is anything other than a punish trial, stimulation or not,
-        # set number of punishments in a row to zero
-        elif trial in non_punishment_trials:
-            punishments = 0
+            return punish_check
 
         # If the trial is a punish trial and the number of
         # specified punishment trials haven't happened in a row yet,
@@ -382,20 +382,18 @@ def check_session_rewards(trialArray: np.ndarray, max_seq_reward: int) -> bool:
     # Loop over the trialArray
     for trial in trialArray:
 
-        # If the trial is a punishment trial (0), set number of rewards in a
+        # If the trial is not a reward trial, set number of rewards in a
         # row to 0.
         if trial in non_reward_trials:
             rewards = 0
 
         # If the number of rewards in a row reaches max number of allowed
-        # reward trials from configuration, set punish_check as True and break
+        # reward trials from configuration, set reward_check as True and break
         # the loop.
-        elif rewards == max_seq_reward:
+        if rewards > max_seq_reward:
             reward_check = True
-            break
-
-        # If the trial is a punish trial and there haven't been too many
-        # reward trials in a row, increment the number of punishments.
+            return reward_check
+        
         else:
             rewards += 1
 
