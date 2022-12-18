@@ -22,6 +22,9 @@ import flight_manifest
 # Import sys to safely exit
 import sys
 
+import multiprocessing
+from multiprocessing import Process
+
 # TODO: Move to next plane, create mouse configuration that defines planes of
 # interest and distance between them
 
@@ -182,16 +185,22 @@ def run_imaging_experiment(metadata_args):
                 experiment_arrays
                 )
 
-            # Now that the packets have been sent, the Arduino will start soon.
-            # We now start the camera for recording the experiment!
-            dropped_frames = video_utils.capture_recording(
-                                framerate,
-                                num_frames,
-                                current_plane,
-                                str(imaging_plane),
-                                project,
-                                subject_id
-                                )
+            with multiprocessing.Pool(1) as pool:
+
+                # Apply capture_recording function to the pool of workers asynchonously
+                # Give the function name, capture recording, and the positional arguments
+                # as a list.  Then get the return value of the function using .get().
+                dropped_frames = pool.apply_async(
+                    video_utils.capture_recording,
+                    [
+                        framerate,
+                        num_frames,
+                        current_plane,
+                        str(imaging_plane),
+                        project,
+                        subject_id
+                    ]
+                    ).get()
 
             prairieview_utils.end_tseries()
 

@@ -31,6 +31,9 @@ import sys
 # Import numpy for drawing lines on preview image
 import numpy as np
 
+# Import skvideo for writing videos to file
+import skvideo.io
+
 # Static cti file location
 # CTI stands for "Common Transport Interface" and is a type of acquisition software library
 # that interacts with the Windows file system as a DLL, or dynamic link library. The CTI standard
@@ -394,21 +397,31 @@ def capture_recording(framerate: float, num_frames: int, current_plane: int, ima
     # Opencv could probably be used to display the numpy array that comes out of
     # harvesters... not sure how skvideo does this yet. See Issue#
 
+    writer = skvideo.io.FFmpegWriter(
+        video_fullpath, 
+        outputdict={
+            '-vcodec': 'libx264',
+            '-crf': '15',
+            '-pix_fmt': 'yuv420p',
+            '-preset': 'ultrafast',
+            '-r': str(framerate)
+            }
+        )
     # Define video codec for writing images, use avc1 for H264 compatibility which is best
     # for reliable seeking and is nearly lossless
-    fourcc = cv2.VideoWriter_fourcc(*'avc1')
+    # fourcc = cv2.VideoWriter_fourcc(*'avc1')
 
     # Start the Camera
     h, camera, width, height = init_camera_recording()
 
-    # Create VideoWriter object: file, codec, framerate, dims, color value
-    out = cv2.VideoWriter(
-        video_fullpath,
-        fourcc,
-        framerate,
-        (width, height),
-        isColor=False
-        )
+    # # Create VideoWriter object: file, codec, framerate, dims, color value
+    # out = cv2.VideoWriter(
+    #     video_fullpath,
+    #     fourcc,
+    #     framerate,
+    #     (width, height),
+    #     isColor=False
+    #     )
 
     dropped_frames = []
 
@@ -440,7 +453,7 @@ def capture_recording(framerate: float, num_frames: int, current_plane: int, ima
 
                 imshow_dims = (imshow_width, imshow_height)
 
-                out.write(content)
+                writer.writeFrame(content)
 
                 # resize image
                 resized = cv2.resize(content, imshow_dims, interpolation = cv2.INTER_AREA)
@@ -460,7 +473,7 @@ def capture_recording(framerate: float, num_frames: int, current_plane: int, ima
             pass
 
     # Release VideoWriter object
-    out.release()
+    writer.close()
 
     # Destroy camera window
     cv2.destroyAllWindows()
