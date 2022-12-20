@@ -22,8 +22,8 @@ import flight_manifest
 # Import sys to safely exit
 import sys
 
+# Import multiprocessing for async writing of video to disk
 import multiprocessing
-from multiprocessing import Process
 
 # TODO: Move to next plane, create mouse configuration that defines planes of
 # interest and distance between them
