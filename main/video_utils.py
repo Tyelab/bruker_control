@@ -390,13 +390,12 @@ def capture_recording(framerate: float, num_frames: int, current_plane: int, ima
     # Create full video path
     video_fullpath = str(video_dir / video_name)
 
-    # TODO: Instead of invoking opencv for writing file to disk, the use of something
-    # like skvideo which wraps around ffmpeg should be used. We could ensure our videos
-    # are encoded according to how SLEAP/Talmo recommends doing things. Still not sure
-    # how to pipe stuff into skvideo properly... need Jonny Saunders' /Chris Rodgers' help.
-    # Opencv could probably be used to display the numpy array that comes out of
-    # harvesters... not sure how skvideo does this yet. See Issue#
-
+    # Invoke skvideo videowriter using Talmo's recommendations:
+    # libx264 codec for encoding frames
+    # crf = 15 for quality and less compression
+    # yuv420p for color space
+    # ultrafast for encoding speed that allows for easy seeking/scrubbing
+    # framerate microscope is using to capture frames
     writer = skvideo.io.FFmpegWriter(
         video_fullpath, 
         outputdict={
@@ -407,21 +406,9 @@ def capture_recording(framerate: float, num_frames: int, current_plane: int, ima
             '-r': str(framerate)
             }
         )
-    # Define video codec for writing images, use avc1 for H264 compatibility which is best
-    # for reliable seeking and is nearly lossless
-    # fourcc = cv2.VideoWriter_fourcc(*'avc1')
 
     # Start the Camera
     h, camera, width, height = init_camera_recording()
-
-    # # Create VideoWriter object: file, codec, framerate, dims, color value
-    # out = cv2.VideoWriter(
-    #     video_fullpath,
-    #     fourcc,
-    #     framerate,
-    #     (width, height),
-    #     isColor=False
-    #     )
 
     dropped_frames = []
 
@@ -447,21 +434,21 @@ def capture_recording(framerate: float, num_frames: int, current_plane: int, ima
                     width
                     )
 
-
+                # Resize image so it's not taking up the whole screen
+                # Define dimensions, width and height
                 imshow_width = int(width * SCALING_FACTOR / 100)
                 imshow_height = int(height * SCALING_FACTOR / 100)
 
                 imshow_dims = (imshow_width, imshow_height)
 
+                # Write frame to disk
                 writer.writeFrame(content)
 
-                # resize image
+                # Resize the image, interpolate to avoid distortion
                 resized = cv2.resize(content, imshow_dims, interpolation = cv2.INTER_AREA)
-                
-
+    
                 cv2.imshow("Live!", resized)
                 c = cv2.waitKey(1)
-                
 
                 frame_number += 1
 

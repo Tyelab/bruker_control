@@ -185,6 +185,8 @@ def run_imaging_experiment(metadata_args):
                 experiment_arrays
                 )
 
+            # Start a multiprocessing pool using "with" context manager
+            # So once it's done, it will automatically close the pool
             with multiprocessing.Pool(1) as pool:
 
                 # Apply capture_recording function to the pool of workers asynchonously
