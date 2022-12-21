@@ -6,6 +6,26 @@ A changelog for commits and changes before v1.0.0 will not be added.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## bruker_control.py v1.12.4 - 2022-12-20
+Super small change. All that's different is the `flight_manifest` which now has a fancy
+scroll bar for the many mice that Austin has in his directory.
+
+It's still a little off because the `OK` button isn't the right size and I want there to
+be the team logo that appears in the box. I'm also using the layouts kinda wrong and Jonny
+is pointing me towards lots of help as they always do. But it works.
+
+:heart: Jeremy Delahanty
+
+### Changed
+**_Python_**
+
+*`flight_manifest.py`
+
+The `CheckList` class is now a `QMainWindow` after following
+[this tutorial](https://www.pythonguis.com/tutorials/pyside-qscrollarea/). A scrollbar
+widget is added so subject selection doesn't take up the entire screen to see all of the
+mice.
+
 ## bruker_control.py v1.11.4 - 2022-10-24
 A few changes were made in this version related to:
 - Adapting to how Prairie View does things in the current version 5.7.64.100
