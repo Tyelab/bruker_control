@@ -121,7 +121,7 @@ boolean toneDAQ = false;
 // From Deryn LeDuke's Valence Repository and Arduino Code
 // Used for lick contingency
 boolean contcurrent = false; // whether or not a lick has been detected on the MPR121
-boolean licked = true; // if the lick was detected at the correct time
+boolean licked = false; // if the lick was detected at the correct time
 
 
 //// TIMING VARIABLES ////
@@ -422,6 +422,8 @@ void reset_board() {
   cleanIt = false;
   noise = false;
   toneDAQ = false;
+  licked = false;
+  contcurrent = false;
   Serial.println("Resetting Arduino after 3 seconds...");
   delay(3000);
   Serial.println("RESETTING");
@@ -444,7 +446,6 @@ void lickDetect() {
   // if it *was* touched and now *isn't*, alert!
   if (!(currtouched & _BV(2)) && (lasttouched & _BV(2))) {
     digitalWriteFast(lickDetectPin, LOW);
-    contcurrent = false;
   }
   lasttouched = currtouched;
 }
@@ -667,17 +668,18 @@ void presentStimulus(unsigned long ms) {
           break;
         }
       case 1:
-        if (metadata.LickContingency) {
-          if (giveStim && (ms < USBegin) && (contcurrent == true)) {
-            licked = true;
-            newUSDelivery = true;
+        if (metadata.lickContingency) {
+          while (ms < USBegin && (licked == false)) {
+            if (contcurrent) {
+              licked = true;
+              break;
+            }
             break;
           }
-          else if (giveStim && (ms >= USBegin) && (contcurrent == false)) {
-            licked = false;
+          if (giveStim && (ms >= USBegin)) {
             newUSDelivery = true;
           }
-        } 
+        }
         else {
           if (giveStim && (ms >= USBegin)) {
             newUSDelivery = true;
@@ -690,7 +692,7 @@ void presentStimulus(unsigned long ms) {
           break;
         }
       case 5:
-        if (giveStim && (ms < USBegin)) {
+        if (giveStim && (ms >= USBegin)) {
           newUSDelivery = true;
           break;
         }
@@ -741,17 +743,18 @@ void USDelivery(unsigned long ms) {
         break;
       case 1:
         // If using lick contingency
-        if (metadata.LickContingency) {
+        if (metadata.lickContingency) {
           // If the mouse licked during the delay period, deliver the sucrose
           if (licked) {
             Serial.println("Delivering Sucrose (Lick Contingency)");
             USDeliveryMS = ms + metadata.USDeliveryTime_Sucrose;
             digitalWriteFast(solPin_liquid, HIGH);
             licked = false;
+            contcurrent = false;
             break;
           }
           // Otherwise, don't deliver the sucrose and report mouse missed it
-          else {
+          else if (!licked) {
             Serial.println("Missed Sucrose (Lick Contingency)");
             USDeliveryMS = ms + metadata.USDeliveryTime_Sucrose; // probably necessary so timing math works with offSolenoid
             break;
