@@ -6,7 +6,7 @@
 # https://github.com/PowerBroker2/pySerialTransfer
 # Genie Nano manufactured by Teledyne DALSA
 
-__version__ = "1.12.4 Take Flight"
+__version__ = "1.13.4 Take Flight"
 
 # Import experiment utils to run different experiments
 import experiment_utils
