@@ -4,7 +4,7 @@
    Purpose: Present stimuli to headfixed subject and send signals to DAQ for Tye Lab Team specialk
    @author Deryn LeDuke, Kyle Fischer PhD, Dexter Tsin, Jeremy Delahanty
    @Maintainer Jeremy Delahanty
-   @version 1.8.0 10/27/21
+   @version 1.9.0 1/3/2022
    Adapted from DISC_V7.ino by Kyle Fischer and Mauri van der Huevel Oct. 2019
    digitalWriteFast.h written by Watterott Electronic https://github.com/watterott/Arduino-Libs/tree/master/digitalWriteFast
    SerialTransfer.h written by PowerBroker2 https://github.com/PowerBroker2/SerialTransfer
@@ -36,11 +36,12 @@ struct __attribute__((__packed__)) metadata_struct {
   uint8_t totalNumberOfTrials;              // total number of trials for experiment
   uint16_t punishTone;                      // airpuff frequency tone in Hz
   uint16_t rewardTone;                      // sucrose frequency tone in Hz
-  uint16_t USDeliveryTime_Sucrose;           // amount of time to open sucrose solenoid
-  uint16_t USDeliveryTime_Air;               // amount of time to open air solenoid
+  uint16_t USDeliveryTime_Sucrose;          // amount of time to open sucrose solenoid
+  uint16_t USDeliveryTime_Air;              // amount of time to open air solenoid
   uint16_t USConsumptionTime_Sucrose;       // amount of time to wait for sucrose consumption
   uint16_t stimDeliveryTime_Total;          // amount of time LED is scheduled to run
   uint16_t USDelay;                         // amount of time to wait before delivering US after tone starts
+  bool lickContingency;                  // whether or not to wait for lick after tone starts
 } metadata;
 
 //// EXPERIMENT ARRAYS ////
@@ -116,6 +117,12 @@ boolean consume = false;
 boolean cleanIt = false;
 boolean noise = false;                // Can't use tone as it's protected in Arduino
 boolean toneDAQ = false;
+// Lick Flags
+// From Deryn LeDuke's Valence Repository and Arduino Code
+// Used for lick contingency
+boolean contcurrent = false; // whether or not a lick has been detected on the MPR121
+boolean licked = true; // if the lick was detected at the correct time
+
 
 //// TIMING VARIABLES ////
 // Time is measured in milliseconds for this program
@@ -124,17 +131,14 @@ unsigned long ms; // milliseconds
 unsigned long ITIEnd;
 unsigned long LEDStart;
 unsigned long LEDEnd;
-unsigned long rewardDelayMS;
-unsigned long sucroseDelayMS;
 unsigned long USDeliveryMS_Sucrose;
 unsigned long sucroseConsumptionMS;
 unsigned long vacTime;
-unsigned long airDelayMS;
 unsigned long USDeliveryMS_Air;
 unsigned long USDeliveryMS;
-unsigned long noiseDeliveryMS;
 unsigned long toneListeningMS;
 unsigned long toneDAQMS;
+unsigned long USBegin;
 
 // Vacuum has a set amount of time to be active
 const int vacDelay = 500; // vacuum delay
@@ -435,10 +439,12 @@ void lickDetect() {
   // if it is *currently* touched and *wasn't* touched before, alert!
   if ((currtouched & _BV(2)) && !(lasttouched & _BV(2))) {
     digitalWriteFast(lickDetectPin, HIGH);
+    contcurrent = true;
   }
   // if it *was* touched and now *isn't*, alert!
   if (!(currtouched & _BV(2)) && (lasttouched & _BV(2))) {
     digitalWriteFast(lickDetectPin, LOW);
+    contcurrent = false;
   }
   lasttouched = currtouched;
 }
@@ -589,6 +595,7 @@ void tonePlayer(unsigned long ms) {
     thisToneDuration = toneArray[currentTrial];
     toneDAQ = true;
     toneListeningMS = ms + thisToneDuration;
+    USBegin = ms + metadata.USDelay;
     switch (trialType) {
       case 0:
         digitalWriteFast(speakerDeliveryPin, HIGH);
@@ -650,51 +657,65 @@ void offTone(unsigned long ms) {
    @param ms Current time in milliseconds (ms)
 */
 void presentStimulus(unsigned long ms) {
-  switch (trialType) {
-    case 0:
-      if (giveStim && (ms >=  toneListeningMS - metadata.USDelay)) {
-        newUSDelivery = true;
-        break;
-      }
-    case 1:
-      if (giveStim && (ms >= toneListeningMS - metadata.USDelay)) {
-        newUSDelivery = true;
-        break;
-      }
-    case 4:
-      if (giveStim && (ms >= toneListeningMS - metadata.USDelay)) {
-        newUSDelivery = true;
-        break;
-      }
-    case 5:
-      if (giveStim && (ms >= toneListeningMS - metadata.USDelay)) {
-        newUSDelivery = true;
-        break;
-      }
+  // If using lick contingency, only the reward trials yield a relevant behavior
+  // change to the script. Punishment trials are delivered regardless of whether the
+  // mouse licks. 
+    switch (trialType) {
+      case 0:
+        if (giveStim && (ms >= USBegin)) {
+          newUSDelivery = true;
+          break;
+        }
+      case 1:
+        if (metadata.LickContingency) {
+          if (giveStim && (ms < USBegin) && (contcurrent == true)) {
+            licked = true;
+            newUSDelivery = true;
+            break;
+          }
+          else if (giveStim && (ms >= USBegin) && (contcurrent == false)) {
+            licked = false;
+            newUSDelivery = true;
+          }
+        } 
+        else {
+          if (giveStim && (ms >= USBegin)) {
+            newUSDelivery = true;
+            break;
+          }
+        }
+      case 4:
+        if (giveStim && (ms >= USBegin)) {
+          newUSDelivery = true;
+          break;
+        }
+      case 5:
+        if (giveStim && (ms < USBegin)) {
+          newUSDelivery = true;
+          break;
+        }
+    }  
   }
-}
 
 /**
    Delivers stimuli when trial types are catch trials. Does NOT open solenoids
    for stimuli at any point.
    @param ms Current time in milliseconds (ms)
 */
-// NOTE: The timings encoded here are technically incorrect, but since nothing
-// is delivered anyways it doesn't change the behavior of the script.
 void presentCatch(unsigned long ms) {
   switch (trialType) {
     case 2:
-      if (giveCatch && (ms >= toneListeningMS - metadata.USDeliveryTime_Air)) {
+      if (giveCatch && (ms >= USBegin)) {
         newUSDeliveryCatch = true;
         break;
       }
     case 3:
-      if (giveCatch && (ms >= toneListeningMS - metadata.USDeliveryTime_Sucrose)) {
+      if (giveCatch && (ms >= USBegin)) {
         newUSDeliveryCatch = true;
         break;
       }
     case 6:
-      if (giveCatch && (ms >= toneListeningMS - metadata.USDeliveryTime_Sucrose)) {
+      if (giveCatch && (ms >= USBegin)) {
         newUSDeliveryCatch = true;
         break;
       }
@@ -719,10 +740,30 @@ void USDelivery(unsigned long ms) {
         digitalWriteFast(solPin_air, HIGH);
         break;
       case 1:
+        // If using lick contingency
+        if (metadata.LickContingency) {
+          // If the mouse licked during the delay period, deliver the sucrose
+          if (licked) {
+            Serial.println("Delivering Sucrose (Lick Contingency)");
+            USDeliveryMS = ms + metadata.USDeliveryTime_Sucrose;
+            digitalWriteFast(solPin_liquid, HIGH);
+            licked = false;
+            break;
+          }
+          // Otherwise, don't deliver the sucrose and report mouse missed it
+          else {
+            Serial.println("Missed Sucrose (Lick Contingency)");
+            USDeliveryMS = ms + metadata.USDeliveryTime_Sucrose; // probably necessary so timing math works with offSolenoid
+            break;
+          }
+        }
+        // If not using lick contingency just deliver the sucrose on schedule
+        else {
         Serial.println("Delivering Sucrose");
         USDeliveryMS = ms + metadata.USDeliveryTime_Sucrose;
         digitalWriteFast(solPin_liquid, HIGH);
         break;
+        }
       case 4:
         Serial.println("Delivering Airpuff (LED)");
         USDeliveryMS = ms + metadata.USDeliveryTime_Air;
