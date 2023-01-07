@@ -302,6 +302,7 @@ def get_arduino_metadata(config_template: dict) -> dict:
         "USConsumptionTime_Sucrose",
         "stimDeliveryTime_Total",
         "USDelay",
+        "lickContingency"
         ]
 
     try:
