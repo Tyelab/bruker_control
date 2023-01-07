@@ -383,7 +383,7 @@ def capture_recording(framerate: float, num_frames: int, current_plane: int, ima
         [session_date, subject_id, "plane{}".format(current_plane), imaging_plane]
         )
 
-    # Assign video name as the config_filename for readability and append .mp4 as the file
+    # Assign video name as the session_name and append .mp4 as the file
     # format.
     video_name = session_name + ".mp4"
 
