@@ -4,7 +4,7 @@
    Purpose: Present stimuli to headfixed subject and send signals to DAQ for Tye Lab Team specialk
    @author Deryn LeDuke, Kyle Fischer PhD, Dexter Tsin, Jeremy Delahanty
    @Maintainer Jeremy Delahanty
-   @version 1.9.0 1/3/2022
+   @version 1.10.0 1/6/2022
    Adapted from DISC_V7.ino by Kyle Fischer and Mauri van der Huevel Oct. 2019
    digitalWriteFast.h written by Watterott Electronic https://github.com/watterott/Arduino-Libs/tree/master/digitalWriteFast
    SerialTransfer.h written by PowerBroker2 https://github.com/PowerBroker2/SerialTransfer
@@ -446,6 +446,7 @@ void lickDetect() {
   // if it *was* touched and now *isn't*, alert!
   if (!(currtouched & _BV(2)) && (lasttouched & _BV(2))) {
     digitalWriteFast(lickDetectPin, LOW);
+    contcurrent = false;
   }
   lasttouched = currtouched;
 }
