@@ -22,6 +22,9 @@ import flight_manifest
 # Import sys to safely exit
 import sys
 
+# Import multiprocessing for async writing of video to disk
+import multiprocessing
+
 # TODO: Move to next plane, create mouse configuration that defines planes of
 # interest and distance between them
 
@@ -182,16 +185,14 @@ def run_imaging_experiment(metadata_args):
                 experiment_arrays
                 )
 
-            # Now that the packets have been sent, the Arduino will start soon.
-            # We now start the camera for recording the experiment!
             dropped_frames = video_utils.capture_recording(
-                                framerate,
-                                num_frames,
-                                current_plane,
-                                str(imaging_plane),
-                                project,
-                                subject_id
-                                )
+                framerate,
+                num_frames,
+                current_plane,
+                str(imaging_plane),
+                project,
+                subject_id
+            )
 
             prairieview_utils.end_tseries()
 

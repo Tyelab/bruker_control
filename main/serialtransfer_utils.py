@@ -496,6 +496,8 @@ def transfer_metadata(arduino_metadata: str, link: txfer.SerialTransfer):
         metaData_size = link.tx_obj(arduino_metadata['USConsumptionTime_Sucrose'], metaData_size, val_type_override='H')
         metaData_size = link.tx_obj(arduino_metadata['stimDeliveryTime_Total'],    metaData_size, val_type_override='H')
         metaData_size = link.tx_obj(arduino_metadata['USDelay'],                   metaData_size, val_type_override='H')
+        # val_type_override not needed because it's a built in Python type (https://github.com/PowerBroker2/pySerialTransfer/issues/64#issuecomment-1272163696)
+        metaData_size = link.tx_obj(arduino_metadata['lickContingency'],           metaData_size)
 
         # Send the metadata to the Arduino.  The metadata is transferred first
         # and therefore receives the packet_id of 0.

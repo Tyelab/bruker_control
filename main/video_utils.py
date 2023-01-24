@@ -31,6 +31,13 @@ import sys
 # Import numpy for drawing lines on preview image
 import numpy as np
 
+# Import warnings to ignore deprecation warning from skvideo
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+# Import skvideo for writing videos to file
+import skvideo.io
+
 # Static cti file location
 # CTI stands for "Common Transport Interface" and is a type of acquisition software library
 # that interacts with the Windows file system as a DLL, or dynamic link library. The CTI standard
@@ -380,35 +387,40 @@ def capture_recording(framerate: float, num_frames: int, current_plane: int, ima
         [session_date, subject_id, "plane{}".format(current_plane), imaging_plane]
         )
 
-    # Assign video name as the config_filename for readability and append .mp4 as the file
+    # Assign video name as the session_name and append .mp4 as the file
     # format.
     video_name = session_name + ".mp4"
 
     # Create full video path
     video_fullpath = str(video_dir / video_name)
 
-    # TODO: Instead of invoking opencv for writing file to disk, the use of something
-    # like skvideo which wraps around ffmpeg should be used. We could ensure our videos
-    # are encoded according to how SLEAP/Talmo recommends doing things. Still not sure
-    # how to pipe stuff into skvideo properly... need Jonny Saunders' /Chris Rodgers' help.
-    # Opencv could probably be used to display the numpy array that comes out of
-    # harvesters... not sure how skvideo does this yet. See Issue#
-
-    # Define video codec for writing images, use avc1 for H264 compatibility which is best
-    # for reliable seeking and is nearly lossless
-    fourcc = cv2.VideoWriter_fourcc(*'avc1')
+    # Invoke skvideo videowriter using Talmo's recommendations:
+    # libx264 codec for encoding frames
+    # crf = 15 for quality and less compression
+    # yuv420p for color space
+    # ultrafast for encoding speed that allows for easy seeking/scrubbing
+    # framerate microscope is using to capture frames
+    writer = skvideo.io.FFmpegWriter(
+        video_fullpath, 
+        outputdict={
+            '-vcodec': 'libx264',
+            '-crf': '15',
+            '-pix_fmt': 'yuv420p',
+            '-preset': 'ultrafast',
+            '-r': str(framerate)
+            }
+        )
 
     # Start the Camera
     h, camera, width, height = init_camera_recording()
 
-    # Create VideoWriter object: file, codec, framerate, dims, color value
-    out = cv2.VideoWriter(
-        video_fullpath,
-        fourcc,
-        framerate,
-        (width, height),
-        isColor=False
-        )
+    # out = cv2.VideoWriter(
+    #     video_fullpath,
+    #     cv2.VideoWriter_fourcc(*"avc1"),
+    #     framerate,
+    #     (width, height),
+    #     isColor = False
+    #     )
 
     dropped_frames = []
 
@@ -417,7 +429,7 @@ def capture_recording(framerate: float, num_frames: int, current_plane: int, ima
     cv2.namedWindow("Live!")
     cv2.moveWindow("Live!", IMSHOW_X_POS, IMSHOW_Y_POS)
 
-        # Experimental progress bar in term
+    # Experimental progress bar in term
     for frame_number in tqdm(range(num_frames), desc="Experiment Progress", ascii=True):
 
         # Introduce try/except block in case of dropped frames
@@ -434,21 +446,21 @@ def capture_recording(framerate: float, num_frames: int, current_plane: int, ima
                     width
                     )
 
-
+                # Resize image so it's not taking up the whole screen
+                # Define dimensions, width and height
                 imshow_width = int(width * SCALING_FACTOR / 100)
                 imshow_height = int(height * SCALING_FACTOR / 100)
 
                 imshow_dims = (imshow_width, imshow_height)
 
-                out.write(content)
+                # Write frame to disk
+                writer.writeFrame(content)
 
-                # resize image
+                # Resize the image, interpolate to avoid distortion
                 resized = cv2.resize(content, imshow_dims, interpolation = cv2.INTER_AREA)
-                
-
+    
                 cv2.imshow("Live!", resized)
                 c = cv2.waitKey(1)
-                
 
                 frame_number += 1
 
@@ -459,8 +471,8 @@ def capture_recording(framerate: float, num_frames: int, current_plane: int, ima
 
             pass
 
-    # Release VideoWriter object
-    out.release()
+    # Close VideoWriter object
+    writer.close()
 
     # Destroy camera window
     cv2.destroyAllWindows()
