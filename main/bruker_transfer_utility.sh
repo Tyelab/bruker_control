@@ -15,15 +15,15 @@ echo "Project: " $1
 # where data is placed.
 
 # Declare associative array, basically the same as python dictionary
-declare -A project_paths
+declare -A projectpaths
 
 # Add key:value pairs for project_name:project_path line by line for valid
 # project paths/directories
-project_paths["deryn_fd"]=/drives/x/Deryn/2P_raw_data
-project_paths["specialk_cs"]=/drives/v
-project_paths["specialk_lh"]=/drives/u
+projectpaths["deryn_fd"]=/drives/x/Deryn/2P_raw_data
+projectpaths["specialk_cs"]=/drives/v
+projectpaths["specialk_lh"]=/drives/u
 
-transfer_path=${project_paths[$1]}
+transfer_path=${projectpaths[$1]}
 
 # Get today's date for making file that outlines datasets needing conversion
 d=$(date "+%Y%m%d")
