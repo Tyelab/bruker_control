@@ -31,6 +31,10 @@ import sys
 # Import numpy for drawing lines on preview image
 import numpy as np
 
+# Import warnings to ignore deprecation warning from skvideo
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+
 # Import skvideo for writing videos to file
 import skvideo.io
 
@@ -410,6 +414,14 @@ def capture_recording(framerate: float, num_frames: int, current_plane: int, ima
     # Start the Camera
     h, camera, width, height = init_camera_recording()
 
+    # out = cv2.VideoWriter(
+    #     video_fullpath,
+    #     cv2.VideoWriter_fourcc(*"avc1"),
+    #     framerate,
+    #     (width, height),
+    #     isColor = False
+    #     )
+
     dropped_frames = []
 
     frame_number = 1
@@ -417,7 +429,7 @@ def capture_recording(framerate: float, num_frames: int, current_plane: int, ima
     cv2.namedWindow("Live!")
     cv2.moveWindow("Live!", IMSHOW_X_POS, IMSHOW_Y_POS)
 
-        # Experimental progress bar in term
+    # Experimental progress bar in term
     for frame_number in tqdm(range(num_frames), desc="Experiment Progress", ascii=True):
 
         # Introduce try/except block in case of dropped frames
@@ -459,7 +471,7 @@ def capture_recording(framerate: float, num_frames: int, current_plane: int, ima
 
             pass
 
-    # Release VideoWriter object
+    # Close VideoWriter object
     writer.close()
 
     # Destroy camera window
