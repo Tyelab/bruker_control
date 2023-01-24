@@ -185,24 +185,14 @@ def run_imaging_experiment(metadata_args):
                 experiment_arrays
                 )
 
-            # Start a multiprocessing pool using "with" context manager
-            # So once it's done, it will automatically close the pool
-            with multiprocessing.Pool(1) as pool:
-
-                # Apply capture_recording function to the pool of workers asynchonously
-                # Give the function name, capture recording, and the positional arguments
-                # as a list.  Then get the return value of the function using .get().
-                dropped_frames = pool.apply_async(
-                    video_utils.capture_recording,
-                    [
-                        framerate,
-                        num_frames,
-                        current_plane,
-                        str(imaging_plane),
-                        project,
-                        subject_id
-                    ]
-                    ).get()
+            dropped_frames = video_utils.capture_recording(
+                framerate,
+                num_frames,
+                current_plane,
+                str(imaging_plane),
+                project,
+                subject_id
+            )
 
             prairieview_utils.end_tseries()
 
