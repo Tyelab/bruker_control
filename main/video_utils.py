@@ -35,9 +35,6 @@ import numpy as np
 import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-# Import skvideo for writing videos to file
-import skvideo.io
-
 # Static cti file location
 # CTI stands for "Common Transport Interface" and is a type of acquisition software library
 # that interacts with the Windows file system as a DLL, or dynamic link library. The CTI standard
@@ -394,33 +391,16 @@ def capture_recording(framerate: float, num_frames: int, current_plane: int, ima
     # Create full video path
     video_fullpath = str(video_dir / video_name)
 
-    # Invoke skvideo videowriter using Talmo's recommendations:
-    # libx264 codec for encoding frames
-    # crf = 15 for quality and less compression
-    # yuv420p for color space
-    # ultrafast for encoding speed that allows for easy seeking/scrubbing
-    # framerate microscope is using to capture frames
-    writer = skvideo.io.FFmpegWriter(
-        video_fullpath, 
-        outputdict={
-            '-vcodec': 'libx264',
-            '-crf': '15',
-            '-pix_fmt': 'yuv420p',
-            '-preset': 'ultrafast',
-            '-r': str(framerate)
-            }
-        )
-
     # Start the Camera
     h, camera, width, height = init_camera_recording()
 
-    # out = cv2.VideoWriter(
-    #     video_fullpath,
-    #     cv2.VideoWriter_fourcc(*"avc1"),
-    #     framerate,
-    #     (width, height),
-    #     isColor = False
-    #     )
+    out = cv2.VideoWriter(
+        video_fullpath,
+        cv2.VideoWriter_fourcc(*"avc1"),
+        framerate,
+        (width, height),
+        isColor = False
+        )
 
     dropped_frames = []
 
@@ -454,7 +434,7 @@ def capture_recording(framerate: float, num_frames: int, current_plane: int, ima
                 imshow_dims = (imshow_width, imshow_height)
 
                 # Write frame to disk
-                writer.writeFrame(content)
+                out.write(content)
 
                 # Resize the image, interpolate to avoid distortion
                 resized = cv2.resize(content, imshow_dims, interpolation = cv2.INTER_AREA)
@@ -471,8 +451,8 @@ def capture_recording(framerate: float, num_frames: int, current_plane: int, ima
 
             pass
 
-    # Close VideoWriter object
-    writer.close()
+    # Release VideoWriter object
+    out.release()
 
     # Destroy camera window
     cv2.destroyAllWindows()
