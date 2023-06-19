@@ -165,8 +165,8 @@ const int solPin_air = 22;                    // solenoid for air puff control
 const int vacPin = 24;                        // solenoid for vacuum control
 const int solPin_liquid = 26;                 // solenoid for liquid control: sucrose, water, EtOH
 const int speakerPin = 12;                    // speaker control pin
-const int bruker2PTriggerPin = 11;            // trigger to start Bruker 2P Recording on Prairie View
-const int brukerLEDTriggerPin = 37;           // trigger to initiate an LED Pulse on Prairie View
+const int bruker2PTriggerPin = 30;            // trigger to start Bruker 2P Recording on Prairie View
+const int brukerLEDTriggerPin = 28;           // trigger to initiate an LED Pulse on Prairie View
 
 //// PIN ASSIGNMENT: RESET /////
 const int resetPin = 0;                       // Pin driven LOW for resetting the Arduino through software.
@@ -175,8 +175,8 @@ const int resetPin = 0;                       // Pin driven LOW for resetting th
 // NIDAQ input
 // none
 // NIDAQ output
-const int lickDetectPin = 41;                 // detect sucrose licks
-const int speakerDeliveryPin = 51;            // noise delivery
+const int lickDetectPin = 23;                 // detect sucrose licks
+const int speakerDeliveryPin = 25;            // noise delivery
 
 // Metadata and flow-control functions
 /**
@@ -473,9 +473,12 @@ void startITI(unsigned long ms) {
     else {
       typeTrial(trialType);
     }
+    Serial.println("NOW" + String(ms));
     ITI = true;
     thisITI = ITIArray[currentTrial];             // get ITI for this trial
+    Serial.println("ITI: " + String(thisITI) + " ms");
     ITIEnd = ms + thisITI;
+    Serial.println("ITI END: " + String(ITIEnd));
   }
   else if (ITI && (ms >= ITIEnd)) {               // ITI is over, start playing the tone
     ITI = false;
@@ -593,6 +596,7 @@ void offLED (unsigned long ms) {
 */
 void tonePlayer(unsigned long ms) {
   if (noise) {
+    Serial.println("Tone Start" + String(ms));
     noise = false;
     thisToneDuration = toneArray[currentTrial];
     toneDAQ = true;
@@ -830,7 +834,7 @@ void offSolenoid(unsigned long ms) {
       case 4:
         solenoidOn = false;
         digitalWriteFast(solPin_air, LOW);
-        newTrial = true;
+        // newTrial = true;
         currentLED++;
         break;
       case 5:
