@@ -391,27 +391,14 @@ def capture_recording(framerate: float, num_frames: int, current_plane: int, ima
     # Create full video path
     video_fullpath = str(video_dir / video_name)
 
-    # Invoke skvideo videowriter using Talmo's recommendations:
-    # libx264 codec for encoding frames
-    # crf = 15 for quality and less compression
-    # yuv420p for color space
-    # ultrafast for encoding speed that allows for easy seeking/scrubbing
-    # framerate microscope is using to capture frames
-    # writer = skvideo.io.FFmpegWriter(
-    #     video_fullpath, 
-    #     outputdict={
-    #         '-vcodec': 'libx264',
-    #         '-crf': '15',
-    #         '-pix_fmt': 'yuv420p',
-    #         '-preset': 'ultrafast',
-    #         '-r': str(framerate)
-    #         }
-    #     )
-
     # Start the Camera
     h, camera, width, height = init_camera_recording()
 
     # Use cv2 for writing frames to disc
+    
+    # Start the Camera
+    h, camera, width, height = init_camera_recording()
+
     out = cv2.VideoWriter(
         video_fullpath,
         cv2.VideoWriter_fourcc(*"avc1"),
@@ -469,7 +456,7 @@ def capture_recording(framerate: float, num_frames: int, current_plane: int, ima
 
             pass
 
-    # Close VideoWriter object
+    # Release VideoWriter object
     out.release()
 
     # Destroy camera window
