@@ -394,6 +394,11 @@ def capture_recording(framerate: float, num_frames: int, current_plane: int, ima
     # Start the Camera
     h, camera, width, height = init_camera_recording()
 
+    # Use cv2 for writing frames to disc
+    
+    # Start the Camera
+    h, camera, width, height = init_camera_recording()
+
     out = cv2.VideoWriter(
         video_fullpath,
         cv2.VideoWriter_fourcc(*"avc1"),

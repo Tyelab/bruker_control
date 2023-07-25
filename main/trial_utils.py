@@ -889,6 +889,12 @@ def gen_trialArray_stim(config_template: dict) -> np.ndarray:
     # Get number of stimulation alone trials
     num_stim_alone = config_template["beh_metadata"]["numStimAlone"]
 
+    # Get number of aversive prestim trials
+    num_prestim_punish = config_template["beh_metadata"]["numPrestimPunish"]
+
+    # Get number of aversive poststim trials
+    num_poststim_punish = config_template["beh_metadata"]["numPoststimPunish"]
+
     # Get position where stimulation trials will start
     stim_start_position = config_template["beh_metadata"]["stimStartPosition"]
 
@@ -913,21 +919,15 @@ def gen_trialArray_stim(config_template: dict) -> np.ndarray:
         )
 
     # Define which trials can be flipped before the stimulation epoch
-    potential_pre_stim_flips = np.arange(
+    potential_pre_stim_punishments = np.arange(
         config_template["beh_metadata"]["startingReward"],
         stim_start_position
     )
 
     # Define which trials can be flipped after the stimulation epoch
-    potential_post_stim_flips = np.arange(
+    potential_post_stim_punishments = np.arange(
         stim_start_position + total_stim_trials,
         len(stimulated_array)
-    )
-
-    # Combine pre/post stimulation positions into one array
-    potential_nostim_flips = np.concatenate(
-        (potential_pre_stim_flips, potential_post_stim_flips),
-        axis=None
     )
 
     # Create punish, reward, and catch trial statuses for checking after
@@ -935,6 +935,9 @@ def gen_trialArray_stim(config_template: dict) -> np.ndarray:
     punish_check = True
     reward_check = True
     catch_check = True
+
+    # Create counter for number of attempts to flip trials
+    flip_attempts = 0
 
     # At some point, this should be made into a function of it's own probably
     # While the punish, catch, and reward cheks are not all false (or zero)
@@ -944,15 +947,31 @@ def gen_trialArray_stim(config_template: dict) -> np.ndarray:
         tmp_array = stimulated_array.copy()
 
         # Perform the flips for punish trials upon the tmp_array using
-        # list of potential nos stimulation flips and the number of punish
+        # list of potential non stimulation flips and the number of punish
         # trials remaining
 
-        trialArray, punish_check = flip_punishments(
+        # Make values for the pre/post stim punish checks
+        pre_stim_punish_check = True
+        post_stim_punish_check = True
+
+        # First flip punish trials before stimulation
+        trialArray, pre_stim_punish_check = flip_punishments(
             tmp_array,
-            potential_nostim_flips,
-            num_punish_nostim,
+            potential_pre_stim_punishments,
+            num_prestim_punish,
             max_seq_punish
-            )
+        )
+        
+        # Then flip punish trials after stimulation using the trialArray
+        trialArray, post_stim_punish_check = flip_punishments(
+            tmp_array,
+            potential_post_stim_punishments,
+            num_poststim_punish,
+            max_seq_punish
+        )
+
+        # Evaluate the status of the punish checks
+        punish_check = pre_stim_punish_check + post_stim_punish_check
 
         # If the number of punish trials is less than half, getting a valid
         # trial set is unlikely if the number of rewards in a row is
@@ -975,6 +994,10 @@ def gen_trialArray_stim(config_template: dict) -> np.ndarray:
             config_template,
             catch_check
             )
+        
+        # Increment flip attempts counter
+        print(sum([punish_check, catch_check, reward_check]))
+        flip_attempts += 1
 
     return trialArray
 
@@ -1023,10 +1046,13 @@ def flip_stim_trials(fresh_array: np.ndarray, total_stim_trials: int, num_stim_p
     # maximum number of sequential punish trials will occur.
     punish_check = True
 
+    # Make a copy of the fresh array to be used for flipping trials
+    tmp_array = fresh_array.copy()
+
     while punish_check:
 
         stimulated_array, punish_check = flip_punishments(
-            fresh_array,
+            tmp_array,
             potential_stim_flips,
             num_stim_punish,
             max_seq_punish

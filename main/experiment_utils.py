@@ -137,7 +137,8 @@ def run_imaging_experiment(metadata_args):
             # If the user does not choose to use yoked trials, generate a new trial set
             else:
                 # Create experiment runtime arrays
-                experiment_arrays = trial_utils.generate_arrays(config_template) 
+                experiment_arrays = trial_utils.generate_arrays(config_template)
+                print(experiment_arrays)
 
             # Calculate session length in seconds
             session_len_s = trial_utils.calculate_session_length(experiment_arrays)
